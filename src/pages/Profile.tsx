@@ -185,7 +185,7 @@ const Profile = () => {
       setStats({
         total: data.length,
         active: data.filter((p) => p.status === "active").length,
-        taken: data.filter((p) => p.status === "taken").length,
+        taken: data.filter((p) => p.status === "sold" || p.status === "rented").length,
       });
     }
   };
@@ -199,7 +199,7 @@ const Profile = () => {
     navigate("/verification");
   };
 
-  const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "negotiating" | "taken") => {
+  const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "inactive" | "sold" | "rented") => {
     const { error } = await supabase
       .from("properties")
       .update({ status: newStatus })
@@ -490,7 +490,7 @@ const Profile = () => {
                                     Current: <strong>{STATUS_LABELS[property.status as keyof typeof STATUS_LABELS]}</strong>
                                   </p>
                                   <div className="flex flex-col gap-2">
-                                    {(["active", "negotiating", "taken"] as const).map((status) => (
+                                    {(["active", "inactive", "sold", "rented"] as const).map((status) => (
                                       <Button
                                         key={status}
                                         variant={property.status === status ? "default" : "outline"}
