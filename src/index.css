@@ -8,55 +8,64 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 25% 10%;
-    --foreground: 210 40% 98%;
-
-    --card: 220 20% 15%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 220 20% 15%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 190 85% 55%;
-    --primary-foreground: 220 25% 10%;
-
-    --secondary: 220 20% 20%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 220 15% 25%;
-    --muted-foreground: 210 20% 70%;
-
-    --accent: 170 75% 50%;
-    --accent-foreground: 220 25% 10%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 15% 25%;
-    --input: 220 15% 25%;
-    --ring: 190 85% 55%;
-
-    --radius: 0.75rem;
-
-    --gradient-primary: linear-gradient(135deg, hsl(210, 90%, 50%), hsl(180, 85%, 45%));
-    --gradient-hero: linear-gradient(to bottom right, hsl(220, 25%, 10%), hsl(220, 30%, 15%), hsl(190, 40%, 20%));
-    
-    --shadow-glow: 0 0 60px hsl(190 85% 55% / 0.3);
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --background: 0 0% 100%;
+    --foreground: 220 13% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 13%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 13%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+    --accent: 16 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 100% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 220 14% 98%;
+    --sidebar-foreground: 220 13% 13%;
+    --sidebar-primary: 220 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 13% 13%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 220 100% 50%;
   }
 
   .dark {
-    --background: 220 25% 10%;
-    --foreground: 210 40% 98%;
+    --background: 220 16% 8%;
+    --foreground: 220 8% 95%;
+    --card: 220 14% 11%;
+    --card-foreground: 220 8% 95%;
+    --popover: 220 14% 11%;
+    --popover-foreground: 220 8% 95%;
+    --primary: 220 100% 60%;
+    --primary-foreground: 220 16% 8%;
+    --secondary: 220 12% 18%;
+    --secondary-foreground: 220 8% 95%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 220 8% 60%;
+    --accent: 16 100% 55%;
+    --accent-foreground: 220 16% 8%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 220 8% 95%;
+    --border: 220 12% 18%;
+    --input: 220 12% 18%;
+    --ring: 220 100% 60%;
+    --sidebar-background: 220 16% 8%;
+    --sidebar-foreground: 220 8% 95%;
+    --sidebar-primary: 220 100% 60%;
+    --sidebar-primary-foreground: 220 16% 8%;
+    --sidebar-accent: 220 12% 18%;
+    --sidebar-accent-foreground: 220 8% 95%;
+    --sidebar-border: 220 12% 18%;
+    --sidebar-ring: 220 100% 60%;
   }
 }
 
@@ -67,52 +76,5 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    background: var(--gradient-hero);
-    background-attachment: fixed;
-  }
-}
-
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 1.2s ease-out forwards;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 1s ease-out forwards;
-  }
-  
-  .animate-delay-200 {
-    animation-delay: 0.2s;
-  }
-  
-  .animate-delay-400 {
-    animation-delay: 0.4s;
-  }
-  
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
