@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,7 @@ const uploadSchema = z.object({
   county: z.string().min(1, "County is required"),
   contact_phone: z.string().min(5, "Phone number is required").max(20),
   contact_phone_2: z.string().max(20).optional(),
+  description: z.string().optional(),
 });
 
 const Upload = () => {
@@ -42,6 +44,7 @@ const Upload = () => {
     contact_phone_2: "",
     bedrooms: "",
     bathrooms: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -139,6 +142,7 @@ const Upload = () => {
         photos: photoUrls,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+        description: validatedData.description || null,
       }]);
 
       if (error) throw error;
@@ -208,6 +212,19 @@ const Upload = () => {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
                   maxLength={200}
+                  placeholder="e.g., Modern 3-Bedroom House in Monrovia"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Property Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Describe the property, its features, amenities, nearby locations, etc."
+                  rows={4}
+                  className="resize-none"
                 />
               </div>
 

@@ -114,13 +114,13 @@ export function AdminUsers() {
       <div className="space-y-4">
         {filteredUsers.map((user) => (
           <Card key={user.id}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-semibold">{user.name}</h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <div className="flex gap-2 mt-2">
-                    <Badge variant="secondary">{user.role}</Badge>
+            <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1 flex-1 min-w-0">
+                  <h3 className="font-semibold text-base break-words">{user.name}</h3>
+                  <p className="text-sm text-muted-foreground break-all">{user.email}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="secondary" className="text-xs">{user.role}</Badge>
                     <Badge
                       variant={
                         user.verification_status === "approved"
@@ -129,6 +129,7 @@ export function AdminUsers() {
                           ? "destructive"
                           : "secondary"
                       }
+                      className="text-xs"
                     >
                       {user.verification_status}
                     </Badge>
@@ -138,6 +139,7 @@ export function AdminUsers() {
                   variant="destructive"
                   size="icon"
                   onClick={() => setDeleteUserId(user.id)}
+                  className="shrink-0 self-start sm:self-center"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

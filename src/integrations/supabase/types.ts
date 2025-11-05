@@ -59,6 +59,7 @@ export type Database = {
           contact_phone_2: string | null
           county: string
           created_at: string
+          description: string | null
           id: string
           listing_type: Database["public"]["Enums"]["listing_type"]
           owner_id: string
@@ -77,6 +78,7 @@ export type Database = {
           contact_phone_2?: string | null
           county: string
           created_at?: string
+          description?: string | null
           id?: string
           listing_type: Database["public"]["Enums"]["listing_type"]
           owner_id: string
@@ -95,6 +97,7 @@ export type Database = {
           contact_phone_2?: string | null
           county?: string
           created_at?: string
+          description?: string | null
           id?: string
           listing_type?: Database["public"]["Enums"]["listing_type"]
           owner_id?: string

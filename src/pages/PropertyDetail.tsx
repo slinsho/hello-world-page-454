@@ -229,14 +229,34 @@ const PropertyDetail = () => {
                   </div>
                 )}
 
+                {/* Description */}
+                {property.description && (
+                  <div className="border-t pt-5">
+                    <h3 className="font-semibold text-base mb-3">Description</h3>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      {property.description}
+                    </p>
+                  </div>
+                )}
+
                 {/* Contact Information */}
                 <div className="border-t pt-5">
                   <h3 className="font-semibold text-base mb-3">Contact Information</h3>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <a href={`tel:${property.contact_phone}`} className="text-primary hover:underline font-medium">
-                      {property.contact_phone}
-                    </a>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <a href={`tel:${property.contact_phone}`} className="text-primary hover:underline font-medium">
+                        {property.contact_phone}
+                      </a>
+                    </div>
+                    {property.contact_phone_2 && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <a href={`tel:${property.contact_phone_2}`} className="text-primary hover:underline font-medium">
+                          {property.contact_phone_2}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 

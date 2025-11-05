@@ -61,18 +61,18 @@ export default function Admin() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex items-center gap-3 mb-8">
-        <Shield className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">Admin Portal</h1>
+        <Shield className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+        <h1 className="text-2xl md:text-3xl font-bold">Admin Portal</h1>
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="verifications">Verifications</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="properties">Properties</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 h-auto">
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2">Dashboard</TabsTrigger>
+          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-2">Verifications</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs sm:text-sm px-2">Users</TabsTrigger>
+          <TabsTrigger value="properties" className="text-xs sm:text-sm px-2">Properties</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">

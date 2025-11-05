@@ -15,6 +15,9 @@ interface PropertyCardProps {
     county: string;
     status: "active" | "negotiating" | "taken";
     photos: string[];
+    description?: string;
+    contact_phone?: string;
+    contact_phone_2?: string;
     profiles?: {
       name: string;
     };
@@ -56,12 +59,28 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             <TypeIcon className="h-5 w-5 text-primary shrink-0" />
           </div>
 
+          {property.description && (
+            <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+              {property.description}
+            </p>
+          )}
+
           <div className="space-y-1 text-sm text-muted-foreground">
             <p className="font-bold text-primary text-xl">
               ${property.price_usd.toLocaleString()}
             </p>
             <p className="line-clamp-1">{property.address}</p>
             <p>{property.county}</p>
+            {(property.contact_phone || property.contact_phone_2) && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {property.contact_phone && (
+                  <span className="text-xs">📞 {property.contact_phone}</span>
+                )}
+                {property.contact_phone_2 && (
+                  <span className="text-xs">📞 {property.contact_phone_2}</span>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
 
