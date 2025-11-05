@@ -14,159 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_transaction_totals: {
+        Row: {
+          created_at: string | null
+          id: string
+          total_amount: number | null
+          transaction_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          total_amount?: number | null
+          transaction_date?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          total_amount?: number | null
+          transaction_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      houses: {
+        Row: {
+          contact_number: string
+          created_at: string | null
+          description: string
+          id: string
+          images: string[] | null
+          listing_type: string
+          location: string
+          price: number
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contact_number: string
+          created_at?: string | null
+          description: string
+          id?: string
+          images?: string[] | null
+          listing_type: string
+          location: string
+          price: number
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contact_number?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          images?: string[] | null
+          listing_type?: string
+          location?: string
+          price?: number
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
-          created_at: string
-          email: string
+          created_at: string | null
+          email: string | null
+          full_name: string | null
           id: string
-          name: string
-          phone: string | null
+          phone_number: string | null
           profile_photo_url: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string
-          verification_status: Database["public"]["Enums"]["verification_status"]
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
-          email: string
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id: string
-          name: string
-          phone?: string | null
+          phone_number?: string | null
           profile_photo_url?: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-          verification_status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
-          email?: string
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string
-          name?: string
-          phone?: string | null
+          phone_number?: string | null
           profile_photo_url?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-          verification_status?: Database["public"]["Enums"]["verification_status"]
+          updated_at?: string | null
         }
         Relationships: []
       }
-      properties: {
+      transactions: {
         Row: {
-          address: string
-          bathrooms: number | null
-          bedrooms: number | null
-          contact_phone: string
-          contact_phone_2: string | null
-          county: string
-          created_at: string
+          amount: number
+          created_at: string | null
+          description: string | null
           id: string
-          listing_type: Database["public"]["Enums"]["listing_type"]
-          owner_id: string
-          photos: string[]
-          price_usd: number
-          property_type: Database["public"]["Enums"]["property_type"]
-          status: Database["public"]["Enums"]["property_status"]
-          title: string
-          updated_at: string
+          receiver_id: string
+          sender_id: string
+          status: string | null
         }
         Insert: {
-          address: string
-          bathrooms?: number | null
-          bedrooms?: number | null
-          contact_phone: string
-          contact_phone_2?: string | null
-          county: string
-          created_at?: string
+          amount: number
+          created_at?: string | null
+          description?: string | null
           id?: string
-          listing_type: Database["public"]["Enums"]["listing_type"]
-          owner_id: string
-          photos: string[]
-          price_usd: number
-          property_type: Database["public"]["Enums"]["property_type"]
-          status?: Database["public"]["Enums"]["property_status"]
-          title: string
-          updated_at?: string
+          receiver_id: string
+          sender_id: string
+          status?: string | null
         }
         Update: {
-          address?: string
-          bathrooms?: number | null
-          bedrooms?: number | null
-          contact_phone?: string
-          contact_phone_2?: string | null
-          county?: string
-          created_at?: string
+          amount?: number
+          created_at?: string | null
+          description?: string | null
           id?: string
-          listing_type?: Database["public"]["Enums"]["listing_type"]
-          owner_id?: string
-          photos?: string[]
-          price_usd?: number
-          property_type?: Database["public"]["Enums"]["property_type"]
-          status?: Database["public"]["Enums"]["property_status"]
-          title?: string
-          updated_at?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string | null
         }
         Relationships: []
       }
-      user_roles: {
+      user_profiles: {
         Row: {
-          created_at: string
+          balance: number | null
+          biometric_enabled: boolean | null
+          created_at: string | null
+          daily_transaction_limit: number | null
+          full_name: string
           id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
+          per_transaction_limit: number | null
+          phone: string | null
+          pin_hash: string | null
+          qr_code_data: string | null
+          recovery_email: string | null
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      verification_requests: {
-        Row: {
-          admin_id: string | null
-          admin_note: string | null
-          created_at: string
-          date_of_birth: string
+          balance?: number | null
+          biometric_enabled?: boolean | null
+          created_at?: string | null
+          daily_transaction_limit?: number | null
+          full_name: string
           id: string
-          id_images: string[]
-          id_type: Database["public"]["Enums"]["id_type"]
-          processed_at: string | null
-          selfie_image: string
-          status: Database["public"]["Enums"]["verification_status"]
-          user_id: string
-        }
-        Insert: {
-          admin_id?: string | null
-          admin_note?: string | null
-          created_at?: string
-          date_of_birth: string
-          id?: string
-          id_images: string[]
-          id_type: Database["public"]["Enums"]["id_type"]
-          processed_at?: string | null
-          selfie_image: string
-          status?: Database["public"]["Enums"]["verification_status"]
-          user_id: string
+          per_transaction_limit?: number | null
+          phone?: string | null
+          pin_hash?: string | null
+          qr_code_data?: string | null
+          recovery_email?: string | null
+          updated_at?: string | null
         }
         Update: {
-          admin_id?: string | null
-          admin_note?: string | null
-          created_at?: string
-          date_of_birth?: string
+          balance?: number | null
+          biometric_enabled?: boolean | null
+          created_at?: string | null
+          daily_transaction_limit?: number | null
+          full_name?: string
           id?: string
-          id_images?: string[]
-          id_type?: Database["public"]["Enums"]["id_type"]
-          processed_at?: string | null
-          selfie_image?: string
-          status?: Database["public"]["Enums"]["verification_status"]
-          user_id?: string
+          per_transaction_limit?: number | null
+          phone?: string | null
+          pin_hash?: string | null
+          qr_code_data?: string | null
+          recovery_email?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -175,16 +193,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_admin: { Args: { user_id: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "user"
-      id_type: "citizen_card" | "voter_card" | "passport"
-      listing_type: "for_sale" | "for_rent" | "for_lease"
-      property_status: "active" | "negotiating" | "taken"
-      property_type: "house" | "apartment" | "shop"
-      user_role: "agent" | "property_owner"
-      verification_status: "none" | "pending" | "approved" | "rejected"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -311,14 +323,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "user"],
-      id_type: ["citizen_card", "voter_card", "passport"],
-      listing_type: ["for_sale", "for_rent", "for_lease"],
-      property_status: ["active", "negotiating", "taken"],
-      property_type: ["house", "apartment", "shop"],
-      user_role: ["agent", "property_owner"],
-      verification_status: ["none", "pending", "approved", "rejected"],
-    },
+    Enums: {},
   },
 } as const
