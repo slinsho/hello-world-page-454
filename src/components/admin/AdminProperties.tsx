@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ interface Property {
 }
 
 export function AdminProperties() {
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState("");
   const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export function AdminProperties() {
 
       <div className="space-y-4">
         {filteredProperties.map((property) => (
-          <Card key={property.id}>
+          <Card key={property.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/property/${property.id}`)}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
@@ -142,7 +144,10 @@ export function AdminProperties() {
                 <Button
                   variant="destructive"
                   size="icon"
-                  onClick={() => setDeletePropertyId(property.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeletePropertyId(property.id);
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

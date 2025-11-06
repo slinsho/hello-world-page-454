@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface User {
 }
 
 export function AdminUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
@@ -113,7 +115,7 @@ export function AdminUsers() {
 
       <div className="space-y-4">
         {filteredUsers.map((user) => (
-          <Card key={user.id}>
+          <Card key={user.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/profile/${user.id}`)}>
             <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1 flex-1 min-w-0">
@@ -138,7 +140,10 @@ export function AdminUsers() {
                 <Button
                   variant="destructive"
                   size="icon"
-                  onClick={() => setDeleteUserId(user.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteUserId(user.id);
+                  }}
                   className="shrink-0 self-start sm:self-center"
                 >
                   <Trash2 className="h-4 w-4" />
