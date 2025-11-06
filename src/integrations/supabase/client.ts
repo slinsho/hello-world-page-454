@@ -2,6 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// Updated: 2025-11-05 - Property types refreshed
+
 const SUPABASE_URL = "https://sijxsadlinayqxdxkmcr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpanhzYWRsaW5heXF4ZHhrbWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzMzY4OTgsImV4cCI6MjA3NzkxMjg5OH0.ps8g9zmLN73OTSKi6qYzNLvkXqvDT2T0NDVzge5bqQg";
 
