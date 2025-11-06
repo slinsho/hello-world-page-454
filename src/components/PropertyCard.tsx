@@ -39,7 +39,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             <img
               src={property.photos[0]}
               alt={property.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

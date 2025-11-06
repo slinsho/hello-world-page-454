@@ -16,8 +16,8 @@ import { z } from "zod";
 
 const uploadSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
-  property_type: z.enum(["house", "apartment", "land", "commercial"]),
-  listing_type: z.enum(["for_sale", "for_rent"]),
+  property_type: z.enum(["house", "apartment", "shop"]),
+  listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive("Price must be greater than 0"),
   address: z.string().min(5, "Address must be at least 5 characters").max(500),
   county: z.string().min(1, "County is required"),
@@ -189,9 +189,8 @@ const Upload = () => {
   const TypeIcon = {
     house: Home,
     apartment: Building2,
-    land: Home,
-    commercial: Store,
-  }[formData.property_type as "house" | "apartment" | "land" | "commercial"];
+    shop: Store,
+  }[formData.property_type as "house" | "apartment" | "shop"];
 
   return (
     <div className="min-h-screen bg-background">
@@ -254,16 +253,10 @@ const Upload = () => {
                           Apartment
                         </div>
                       </SelectItem>
-                      <SelectItem value="land">
-                        <div className="flex items-center gap-2">
-                          <Home className="h-4 w-4" />
-                          Land
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="commercial">
+                      <SelectItem value="shop">
                         <div className="flex items-center gap-2">
                           <Store className="h-4 w-4" />
-                          Commercial
+                          Shop
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -282,6 +275,7 @@ const Upload = () => {
                     <SelectContent>
                       <SelectItem value="for_sale">For Sale</SelectItem>
                       <SelectItem value="for_rent">For Rent</SelectItem>
+                      <SelectItem value="for_lease">For Lease</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
