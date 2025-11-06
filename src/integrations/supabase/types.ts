@@ -183,9 +183,9 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       id_type: "citizen_card" | "voter_card" | "passport" | "drivers_license"
-      listing_type: "for_sale" | "for_rent"
+      listing_type: "for_sale" | "for_rent" | "for_lease"
       property_status: "active" | "inactive" | "sold" | "rented"
-      property_type: "house" | "apartment" | "land" | "commercial"
+      property_type: "house" | "apartment" | "shop"
       user_role: "property_owner" | "agent"
       verification_status: "none" | "pending" | "approved" | "rejected"
     }
@@ -317,9 +317,9 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       id_type: ["citizen_card", "voter_card", "passport", "drivers_license"],
-      listing_type: ["for_sale", "for_rent"],
+      listing_type: ["for_sale", "for_rent", "for_lease"],
       property_status: ["active", "inactive", "sold", "rented"],
-      property_type: ["house", "apartment", "land", "commercial"],
+      property_type: ["house", "apartment", "shop"],
       user_role: ["property_owner", "agent"],
       verification_status: ["none", "pending", "approved", "rejected"],
     },
