@@ -126,7 +126,7 @@ const PropertyDetail = () => {
                         <img
                           src={photo}
                           alt={`${property.title} - ${index + 1}`}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     </CarouselItem>
