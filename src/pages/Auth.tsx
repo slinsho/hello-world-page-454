@@ -26,6 +26,7 @@ const signInSchema = z.object({
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -38,17 +39,36 @@ const Auth = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    // Check if user came from password reset email
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    
+    if (type === 'recovery') {
+      setIsResettingPassword(true);
+    } else if (user && !isResettingPassword) {
       navigate("/");
     }
-  }, [user, navigate]);
+  }, [user, navigate, isResettingPassword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (isForgotPassword) {
+      if (isResettingPassword) {
+        const { error } = await supabase.auth.updateUser({
+          password: formData.password,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Password updated!",
+          description: "Your password has been successfully reset.",
+        });
+        setIsResettingPassword(false);
+        navigate("/");
+      } else if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
           redirectTo: `${window.location.origin}/auth`,
         });
@@ -122,10 +142,18 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
-            {isForgotPassword ? "Reset Password" : isSignUp ? "Create Account" : "Sign In"}
+            {isResettingPassword 
+              ? "Set New Password" 
+              : isForgotPassword 
+              ? "Reset Password" 
+              : isSignUp 
+              ? "Create Account" 
+              : "Sign In"}
           </CardTitle>
           <CardDescription>
-            {isForgotPassword
+            {isResettingPassword
+              ? "Enter your new password"
+              : isForgotPassword
               ? "Enter your email to receive a password reset link"
               : isSignUp
               ? "Join LibHub to list your properties"
@@ -134,72 +162,92 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="role">I am a</Label>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(value: "agent" | "property_owner") =>
-                      setFormData({ ...formData, role: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="property_owner">Property Owner</SelectItem>
-                      <SelectItem value="agent">Agent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-
-            {!isForgotPassword && (
+            {isResettingPassword ? (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  {!isSignUp && (
-                    <button
-                      type="button"
-                      onClick={() => setIsForgotPassword(true)}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  )}
-                </div>
+                <Label htmlFor="password">New Password</Label>
                 <Input
                   id="password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Enter your new password"
                   required
+                  minLength={6}
                 />
+                <p className="text-sm text-muted-foreground">
+                  Password must be at least 6 characters
+                </p>
               </div>
+            ) : (
+              <>
+                {isSignUp && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="role">I am a</Label>
+                      <Select
+                        value={formData.role}
+                        onValueChange={(value: "agent" | "property_owner") =>
+                          setFormData({ ...formData, role: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="property_owner">Property Owner</SelectItem>
+                          <SelectItem value="agent">Agent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                {!isForgotPassword && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      {!isSignUp && (
+                        <button
+                          type="button"
+                          onClick={() => setIsForgotPassword(true)}
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             {isSignUp && (
@@ -214,6 +262,8 @@ const Auth = () => {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading 
                 ? "Loading..." 
+                : isResettingPassword
+                ? "Update Password"
                 : isForgotPassword 
                 ? "Send Reset Link" 
                 : isSignUp 
@@ -221,26 +271,30 @@ const Auth = () => {
                 : "Sign In"}
             </Button>
 
-            {isForgotPassword ? (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setIsForgotPassword(false)}
-              >
-                Back to Sign In
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setIsSignUp(!isSignUp)}
-              >
-                {isSignUp
-                  ? "Already have an account? Sign In"
-                  : "Don't have an account? Sign Up"}
-              </Button>
+            {!isResettingPassword && (
+              <>
+                {isForgotPassword ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setIsForgotPassword(false)}
+                  >
+                    Back to Sign In
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                  >
+                    {isSignUp
+                      ? "Already have an account? Sign In"
+                      : "Don't have an account? Sign Up"}
+                  </Button>
+                )}
+              </>
             )}
           </form>
         </CardContent>
