@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { id: profileId } = useParams();
   const [profile, setProfile] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
   const [stats, setStats] = useState({ total: 0, active: 0, taken: 0 });
@@ -41,16 +42,17 @@ const Profile = () => {
     role: "property_owner",
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const isOwnProfile = !profileId || profileId === user?.id;
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !profileId) {
       navigate("/auth");
       return;
     }
     fetchProfile();
     fetchProperties();
-    checkAdminStatus();
-  }, [user, navigate]);
+    if (user) checkAdminStatus();
+  }, [user, navigate, profileId]);
 
   const checkAdminStatus = async () => {
     if (!user) return;
@@ -69,13 +71,14 @@ const Profile = () => {
   };
 
   const fetchProfile = async () => {
-    if (!user) return;
+    const targetUserId = profileId || user?.id;
+    if (!targetUserId) return;
 
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", targetUserId)
         .single();
 
       if (error) {
@@ -172,12 +175,13 @@ const Profile = () => {
   };
 
   const fetchProperties = async () => {
-    if (!user) return;
+    const targetUserId = profileId || user?.id;
+    if (!targetUserId) return;
 
     const { data } = await supabase
       .from("properties")
       .select("*")
-      .eq("owner_id", user.id)
+      .eq("owner_id", targetUserId)
       .order("created_at", { ascending: false });
 
     if (data) {
@@ -302,17 +306,21 @@ const Profile = () => {
                       {profile.name?.charAt(0).toUpperCase() || <User className="h-8 w-8" />}
                     </AvatarFallback>
                   </Avatar>
-                  <label htmlFor="photo-upload" className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <Camera className="h-6 w-6 text-white" />
-                  </label>
-                  <input
-                    id="photo-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
-                    disabled={uploadingPhoto}
-                  />
+                  {isOwnProfile && (
+                    <>
+                      <label htmlFor="photo-upload" className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <Camera className="h-6 w-6 text-white" />
+                      </label>
+                      <input
+                        id="photo-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoUpload}
+                        disabled={uploadingPhoto}
+                      />
+                    </>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <CardTitle className="text-xl md:text-2xl truncate">{profile.name}</CardTitle>
@@ -328,14 +336,16 @@ const Profile = () => {
                 </div>
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
-                <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-none">
-                      <Edit className="h-4 w-4" />
-                      <span className="hidden sm:inline">Edit Profile</span>
-                      <span className="sm:hidden">Edit</span>
-                    </Button>
-                  </DialogTrigger>
+                {isOwnProfile && (
+                  <>
+                    <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-none">
+                          <Edit className="h-4 w-4" />
+                          <span className="hidden sm:inline">Edit Profile</span>
+                          <span className="sm:hidden">Edit</span>
+                        </Button>
+                      </DialogTrigger>
                   <DialogContent className="max-w-[95vw] sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle>Edit Profile</DialogTitle>
@@ -384,11 +394,19 @@ const Profile = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 flex-1 sm:flex-none">
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sign Out</span>
-                  <span className="sm:hidden">Logout</span>
-                </Button>
+                    <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 flex-1 sm:flex-none">
+                      <LogOut className="h-4 w-4" />
+                      <span className="hidden sm:inline">Sign Out</span>
+                      <span className="sm:hidden">Logout</span>
+                    </Button>
+                  </>
+                )}
+                {!isOwnProfile && (
+                  <Button variant="outline" size="sm" onClick={() => navigate("/profile")} className="gap-2">
+                    <User className="h-4 w-4" />
+                    View My Profile
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -404,7 +422,7 @@ const Profile = () => {
                         Your verification was rejected. Please submit corrected documents.
                       </p>
                     )}
-                    {(profile.verification_status === "none" || profile.verification_status === "rejected") && (
+                    {isOwnProfile && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
                       <Button size="sm" onClick={handleVerificationRequest} className="w-fit">
                         {profile.verification_status === "rejected" ? "Re-submit Verification" : "Request Verification"}
                       </Button>
@@ -432,12 +450,12 @@ const Profile = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>My Properties</CardTitle>
+              <CardTitle>{isOwnProfile ? "My Properties" : "Properties"}</CardTitle>
             </CardHeader>
             <CardContent>
               {properties.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  You haven't listed any properties yet.
+                  {isOwnProfile ? "You haven't listed any properties yet." : "This user hasn't listed any properties yet."}
                 </div>
               ) : (
                 <div className="space-y-3 md:space-y-4">
@@ -475,34 +493,38 @@ const Profile = () => {
                           </div>
 
                           <div className="flex gap-2 mt-3 flex-wrap">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button size="sm" variant="outline" className="text-xs">
-                                  Status
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-[95vw] sm:max-w-md">
-                                <DialogHeader>
-                                  <DialogTitle>Update Property Status</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                  <p className="text-sm text-muted-foreground">
-                                    Current: <strong>{STATUS_LABELS[property.status as keyof typeof STATUS_LABELS]}</strong>
-                                  </p>
-                                  <div className="flex flex-col gap-2">
-                                    {(["active", "inactive", "sold", "rented"] as const).map((status) => (
-                                      <Button
-                                        key={status}
-                                        variant={property.status === status ? "default" : "outline"}
-                                        onClick={() => updatePropertyStatus(property.id, status)}
-                                      >
-                                        {STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
-                                      </Button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                            {isOwnProfile && (
+                              <>
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button size="sm" variant="outline" className="text-xs">
+                                      Status
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-[95vw] sm:max-w-md">
+                                    <DialogHeader>
+                                      <DialogTitle>Update Property Status</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                      <p className="text-sm text-muted-foreground">
+                                        Current: <strong>{STATUS_LABELS[property.status as keyof typeof STATUS_LABELS]}</strong>
+                                      </p>
+                                      <div className="flex flex-col gap-2">
+                                        {(["active", "inactive", "sold", "rented"] as const).map((status) => (
+                                          <Button
+                                            key={status}
+                                            variant={property.status === status ? "default" : "outline"}
+                                            onClick={() => updatePropertyStatus(property.id, status)}
+                                          >
+                                            {STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
+                                          </Button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </>
+                            )}
 
                             <Button
                               size="sm"
@@ -513,14 +535,16 @@ const Profile = () => {
                               View
                             </Button>
 
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteProperty(property.id)}
-                              className="text-xs"
-                            >
-                              Delete
-                            </Button>
+                            {isOwnProfile && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteProperty(property.id)}
+                                className="text-xs"
+                              >
+                                Delete
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
