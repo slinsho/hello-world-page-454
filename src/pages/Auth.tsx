@@ -25,6 +25,7 @@ const signInSchema = z.object({
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -47,7 +48,19 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Check your email",
+          description: "We've sent you a password reset link.",
+        });
+        setIsForgotPassword(false);
+      } else if (isSignUp) {
         const validatedData = signUpSchema.parse(formData);
         
         const { error } = await supabase.auth.signUp({
@@ -108,9 +121,13 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isSignUp ? "Create Account" : "Sign In"}</CardTitle>
+          <CardTitle>
+            {isForgotPassword ? "Reset Password" : isSignUp ? "Create Account" : "Sign In"}
+          </CardTitle>
           <CardDescription>
-            {isSignUp
+            {isForgotPassword
+              ? "Enter your email to receive a password reset link"
+              : isSignUp
               ? "Join LibHub to list your properties"
               : "Welcome back to LibHub"}
           </CardDescription>
@@ -161,16 +178,29 @@ const Auth = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-              />
-            </div>
+            {!isForgotPassword && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  {!isSignUp && (
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotPassword(true)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                />
+              </div>
+            )}
 
             {isSignUp && (
               <p className="text-sm text-muted-foreground text-center">
@@ -182,19 +212,36 @@ const Auth = () => {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+              {loading 
+                ? "Loading..." 
+                : isForgotPassword 
+                ? "Send Reset Link" 
+                : isSignUp 
+                ? "Sign Up" 
+                : "Sign In"}
             </Button>
 
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => setIsSignUp(!isSignUp)}
-            >
-              {isSignUp
-                ? "Already have an account? Sign In"
-                : "Don't have an account? Sign Up"}
-            </Button>
+            {isForgotPassword ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsForgotPassword(false)}
+              >
+                Back to Sign In
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp
+                  ? "Already have an account? Sign In"
+                  : "Don't have an account? Sign Up"}
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>
