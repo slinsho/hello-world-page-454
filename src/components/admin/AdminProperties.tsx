@@ -115,23 +115,35 @@ export function AdminProperties() {
       <div className="space-y-4">
         {filteredProperties.map((property) => (
           <Card key={property.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/property/${property.id}`)}>
-            <CardContent className="pt-4 md:pt-6 p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-2 flex-1 min-w-0">
-                  <h3 className="font-semibold text-base break-words">{property.title}</h3>
-                  <p className="text-sm text-muted-foreground break-words">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <h3 className="font-semibold">{property.title}</h3>
+                  <p className="text-sm text-muted-foreground">
                     Owner: {property.profiles?.name || 'Unknown'}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="text-xs">${property.price_usd.toLocaleString()}</Badge>
-                    <Badge variant="outline" className="text-xs">{property.county}</Badge>
-                    <Badge variant="outline" className="text-xs">{property.status}</Badge>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">{property.property_type}</Badge>
+                    <Badge variant="secondary">{property.listing_type}</Badge>
+                    <Badge
+                      variant={
+                        property.status === "active"
+                          ? "default"
+                          : property.status === "taken"
+                          ? "destructive"
+                          : "secondary"
+                      }
+                    >
+                      {property.status}
+                    </Badge>
                   </div>
+                  <p className="text-sm font-semibold">
+                    ${property.price_usd.toLocaleString()} • {property.county}
+                  </p>
                 </div>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="self-end sm:self-center shrink-0"
+                  variant="destructive"
+                  size="icon"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDeletePropertyId(property.id);

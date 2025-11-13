@@ -374,7 +374,7 @@ const Upload = () => {
 
               <div className="space-y-2">
                 <Label>Photos * (Max 10)</Label>
-                <div className="border-2 border-dashed rounded-lg p-4 md:p-8 text-center">
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
                   <input
                     type="file"
                     accept="image/*"
@@ -388,15 +388,15 @@ const Upload = () => {
                     htmlFor="photo-upload"
                     className="cursor-pointer flex flex-col items-center gap-2"
                   >
-                    <UploadIcon className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground" />
-                    <span className="text-xs md:text-sm text-muted-foreground">
+                    <UploadIcon className="h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
                       Click to upload photos ({photos.length}/10)
                     </span>
                   </label>
                 </div>
 
                 {photos.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">
+                  <div className="grid grid-cols-3 gap-2 mt-4">
                     {photos.map((photo, index) => (
                       <div key={index} className="relative">
                         <img
