@@ -173,17 +173,21 @@ export function AdminVerifications() {
       ) : (
         requests.map((request) => (
           <Card key={request.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{request.profiles?.name || 'Unknown'}</CardTitle>
-                <Badge variant="secondary">{request.status}</Badge>
+            <CardHeader className="p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex-1">
+                  <CardTitle className="text-base md:text-lg break-words">{request.profiles?.name || 'Unknown'}</CardTitle>
+                  <p className="text-sm text-muted-foreground break-all mt-1">
+                    {request.profiles?.email || 'No email'}
+                  </p>
+                </div>
+                <Badge variant="secondary" className="self-start sm:self-center">
+                  {request.status}
+                </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {request.profiles?.email || 'No email'}
-              </p>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-4 p-4 md:p-6 pt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <p className="text-sm font-medium">Date of Birth</p>
                   <p className="text-sm text-muted-foreground">
@@ -200,10 +204,10 @@ export function AdminVerifications() {
 
               <div>
                 <p className="text-sm font-medium mb-2">Verification Documents</p>
-                <div className="bg-secondary/30 p-4 rounded-lg space-y-4">
+                <div className="bg-secondary/30 p-3 md:p-4 rounded-lg space-y-4">
                   <div>
                     <p className="text-xs font-medium text-muted-foreground mb-2">ID Documents</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                       {request.id_images.map((imgPath, idx) => {
                         const signedUrl = signedUrls[imgPath];
                         if (!signedUrl) return null;
@@ -212,10 +216,10 @@ export function AdminVerifications() {
                             <img
                               src={signedUrl}
                               alt={`ID ${idx + 1}`}
-                              className="rounded-lg border-2 border-border w-full h-48 object-contain bg-white"
+                              className="rounded-lg border-2 border-border w-full h-40 md:h-48 object-contain bg-white"
                             />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                              <ZoomIn className="h-8 w-8 text-white" />
+                              <ZoomIn className="h-6 w-6 md:h-8 md:w-8 text-white" />
                             </div>
                             <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                               Click to enlarge
@@ -230,16 +234,16 @@ export function AdminVerifications() {
                     <p className="text-xs font-medium text-muted-foreground mb-2">Selfie Photo</p>
                     {signedUrls[request.selfie_image] && (
                       <div 
-                        className="relative group cursor-pointer inline-block w-full max-w-xs" 
+                        className="relative group cursor-pointer inline-block w-full sm:max-w-xs" 
                         onClick={() => setSelectedImage(signedUrls[request.selfie_image])}
                       >
                         <img
                           src={signedUrls[request.selfie_image]}
                           alt="Selfie"
-                          className="rounded-lg border-2 border-border w-full h-64 object-contain bg-white"
+                          className="rounded-lg border-2 border-border w-full h-48 md:h-64 object-contain bg-white"
                         />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <ZoomIn className="h-8 w-8 text-white" />
+                          <ZoomIn className="h-6 w-6 md:h-8 md:w-8 text-white" />
                         </div>
                         <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                           Click to enlarge
@@ -258,10 +262,11 @@ export function AdminVerifications() {
                   onChange={(e) =>
                     setNotes({ ...notes, [request.id]: e.target.value })
                   }
+                  className="min-h-[80px]"
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button
                   onClick={() => handleApprove(request.id, request.user_id)}
                   className="flex-1"
@@ -282,12 +287,12 @@ export function AdminVerifications() {
       )}
 
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Verification Document</DialogTitle>
           </DialogHeader>
           {selectedImage && (
-            <div className="flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-2 md:p-4">
               <img
                 src={selectedImage}
                 alt="Verification document"
