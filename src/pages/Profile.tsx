@@ -492,12 +492,12 @@ const Profile = () => {
                             </Badge>
                           </div>
 
-                          <div className="flex gap-2 mt-3 flex-wrap">
+                          <div className="flex flex-col sm:flex-row gap-2 mt-3 flex-wrap">
                             {isOwnProfile && (
                               <>
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button size="sm" variant="outline" className="text-xs">
+                                    <Button size="sm" variant="outline" className="text-xs flex-1 sm:flex-none">
                                       Status
                                     </Button>
                                   </DialogTrigger>
@@ -530,7 +530,7 @@ const Profile = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => navigate(`/property/${property.id}`)}
-                              className="text-xs"
+                              className="text-xs flex-1 sm:flex-none"
                             >
                               View
                             </Button>
@@ -540,7 +540,7 @@ const Profile = () => {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => deleteProperty(property.id)}
-                                className="text-xs"
+                                className="text-xs flex-1 sm:flex-none"
                               >
                                 Delete
                               </Button>
