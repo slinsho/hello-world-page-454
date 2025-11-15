@@ -33,6 +33,7 @@ const Upload = () => {
   const [loading, setLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [videos, setVideos] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     property_type: "house",
@@ -75,6 +76,15 @@ const Upload = () => {
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setVideos((prev) => [...prev, ...files].slice(0, 3));
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,6 +138,25 @@ const Upload = () => {
         photoUrls.push(publicUrl);
       }
 
+      // Upload videos
+      const videoUrls: string[] = [];
+      for (const video of videos) {
+        const fileExt = video.name.split(".").pop();
+        const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("property-photos")
+          .upload(fileName, video);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("property-photos")
+          .getPublicUrl(fileName);
+
+        videoUrls.push(publicUrl);
+      }
+
       // Create property
       const { error } = await supabase.from("properties").insert([{
         owner_id: user.id,
@@ -140,6 +169,7 @@ const Upload = () => {
         contact_phone: validatedData.contact_phone,
         contact_phone_2: validatedData.contact_phone_2 || null,
         photos: photoUrls,
+        videos: videoUrls,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
         description: validatedData.description || null,
@@ -410,6 +440,53 @@ const Upload = () => {
                           size="icon"
                           className="absolute top-1 right-1 h-6 w-6"
                           onClick={() => removePhoto(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Videos (Optional, Max 3)</Label>
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    multiple
+                    onChange={handleVideoChange}
+                    className="hidden"
+                    id="video-upload"
+                    disabled={videos.length >= 3}
+                  />
+                  <label
+                    htmlFor="video-upload"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <UploadIcon className="h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Click to upload videos ({videos.length}/3)
+                    </span>
+                  </label>
+                </div>
+
+                {videos.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {videos.map((video, index) => (
+                      <div key={index} className="relative">
+                        <video
+                          src={URL.createObjectURL(video)}
+                          className="w-full h-32 object-cover rounded"
+                          controls
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={() => removeVideo(index)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
