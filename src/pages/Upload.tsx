@@ -119,43 +119,45 @@ const Upload = () => {
         contact_phone_2: formData.contact_phone_2 || undefined,
       });
 
-      // Upload photos
-      const photoUrls: string[] = [];
-      for (const photo of photos) {
-        const fileExt = photo.name.split(".").pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("property-photos")
-          .upload(fileName, photo);
+      // Upload all photos in parallel
+      const photoUrls = await Promise.all(
+        photos.map(async (photo) => {
+          const fileExt = photo.name.split(".").pop();
+          const fileName = `${user.id}/${Date.now()}-${Math.random()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("property-photos")
+            .upload(fileName, photo);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("property-photos")
-          .getPublicUrl(fileName);
+          const { data: { publicUrl } } = supabase.storage
+            .from("property-photos")
+            .getPublicUrl(fileName);
 
-        photoUrls.push(publicUrl);
-      }
+          return publicUrl;
+        })
+      );
 
-      // Upload videos
-      const videoUrls: string[] = [];
-      for (const video of videos) {
-        const fileExt = video.name.split(".").pop();
-        const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("property-photos")
-          .upload(fileName, video);
+      // Upload all videos in parallel
+      const videoUrls = await Promise.all(
+        videos.map(async (video) => {
+          const fileExt = video.name.split(".").pop();
+          const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("property-photos")
+            .upload(fileName, video);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("property-photos")
-          .getPublicUrl(fileName);
+          const { data: { publicUrl } } = supabase.storage
+            .from("property-photos")
+            .getPublicUrl(fileName);
 
-        videoUrls.push(publicUrl);
-      }
+          return publicUrl;
+        })
+      );
 
       // Create property
       const { error } = await supabase.from("properties").insert([{
