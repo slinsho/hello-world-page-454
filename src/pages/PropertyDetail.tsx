@@ -42,16 +42,16 @@ const PropertyDetail = () => {
       .single();
 
     if (propertyData) {
-      // Fetch owner profile separately
+      // Fetch owner profile separately (non-blocking)
       const { data: profileData } = await supabase
         .from("profiles")
         .select("id, name, email, phone, profile_photo_url, role")
         .eq("id", propertyData.owner_id)
-        .single();
+        .maybeSingle();
 
       setProperty({
         ...propertyData,
-        profiles: profileData
+        profiles: profileData || null
       });
     }
     setLoading(false);
