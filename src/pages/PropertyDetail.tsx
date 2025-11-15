@@ -5,9 +5,10 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Share2, Home, Building2, Store, MapPin, Bed, Bath, User } from "lucide-react";
+import { Phone, MessageCircle, Share2, Home, Building2, Store, MapPin, Bed, Bath, User, X } from "lucide-react";
 import { LISTING_TYPE_LABELS, STATUS_LABELS, STATUS_COLORS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Carousel,
   CarouselContent,
@@ -15,13 +16,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [fullscreenMedia, setFullscreenMedia] = useState<{ url: string; type: 'image' | 'video' } | null>(null);
 
   useEffect(() => {
     fetchProperty();
@@ -109,30 +116,56 @@ const PropertyDetail = () => {
     shop: Store,
   }[property.property_type];
 
+  // Combine photos and videos into a single media array
+  const mediaItems = [
+    ...(property.photos || []).map((url: string) => ({ url, type: 'image' as const })),
+    ...(property.videos || []).map((url: string) => ({ url, type: 'video' as const })),
+  ];
+
+  const handleMediaClick = (url: string, type: 'image' | 'video') => {
+    if (isMobile) {
+      setFullscreenMedia({ url, type });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <Navbar />
       
       <main className="container py-0 md:py-8 max-w-4xl px-0 md:px-4">
-        {/* Photos Carousel */}
+        {/* Media Carousel (Photos and Videos) */}
         <div className="mb-4 md:mb-8 px-0 md:px-0">
-          {property.photos && property.photos.length > 0 ? (
+          {mediaItems.length > 0 ? (
             <>
-              <Carousel className="w-full" opts={{ startIndex: currentImageIndex }}>
+              <Carousel className="w-full" opts={{ startIndex: currentMediaIndex }}>
                 <CarouselContent>
-                  {property.photos.map((photo: string, index: number) => (
+                  {mediaItems.map((media, index: number) => (
                     <CarouselItem key={index}>
-                      <div className="aspect-video bg-muted md:rounded-lg overflow-hidden">
-                        <img
-                          src={photo}
-                          alt={`${property.title} - ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
+                      <div 
+                        className="aspect-video bg-muted md:rounded-lg overflow-hidden cursor-pointer md:cursor-default"
+                        onClick={() => handleMediaClick(media.url, media.type)}
+                      >
+                        {media.type === 'image' ? (
+                          <img
+                            src={media.url}
+                            alt={`${property.title} - ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <video
+                            src={media.url}
+                            controls
+                            className="w-full h-full object-cover"
+                            controlsList="nodownload"
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        )}
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                {property.photos.length > 1 && (
+                {mediaItems.length > 1 && (
                   <>
                     <CarouselPrevious className="hidden md:flex" />
                     <CarouselNext className="hidden md:flex" />
@@ -141,23 +174,31 @@ const PropertyDetail = () => {
               </Carousel>
               
               {/* Thumbnail Navigation - Mobile Only */}
-              {property.photos.length > 1 && (
+              {mediaItems.length > 1 && (
                 <div className="flex gap-2 mt-3 px-4 overflow-x-auto pb-2 md:hidden">
-                  {property.photos.map((photo: string, index: number) => (
+                  {mediaItems.map((media, index: number) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
+                      onClick={() => setCurrentMediaIndex(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                        currentImageIndex === index
+                        currentMediaIndex === index
                           ? "border-primary ring-1 ring-primary"
                           : "border-border opacity-60"
                       }`}
                     >
-                      <img
-                        src={photo}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                      {media.type === 'image' ? (
+                        <img
+                          src={media.url}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={media.url}
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -337,6 +378,38 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Media Dialog - Mobile Only */}
+      <Dialog open={!!fullscreenMedia} onOpenChange={() => setFullscreenMedia(null)}>
+        <DialogContent className="max-w-full h-full w-full p-0 border-0 bg-black/95">
+          <button
+            onClick={() => setFullscreenMedia(null)}
+            className="absolute top-4 right-4 z-50 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
+            aria-label="Close fullscreen"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="flex items-center justify-center h-full w-full">
+            {fullscreenMedia?.type === 'image' ? (
+              <img
+                src={fullscreenMedia.url}
+                alt="Fullscreen view"
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : fullscreenMedia?.type === 'video' ? (
+              <video
+                src={fullscreenMedia.url}
+                controls
+                autoPlay
+                className="max-h-full max-w-full"
+                controlsList="nodownload"
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
