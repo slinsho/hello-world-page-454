@@ -69,6 +69,7 @@ export type Database = {
           status: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at: string
+          videos: string[] | null
         }
         Insert: {
           address: string
@@ -88,6 +89,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at?: string
+          videos?: string[] | null
         }
         Update: {
           address?: string
@@ -107,6 +109,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
           updated_at?: string
+          videos?: string[] | null
         }
         Relationships: []
       }
