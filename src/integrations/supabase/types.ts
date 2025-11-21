@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          activity: string
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          problem: string
+          rating: number
+          role: string
+          suggestions: string | null
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          activity: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          problem: string
+          rating: number
+          role: string
+          suggestions?: string | null
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          activity?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          problem?: string
+          rating?: number
+          role?: string
+          suggestions?: string | null
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

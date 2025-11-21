@@ -7,6 +7,7 @@ import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminVerifications } from "@/components/admin/AdminVerifications";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
+import AdminFeedback from "@/components/admin/AdminFeedback";
 import { Shield } from "lucide-react";
 
 export default function Admin() {
@@ -68,11 +69,12 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto">
+        <TabsList className="grid w-full grid-cols-5 h-auto">
           <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2">Dashboard</TabsTrigger>
           <TabsTrigger value="verifications" className="text-xs sm:text-sm px-2">Verifications</TabsTrigger>
           <TabsTrigger value="users" className="text-xs sm:text-sm px-2">Users</TabsTrigger>
           <TabsTrigger value="properties" className="text-xs sm:text-sm px-2">Properties</TabsTrigger>
+          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2">Feedback</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
@@ -89,6 +91,10 @@ export default function Admin() {
 
         <TabsContent value="properties">
           <AdminProperties />
+        </TabsContent>
+
+        <TabsContent value="feedback">
+          <AdminFeedback />
         </TabsContent>
       </Tabs>
     </div>
