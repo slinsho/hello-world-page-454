@@ -78,9 +78,69 @@ const Upload = () => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setVideos((prev) => [...prev, ...files].slice(0, 3));
+    
+    if (files.length === 0) return;
+    
+    // Only allow 1 video
+    const file = files[0];
+    
+    // Check format (MP4 or MOV only)
+    const validFormats = ['video/mp4', 'video/quicktime'];
+    if (!validFormats.includes(file.type)) {
+      toast({
+        title: "Invalid Format",
+        description: "Only MP4 and MOV video formats are allowed.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // Check size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Video size must be 10MB or less.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // Check duration (max 20 seconds)
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = function() {
+      window.URL.revokeObjectURL(video.src);
+      
+      if (video.duration > 20) {
+        toast({
+          title: "Video Too Long",
+          description: "Video must be 20 seconds or less.",
+          variant: "destructive",
+        });
+        e.target.value = '';
+        return;
+      }
+      
+      // All validations passed, set the video
+      setVideos([file]);
+    };
+    
+    video.onerror = function() {
+      toast({
+        title: "Error",
+        description: "Failed to load video file.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+    };
+    
+    video.src = URL.createObjectURL(file);
   };
 
   const removeVideo = (index: number) => {
@@ -452,16 +512,16 @@ const Upload = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Videos (Optional, Max 3)</Label>
+                <Label>Video (Optional, Max 1)</Label>
+                <p className="text-xs text-muted-foreground">Max 20 seconds, MP4 or MOV format, 10MB max</p>
                 <div className="border-2 border-dashed rounded-lg p-8 text-center">
                   <input
                     type="file"
-                    accept="video/*"
-                    multiple
+                    accept="video/mp4,video/quicktime"
                     onChange={handleVideoChange}
                     className="hidden"
                     id="video-upload"
-                    disabled={videos.length >= 3}
+                    disabled={videos.length >= 1}
                   />
                   <label
                     htmlFor="video-upload"
@@ -469,31 +529,29 @@ const Upload = () => {
                   >
                     <UploadIcon className="h-8 w-8 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      Click to upload videos ({videos.length}/3)
+                      Click to upload video ({videos.length}/1)
                     </span>
                   </label>
                 </div>
 
                 {videos.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-4">
-                    {videos.map((video, index) => (
-                      <div key={index} className="relative">
-                        <video
-                          src={URL.createObjectURL(video)}
-                          className="w-full h-32 object-cover rounded"
-                          controls
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6"
-                          onClick={() => removeVideo(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <div className="relative">
+                      <video
+                        src={URL.createObjectURL(videos[0])}
+                        className="w-full h-48 object-cover rounded"
+                        controls
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => removeVideo(0)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

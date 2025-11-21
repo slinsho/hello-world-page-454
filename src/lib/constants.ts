@@ -30,6 +30,9 @@ export const LISTING_TYPE_LABELS = {
 
 export const STATUS_LABELS = {
   active: "Active",
+  inactive: "Inactive",
+  sold: "Sold",
+  rented: "Rented",
   negotiating: "Negotiating",
   taken: "Taken"
 } as const;
