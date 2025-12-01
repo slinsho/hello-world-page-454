@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Heart, MessageCircle } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -22,6 +23,15 @@ const Navbar = () => {
 
   const isHomePage = location.pathname === "/" || location.pathname === "/explore";
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
+  };
+
+  const handleFilterClick = () => {
+    navigate('/explore');
+  };
+
   return (
     <>
       {/* Top Navigation - Home Page Only */}
@@ -32,7 +42,7 @@ const Navbar = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-foreground font-medium">New Jersey 45463</span>
+                <span className="text-sm text-foreground font-medium">All Locations</span>
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <Bell className="h-4 w-4" />
@@ -40,18 +50,26 @@ const Navbar = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="flex gap-2">
+            <form onSubmit={handleSearch} className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Search..."
+                  placeholder="Search properties..."
                   className="pl-10 bg-card border-border rounded-xl h-11"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="secondary" size="icon" className="h-11 w-11 rounded-xl">
+              <Button 
+                type="button"
+                variant="secondary" 
+                size="icon" 
+                className="h-11 w-11 rounded-xl"
+                onClick={handleFilterClick}
+              >
                 <SlidersHorizontal className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
 
             {/* Filter Chips */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
