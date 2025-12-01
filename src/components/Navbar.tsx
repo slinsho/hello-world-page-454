@@ -1,10 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, MessageCircle } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const location = useLocation();
@@ -12,14 +13,33 @@ const Navbar = () => {
   const { user } = useAuth();
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
     { path: "/upload", label: "Add", icon: Upload, requiresAuth: true },
-    { path: "/feedback", label: "Messages", icon: MessageCircle },
+    { path: "/near-me", label: "Near Me", icon: Navigation },
     { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
   ];
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+    }
+  }, [user]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", false);
+      setUnreadCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
 
   const isHomePage = location.pathname === "/" || location.pathname === "/explore";
 
@@ -44,9 +64,29 @@ const Navbar = () => {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-foreground font-medium">All Locations</span>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Bell className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={() => navigate("/favorites")}
+                >
+                  <Heart className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 relative"
+                  onClick={() => navigate("/notifications")}
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
 
             {/* Search Bar */}

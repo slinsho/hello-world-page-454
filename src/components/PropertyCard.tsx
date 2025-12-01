@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
-import { useState } from "react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface PropertyCardProps {
   property: {
@@ -29,7 +29,8 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(property.id);
   
   const TypeIcon = {
     house: Home,
@@ -66,11 +67,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           className="absolute top-3 right-3 h-8 w-8 rounded-full bg-background/80 hover:bg-background"
           onClick={(e) => {
             e.preventDefault();
-            setIsFavorite(!isFavorite);
+            toggleFavorite(property.id);
           }}
         >
           <Heart 
-            className={`h-4 w-4 ${isFavorite ? "fill-primary text-primary" : "text-foreground"}`}
+            className={`h-4 w-4 ${favorited ? "fill-red-500 text-red-500" : "text-foreground"}`}
           />
         </Button>
 

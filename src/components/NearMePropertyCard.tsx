@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Heart, Home, Building2, Store } from "lucide-react";
-import { useState } from "react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface NearMePropertyCardProps {
   property: {
@@ -17,7 +17,8 @@ interface NearMePropertyCardProps {
 }
 
 const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(property.id);
 
   const getPropertyIcon = () => {
     switch (property.property_type) {
@@ -82,13 +83,13 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                setIsFavorite(!isFavorite);
+                toggleFavorite(property.id);
               }}
               className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
             >
               <Heart
                 className={`w-4 h-4 ${
-                  isFavorite ? "fill-primary text-primary" : "text-primary"
+                  favorited ? "fill-red-500 text-red-500" : "text-primary"
                 }`}
               />
             </button>
