@@ -281,7 +281,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container py-4 md:py-8 pb-20 md:pb-8 px-4">
+      <main className="py-4 md:py-8 pb-20 md:pb-8 px-4 md:px-6 lg:container">
         <div className="grid gap-4 md:gap-6 max-w-6xl mx-auto">
           {isAdmin && (
             <Card className="border-primary">
