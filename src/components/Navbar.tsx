@@ -193,8 +193,8 @@ const Navbar = () => {
 
       {/* Top Navigation - Other Pages */}
       {!isHomePage && (
-        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
-          <div className="container flex h-16 items-center justify-between">
+        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur overflow-x-hidden">
+          <div className="px-4 md:container flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
               <Home className="h-6 w-6 text-primary" />
               <span className="text-2xl font-bold text-primary">LibHub</span>
