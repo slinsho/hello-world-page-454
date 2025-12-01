@@ -61,7 +61,7 @@ const Navbar = () => {
     }
   };
 
-  const isHomePage = location.pathname === "/" || location.pathname === "/explore";
+  const isHomePage = location.pathname === "/";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
