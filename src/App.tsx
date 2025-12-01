@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import FeedbackButton from "@/components/FeedbackButton";
 import Index from "./pages/Index";
+import NearMe from "./pages/NearMe";
 import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
 import Upload from "./pages/Upload";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/near-me" element={<NearMe />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<Profile />} />
