@@ -1,20 +1,41 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin } from "lucide-react";
+import { MapPin, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const NearMe = () => {
   const [searchParams] = useSearchParams();
-  const county = searchParams.get("county") || "";
+  const urlCounty = searchParams.get("county");
+  const { user } = useAuth();
+  const [county, setCounty] = useState<string>("");
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      if (!county) {
+    const fetchUserCountyAndProperties = async () => {
+      let targetCounty = urlCounty || "";
+
+      // If no county in URL, try to get from user profile
+      if (!targetCounty && user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("county")
+          .eq("id", user.id)
+          .maybeSingle();
+        
+        if (profile?.county) {
+          targetCounty = profile.county;
+        }
+      }
+
+      setCounty(targetCounty);
+
+      if (!targetCounty) {
         setLoading(false);
         return;
       }
@@ -23,7 +44,7 @@ const NearMe = () => {
         .from("properties")
         .select("*")
         .eq("status", "active")
-        .eq("county", county)
+        .eq("county", targetCounty)
         .order("created_at", { ascending: false });
 
       if (!error && data) {
@@ -32,8 +53,8 @@ const NearMe = () => {
       setLoading(false);
     };
 
-    fetchProperties();
-  }, [county]);
+    fetchUserCountyAndProperties();
+  }, [urlCounty, user]);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -52,6 +73,18 @@ const NearMe = () => {
             {[...Array(5)].map((_, i) => (
               <Skeleton key={i} className="h-32 w-full rounded-xl" />
             ))}
+          </div>
+        ) : !county ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">
+              Set your county in your profile to see properties near you.
+            </p>
+            <Button asChild>
+              <Link to="/profile">
+                <Settings className="h-4 w-4 mr-2" />
+                Go to Profile
+              </Link>
+            </Button>
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-12">
