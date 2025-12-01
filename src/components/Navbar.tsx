@@ -14,6 +14,7 @@ const Navbar = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [userCounty, setUserCounty] = useState<string | null>(null);
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -26,8 +27,25 @@ const Navbar = () => {
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
+      fetchUserProfile();
     }
   }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("county")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data?.county) {
+        setUserCounty(data.county);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
 
   const fetchUnreadCount = async () => {
     try {
@@ -60,10 +78,12 @@ const Navbar = () => {
           <div className="px-4 py-3 space-y-3">
             {/* Location and Notification */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <Link to={userCounty ? `/near-me?county=${encodeURIComponent(userCounty)}` : "/profile"} className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-foreground font-medium">All Locations</span>
-              </div>
+                <span className="text-sm text-foreground font-medium">
+                  {userCounty || "Set Location"}
+                </span>
+              </Link>
               <div className="flex items-center gap-1">
                 <Button 
                   variant="ghost" 

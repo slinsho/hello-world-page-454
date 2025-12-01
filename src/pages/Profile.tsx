@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User } from "lucide-react";
-import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS } from "@/lib/constants";
+import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import {
   Dialog,
   DialogContent,
@@ -36,10 +36,14 @@ const Profile = () => {
     name: string;
     phone: string;
     role: "agent" | "property_owner";
+    county: string;
+    address: string;
   }>({
     name: "",
     phone: "",
     role: "property_owner",
+    county: "",
+    address: "",
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const isOwnProfile = !profileId || profileId === user?.id;
@@ -94,6 +98,8 @@ const Profile = () => {
           name: data.name || "",
           phone: data.phone || "",
           role: data.role || "property_owner",
+          county: data.county || "",
+          address: data.address || "",
         });
       }
     } catch (error) {
@@ -112,6 +118,8 @@ const Profile = () => {
         name: editForm.name,
         phone: editForm.phone,
         role: editForm.role,
+        county: editForm.county || null,
+        address: editForm.address || null,
       })
       .eq("id", user.id);
 
@@ -333,6 +341,11 @@ const Profile = () => {
                       {profile.phone}
                     </p>
                   )}
+                  {profile.county && (
+                    <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                      📍 {profile.county}{profile.address ? `, ${profile.address}` : ''}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
@@ -387,6 +400,33 @@ const Profile = () => {
                             <SelectItem value="agent">Agent</SelectItem>
                           </SelectContent>
                         </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="county">County</Label>
+                        <Select
+                          value={editForm.county}
+                          onValueChange={(value) => setEditForm({ ...editForm, county: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your county" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LIBERIA_COUNTIES.map((county) => (
+                              <SelectItem key={county} value={county}>
+                                {county}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Address</Label>
+                        <Input
+                          id="address"
+                          value={editForm.address}
+                          onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                          placeholder="Enter your address"
+                        />
                       </div>
                       <Button onClick={handleProfileUpdate} className="w-full">
                         Save Changes

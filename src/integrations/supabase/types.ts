@@ -125,6 +125,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          county: string | null
           created_at: string
           email: string
           id: string
@@ -136,6 +138,8 @@ export type Database = {
           verification_status: Database["public"]["Enums"]["verification_status"]
         }
         Insert: {
+          address?: string | null
+          county?: string | null
           created_at?: string
           email: string
           id: string
@@ -147,6 +151,8 @@ export type Database = {
           verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Update: {
+          address?: string | null
+          county?: string | null
           created_at?: string
           email?: string
           id?: string
