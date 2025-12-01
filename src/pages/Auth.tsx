@@ -136,8 +136,10 @@ const Auth = () => {
     }
   };
 
-  // Show simple form for password reset or forgot password
-  if (isResettingPassword || isForgotPassword || isSignUp) {
+  const [showForm, setShowForm] = useState(false);
+
+  // Show form for login, signup, password reset, or forgot password
+  if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-md space-y-6">
@@ -147,14 +149,18 @@ const Auth = () => {
                 ? "Set New Password" 
                 : isForgotPassword 
                 ? "Reset Password" 
-                : "Create Account"}
+                : isSignUp
+                ? "Create Account"
+                : "Sign In"}
             </h1>
             <p className="text-muted-foreground">
               {isResettingPassword
                 ? "Enter your new password"
                 : isForgotPassword
                 ? "Enter your email to receive a password reset link"
-                : "Join LibHub to list your properties"}
+                : isSignUp
+                ? "Join LibHub to list your properties"
+                : "Welcome back to LibHub"}
             </p>
           </div>
 
@@ -287,7 +293,10 @@ const Auth = () => {
                   type="button"
                   variant="ghost"
                   className="w-full"
-                  onClick={() => setIsSignUp(!isSignUp)}
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setShowForm(true);
+                  }}
                 >
                   {isSignUp
                     ? "Already have an account? Sign In"
@@ -342,7 +351,10 @@ const Auth = () => {
           Get Started
         </Button>
         <Button 
-          onClick={() => setIsSignUp(false)}
+          onClick={() => {
+            setIsSignUp(false);
+            setShowForm(true);
+          }}
           variant="secondary"
           className="w-full h-14 text-base font-semibold rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
         >
