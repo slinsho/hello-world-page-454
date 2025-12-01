@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import PropertyCard from "@/components/PropertyCard";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
@@ -9,44 +10,67 @@ import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
 
 const Index = () => {
+  const { user } = useAuth();
   const [properties, setProperties] = useState<any[]>([]);
   const [nearMeProperties, setNearMeProperties] = useState<any[]>([]);
   const [userCounty, setUserCounty] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      const { data, error } = await supabase
+    const fetchData = async () => {
+      // Fetch properties
+      const { data: propertiesData, error } = await supabase
         .from("properties")
         .select("*")
         .eq("status", "active")
         .order("created_at", { ascending: false });
 
-      if (!error && data) {
-        setProperties(data);
+      if (error || !propertiesData) {
+        setLoading(false);
+        return;
+      }
+
+      setProperties(propertiesData);
+
+      // Get user's county from profile first
+      let county = "";
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("county")
+          .eq("id", user.id)
+          .maybeSingle();
         
-        // Get user's county from most common county in properties or first property
-        if (data.length > 0) {
-          const counties = data.map(p => p.county);
-          const countyCounts = counties.reduce((acc: Record<string, number>, county) => {
-            acc[county] = (acc[county] || 0) + 1;
-            return acc;
-          }, {});
-          const mostCommonCounty = Object.keys(countyCounts).reduce((a, b) => 
-            countyCounts[a] > countyCounts[b] ? a : b
-          );
-          setUserCounty(mostCommonCounty);
-          
-          // Filter properties for "Near Me" section
-          const nearby = data.filter(p => p.county === mostCommonCounty).slice(0, 5);
-          setNearMeProperties(nearby);
+        if (profileData?.county) {
+          county = profileData.county;
         }
       }
+
+      // Fall back to most common county if no profile county
+      if (!county && propertiesData.length > 0) {
+        const counties = propertiesData.map(p => p.county);
+        const countyCounts = counties.reduce((acc: Record<string, number>, c) => {
+          acc[c] = (acc[c] || 0) + 1;
+          return acc;
+        }, {});
+        county = Object.keys(countyCounts).reduce((a, b) => 
+          countyCounts[a] > countyCounts[b] ? a : b
+        );
+      }
+
+      setUserCounty(county);
+      
+      // Filter properties for "Near Me" section
+      if (county) {
+        const nearby = propertiesData.filter(p => p.county === county).slice(0, 5);
+        setNearMeProperties(nearby);
+      }
+      
       setLoading(false);
     };
 
-    fetchProperties();
-  }, []);
+    fetchData();
+  }, [user]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
