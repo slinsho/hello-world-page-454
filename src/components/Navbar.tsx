@@ -28,8 +28,10 @@ const Navbar = () => {
     if (user) {
       fetchUnreadCount();
       fetchUserProfile();
+    } else {
+      setUserCounty(null);
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   const fetchUserProfile = async () => {
     if (!user) return;
