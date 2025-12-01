@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, User } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -45,12 +46,14 @@ const PropertyDetail = () => {
     setLoading(false);
   };
 
-  const handleCall = () => {
-    window.location.href = `tel:${property.contact_phone}`;
+  const handleCall = (phoneNumber?: string) => {
+    const phone = phoneNumber || property.contact_phone;
+    window.location.href = `tel:${phone}`;
   };
 
-  const handleWhatsApp = () => {
-    window.open(`https://wa.me/${property.contact_phone.replace(/\D/g, '')}`, '_blank');
+  const handleWhatsApp = (phoneNumber?: string) => {
+    const phone = phoneNumber || property.contact_phone;
+    window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
   };
 
   const handleShare = async () => {
@@ -75,6 +78,12 @@ const PropertyDetail = () => {
     }
   };
 
+  const formatRole = (role: string) => {
+    if (role === 'property_owner') return 'Property Owner';
+    if (role === 'agent') return 'Agent';
+    return role;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -95,10 +104,11 @@ const PropertyDetail = () => {
   const allPhotos = property.photos || [];
   const displayPhotos = allPhotos.slice(0, 5);
   const remainingCount = allPhotos.length - 5;
+  const heroImage = allPhotos[0];
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      {/* Map Header Section */}
+      {/* Hero Image Section */}
       <div className="relative h-[280px] bg-card">
         {/* Back Button */}
         <Button 
@@ -125,29 +135,19 @@ const PropertyDetail = () => {
           </Button>
         </div>
 
-        {/* Map Placeholder */}
-        <div className="w-full h-full bg-card flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-30">
-            <div className="w-full h-full" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }} />
+        {/* Hero Image */}
+        {heroImage ? (
+          <img 
+            src={heroImage} 
+            alt={property.title}
+            className="w-full h-full object-cover cursor-pointer"
+            onClick={() => setFullscreenImage(heroImage)}
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <MapPin className="h-12 w-12 text-muted-foreground" />
           </div>
-          
-          {/* Location Pin */}
-          <div className="bg-muted/80 rounded-full p-3">
-            <MapPin className="h-6 w-6 text-foreground" />
-          </div>
-
-          {/* Street View Button */}
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className="absolute bottom-4 left-4 gap-2 rounded-full bg-card/80 backdrop-blur-sm"
-          >
-            <MapPin className="h-4 w-4" />
-            Street View
-          </Button>
-        </div>
+        )}
       </div>
 
       {/* Property Info */}
@@ -210,11 +210,11 @@ const PropertyDetail = () => {
         )}
 
         {/* Photo Gallery */}
-        {allPhotos.length > 0 && (
+        {allPhotos.length > 1 && (
           <div className="mb-6">
             <div className="grid grid-cols-3 gap-2">
               {/* Main large images */}
-              {displayPhotos.slice(0, 2).map((photo: string, index: number) => (
+              {displayPhotos.slice(1, 3).map((photo: string, index: number) => (
                 <div 
                   key={index}
                   className={`${index === 0 ? 'col-span-2 row-span-2' : 'col-span-1'} aspect-square rounded-xl overflow-hidden cursor-pointer`}
@@ -225,7 +225,7 @@ const PropertyDetail = () => {
               ))}
               
               {/* Smaller thumbnails */}
-              {displayPhotos.slice(2, 5).map((photo: string, index: number) => (
+              {displayPhotos.slice(3, 6).map((photo: string, index: number) => (
                 <div 
                   key={index + 2}
                   className="aspect-square rounded-xl overflow-hidden cursor-pointer relative"
@@ -244,31 +244,70 @@ const PropertyDetail = () => {
           </div>
         )}
 
-        {/* Builder Information */}
+        {/* Property Owner Section */}
         <div className="mb-4">
-          <h3 className="text-sm text-muted-foreground mb-3">Builder information</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-card border border-border overflow-hidden">
-                {property.profiles?.profile_photo_url ? (
-                  <img 
-                    src={property.profiles.profile_photo_url} 
-                    alt={property.profiles?.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-lg font-semibold">
-                    {property.profiles?.name?.charAt(0) || 'U'}
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="font-semibold">{property.profiles?.name || 'Unknown'}</p>
-                <p className="text-primary text-sm">{property.contact_phone}</p>
-              </div>
+          <h3 className="text-lg font-semibold mb-3">Property Owner</h3>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-16 h-16 rounded-full bg-card border border-border overflow-hidden">
+              {property.profiles?.profile_photo_url ? (
+                <img 
+                  src={property.profiles.profile_photo_url} 
+                  alt={property.profiles?.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">
+                  {property.profiles?.name?.charAt(0) || 'U'}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-lg">{property.profiles?.name || 'Unknown'}</p>
+              <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
             </div>
           </div>
         </div>
+
+        {/* About the Owner Card */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">About the Owner</h3>
+            
+            <div className="space-y-3">
+              <div className="flex">
+                <span className="text-muted-foreground w-16">Name:</span>
+                <span className="font-medium">{property.profiles?.name || 'Unknown'}</span>
+              </div>
+              
+              <div className="flex">
+                <span className="text-muted-foreground w-16">Role:</span>
+                <span className="font-medium">{formatRole(property.profiles?.role || 'property_owner')}</span>
+              </div>
+              
+              <div className="flex">
+                <span className="text-muted-foreground w-16">Phone:</span>
+                <span className="font-medium">{property.contact_phone}</span>
+              </div>
+
+              {property.contact_phone_2 && (
+                <div className="flex">
+                  <span className="text-muted-foreground w-16">Phone 2:</span>
+                  <span className="font-medium">{property.contact_phone_2}</span>
+                </div>
+              )}
+            </div>
+
+            {property.profiles?.id && (
+              <Button 
+                variant="outline" 
+                className="w-full mt-6"
+                onClick={() => navigate(`/profile/${property.profiles.id}`)}
+              >
+                View Full Profile
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Bottom Action Bar */}
@@ -291,6 +330,9 @@ const PropertyDetail = () => {
             <div>
               <p className="font-medium text-sm">{property.profiles?.name || 'Unknown'}</p>
               <p className="text-primary text-xs">{property.contact_phone}</p>
+              {property.contact_phone_2 && (
+                <p className="text-primary text-xs">{property.contact_phone_2}</p>
+              )}
             </div>
           </div>
           <div className="flex gap-2">
@@ -298,14 +340,14 @@ const PropertyDetail = () => {
               variant="outline" 
               size="icon" 
               className="rounded-full h-12 w-12 border-border"
-              onClick={handleCall}
+              onClick={() => handleCall()}
             >
               <Phone className="h-5 w-5" />
             </Button>
             <Button 
               size="icon" 
               className="rounded-full h-12 w-12 bg-primary text-primary-foreground"
-              onClick={handleWhatsApp}
+              onClick={() => handleWhatsApp()}
             >
               <MessageCircle className="h-5 w-5" />
             </Button>
