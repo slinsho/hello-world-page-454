@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import PropertyCard from "@/components/PropertyCard";
@@ -11,19 +11,34 @@ import { MapPin, ChevronRight } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState<any[]>([]);
   const [nearMeProperties, setNearMeProperties] = useState<any[]>([]);
   const [userCounty, setUserCounty] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
+  const typeFilter = searchParams.get("type");
+  const searchQuery = searchParams.get("search");
+
   useEffect(() => {
     const fetchData = async () => {
       // Fetch properties
-      const { data: propertiesData, error } = await supabase
+      let query = supabase
         .from("properties")
         .select("*")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
+        .eq("status", "active");
+
+      // Apply type filter
+      if (typeFilter && typeFilter !== "all") {
+        query = query.eq("property_type", typeFilter as "house" | "apartment" | "shop");
+      }
+
+      // Apply search filter
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%,county.ilike.%${searchQuery}%`);
+      }
+
+      const { data: propertiesData, error } = await query.order("created_at", { ascending: false });
 
       if (error || !propertiesData) {
         setLoading(false);
@@ -70,7 +85,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, typeFilter, searchQuery]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);

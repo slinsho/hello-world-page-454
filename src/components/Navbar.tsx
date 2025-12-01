@@ -65,7 +65,30 @@ const Navbar = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
+    if (location.pathname === "/") {
+      const params = new URLSearchParams(window.location.search);
+      if (searchQuery) {
+        params.set("search", searchQuery);
+      } else {
+        params.delete("search");
+      }
+      navigate(`/?${params.toString()}`);
+    } else {
+      navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    if (location.pathname === "/") {
+      const params = new URLSearchParams(window.location.search);
+      if (filter !== "all") {
+        params.set("type", filter);
+      } else {
+        params.delete("type");
+      }
+      navigate(`/?${params.toString()}`);
+    }
   };
 
   const handleFilterClick = () => {
@@ -138,30 +161,30 @@ const Navbar = () => {
               <Badge 
                 variant={selectedFilter === "all" ? "default" : "secondary"}
                 className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => setSelectedFilter("all")}
+                onClick={() => handleFilterChange("all")}
               >
                 All
               </Badge>
               <Badge 
-                variant={selectedFilter === "verified" ? "default" : "secondary"}
+                variant={selectedFilter === "house" ? "default" : "secondary"}
                 className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => setSelectedFilter("verified")}
+                onClick={() => handleFilterChange("house")}
               >
-                ✓ Housling Verified
+                House
               </Badge>
               <Badge 
-                variant={selectedFilter === "ready" ? "default" : "secondary"}
+                variant={selectedFilter === "shop" ? "default" : "secondary"}
                 className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => setSelectedFilter("ready")}
+                onClick={() => handleFilterChange("shop")}
               >
-                Ready to move
+                Shop
               </Badge>
               <Badge 
-                variant={selectedFilter === "premium" ? "default" : "secondary"}
+                variant={selectedFilter === "apartment" ? "default" : "secondary"}
                 className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => setSelectedFilter("premium")}
+                onClick={() => handleFilterChange("apartment")}
               >
-                Premium
+                Apartment
               </Badge>
             </div>
           </div>
