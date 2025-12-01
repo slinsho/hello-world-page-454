@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { z } from "zod";
+import heroImage from "@/assets/auth-hero.jpg";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,7 +39,6 @@ const Auth = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Check if user came from password reset email
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type');
     
@@ -137,34 +136,32 @@ const Auth = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>
-            {isResettingPassword 
-              ? "Set New Password" 
-              : isForgotPassword 
-              ? "Reset Password" 
-              : isSignUp 
-              ? "Create Account" 
-              : "Sign In"}
-          </CardTitle>
-          <CardDescription>
-            {isResettingPassword
-              ? "Enter your new password"
-              : isForgotPassword
-              ? "Enter your email to receive a password reset link"
-              : isSignUp
-              ? "Join LibHub to list your properties"
-              : "Welcome back to LibHub"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+  // Show simple form for password reset or forgot password
+  if (isResettingPassword || isForgotPassword || isSignUp) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-foreground">
+              {isResettingPassword 
+                ? "Set New Password" 
+                : isForgotPassword 
+                ? "Reset Password" 
+                : "Create Account"}
+            </h1>
+            <p className="text-muted-foreground">
+              {isResettingPassword
+                ? "Enter your new password"
+                : isForgotPassword
+                ? "Enter your email to receive a password reset link"
+                : "Join LibHub to list your properties"}
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {isResettingPassword ? (
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password" className="text-foreground">New Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -173,6 +170,7 @@ const Auth = () => {
                   placeholder="Enter your new password"
                   required
                   minLength={6}
+                  className="bg-card border-border text-foreground"
                 />
                 <p className="text-sm text-muted-foreground">
                   Password must be at least 6 characters
@@ -183,25 +181,26 @@ const Auth = () => {
                 {isSignUp && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="name" className="text-foreground">Full Name</Label>
                       <Input
                         id="name"
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
+                        className="bg-card border-border text-foreground"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="role">I am a</Label>
+                      <Label htmlFor="role" className="text-foreground">I am a</Label>
                       <Select
                         value={formData.role}
                         onValueChange={(value: "agent" | "property_owner") =>
                           setFormData({ ...formData, role: value })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-card border-border text-foreground">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -214,20 +213,21 @@ const Auth = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
+                    className="bg-card border-border text-foreground"
                   />
                 </div>
 
                 {!isForgotPassword && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password" className="text-foreground">Password</Label>
                       {!isSignUp && (
                         <button
                           type="button"
@@ -244,6 +244,7 @@ const Auth = () => {
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
+                      className="bg-card border-border text-foreground"
                     />
                   </div>
                 )}
@@ -271,34 +272,83 @@ const Auth = () => {
                 : "Sign In"}
             </Button>
 
-            {!isResettingPassword && (
-              <>
-                {isForgotPassword ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => setIsForgotPassword(false)}
-                  >
-                    Back to Sign In
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => setIsSignUp(!isSignUp)}
-                  >
-                    {isSignUp
-                      ? "Already have an account? Sign In"
-                      : "Don't have an account? Sign Up"}
-                  </Button>
-                )}
-              </>
-            )}
+            <>
+              {isForgotPassword ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setIsForgotPassword(false)}
+                >
+                  Back to Sign In
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                >
+                  {isSignUp
+                    ? "Already have an account? Sign In"
+                    : "Don't have an account? Sign Up"}
+                </Button>
+              )}
+            </>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Main welcome/login screen
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Hero Section */}
+      <div className="flex-1 flex flex-col relative overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+        </div>
+
+        {/* Content */}
+        <div className="relative flex-1 flex flex-col justify-end p-6 pb-12">
+          <div className="space-y-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              Your Trusted Guide<br />in Real Estate
+            </h1>
+            <p className="text-base text-foreground/90 max-w-md mx-auto">
+              Navigating the Path to Your Dream Home with Expertise and Integrity.
+            </p>
+
+            {/* Pagination dots */}
+            <div className="flex justify-center gap-2 pt-4">
+              <div className="w-8 h-1 bg-primary rounded-full" />
+              <div className="w-1 h-1 bg-muted rounded-full" />
+              <div className="w-1 h-1 bg-muted rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="p-6 space-y-3">
+        <Button 
+          onClick={() => navigate("/")}
+          className="w-full h-14 text-base font-semibold rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Get Started
+        </Button>
+        <Button 
+          onClick={() => setIsSignUp(false)}
+          variant="secondary"
+          className="w-full h-14 text-base font-semibold rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
+        >
+          Log in
+        </Button>
+      </div>
     </div>
   );
 };

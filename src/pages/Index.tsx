@@ -29,22 +29,15 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Navbar />
       
-      <main className="container py-8 px-4 md:px-4">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Discover Properties</h1>
-          <p className="text-muted-foreground">
-            Browse houses, apartments, and shops across Liberia
-          </p>
-        </div>
-
+      <main className="px-4 pt-4 md:px-6">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="space-y-3">
-                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-64 w-full rounded-2xl" />
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
               </div>
@@ -57,7 +50,7 @@ const Index = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {properties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
