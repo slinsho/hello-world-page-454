@@ -15,6 +15,8 @@ import PropertyDetail from "./pages/PropertyDetail";
 import Verification from "./pages/Verification";
 import Admin from "./pages/Admin";
 import Feedback from "./pages/Feedback";
+import Notifications from "./pages/Notifications";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 import TermsAndConditions from "./pages/TermsAndConditions";
 
@@ -40,6 +42,8 @@ const App = () => (
             <Route path="/verification" element={<Verification />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/favorites" element={<Favorites />} />
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
