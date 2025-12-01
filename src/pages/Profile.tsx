@@ -278,11 +278,11 @@ const Profile = () => {
   }[profile.verification_status] as "default" | "secondary" | "destructive";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
       
-      <main className="py-4 md:py-8 pb-20 md:pb-8 px-4 md:px-6 lg:container">
-        <div className="grid gap-4 md:gap-6 max-w-6xl mx-auto">
+      <main className="py-4 md:py-8 pb-20 md:pb-8 px-4 md:px-6 lg:container lg:mx-auto w-full max-w-full">
+        <div className="grid gap-4 md:gap-6 max-w-6xl mx-auto w-full">
           {isAdmin && (
             <Card className="border-primary">
               <CardContent className="pt-6">
