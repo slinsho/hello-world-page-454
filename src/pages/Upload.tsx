@@ -45,6 +45,7 @@ const Upload = () => {
     contact_phone_2: "",
     bedrooms: "",
     bathrooms: "",
+    square_yards: "",
     description: "",
   });
 
@@ -234,6 +235,7 @@ const Upload = () => {
         videos: videoUrls,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+        square_yards: formData.square_yards ? parseInt(formData.square_yards) : null,
         description: validatedData.description || null,
       }]);
 
@@ -462,6 +464,18 @@ const Upload = () => {
                     onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="square_yards">Square Yards (Optional)</Label>
+                <Input
+                  id="square_yards"
+                  type="number"
+                  min="0"
+                  value={formData.square_yards}
+                  onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })}
+                  placeholder="e.g., 600"
+                />
               </div>
 
               <div className="space-y-2">
