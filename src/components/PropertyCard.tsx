@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, Building2, Store, MapPin, Bed, Bath, Maximize, Heart } from "lucide-react";
+import { Home, Building2, Store, MapPin, Bed, Bath, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,10 +109,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                     <span>{property.bathrooms} Bath</span>
                   </div>
                 )}
-                <div className="flex items-center gap-1">
-                  <Maximize className="h-3 w-3" />
-                  <span>600 Sq.y</span>
-                </div>
               </div>
             </div>
           </Link>

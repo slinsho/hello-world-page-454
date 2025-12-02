@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, User } from "lucide-react";
+import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import RecommendedProperties from "@/components/RecommendedProperties";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -191,7 +192,7 @@ const PropertyDetail = () => {
           {property.bedrooms && (
             <div className="bg-card border border-border rounded-xl p-4 flex flex-col items-center justify-center">
               <Bed className="h-6 w-6 mb-2 text-foreground" />
-              <span className="text-sm">{property.bedrooms} Bhk</span>
+              <span className="text-sm">{property.bedrooms} Bed</span>
             </div>
           )}
           {property.bathrooms && (
@@ -308,6 +309,13 @@ const PropertyDetail = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Recommended Section */}
+        <RecommendedProperties 
+          currentPropertyId={property.id} 
+          county={property.county}
+          propertyType={property.property_type}
+        />
       </div>
 
       {/* Bottom Action Bar */}
