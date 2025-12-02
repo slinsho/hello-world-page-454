@@ -47,7 +47,7 @@ const Index = () => {
 
       setProperties(propertiesData);
 
-      // Get user's county from profile first
+      // Get user's county from profile - only show Near Me for logged in users with county set
       let county = "";
       if (user) {
         const { data: profileData } = await supabase
@@ -61,24 +61,14 @@ const Index = () => {
         }
       }
 
-      // Fall back to most common county if no profile county
-      if (!county && propertiesData.length > 0) {
-        const counties = propertiesData.map(p => p.county);
-        const countyCounts = counties.reduce((acc: Record<string, number>, c) => {
-          acc[c] = (acc[c] || 0) + 1;
-          return acc;
-        }, {});
-        county = Object.keys(countyCounts).reduce((a, b) => 
-          countyCounts[a] > countyCounts[b] ? a : b
-        );
-      }
-
       setUserCounty(county);
       
-      // Filter properties for "Near Me" section
+      // Filter properties for "Near Me" section - only if user has a county set
       if (county) {
         const nearby = propertiesData.filter(p => p.county === county).slice(0, 5);
         setNearMeProperties(nearby);
+      } else {
+        setNearMeProperties([]);
       }
       
       setLoading(false);
