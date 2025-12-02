@@ -181,6 +181,7 @@ export type Database = {
           photos: string[]
           price_usd: number
           property_type: Database["public"]["Enums"]["property_type"]
+          square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at: string
@@ -201,6 +202,7 @@ export type Database = {
           photos: string[]
           price_usd: number
           property_type: Database["public"]["Enums"]["property_type"]
+          square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at?: string
@@ -221,6 +223,7 @@ export type Database = {
           photos?: string[]
           price_usd?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
           updated_at?: string
