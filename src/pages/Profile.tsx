@@ -3,11 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User } from "lucide-react";
+import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings } from "lucide-react";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import {
   Dialog,
@@ -259,7 +258,9 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-16">Loading...</div>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -271,329 +272,383 @@ const Profile = () => {
   };
 
   const verificationStatusColor = {
-    none: "secondary",
-    pending: "default",
-    approved: "default",
-    rejected: "destructive",
-  }[profile.verification_status] as "default" | "secondary" | "destructive";
+    none: "bg-muted text-muted-foreground",
+    pending: "bg-yellow-500/20 text-yellow-500",
+    approved: "bg-primary/20 text-primary",
+    rejected: "bg-destructive/20 text-destructive",
+  }[profile.verification_status];
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="py-4 md:py-8 pb-20 md:pb-8 px-4 md:px-6 lg:container lg:mx-auto w-full max-w-full">
-        <div className="grid gap-4 md:gap-6 max-w-6xl mx-auto w-full">
-          {isAdmin && (
-            <Card className="border-primary">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-6 w-6 text-primary" />
-                    <div>
-                      <h3 className="font-semibold">Admin Access</h3>
-                      <p className="text-sm text-muted-foreground">
-                        You have administrator privileges
-                      </p>
-                    </div>
-                  </div>
-                  <Button onClick={() => navigate("/admin")}>
-                    Go to Admin Portal
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardHeader className="flex flex-col sm:flex-row items-start justify-between gap-4">
-              <div className="flex items-start gap-4 w-full sm:w-auto">
-                <div className="relative group">
-                  <Avatar className="h-16 w-16 md:h-20 md:w-20">
-                    <AvatarImage src={profile.profile_photo_url} />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                      {profile.name?.charAt(0).toUpperCase() || <User className="h-8 w-8" />}
-                    </AvatarFallback>
-                  </Avatar>
-                  {isOwnProfile && (
-                    <>
-                      <label htmlFor="photo-upload" className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                        <Camera className="h-6 w-6 text-white" />
-                      </label>
-                      <input
-                        id="photo-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handlePhotoUpload}
-                        disabled={uploadingPhoto}
-                      />
-                    </>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="text-xl md:text-2xl truncate">{profile.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground truncate">{profile.email}</p>
-                  <p className="text-xs md:text-sm text-muted-foreground capitalize mt-1">
-                    {profile.role?.replace("_", " ") || "User"}
-                  </p>
-                  {profile.phone && (
-                    <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                      {profile.phone}
-                    </p>
-                  )}
-                  {profile.county && (
-                    <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                      📍 {profile.county}{profile.address ? `, ${profile.address}` : ''}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-2 w-full sm:w-auto">
-                {isOwnProfile && (
-                  <>
-                    <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-none">
-                          <Edit className="h-4 w-4" />
-                          <span className="hidden sm:inline">Edit Profile</span>
-                          <span className="sm:hidden">Edit</span>
-                        </Button>
-                      </DialogTrigger>
-                  <DialogContent className="max-w-[95vw] sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Edit Profile</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                          id="name"
-                          value={editForm.name}
-                          onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email (non-editable)</Label>
-                        <Input id="email" value={profile.email} disabled className="opacity-60" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={editForm.phone}
-                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                          placeholder="+1234567890"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
-                        <Select
-                          value={editForm.role}
-                          onValueChange={(value) => setEditForm({ ...editForm, role: value as "agent" | "property_owner" })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="property_owner">Property Owner</SelectItem>
-                            <SelectItem value="agent">Agent</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="county">County</Label>
-                        <Select
-                          value={editForm.county}
-                          onValueChange={(value) => setEditForm({ ...editForm, county: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select your county" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {LIBERIA_COUNTIES.map((county) => (
-                              <SelectItem key={county} value={county}>
-                                {county}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          value={editForm.address}
-                          onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                          placeholder="Enter your address"
-                        />
-                      </div>
-                      <Button onClick={handleProfileUpdate} className="w-full">
-                        Save Changes
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                    <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 flex-1 sm:flex-none">
-                      <LogOut className="h-4 w-4" />
-                      <span className="hidden sm:inline">Sign Out</span>
-                      <span className="sm:hidden">Logout</span>
-                    </Button>
-                  </>
-                )}
-                {!isOwnProfile && (
-                  <Button variant="outline" size="sm" onClick={() => navigate("/profile")} className="gap-2">
-                    <User className="h-4 w-4" />
-                    View My Profile
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label>Verification Status</Label>
-                  <div className="flex flex-col gap-2 mt-2">
-                    <Badge variant={verificationStatusColor} className="w-fit">
-                      {VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS]}
-                    </Badge>
-                    {profile.verification_status === "rejected" && (
-                      <p className="text-sm text-destructive">
-                        Your verification was rejected. Please submit corrected documents.
-                      </p>
-                    )}
-                    {isOwnProfile && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
-                      <Button size="sm" onClick={handleVerificationRequest} className="w-fit">
-                        {profile.verification_status === "rejected" ? "Re-submit Verification" : "Request Verification"}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 md:gap-4 pt-4">
-                  <div className="text-center p-3 md:p-4 bg-secondary rounded-lg">
-                    <p className="text-xl md:text-2xl font-bold">{stats.total}</p>
-                    <p className="text-xs md:text-sm text-muted-foreground">Total</p>
-                  </div>
-                  <div className="text-center p-3 md:p-4 bg-secondary rounded-lg">
-                    <p className="text-xl md:text-2xl font-bold text-green-600">{stats.active}</p>
-                    <p className="text-xs md:text-sm text-muted-foreground">Active</p>
-                  </div>
-                  <div className="text-center p-3 md:p-4 bg-secondary rounded-lg">
-                    <p className="text-xl md:text-2xl font-bold text-gray-600">{stats.taken}</p>
-                    <p className="text-xs md:text-sm text-muted-foreground">Taken</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{isOwnProfile ? "My Properties" : "Properties"}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {properties.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {isOwnProfile ? "You haven't listed any properties yet." : "This user hasn't listed any properties yet."}
-                </div>
-              ) : (
-                <div className="space-y-3 md:space-y-4">
-                  {properties.map((property) => {
-                    const Icon = TypeIcon[property.property_type as keyof typeof TypeIcon];
-                    return (
-                      <div
-                        key={property.id}
-                        className="border rounded-lg p-3 md:p-4 flex flex-col sm:flex-row items-start gap-3 md:gap-4 hover:bg-secondary/50 transition-colors"
-                      >
-                        <div className="w-full sm:w-20 md:w-24 h-32 sm:h-20 md:h-24 rounded bg-muted flex items-center justify-center shrink-0">
-                          {property.photos[0] ? (
-                            <img
-                              src={property.photos[0]}
-                              alt={property.title}
-                              className="w-full h-full object-cover rounded"
-                            />
-                          ) : (
-                            <Icon className="h-8 w-8 text-muted-foreground" />
-                          )}
-                        </div>
-
-                        <div className="flex-1 min-w-0 w-full">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-base md:text-lg truncate">{property.title}</h3>
-                              <p className="text-xs md:text-sm text-muted-foreground truncate">{property.address}</p>
-                              <p className="text-sm md:text-base font-bold text-primary mt-1">
-                                ${property.price_usd.toLocaleString()}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="self-start shrink-0 text-xs">
-                              {LISTING_TYPE_LABELS[property.listing_type as keyof typeof LISTING_TYPE_LABELS]}
-                            </Badge>
-                          </div>
-
-                          <div className="flex gap-2 mt-3 flex-wrap">
-                            {isOwnProfile && (
-                              <>
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button size="sm" variant="outline" className="text-xs">
-                                      Status
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-[95vw] sm:max-w-md">
-                                    <DialogHeader>
-                                      <DialogTitle>Update Property Status</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                      <p className="text-sm text-muted-foreground">
-                                        Current: <strong>{STATUS_LABELS[property.status as keyof typeof STATUS_LABELS]}</strong>
-                                      </p>
-                                      <div className="flex flex-col gap-2">
-                                        {(["active", "inactive", "sold", "rented"] as const).map((status) => (
-                                          <Button
-                                            key={status}
-                                            variant={property.status === status ? "default" : "outline"}
-                                            onClick={() => updatePropertyStatus(property.id, status)}
-                                          >
-                                            {STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
-                                          </Button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              </>
-                            )}
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`/property/${property.id}`)}
-                              className="text-xs"
-                            >
-                              View
-                            </Button>
-
-                            {isOwnProfile && (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => deleteProperty(property.id)}
-                                className="text-xs"
-                              >
-                                Delete
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+      <main className="pb-24 md:pb-8">
+        {/* Profile Header Section */}
+        <div className="relative">
+          {/* Background gradient */}
+          <div className="h-32 bg-gradient-to-b from-primary/20 to-background" />
+          
+          {/* Profile Avatar - overlapping the gradient */}
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-16">
+            <div className="relative">
+              <Avatar className="h-32 w-32 border-4 border-background shadow-xl">
+                <AvatarImage src={profile.profile_photo_url} className="object-cover" />
+                <AvatarFallback className="bg-primary text-primary-foreground text-4xl">
+                  {profile.name?.charAt(0).toUpperCase() || <User className="h-12 w-12" />}
+                </AvatarFallback>
+              </Avatar>
+              {isOwnProfile && (
+                <>
+                  <label 
+                    htmlFor="photo-upload" 
+                    className="absolute bottom-0 right-0 h-10 w-10 rounded-full bg-primary flex items-center justify-center cursor-pointer shadow-lg hover:bg-primary/90 transition-colors"
+                  >
+                    <Camera className="h-5 w-5 text-primary-foreground" />
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                    disabled={uploadingPhoto}
+                  />
+                </>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Info */}
+        <div className="pt-20 px-4 text-center">
+          <h1 className="text-2xl font-bold">{profile.name}</h1>
+          <p className="text-muted-foreground capitalize mt-1">
+            {profile.role?.replace("_", " ") || "User"}
+          </p>
+          
+          {/* Verification Badge */}
+          <div className="flex justify-center mt-3">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${verificationStatusColor}`}>
+              <Shield className="h-3 w-3" />
+              {VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS]}
+            </span>
+          </div>
+        </div>
+
+        {/* Contact Info Pills */}
+        <div className="flex flex-wrap justify-center gap-2 mt-4 px-4">
+          {profile.email && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
+              <Mail className="h-3 w-3 text-muted-foreground" />
+              <span className="text-muted-foreground truncate max-w-[150px]">{profile.email}</span>
+            </div>
+          )}
+          {profile.phone && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
+              <Phone className="h-3 w-3 text-muted-foreground" />
+              <span className="text-muted-foreground">{profile.phone}</span>
+            </div>
+          )}
+          {profile.county && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
+              <MapPin className="h-3 w-3 text-muted-foreground" />
+              <span className="text-muted-foreground">{profile.county}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 gap-3 mt-6 px-4 max-w-md mx-auto">
+          <div className="bg-secondary/50 rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold">{stats.total}</p>
+            <p className="text-xs text-muted-foreground mt-1">Total</p>
+          </div>
+          <div className="bg-primary/10 rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold text-primary">{stats.active}</p>
+            <p className="text-xs text-muted-foreground mt-1">Active</p>
+          </div>
+          <div className="bg-secondary/50 rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold">{stats.taken}</p>
+            <p className="text-xs text-muted-foreground mt-1">Taken</p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        {isOwnProfile && (
+          <div className="flex justify-center gap-3 mt-6 px-4">
+            <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="rounded-full gap-2">
+                  <Edit className="h-4 w-4" />
+                  Edit Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] sm:max-w-md rounded-3xl">
+                <DialogHeader>
+                  <DialogTitle>Edit Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email (non-editable)</Label>
+                    <Input id="email" value={profile.email} disabled className="opacity-60 rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                      placeholder="+1234567890"
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Select
+                      value={editForm.role}
+                      onValueChange={(value) => setEditForm({ ...editForm, role: value as "agent" | "property_owner" })}
+                    >
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="property_owner">Property Owner</SelectItem>
+                        <SelectItem value="agent">Agent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="county">County</Label>
+                    <Select
+                      value={editForm.county}
+                      onValueChange={(value) => setEditForm({ ...editForm, county: value })}
+                    >
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Select your county" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LIBERIA_COUNTIES.map((county) => (
+                          <SelectItem key={county} value={county}>
+                            {county}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                      placeholder="Enter your address"
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <Button onClick={handleProfileUpdate} className="w-full rounded-xl">
+                    Save Changes
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Button variant="outline" onClick={handleSignOut} className="rounded-full gap-2">
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
+        )}
+
+        {!isOwnProfile && (
+          <div className="flex justify-center mt-6 px-4">
+            <Button variant="outline" onClick={() => navigate("/profile")} className="rounded-full gap-2">
+              <User className="h-4 w-4" />
+              View My Profile
+            </Button>
+          </div>
+        )}
+
+        {/* Verification Request Section */}
+        {isOwnProfile && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
+          <div className="mx-4 mt-6 p-4 bg-secondary/50 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">Get Verified</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {profile.verification_status === "rejected" 
+                    ? "Re-submit your documents" 
+                    : "Verify your identity to build trust"}
+                </p>
+              </div>
+              <Button size="sm" onClick={handleVerificationRequest} className="rounded-full">
+                {profile.verification_status === "rejected" ? "Re-submit" : "Verify"}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Admin Access Card */}
+        {isAdmin && (
+          <div className="mx-4 mt-4 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Admin Access</p>
+                  <p className="text-xs text-muted-foreground">Manage the platform</p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full">
+                Open
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Properties Section */}
+        <div className="mt-8 px-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {isOwnProfile ? "My Properties" : "Properties"}
+            </h2>
+            <span className="text-xs text-muted-foreground">{properties.length} listings</span>
+          </div>
+
+          {properties.length === 0 ? (
+            <div className="text-center py-12 bg-secondary/30 rounded-2xl">
+              <Home className="h-12 w-12 mx-auto text-muted-foreground/50" />
+              <p className="text-muted-foreground mt-3 text-sm">
+                {isOwnProfile ? "No properties listed yet" : "No properties to show"}
+              </p>
+              {isOwnProfile && (
+                <Button 
+                  onClick={() => navigate("/upload")} 
+                  className="mt-4 rounded-full"
+                  size="sm"
+                >
+                  Add Property
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {properties.map((property) => {
+                const Icon = TypeIcon[property.property_type as keyof typeof TypeIcon];
+                return (
+                  <div
+                    key={property.id}
+                    className="bg-secondary/30 rounded-2xl overflow-hidden"
+                  >
+                    <div className="flex gap-3 p-3">
+                      {/* Property Image */}
+                      <div className="w-20 h-20 rounded-xl bg-muted flex-shrink-0 overflow-hidden">
+                        {property.photos[0] ? (
+                          <img
+                            src={property.photos[0]}
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Icon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Property Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-sm truncate">{property.title}</h3>
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">{property.address}</p>
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] shrink-0 ${
+                              property.status === 'active' ? 'border-primary text-primary' :
+                              property.status === 'sold' || property.status === 'rented' ? 'border-muted-foreground' : ''
+                            }`}
+                          >
+                            {STATUS_LABELS[property.status as keyof typeof STATUS_LABELS]}
+                          </Badge>
+                        </div>
+                        <p className="text-primary font-bold text-sm mt-1">
+                          ${property.price_usd.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {LISTING_TYPE_LABELS[property.listing_type as keyof typeof LISTING_TYPE_LABELS]}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex border-t border-border/50">
+                      <button
+                        onClick={() => navigate(`/property/${property.id}`)}
+                        className="flex-1 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View
+                      </button>
+                      
+                      {isOwnProfile && (
+                        <>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <button className="flex-1 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors flex items-center justify-center gap-1.5 border-l border-border/50">
+                                <Settings className="h-3.5 w-3.5" />
+                                Status
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-[95vw] sm:max-w-sm rounded-3xl">
+                              <DialogHeader>
+                                <DialogTitle>Update Status</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-2 py-4">
+                                {(["active", "inactive", "sold", "rented"] as const).map((status) => (
+                                  <button
+                                    key={status}
+                                    onClick={() => updatePropertyStatus(property.id, status)}
+                                    className={`w-full p-3 rounded-xl text-left text-sm font-medium transition-colors ${
+                                      property.status === status 
+                                        ? 'bg-primary text-primary-foreground' 
+                                        : 'bg-secondary hover:bg-secondary/80'
+                                    }`}
+                                  >
+                                    {STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
+                                  </button>
+                                ))}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+
+                          <button
+                            onClick={() => deleteProperty(property.id)}
+                            className="flex-1 py-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1.5 border-l border-border/50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>
