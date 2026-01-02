@@ -6,6 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Navbar = () => {
   const location = useLocation();
@@ -15,6 +24,9 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [userCounty, setUserCounty] = useState<string | null>(null);
+  
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [listingType, setListingType] = useState("all");
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -92,7 +104,22 @@ const Navbar = () => {
   };
 
   const handleFilterClick = () => {
-    navigate('/explore');
+    setFilterOpen(true);
+  };
+
+  const applyFilters = () => {
+    const params = new URLSearchParams();
+    if (selectedFilter !== "all") {
+      params.set("type", selectedFilter);
+    }
+    if (listingType !== "all") {
+      params.set("listing", listingType);
+    }
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    navigate(`/?${params.toString()}`);
+    setFilterOpen(false);
   };
 
   return (
@@ -145,15 +172,70 @@ const Navbar = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button 
-                type="button"
-                variant="secondary" 
-                size="icon" 
-                className="h-11 w-11 rounded-xl"
-                onClick={handleFilterClick}
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
+              <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    type="button"
+                    variant="secondary" 
+                    size="icon" 
+                    className="h-11 w-11 rounded-xl"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-3xl">
+                  <SheetHeader className="pb-4">
+                    <SheetTitle>Filters</SheetTitle>
+                  </SheetHeader>
+                  
+                  <div className="space-y-6">
+                    {/* Property Type */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Property Type</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {["all", "house", "apartment", "shop"].map((type) => (
+                          <Badge
+                            key={type}
+                            variant={selectedFilter === type ? "default" : "secondary"}
+                            className="cursor-pointer px-4 py-2 rounded-full capitalize"
+                            onClick={() => setSelectedFilter(type)}
+                          >
+                            {type === "all" ? "All" : type}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Listing Type */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Listing Type</Label>
+                      <RadioGroup value={listingType} onValueChange={setListingType} className="space-y-2">
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="all" id="listing-all" />
+                          <Label htmlFor="listing-all" className="font-normal cursor-pointer">All</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="for_sale" id="listing-sale" />
+                          <Label htmlFor="listing-sale" className="font-normal cursor-pointer">For Sale</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="for_rent" id="listing-rent" />
+                          <Label htmlFor="listing-rent" className="font-normal cursor-pointer">For Rent</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="for_lease" id="listing-lease" />
+                          <Label htmlFor="listing-lease" className="font-normal cursor-pointer">For Lease</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    {/* Apply Button */}
+                    <Button onClick={applyFilters} className="w-full rounded-xl h-12">
+                      Apply Filters
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </form>
 
             {/* Filter Chips */}

@@ -18,6 +18,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
 
   const typeFilter = searchParams.get("type");
+  const listingFilter = searchParams.get("listing");
   const searchQuery = searchParams.get("search");
 
   useEffect(() => {
@@ -31,6 +32,11 @@ const Index = () => {
       // Apply type filter
       if (typeFilter && typeFilter !== "all") {
         query = query.eq("property_type", typeFilter as "house" | "apartment" | "shop");
+      }
+
+      // Apply listing type filter
+      if (listingFilter && listingFilter !== "all") {
+        query = query.eq("listing_type", listingFilter as "for_sale" | "for_rent" | "for_lease");
       }
 
       // Apply search filter
@@ -75,7 +81,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, searchQuery]);
+  }, [user, typeFilter, listingFilter, searchQuery]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
