@@ -19,6 +19,10 @@ const Index = () => {
 
   const typeFilter = searchParams.get("type");
   const listingFilter = searchParams.get("listing");
+  const statusFilter = searchParams.get("status");
+  const countyFilter = searchParams.get("county");
+  const minPrice = searchParams.get("minPrice");
+  const maxPrice = searchParams.get("maxPrice");
   const searchQuery = searchParams.get("search");
 
   useEffect(() => {
@@ -26,8 +30,14 @@ const Index = () => {
       // Fetch properties
       let query = supabase
         .from("properties")
-        .select("*")
-        .eq("status", "active");
+        .select("*");
+
+      // Apply status filter (default to active if not specified)
+      if (statusFilter && statusFilter !== "all") {
+        query = query.eq("status", statusFilter as "active" | "inactive" | "sold" | "rented");
+      } else if (!statusFilter) {
+        query = query.eq("status", "active");
+      }
 
       // Apply type filter
       if (typeFilter && typeFilter !== "all") {
@@ -37,6 +47,19 @@ const Index = () => {
       // Apply listing type filter
       if (listingFilter && listingFilter !== "all") {
         query = query.eq("listing_type", listingFilter as "for_sale" | "for_rent" | "for_lease");
+      }
+
+      // Apply county filter
+      if (countyFilter && countyFilter !== "all") {
+        query = query.eq("county", countyFilter);
+      }
+
+      // Apply price range filters
+      if (minPrice) {
+        query = query.gte("price_usd", parseFloat(minPrice));
+      }
+      if (maxPrice) {
+        query = query.lte("price_usd", parseFloat(maxPrice));
       }
 
       // Apply search filter
@@ -81,7 +104,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, listingFilter, searchQuery]);
+  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
