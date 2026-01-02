@@ -119,7 +119,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             className="w-full mt-3 rounded-full border-foreground/20 bg-background/50 hover:bg-background text-foreground font-semibold"
             onClick={(e) => {
               e.preventDefault();
-              window.location.href = `/property/${property.id}`;
+              if (property.contact_phone) {
+                window.location.href = `tel:${property.contact_phone}`;
+              } else {
+                window.location.href = `/property/${property.id}`;
+              }
             }}
           >
             Contact
