@@ -14,7 +14,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LIBERIA_COUNTIES } from "@/lib/constants";
 
 const Navbar = () => {
   const location = useLocation();
@@ -27,6 +34,10 @@ const Navbar = () => {
   
   const [filterOpen, setFilterOpen] = useState(false);
   const [listingType, setListingType] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [countyFilter, setCountyFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -115,6 +126,18 @@ const Navbar = () => {
     if (listingType !== "all") {
       params.set("listing", listingType);
     }
+    if (statusFilter !== "all") {
+      params.set("status", statusFilter);
+    }
+    if (countyFilter !== "all") {
+      params.set("county", countyFilter);
+    }
+    if (minPrice) {
+      params.set("minPrice", minPrice);
+    }
+    if (maxPrice) {
+      params.set("maxPrice", maxPrice);
+    }
     if (searchQuery) {
       params.set("search", searchQuery);
     }
@@ -188,50 +211,96 @@ const Navbar = () => {
                     <SheetTitle>Filters</SheetTitle>
                   </SheetHeader>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-5 max-h-[60vh] overflow-y-auto">
                     {/* Property Type */}
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <Label className="text-sm font-medium">Property Type</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {["all", "house", "apartment", "shop"].map((type) => (
-                          <Badge
-                            key={type}
-                            variant={selectedFilter === type ? "default" : "secondary"}
-                            className="cursor-pointer px-4 py-2 rounded-full capitalize"
-                            onClick={() => setSelectedFilter(type)}
-                          >
-                            {type === "all" ? "All" : type}
-                          </Badge>
-                        ))}
-                      </div>
+                      <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+                        <SelectTrigger className="w-full h-12 rounded-xl">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="house">House</SelectItem>
+                          <SelectItem value="apartment">Apartment</SelectItem>
+                          <SelectItem value="shop">Shop</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {/* Listing Type */}
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <Label className="text-sm font-medium">Listing Type</Label>
-                      <RadioGroup value={listingType} onValueChange={setListingType} className="space-y-2">
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="all" id="listing-all" />
-                          <Label htmlFor="listing-all" className="font-normal cursor-pointer">All</Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="for_sale" id="listing-sale" />
-                          <Label htmlFor="listing-sale" className="font-normal cursor-pointer">For Sale</Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="for_rent" id="listing-rent" />
-                          <Label htmlFor="listing-rent" className="font-normal cursor-pointer">For Rent</Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="for_lease" id="listing-lease" />
-                          <Label htmlFor="listing-lease" className="font-normal cursor-pointer">For Lease</Label>
-                        </div>
-                      </RadioGroup>
+                      <Select value={listingType} onValueChange={setListingType}>
+                        <SelectTrigger className="w-full h-12 rounded-xl">
+                          <SelectValue placeholder="Select listing type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="for_sale">For Sale</SelectItem>
+                          <SelectItem value="for_rent">For Rent</SelectItem>
+                          <SelectItem value="for_lease">For Lease</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Status */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Status</Label>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-full h-12 rounded-xl">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="sold">Sold</SelectItem>
+                          <SelectItem value="rented">Rented</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Price Range */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Price Range (USD)</Label>
+                      <div className="flex gap-3">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          className="h-12 rounded-xl"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          className="h-12 rounded-xl"
+                        />
+                      </div>
+                    </div>
+
+                    {/* County */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">County</Label>
+                      <Select value={countyFilter} onValueChange={setCountyFilter}>
+                        <SelectTrigger className="w-full h-12 rounded-xl">
+                          <SelectValue placeholder="Select county" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {LIBERIA_COUNTIES.map((county) => (
+                            <SelectItem key={county} value={county}>{county}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {/* Apply Button */}
                     <Button onClick={applyFilters} className="w-full rounded-xl h-12">
-                      Apply Filters
+                      Apply
                     </Button>
                   </div>
                 </SheetContent>
