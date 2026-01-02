@@ -326,10 +326,10 @@ const Auth = () => {
         <div className="relative flex-1 flex flex-col justify-end p-6 pb-12">
           <div className="space-y-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              Your Trusted Guide<br />in Real Estate
+              Your Trusted Guide<br />in finding properties
             </h1>
             <p className="text-base text-foreground/90 max-w-md mx-auto">
-              Navigating the Path to Your Dream Home with Expertise and Integrity.
+              Navigating the Path to Your Property.
             </p>
 
             {/* Pagination dots */}
