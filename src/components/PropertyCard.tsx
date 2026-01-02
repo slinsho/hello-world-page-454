@@ -80,7 +80,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <Link to={`/property/${property.id}`}>
             <div className="space-y-2">
               {/* Location */}
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs text-foreground/80">
                 <MapPin className="h-3 w-3" />
                 <span className="line-clamp-1">{property.address}</span>
               </div>
