@@ -19,6 +19,9 @@ import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,23 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/terms" element={<TermsAndConditions />} />
+            {/* Hidden Admin Routes */}
+            <Route path="/winner-54/login" element={<AdminLogin />} />
+            <Route path="/winner-54/dashboard" element={
+              <AdminProtectedRoute>
+                <AdminDashboardPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/winner-54/listings" element={
+              <AdminProtectedRoute>
+                <AdminDashboardPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/winner-54/users" element={
+              <AdminProtectedRoute>
+                <AdminDashboardPage />
+              </AdminProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
