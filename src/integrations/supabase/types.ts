@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -82,6 +115,69 @@ export type Database = {
           suggestions?: string | null
           user_id?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      homepage_banners: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          success: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
         }
         Relationships: []
       }
