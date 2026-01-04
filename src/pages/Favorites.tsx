@@ -54,8 +54,8 @@ const Favorites = () => {
 
       if (error) throw error;
       setFavorites(data || []);
-    } catch (error) {
-      console.error("Error fetching favorites:", error);
+    } catch {
+      // Error handled silently - favorites data simply won't load
     } finally {
       setLoading(false);
     }
@@ -69,8 +69,7 @@ const Favorites = () => {
         title: "Removed from favorites",
         description: "Property has been removed from your favorites",
       });
-    } catch (error) {
-      console.error("Error removing favorite:", error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to remove from favorites",

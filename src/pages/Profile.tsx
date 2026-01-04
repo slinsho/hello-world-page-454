@@ -68,8 +68,8 @@ const Profile = () => {
       if (!error && data) {
         setIsAdmin(true);
       }
-    } catch (error) {
-      console.error("Error checking admin status:", error);
+    } catch {
+      // Error checking admin - user simply won't see admin features
     }
   };
 
@@ -85,7 +85,6 @@ const Profile = () => {
         .single();
 
       if (error) {
-        console.error("Error fetching profile:", error);
         toast({
           title: "Error",
           description: "Failed to load profile",
@@ -101,8 +100,8 @@ const Profile = () => {
           address: data.address || "",
         });
       }
-    } catch (error) {
-      console.error("Unexpected error:", error);
+    } catch {
+      // Error handled silently - profile won't load
     } finally {
       setLoading(false);
     }

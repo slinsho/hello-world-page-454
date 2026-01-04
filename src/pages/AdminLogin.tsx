@@ -33,8 +33,8 @@ const AdminLogin = () => {
           if (isAdmin) {
             navigate("/winner-54/dashboard");
           }
-        } catch (error) {
-          console.error("Error checking admin status:", error);
+        } catch {
+          // Error checking admin status - user stays on login page
         }
       }
     };

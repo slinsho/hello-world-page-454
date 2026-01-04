@@ -36,8 +36,7 @@ export default function Admin() {
         }
 
         setIsAdmin(true);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
+      } catch {
         navigate("/");
       } finally {
         setCheckingAdmin(false);
