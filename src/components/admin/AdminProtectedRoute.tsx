@@ -29,8 +29,7 @@ const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
         if (error) throw error;
 
         setIsAdmin(data);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
+      } catch {
         setIsAdmin(false);
       } finally {
         setCheckingAdmin(false);

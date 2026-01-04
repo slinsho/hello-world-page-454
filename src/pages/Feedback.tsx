@@ -11,6 +11,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Star } from "lucide-react";
+import { z } from "zod";
+
+// Input validation schema
+const feedbackSchema = z.object({
+  role: z.enum(["owner", "agent", "property_seeker"], { required_error: "Please select your role" }),
+  rating: z.number().min(1, "Please rate your experience").max(5),
+  activity: z.enum(["posting_property", "searching_property", "contacting", "managing_listings", "uploading_media", "other"], { required_error: "Please select an activity" }),
+  problem: z.string().trim().min(10, "Please describe the problem (minimum 10 characters)").max(2000, "Problem description is too long (maximum 2000 characters)"),
+  suggestions: z.string().trim().max(2000, "Suggestions are too long (maximum 2000 characters)").optional().or(z.literal("")),
+  email: z.string().trim().email("Please enter a valid email").max(255).optional().or(z.literal("")),
+  phone: z.string().trim().max(20, "Phone number is too long").regex(/^[\d\s\-+()]*$/, "Invalid phone number format").optional().or(z.literal("")),
+  whatsapp: z.string().trim().max(20, "WhatsApp number is too long").regex(/^[\d\s\-+()]*$/, "Invalid WhatsApp number format").optional().or(z.literal("")),
+});
 
 const Feedback = () => {
   const navigate = useNavigate();
@@ -31,27 +44,33 @@ const Feedback = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.role || !formData.rating || !formData.activity || !formData.problem) {
+    // Validate form data with zod
+    const validationResult = feedbackSchema.safeParse(formData);
+    
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
+        title: "Validation Error",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
     }
 
+    const validatedData = validationResult.data;
+
     setLoading(true);
     try {
       const { error } = await supabase.from("feedback").insert({
         user_id: user?.id || null,
-        role: formData.role,
-        rating: formData.rating,
-        activity: formData.activity,
-        problem: formData.problem,
-        suggestions: formData.suggestions || null,
-        email: formData.email || null,
-        phone: formData.phone || null,
-        whatsapp: formData.whatsapp || null,
+        role: validatedData.role,
+        rating: validatedData.rating,
+        activity: validatedData.activity,
+        problem: validatedData.problem,
+        suggestions: validatedData.suggestions || null,
+        email: validatedData.email || null,
+        phone: validatedData.phone || null,
+        whatsapp: validatedData.whatsapp || null,
       });
 
       if (error) throw error;
@@ -62,7 +81,6 @@ const Feedback = () => {
       });
       navigate(-1);
     } catch (error) {
-      console.error("Error submitting feedback:", error);
       toast({
         title: "Error",
         description: "Failed to submit feedback. Please try again.",
