@@ -143,11 +143,26 @@ export function AdminAnalytics() {
           forRentValue: forRent.reduce((sum, p) => sum + (Number(p.price_usd) || 0), 0),
         });
       }
-    } catch (error) {
-      console.error("Error fetching analytics:", error);
+    } catch {
+      // Error handled silently - analytics data simply won't load
     } finally {
       setLoading(false);
     }
+  };
+
+  // Sanitize CSV values to prevent formula injection
+  const sanitizeCSVValue = (value: unknown): string => {
+    if (value === null || value === undefined) return "";
+    const strValue = String(value);
+    // If value starts with potential formula characters, prefix with single quote
+    if (/^[=+\-@\t\r]/.test(strValue)) {
+      return `'${strValue}`;
+    }
+    // Escape quotes and wrap in quotes if contains comma, quote, or newline
+    if (strValue.includes(",") || strValue.includes('"') || strValue.includes("\n")) {
+      return `"${strValue.replace(/"/g, '""')}"`;
+    }
+    return strValue;
   };
 
   const exportToCSV = (data: Record<string, unknown>[], filename: string) => {
@@ -156,7 +171,7 @@ export function AdminAnalytics() {
     const headers = Object.keys(data[0]);
     const csvContent = [
       headers.join(","),
-      ...data.map((row) => headers.map((h) => row[h]).join(",")),
+      ...data.map((row) => headers.map((h) => sanitizeCSVValue(row[h])).join(",")),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });

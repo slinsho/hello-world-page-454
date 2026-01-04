@@ -35,8 +35,8 @@ const AdminFeedback = () => {
 
       if (error) throw error;
       setFeedback(data || []);
-    } catch (error) {
-      console.error("Error fetching feedback:", error);
+    } catch {
+      // Error handled silently - feedback data simply won't load
     } finally {
       setLoading(false);
     }
