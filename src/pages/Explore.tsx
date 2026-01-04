@@ -63,9 +63,6 @@ const Explore = () => {
 
     const { data, error } = await query;
 
-    console.log("Explore - Properties data:", data);
-    console.log("Explore - Properties error:", error);
-
     if (!error && data) {
       setProperties(data);
     }

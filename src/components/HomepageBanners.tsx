@@ -30,8 +30,8 @@ export function HomepageBanners() {
 
         if (error) throw error;
         setBanners(data || []);
-      } catch (error) {
-        console.error("Error fetching banners:", error);
+      } catch {
+        // Error handled silently - banners simply won't display
       } finally {
         setLoading(false);
       }
