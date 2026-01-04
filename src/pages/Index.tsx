@@ -5,10 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import PropertyCard from "@/components/PropertyCard";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
+import { HomepageBanners } from "@/components/HomepageBanners";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
-
 const Index = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -113,7 +113,10 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Navbar />
       
-      <main className="px-4 pt-4 md:px-6">
+      <main className="px-4 pt-4 md:px-6 space-y-6">
+        {/* Homepage Banners */}
+        <HomepageBanners />
+        
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (

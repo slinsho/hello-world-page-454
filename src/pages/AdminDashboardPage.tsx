@@ -4,6 +4,7 @@ import { AdminVerifications } from "@/components/admin/AdminVerifications";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
+import { AdminMarketing } from "@/components/admin/AdminMarketing";
 import { Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,12 +60,13 @@ export default function AdminDashboardPage() {
       </div>
 
       <Tabs defaultValue={getDefaultTab()} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto">
-          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2">Dashboard</TabsTrigger>
-          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-2">Verifications</TabsTrigger>
-          <TabsTrigger value="users" className="text-xs sm:text-sm px-2">Users</TabsTrigger>
-          <TabsTrigger value="properties" className="text-xs sm:text-sm px-2">Properties</TabsTrigger>
-          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2">Feedback</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6 h-auto">
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-1 sm:px-2">Dashboard</TabsTrigger>
+          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-1 sm:px-2">Verifications</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs sm:text-sm px-1 sm:px-2">Users</TabsTrigger>
+          <TabsTrigger value="properties" className="text-xs sm:text-sm px-1 sm:px-2">Properties</TabsTrigger>
+          <TabsTrigger value="marketing" className="text-xs sm:text-sm px-1 sm:px-2">Marketing</TabsTrigger>
+          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-1 sm:px-2">Feedback</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
@@ -81,6 +83,10 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="properties">
           <AdminProperties />
+        </TabsContent>
+
+        <TabsContent value="marketing">
+          <AdminMarketing />
         </TabsContent>
 
         <TabsContent value="feedback">
