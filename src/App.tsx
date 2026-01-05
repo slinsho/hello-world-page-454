@@ -22,6 +22,8 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             {/* Hidden Admin Routes */}
             <Route path="/winner-54/login" element={<AdminLogin />} />
             <Route path="/winner-54/dashboard" element={
