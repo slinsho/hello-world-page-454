@@ -36,6 +36,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 75 100% 50%;
+    
+    /* Blog accent colors - orange/red theme */
+    --blog-accent: 14 100% 53%;
+    --blog-accent-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -66,6 +70,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 75 100% 50%;
+    
+    /* Blog accent colors - orange/red theme */
+    --blog-accent: 14 100% 53%;
+    --blog-accent-foreground: 0 0% 100%;
   }
 }
 
