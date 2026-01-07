@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { RichTextEditor } from "./RichTextEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SocialLinksManager } from "./SocialLinksManager";
 
 interface BlogPost {
   id: string;
@@ -405,6 +406,7 @@ export function AdminBlog() {
             <TabsList>
               <TabsTrigger value="posts">Posts</TabsTrigger>
               <TabsTrigger value="categories">Categories</TabsTrigger>
+              <TabsTrigger value="social">Social Links</TabsTrigger>
             </TabsList>
           </div>
 
@@ -564,6 +566,10 @@ export function AdminBlog() {
                 No categories yet. Create your first category!
               </p>
             )}
+          </TabsContent>
+
+          <TabsContent value="social" className="mt-0">
+            <SocialLinksManager />
           </TabsContent>
         </Tabs>
       </CardHeader>
