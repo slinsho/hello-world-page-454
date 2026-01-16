@@ -3,11 +3,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { ArrowLeft, User, Eye, Clock, Share2 } from "lucide-react";
+import { ArrowLeft, User, Eye, Clock, Share2, Copy, Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { useState } from "react";
 
 // Social icons
 const FacebookIcon = () => (
@@ -31,6 +32,24 @@ const WhatsAppIcon = () => (
 const LinkedInIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const InstagramIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </svg>
+);
+
+const TiktokIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+  </svg>
+);
+
+const YoutubeIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
   </svg>
 );
 
@@ -63,6 +82,7 @@ interface BlogPostData {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: ["blog-post", slug],
@@ -72,9 +92,10 @@ export default function BlogPost() {
         .select("id, title, content, cover_image, published_at, author_id, views_count, category_id")
         .eq("slug", slug)
         .eq("is_published", true)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return null;
       
       let authorName: string | undefined;
       if (data.author_id) {
@@ -82,7 +103,7 @@ export default function BlogPost() {
           .from("profiles")
           .select("name")
           .eq("id", data.author_id)
-          .single();
+          .maybeSingle();
         authorName = profile?.name;
       }
 
@@ -92,7 +113,7 @@ export default function BlogPost() {
           .from("blog_categories")
           .select("id, name, slug")
           .eq("id", data.category_id)
-          .single();
+          .maybeSingle();
         category = cat || undefined;
       }
 
@@ -172,7 +193,9 @@ export default function BlogPost() {
       case "copy":
         try {
           await navigator.clipboard.writeText(shareUrl);
+          setCopied(true);
           toast({ title: "Link copied!", description: "Article link copied to clipboard" });
+          setTimeout(() => setCopied(false), 2000);
         } catch {
           toast({ title: "Failed to copy", variant: "destructive" });
         }
@@ -187,21 +210,9 @@ export default function BlogPost() {
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case "facebook": return <FacebookIcon />;
-      case "instagram": return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-        </svg>
-      );
-      case "tiktok": return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
-        </svg>
-      );
-      case "youtube": return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-          <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-        </svg>
-      );
+      case "instagram": return <InstagramIcon />;
+      case "tiktok": return <TiktokIcon />;
+      case "youtube": return <YoutubeIcon />;
       case "twitter": return <TwitterIcon />;
       default: return null;
     }
@@ -211,13 +222,13 @@ export default function BlogPost() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <main className="container mx-auto px-4 py-8 pt-24 max-w-3xl">
+        <main className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
           <Skeleton className="h-8 w-32 mb-6" />
           <Skeleton className="h-12 w-full mb-4" />
           <Skeleton className="h-4 w-48 mb-8" />
-          <Skeleton className="h-64 w-full mb-8" />
+          <Skeleton className="h-96 w-full mb-8 rounded-2xl" />
           <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
@@ -230,247 +241,254 @@ export default function BlogPost() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <main className="container mx-auto px-4 py-8 pt-24 max-w-3xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Post Not Found</h1>
-          <p className="text-muted-foreground mb-6">
-            The blog post you're looking for doesn't exist or has been removed.
-          </p>
-          <Button asChild className="bg-blog-accent hover:bg-blog-accent/90">
-            <Link to="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Blog
-            </Link>
-          </Button>
+        <main className="container mx-auto px-4 py-8 pt-24 max-w-4xl text-center">
+          <div className="py-16">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Post Not Found</h1>
+            <p className="text-gray-500 mb-8">
+              The blog post you're looking for doesn't exist or has been removed.
+            </p>
+            <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+              <Link to="/blog">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Blog
+              </Link>
+            </Button>
+          </div>
         </main>
       </div>
     );
   }
 
   // Process content to make images full width
-  const processedContent = post.content.replace(
-    /<img([^>]*)class="[^"]*"([^>]*)>/g,
-    '<img$1class="w-full h-auto my-6 -mx-4 md:-mx-8 max-w-[calc(100%+2rem)] md:max-w-[calc(100%+4rem)]"$2>'
-  ).replace(
-    /<img([^>]*?)(?<!class=")>/g,
-    '<img$1 class="w-full h-auto my-6 -mx-4 md:-mx-8 max-w-[calc(100%+2rem)] md:max-w-[calc(100%+4rem)]">'
-  );
+  const processedContent = post.content
+    .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
+    .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>');
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Hero Image */}
-      {post.cover_image && (
-        <div className="relative h-[300px] md:h-[400px] pt-16">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
-          <img
-            src={post.cover_image}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 z-20 text-white">
-            <div className="container mx-auto max-w-3xl">
+      <main className="pt-20">
+        {/* Breadcrumb */}
+        <div className="bg-gray-50 border-b border-gray-100">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center gap-2 text-sm">
+              <Link to="/blog" className="text-gray-500 hover:text-red-600 transition-colors">
+                Blog
+              </Link>
+              <span className="text-gray-300">/</span>
               {post.category && (
-                <span className="inline-block bg-blog-accent text-white px-3 py-1 text-xs font-bold rounded-full mb-3">
-                  {post.category.name}
-                </span>
+                <>
+                  <span className="text-gray-500">{post.category.name}</span>
+                  <span className="text-gray-300">/</span>
+                </>
               )}
-              <h1 className="text-2xl md:text-3xl font-bold mb-3">{post.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 text-gray-200 text-sm">
-                {post.published_at && (
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
-                    {format(new Date(post.published_at), "dd MMM yyyy")}
-                  </span>
-                )}
-                {post.author_name && (
-                  <span className="flex items-center gap-1.5">
-                    <User className="h-4 w-4" />
-                    {post.author_name}
-                  </span>
-                )}
-                <span className="flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  {post.views_count || 0} views
-                </span>
-              </div>
+              <span className="text-gray-900 font-medium truncate max-w-[200px]">{post.title}</span>
             </div>
           </div>
         </div>
-      )}
 
-      <main className="container mx-auto px-4 py-6 max-w-3xl">
-        <Button variant="ghost" asChild className="mb-4 -ml-2">
-          <Link to="/blog">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Link>
-        </Button>
+        {/* Article Header */}
+        <header className="container mx-auto px-4 py-8 max-w-4xl">
+          <Button variant="ghost" asChild className="mb-6 -ml-3 text-gray-600 hover:text-red-600">
+            <Link to="/blog">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Blog
+            </Link>
+          </Button>
 
-        {!post.cover_image && (
-          <>
-            {post.category && (
-              <span className="inline-block bg-blog-accent text-white px-3 py-1 text-xs font-bold rounded-full mb-3">
-                {post.category.name}
+          {post.category && (
+            <span className="inline-block bg-red-100 text-red-600 px-4 py-1.5 text-sm font-semibold rounded-full mb-4">
+              {post.category.name}
+            </span>
+          )}
+
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
+            {post.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm pb-6 border-b border-gray-100">
+            {post.author_name && (
+              <span className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                  <User className="h-4 w-4 text-red-600" />
+                </div>
+                <span className="font-medium text-gray-900">{post.author_name}</span>
               </span>
             )}
-            <h1 className="text-2xl md:text-3xl font-bold mb-4">{post.title}</h1>
-            <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm mb-6">
-              {post.published_at && (
-                <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4" />
-                  {format(new Date(post.published_at), "dd MMM yyyy")}
-                </span>
-              )}
-              {post.author_name && (
-                <span className="flex items-center gap-1.5">
-                  <User className="h-4 w-4" />
-                  {post.author_name}
-                </span>
-              )}
+            {post.published_at && (
               <span className="flex items-center gap-1.5">
-                <Eye className="h-4 w-4" />
-                {post.views_count || 0} views
+                <Clock className="h-4 w-4" />
+                {format(new Date(post.published_at), "MMMM dd, yyyy")}
               </span>
-            </div>
-          </>
+            )}
+            <span className="flex items-center gap-1.5">
+              <Eye className="h-4 w-4" />
+              {post.views_count || 0} views
+            </span>
+          </div>
+        </header>
+
+        {/* Cover Image */}
+        {post.cover_image && (
+          <div className="w-full">
+            <img
+              src={post.cover_image}
+              alt={post.title}
+              className="w-full h-[300px] md:h-[450px] lg:h-[500px] object-cover"
+            />
+          </div>
         )}
 
-        {/* Article Content - Full width images */}
-        <article className="overflow-hidden">
+        {/* Article Content */}
+        <article className="container mx-auto px-4 py-10 max-w-4xl">
           <div 
-            className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blog-accent prose-strong:text-foreground prose-img:rounded-none prose-img:mx-0"
+            className="prose prose-lg max-w-none 
+              prose-headings:text-gray-900 prose-headings:font-bold
+              prose-p:text-gray-700 prose-p:leading-relaxed
+              prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline
+              prose-strong:text-gray-900
+              prose-ul:text-gray-700 prose-ol:text-gray-700
+              prose-li:marker:text-red-600
+              [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-8 [&_.blog-full-image]:h-auto"
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />
         </article>
 
-        {/* Social Sharing */}
-        <div className="mt-8 py-4 border-t border-b border-border">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm font-medium">
-              <Share2 className="h-4 w-4" />
-              Share this article
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleShare("facebook")}
-                className="w-9 h-9 bg-[#1877f2] hover:bg-[#1877f2]/90 rounded-full flex items-center justify-center text-white transition"
-              >
-                <FacebookIcon />
-              </button>
-              <button
-                onClick={() => handleShare("twitter")}
-                className="w-9 h-9 bg-black hover:bg-black/80 rounded-full flex items-center justify-center text-white transition"
-              >
-                <TwitterIcon />
-              </button>
-              <button
-                onClick={() => handleShare("whatsapp")}
-                className="w-9 h-9 bg-[#25d366] hover:bg-[#25d366]/90 rounded-full flex items-center justify-center text-white transition"
-              >
-                <WhatsAppIcon />
-              </button>
-              <button
-                onClick={() => handleShare("linkedin")}
-                className="w-9 h-9 bg-[#0a66c2] hover:bg-[#0a66c2]/90 rounded-full flex items-center justify-center text-white transition"
-              >
-                <LinkedInIcon />
-              </button>
-              <button
-                onClick={() => handleShare("copy")}
-                className="w-9 h-9 bg-muted hover:bg-muted/80 rounded-full flex items-center justify-center text-foreground transition"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-                </svg>
-              </button>
+        {/* Share Section */}
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="bg-gray-50 rounded-2xl p-6 md:p-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Share2 className="h-5 w-5 text-gray-600" />
+                <span className="font-semibold text-gray-900">Share this article</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleShare("facebook")}
+                  className="w-10 h-10 bg-[#1877f2] hover:bg-[#1877f2]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  title="Share on Facebook"
+                >
+                  <FacebookIcon />
+                </button>
+                <button
+                  onClick={() => handleShare("twitter")}
+                  className="w-10 h-10 bg-black hover:bg-black/80 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  title="Share on Twitter"
+                >
+                  <TwitterIcon />
+                </button>
+                <button
+                  onClick={() => handleShare("whatsapp")}
+                  className="w-10 h-10 bg-[#25d366] hover:bg-[#25d366]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  title="Share on WhatsApp"
+                >
+                  <WhatsAppIcon />
+                </button>
+                <button
+                  onClick={() => handleShare("linkedin")}
+                  className="w-10 h-10 bg-[#0a66c2] hover:bg-[#0a66c2]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  title="Share on LinkedIn"
+                >
+                  <LinkedInIcon />
+                </button>
+                <button
+                  onClick={() => handleShare("copy")}
+                  className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center text-gray-700 transition-all hover:scale-105"
+                  title="Copy link"
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Follow Us Section */}
         {activeSocialLinks.length > 0 && (
-          <div className="mt-6 p-4 bg-muted rounded-xl">
-            <h4 className="font-semibold text-center mb-3">Follow Us</h4>
-            <div className="flex items-center justify-center gap-3">
-              {activeSocialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-blog-accent hover:bg-blog-accent/90 rounded-full flex items-center justify-center text-white transition"
-                >
-                  {getSocialIcon(link.platform)}
-                </a>
-              ))}
+          <div className="container mx-auto px-4 max-w-4xl mt-8">
+            <div className="bg-red-600 rounded-2xl p-6 md:p-8 text-white">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Follow Us</h3>
+                  <p className="text-red-100">Stay connected for more updates</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {activeSocialLinks.map((link) => (
+                    <a
+                      key={link.id}
+                      href={link.url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-11 h-11 bg-white/20 hover:bg-white hover:text-red-600 rounded-xl flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      {getSocialIcon(link.platform)}
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Related Posts */}
         {relatedPosts && relatedPosts.length > 0 && (
-          <section className="mt-8">
-            <h3 className="text-xl font-bold mb-4">Related Articles</h3>
-            <div className="space-y-3">
-              {relatedPosts.map((related) => (
+          <section className="container mx-auto px-4 py-12 max-w-4xl">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedPosts.map((relatedPost) => (
                 <Link
-                  key={related.id}
-                  to={`/blog/${related.slug}`}
-                  className="flex gap-4 p-3 bg-card rounded-lg border border-border hover:shadow-md transition group"
+                  key={relatedPost.id}
+                  to={`/blog/${relatedPost.slug}`}
+                  className="group"
                 >
-                  {related.cover_image && (
-                    <div className="w-24 h-18 rounded overflow-hidden flex-shrink-0">
-                      <img
-                        src={related.cover_image}
-                        alt={related.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm group-hover:text-blog-accent transition-colors line-clamp-2">
-                      {related.title}
-                    </h4>
-                    {related.published_at && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(related.published_at), "dd MMM yyyy")}
-                      </p>
+                  <article className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300">
+                    {relatedPost.cover_image && (
+                      <div className="aspect-video overflow-hidden">
+                        <img
+                          src={relatedPost.cover_image}
+                          alt={relatedPost.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
                     )}
-                  </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors">
+                        {relatedPost.title}
+                      </h3>
+                      {relatedPost.published_at && (
+                        <p className="text-sm text-gray-500 mt-2 flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {format(new Date(relatedPost.published_at), "MMM dd, yyyy")}
+                        </p>
+                      )}
+                    </div>
+                  </article>
                 </Link>
               ))}
             </div>
           </section>
         )}
-      </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-8">
-        <div className="container mx-auto px-4 text-center">
-          {activeSocialLinks.length > 0 && (
-            <div className="flex items-center justify-center gap-3 mb-4">
-              {activeSocialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gray-800 hover:bg-blog-accent rounded-full flex items-center justify-center text-white transition"
-                >
-                  {getSocialIcon(link.platform)}
-                </a>
-              ))}
-            </div>
-          )}
-          <div className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} All rights reserved.
+        {/* Footer CTA */}
+        <section className="bg-gray-900 py-12 mt-8">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              Want to read more?
+            </h2>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              Explore our blog for more insightful articles and updates.
+            </p>
+            <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8">
+              <Link to="/blog">
+                View All Articles
+              </Link>
+            </Button>
           </div>
-        </div>
-      </footer>
+        </section>
+      </main>
     </div>
   );
 }
