@@ -3,14 +3,14 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { Clock, Eye, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import { Clock, Eye, ChevronRight, Send, TrendingUp, Bookmark, Mail } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
-// Social icons as simple SVGs
+// Social icons
 const FacebookIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -74,8 +74,6 @@ interface SocialLink {
 export default function Blog() {
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [activeTab, setActiveTab] = useState<"popular" | "recent">("popular");
   const [email, setEmail] = useState("");
 
   const { data: socialLinks } = useQuery({
@@ -161,20 +159,7 @@ export default function Blog() {
 
   const featuredPosts = posts?.filter(p => p.is_featured && p.cover_image) || [];
   const regularPosts = posts?.filter(p => !p.is_featured) || [];
-  const popularPosts = [...(posts || [])].sort((a, b) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5);
-  const recentPosts = [...(posts || [])].slice(0, 5);
-
-  const nextSlide = () => {
-    if (featuredPosts.length > 0) {
-      setCurrentSlide((prev) => (prev + 1) % featuredPosts.length);
-    }
-  };
-
-  const prevSlide = () => {
-    if (featuredPosts.length > 0) {
-      setCurrentSlide((prev) => (prev - 1 + featuredPosts.length) % featuredPosts.length);
-    }
-  };
+  const popularPosts = [...(posts || [])].sort((a, b) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 4);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,128 +182,45 @@ export default function Blog() {
   const activeSocialLinks = socialLinks?.filter(link => link.url && link.url.trim() !== "") || [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="pt-16 pb-20">
-        {/* Featured Hero Slider - Mobile App Style */}
-        {featuredPosts.length > 0 && (
-          <section className="relative h-[320px] md:h-[450px] overflow-hidden">
-            {featuredPosts.map((post, index) => (
-              <Link
-                key={post.id}
-                to={`/blog/${post.slug}`}
-                className={`absolute inset-0 transition-opacity duration-500 ${
-                  index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-                }`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-10" />
-                <img
-                  src={post.cover_image!}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 z-20 text-white">
-                  {post.category && (
-                    <span className="inline-block bg-blog-accent text-white px-3 py-1 text-xs font-bold rounded-full mb-3">
-                      {post.category.name}
-                    </span>
-                  )}
-                  <h2 className="text-xl md:text-2xl font-bold mb-2 line-clamp-2">
-                    {post.title}
-                  </h2>
-                  {post.published_at && (
-                    <span className="flex items-center gap-1.5 text-gray-300 text-xs">
-                      <Clock className="h-3.5 w-3.5" />
-                      {format(new Date(post.published_at), "dd MMM yyyy")}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
-            
-            {/* Slider Dots */}
-            {featuredPosts.length > 1 && (
-              <div className="absolute bottom-4 right-4 z-30 flex gap-1.5">
-                {featuredPosts.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => { e.preventDefault(); setCurrentSlide(index); }}
-                    className={`w-2 h-2 rounded-full transition ${
-                      index === currentSlide ? "bg-blog-accent w-6" : "bg-white/50"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-            
-            {/* Slider Arrows */}
-            {featuredPosts.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => { e.preventDefault(); prevSlide(); }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-black/30 backdrop-blur-sm text-white rounded-full flex items-center justify-center"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={(e) => { e.preventDefault(); nextSlide(); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-black/30 backdrop-blur-sm text-white rounded-full flex items-center justify-center"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </>
-            )}
-          </section>
-        )}
-
-        {/* Follow Us Section */}
-        {activeSocialLinks.length > 0 && (
-          <section className="bg-blog-accent py-4">
-            <div className="container mx-auto px-4">
-              <div className="flex items-center justify-center gap-4 flex-wrap">
-                <span className="text-white font-semibold text-sm">Follow Us</span>
-                <div className="flex items-center gap-3">
-                  {activeSocialLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.url!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-9 h-9 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition"
-                    >
-                      {getSocialIcon(link.platform)}
-                    </a>
-                  ))}
-                </div>
-              </div>
+      <main className="pt-20">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-red-600 via-red-500 to-red-600 text-white py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <h1 className="text-3xl md:text-5xl font-bold mb-4">Our Blog</h1>
+              <p className="text-red-100 text-lg md:text-xl">
+                Discover the latest insights, tips, and stories from our community
+              </p>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
-        {/* Category Pills */}
+        {/* Category Filter */}
         {categories && categories.length > 0 && (
-          <section className="py-4 border-b border-border">
+          <section className="bg-gray-50 border-b border-gray-200 sticky top-16 z-40">
             <div className="container mx-auto px-4">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex gap-1 overflow-x-auto py-4 scrollbar-hide">
                 <button
                   onClick={() => setActiveCategory(null)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                  className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                     activeCategory === null
-                      ? "bg-blog-accent text-white"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                   }`}
                 >
-                  All
+                  All Posts
                 </button>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                    className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                       activeCategory === cat.id
-                        ? "bg-blog-accent text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                        : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                     }`}
                   >
                     {cat.name}
@@ -329,214 +231,263 @@ export default function Blog() {
           </section>
         )}
 
-        {/* Latest News Section */}
-        <section className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Latest News</h2>
-            <div className="w-12 h-1 bg-blog-accent mt-2 rounded-full" />
-          </div>
-
-          {/* Blog Posts - Mobile Card Style */}
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-4">
-                  <Skeleton className="w-28 h-24 rounded-lg flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : regularPosts && regularPosts.length > 0 ? (
-            <div className="space-y-4">
-              {regularPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="group">
-                  <article className="flex gap-4 p-3 bg-card rounded-xl border border-border hover:shadow-lg transition">
-                    {post.cover_image && (
-                      <div className="w-28 h-24 flex-shrink-0 rounded-lg overflow-hidden">
+        <div className="container mx-auto px-4 py-10">
+          <div className="grid lg:grid-cols-3 gap-10">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              {/* Featured Post */}
+              {featuredPosts.length > 0 && (
+                <section className="mb-10">
+                  <Link to={`/blog/${featuredPosts[0].slug}`} className="group block">
+                    <article className="relative rounded-2xl overflow-hidden shadow-xl">
+                      <div className="aspect-[16/9] overflow-hidden">
                         <img
-                          src={post.cover_image}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          src={featuredPosts[0].cover_image!}
+                          alt={featuredPosts[0].title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                      <div>
-                        {post.category && (
-                          <span className="inline-block text-blog-accent text-xs font-semibold mb-1">
-                            {post.category.name}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="bg-red-600 text-white px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide">
+                            Featured
                           </span>
+                          {featuredPosts[0].category && (
+                            <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 text-xs font-medium rounded-full">
+                              {featuredPosts[0].category.name}
+                            </span>
+                          )}
+                        </div>
+                        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3 group-hover:text-red-300 transition-colors">
+                          {featuredPosts[0].title}
+                        </h2>
+                        {featuredPosts[0].excerpt && (
+                          <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-4">
+                            {featuredPosts[0].excerpt}
+                          </p>
                         )}
-                        <h3 className="text-sm font-bold leading-tight line-clamp-2 group-hover:text-blog-accent transition-colors">
-                          {post.title}
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        {post.published_at && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {format(new Date(post.published_at), "dd MMM")}
+                        <div className="flex items-center gap-4 text-gray-300 text-sm">
+                          {featuredPosts[0].published_at && (
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="h-4 w-4" />
+                              {format(new Date(featuredPosts[0].published_at), "MMMM dd, yyyy")}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Eye className="h-4 w-4" />
+                            {featuredPosts[0].views_count || 0} views
                           </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {post.views_count || 0}
-                        </span>
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No articles found. Check back soon!
-            </div>
-          )}
-        </section>
+                    </article>
+                  </Link>
+                </section>
+              )}
 
-        {/* Popular / Recent Tabs */}
-        <section className="bg-muted/50 py-6">
-          <div className="container mx-auto px-4">
-            <div className="flex rounded-xl overflow-hidden mb-4">
-              <button
-                onClick={() => setActiveTab("popular")}
-                className={`flex-1 py-3 font-semibold text-sm transition ${
-                  activeTab === "popular"
-                    ? "bg-blog-accent text-white"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                🔥 Popular
-              </button>
-              <button
-                onClick={() => setActiveTab("recent")}
-                className={`flex-1 py-3 font-semibold text-sm transition ${
-                  activeTab === "recent"
-                    ? "bg-blog-accent text-white"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                🕐 Recent
-              </button>
-            </div>
+              {/* Latest Articles */}
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <Bookmark className="h-6 w-6 text-red-600" />
+                  <h2 className="text-2xl font-bold text-gray-900">Latest Articles</h2>
+                </div>
 
-            <div className="space-y-3">
-              {(activeTab === "popular" ? popularPosts : recentPosts).map((post, index) => (
-                <Link
-                  key={post.id}
-                  to={`/blog/${post.slug}`}
-                  className="flex items-center gap-3 p-3 bg-card rounded-lg hover:shadow-md transition group"
-                >
-                  <span className="text-2xl font-bold text-blog-accent w-8">{index + 1}</span>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold line-clamp-2 group-hover:text-blog-accent transition-colors">
-                      {post.title}
-                    </h4>
-                    <span className="text-xs text-muted-foreground">
-                      {post.views_count || 0} views
-                    </span>
+                {isLoading ? (
+                  <div className="space-y-6">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex gap-5 p-4 bg-white rounded-xl border border-gray-100">
+                        <Skeleton className="w-32 h-28 rounded-lg flex-shrink-0" />
+                        <div className="flex-1 space-y-3">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-5 w-full" />
+                          <Skeleton className="h-5 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  {post.cover_image && (
-                    <div className="w-16 h-12 rounded overflow-hidden flex-shrink-0">
-                      <img src={post.cover_image} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </Link>
-              ))}
+                ) : regularPosts && regularPosts.length > 0 ? (
+                  <div className="space-y-5">
+                    {regularPosts.map((post) => (
+                      <Link key={post.id} to={`/blog/${post.slug}`} className="group block">
+                        <article className="flex gap-5 p-4 bg-white rounded-xl border border-gray-100 hover:border-red-200 hover:shadow-lg transition-all duration-300">
+                          {post.cover_image && (
+                            <div className="w-32 md:w-40 h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                              <img
+                                src={post.cover_image}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0 flex flex-col justify-between">
+                            <div>
+                              {post.category && (
+                                <span className="inline-block text-red-600 text-xs font-bold uppercase tracking-wide mb-2">
+                                  {post.category.name}
+                                </span>
+                              )}
+                              <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight line-clamp-2 group-hover:text-red-600 transition-colors">
+                                {post.title}
+                              </h3>
+                              {post.excerpt && (
+                                <p className="text-gray-500 text-sm line-clamp-1 mt-1 hidden md:block">
+                                  {post.excerpt}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+                              {post.published_at && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3.5 w-3.5" />
+                                  {format(new Date(post.published_at), "MMM dd, yyyy")}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Eye className="h-3.5 w-3.5" />
+                                {post.views_count || 0}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="hidden md:flex items-center">
+                            <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-red-600 group-hover:translate-x-1 transition-all" />
+                          </div>
+                        </article>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                    <Bookmark className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">No articles found</p>
+                    <p className="text-gray-400 text-sm mt-1">Check back soon for new content!</p>
+                  </div>
+                )}
+              </section>
             </div>
-          </div>
-        </section>
 
-        {/* Newsletter Section */}
-        <section className="bg-blog-accent py-8">
-          <div className="container mx-auto px-4 text-center">
-            <h3 className="text-xl font-bold text-white mb-2">Stay Updated</h3>
-            <p className="text-white/80 text-sm mb-4">Get the latest news delivered to your inbox</p>
-            <form onSubmit={handleSubscribe} className="flex gap-2 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                required
-              />
-              <Button
-                type="submit"
-                disabled={newsletterMutation.isPending}
-                className="bg-white text-blog-accent hover:bg-white/90 px-6"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-8">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              <div>
-                <h4 className="font-bold mb-3">Categories</h4>
-                <ul className="space-y-2 text-sm">
-                  {categories?.map((cat) => (
-                    <li key={cat.id}>
-                      <button
-                        onClick={() => {
-                          setActiveCategory(cat.id);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        className="text-gray-400 hover:text-blog-accent transition"
+            {/* Sidebar */}
+            <aside className="space-y-8">
+              {/* Popular Posts */}
+              {popularPosts.length > 0 && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-5">
+                    <TrendingUp className="h-5 w-5 text-red-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Trending Now</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {popularPosts.map((post, index) => (
+                      <Link
+                        key={post.id}
+                        to={`/blog/${post.slug}`}
+                        className="group flex gap-4 items-start"
                       >
-                        {cat.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-3">Links</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link to="/" className="text-gray-400 hover:text-blog-accent transition">Home</Link>
-                  </li>
-                  <li>
-                    <Link to="/explore" className="text-gray-400 hover:text-blog-accent transition">Explore</Link>
-                  </li>
-                  <li>
-                    <Link to="/blog" className="text-gray-400 hover:text-blog-accent transition">News</Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            {/* Social Links in Footer */}
-            {activeSocialLinks.length > 0 && (
-              <div className="flex items-center justify-center gap-3 py-4 border-t border-gray-800">
-                {activeSocialLinks.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.url!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gray-800 hover:bg-blog-accent rounded-full flex items-center justify-center text-white transition"
+                        <span className="text-2xl font-black text-red-600/20 group-hover:text-red-600/40 transition-colors">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors leading-snug">
+                            {post.title}
+                          </h4>
+                          <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <Eye className="h-3 w-3" />
+                            {post.views_count || 0} views
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Follow Us */}
+              {activeSocialLinks.length > 0 && (
+                <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-6 text-white">
+                  <h3 className="text-lg font-bold mb-4">Follow Us</h3>
+                  <p className="text-red-100 text-sm mb-5">
+                    Stay connected with us on social media
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {activeSocialLinks.map((link) => (
+                      <a
+                        key={link.id}
+                        href={link.url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-11 h-11 bg-white/20 hover:bg-white hover:text-red-600 rounded-xl flex items-center justify-center transition-all duration-300"
+                      >
+                        {getSocialIcon(link.platform)}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Newsletter */}
+              <div className="bg-gray-900 rounded-2xl p-6 text-white">
+                <div className="flex items-center gap-2 mb-4">
+                  <Mail className="h-5 w-5 text-red-500" />
+                  <h3 className="text-lg font-bold">Newsletter</h3>
+                </div>
+                <p className="text-gray-400 text-sm mb-5">
+                  Subscribe to get the latest updates delivered to your inbox.
+                </p>
+                <form onSubmit={handleSubscribe} className="space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500 focus:ring-red-500"
+                    required
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+                    disabled={newsletterMutation.isPending}
                   >
-                    {getSocialIcon(link.platform)}
-                  </a>
-                ))}
+                    {newsletterMutation.isPending ? (
+                      "Subscribing..."
+                    ) : (
+                      <>
+                        Subscribe <Send className="h-4 w-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </form>
               </div>
-            )}
-            
-            <div className="text-center text-gray-500 text-xs pt-4 border-t border-gray-800">
-              © {new Date().getFullYear()} All rights reserved.
+            </aside>
+          </div>
+        </div>
+
+        {/* Footer Newsletter Banner */}
+        <section className="bg-red-600 py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto text-center text-white">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">Never Miss an Update</h2>
+              <p className="text-red-100 mb-6">
+                Join our newsletter and get the latest articles delivered straight to your inbox.
+              </p>
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <Input
+                  type="email"
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-white border-0 text-gray-900 placeholder:text-gray-500"
+                  required
+                />
+                <Button
+                  type="submit"
+                  className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6"
+                  disabled={newsletterMutation.isPending}
+                >
+                  Subscribe
+                </Button>
+              </form>
             </div>
           </div>
-        </footer>
+        </section>
       </main>
     </div>
   );
