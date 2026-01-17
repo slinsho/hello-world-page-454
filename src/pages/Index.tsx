@@ -74,7 +74,9 @@ const Index = () => {
         return;
       }
 
-      setProperties(propertiesData);
+      // Shuffle properties randomly
+      const shuffledProperties = [...propertiesData].sort(() => Math.random() - 0.5);
+      setProperties(shuffledProperties);
 
       // Get user's county from profile - only show Near Me for logged in users with county set
       let county = "";
