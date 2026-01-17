@@ -158,8 +158,11 @@ export default function Blog() {
     },
   });
 
-  const featuredPost = posts?.find(p => p.is_featured && p.cover_image);
-  const regularPosts = posts?.filter(p => !p.is_featured) || [];
+  // Get the post with the highest level (views_count) for banner
+  const bannerPost = posts?.length 
+    ? [...posts].sort((a, b) => (b.views_count || 0) - (a.views_count || 0))[0] 
+    : undefined;
+  const regularPosts = posts?.filter(p => p.id !== bannerPost?.id) || [];
   const popularPosts = [...(posts || [])].sort((a, b) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5);
   const recentPosts = [...(posts || [])].slice(0, 5);
   const displayedPosts = activeTab === "popular" ? popularPosts : recentPosts;
@@ -244,59 +247,56 @@ export default function Blog() {
           </section>
         )}
 
-        {/* Featured Article */}
-        {featuredPost && (
+        {/* Banner Article - Highest Level Post */}
+        {bannerPost && bannerPost.cover_image && (
           <section className="px-4 mb-8">
             <div className="max-w-3xl mx-auto">
-              <Link to={`/blog/${featuredPost.slug}`} className="group block">
-                <article>
-                  <div className="rounded-xl overflow-hidden mb-4">
-                    <img
-                      src={featuredPost.cover_image!}
-                      alt={featuredPost.title}
-                      className="w-full h-64 md:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
+              <Link to={`/blog/${bannerPost.slug}`} className="group block">
+                <article className="relative rounded-2xl overflow-hidden">
+                  <img
+                    src={bannerPost.cover_image}
+                    alt={bannerPost.title}
+                    className="w-full h-72 md:h-96 object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                   
-                  {featuredPost.category && (
-                    <span className="inline-block bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-md mb-3">
-                      {featuredPost.category.name}
-                    </span>
-                  )}
-                  
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors leading-tight">
-                    {featuredPost.title}
-                  </h2>
-                  
-                  {featuredPost.published_at && (
-                    <div className="flex items-center gap-1.5 text-red-600 text-sm font-medium mb-3">
-                      <Clock className="h-4 w-4" />
-                      {format(new Date(featuredPost.published_at), "dd MMM yyyy").toUpperCase()}
-                    </div>
-                  )}
-                  
-                  {featuredPost.excerpt && (
-                    <p className="text-gray-600 text-base leading-relaxed mb-4">
-                      {featuredPost.excerpt}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500 text-sm font-medium">A</span>
+                  {/* Content overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    {bannerPost.category && (
+                      <span className="inline-block bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-md mb-3">
+                        {bannerPost.category.name}
+                      </span>
+                    )}
+                    
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-red-200 transition-colors leading-tight">
+                      {bannerPost.title}
+                    </h2>
+                    
+                    {bannerPost.published_at && (
+                      <div className="flex items-center gap-1.5 text-red-400 text-sm font-medium mb-3">
+                        <Clock className="h-4 w-4" />
+                        {format(new Date(bannerPost.published_at), "dd MMM yyyy").toUpperCase()}
                       </div>
-                      <span className="text-gray-700 font-semibold text-sm">BY ADMIN</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-gray-500 text-sm">
-                      <span className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4 text-red-600" />
-                        0
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-4 w-4 text-red-600" />
-                        {featuredPost.views_count || 0}
-                      </span>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                          <span className="text-white text-sm font-medium">A</span>
+                        </div>
+                        <span className="text-white/90 font-semibold text-sm">BY ADMIN</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-white/80 text-sm">
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="h-4 w-4 text-red-400" />
+                          0
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-4 w-4 text-red-400" />
+                          {bannerPost.views_count || 0}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </article>

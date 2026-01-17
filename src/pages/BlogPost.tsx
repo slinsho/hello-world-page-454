@@ -331,14 +331,50 @@ export default function BlogPost() {
           </div>
         </header>
 
-        {/* Cover Image */}
+        {/* Cover Image with Text Overlay */}
         {post.cover_image && (
-          <div className="w-full">
+          <div className="w-full relative">
             <img
               src={post.cover_image}
               alt={post.title}
               className="w-full h-[300px] md:h-[450px] lg:h-[500px] object-cover"
             />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            
+            {/* Text overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+              <div className="container mx-auto max-w-4xl">
+                {post.category && (
+                  <span className="inline-block bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-md mb-3">
+                    {post.category.name}
+                  </span>
+                )}
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
+                  {post.title}
+                </h2>
+                <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm">
+                  {post.author_name && (
+                    <span className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="font-medium">{post.author_name}</span>
+                    </span>
+                  )}
+                  {post.published_at && (
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-4 w-4" />
+                      {format(new Date(post.published_at), "MMMM dd, yyyy")}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="h-4 w-4" />
+                    {post.views_count || 0} views
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -346,12 +382,13 @@ export default function BlogPost() {
         <article className="container mx-auto px-4 py-10 max-w-4xl">
           <div 
             className="prose prose-lg max-w-none 
-              prose-headings:text-gray-900 prose-headings:font-bold
-              prose-p:text-gray-700 prose-p:leading-relaxed
+              prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-8
+              prose-p:text-gray-800 prose-p:leading-[1.8] prose-p:text-base prose-p:mb-6
               prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-gray-900
-              prose-ul:text-gray-700 prose-ol:text-gray-700
-              prose-li:marker:text-red-600
+              prose-strong:text-gray-900 prose-strong:font-semibold
+              prose-ul:text-gray-800 prose-ol:text-gray-800 prose-ul:leading-[1.8] prose-ol:leading-[1.8]
+              prose-li:marker:text-red-600 prose-li:mb-2
+              prose-blockquote:border-l-red-600 prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-700
               [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-8 [&_.blog-full-image]:h-auto"
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />
