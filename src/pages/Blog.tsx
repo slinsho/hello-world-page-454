@@ -202,7 +202,7 @@ export default function Blog() {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="pt-20 pb-8">
+      <main className="pt-16 pb-8">
         {/* Banner Article - Highest Level Post */}
         {bannerPost && bannerPost.cover_image && (
           <section className="mb-8">
@@ -258,6 +258,28 @@ export default function Blog() {
             </Link>
           </section>
         )}
+
+        {/* Featured Section */}
+        <section className="px-4 mb-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 text-white">
+              <h3 className="text-lg font-bold mb-2">📰 Stay Updated</h3>
+              <p className="text-white/90 text-sm mb-4">Get the latest property news and real estate tips delivered to your inbox.</p>
+              <form onSubmit={handleSubscribe} className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                />
+                <Button type="submit" variant="secondary" className="bg-white text-red-600 hover:bg-gray-100">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </div>
+        </section>
 
         {/* Category Tabs */}
         {categories && categories.length > 0 && (

@@ -270,29 +270,23 @@ export default function BlogPost() {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="pt-20">
-        {/* Breadcrumb */}
-        <div className="bg-gray-50 border-b border-gray-100">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-2 text-sm">
-              <Link to="/blog" className="text-gray-500 hover:text-red-600 transition-colors">
-                Blog
-              </Link>
-              <span className="text-gray-300">/</span>
-              {post.category && (
-                <>
-                  <span className="text-gray-500">{post.category.name}</span>
-                  <span className="text-gray-300">/</span>
-                </>
-              )}
-              <span className="text-gray-900 font-medium truncate max-w-[200px]">{post.title}</span>
-            </div>
+      <main className="pt-16">
+        {/* Cover Image Banner */}
+        {post.cover_image && (
+          <div className="w-full relative">
+            <img
+              src={post.cover_image}
+              alt={post.title}
+              className="w-full h-[250px] md:h-[350px] lg:h-[400px] object-cover"
+            />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           </div>
-        </div>
+        )}
 
-        {/* Article Header */}
-        <header className="container mx-auto px-4 py-8 max-w-4xl">
-          <Button variant="ghost" asChild className="mb-6 -ml-3 text-gray-600 hover:text-red-600">
+        {/* Title, Author, Date - Under Banner */}
+        <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <Button variant="ghost" asChild className="mb-4 -ml-3 text-gray-600 hover:text-red-600">
             <Link to="/blog">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blog
@@ -300,83 +294,37 @@ export default function BlogPost() {
           </Button>
 
           {post.category && (
-            <span className="inline-block bg-red-100 text-red-600 px-4 py-1.5 text-sm font-semibold rounded-full mb-4">
+            <span className="inline-block bg-red-100 text-red-600 px-4 py-1.5 text-sm font-semibold rounded-full mb-3">
               {post.category.name}
             </span>
           )}
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-tight mb-4">
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm pb-6 border-b border-gray-100">
+          <div className="flex flex-wrap items-center gap-4 text-gray-600 text-sm pb-4 border-b border-gray-200">
             {post.author_name && (
               <span className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
                   <User className="h-4 w-4 text-red-600" />
                 </div>
-                <span className="font-medium text-gray-900">{post.author_name}</span>
+                <span className="font-medium text-black">{post.author_name}</span>
               </span>
             )}
             {post.published_at && (
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-black">
                 <Clock className="h-4 w-4" />
                 {format(new Date(post.published_at), "MMMM dd, yyyy")}
               </span>
             )}
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 text-black">
               <Eye className="h-4 w-4" />
               {post.views_count || 0} views
             </span>
           </div>
-        </header>
+        </div>
 
-        {/* Cover Image with Text Overlay */}
-        {post.cover_image && (
-          <div className="w-full relative">
-            <img
-              src={post.cover_image}
-              alt={post.title}
-              className="w-full h-[300px] md:h-[450px] lg:h-[500px] object-cover"
-            />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-            
-            {/* Text overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-              <div className="container mx-auto max-w-4xl">
-                {post.category && (
-                  <span className="inline-block bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-md mb-3">
-                    {post.category.name}
-                  </span>
-                )}
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
-                  {post.title}
-                </h2>
-                <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm">
-                  {post.author_name && (
-                    <span className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                        <User className="h-4 w-4 text-white" />
-                      </div>
-                      <span className="font-medium">{post.author_name}</span>
-                    </span>
-                  )}
-                  {post.published_at && (
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" />
-                      {format(new Date(post.published_at), "MMMM dd, yyyy")}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1.5">
-                    <Eye className="h-4 w-4" />
-                    {post.views_count || 0} views
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Article Content */}
         <article className="container mx-auto px-4 py-10 max-w-4xl">
