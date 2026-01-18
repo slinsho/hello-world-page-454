@@ -91,3 +91,25 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Blog content - preserve inline styles from TipTap editor */
+.blog-content [style*="color"] {
+  color: inherit !important;
+}
+
+.blog-content span[style],
+.blog-content p[style],
+.blog-content h1[style],
+.blog-content h2[style],
+.blog-content h3[style],
+.blog-content h4[style],
+.blog-content h5[style],
+.blog-content h6[style],
+.blog-content mark[style] {
+  all: revert;
+}
+
+.blog-content mark {
+  padding: 0.125em 0.25em;
+  border-radius: 0.125rem;
+}

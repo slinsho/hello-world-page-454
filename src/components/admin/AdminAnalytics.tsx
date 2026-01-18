@@ -39,7 +39,7 @@ interface CountyData {
   totalValue: number;
 }
 
-const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))", "#8884d8", "#82ca9d"];
+const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
 
 export function AdminAnalytics() {
   const [userGrowth, setUserGrowth] = useState<MonthlyData[]>([]);
@@ -308,9 +308,9 @@ export function AdminAnalytics() {
                     data={propertyTypes}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
+                    labelLine={true}
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={100}
+                    outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -322,6 +322,18 @@ export function AdminAnalytics() {
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
+            {/* Legend */}
+            <div className="flex flex-wrap justify-center gap-4 mt-4">
+              {propertyTypes.map((type, index) => (
+                <div key={type.name} className="flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  />
+                  <span className="text-sm capitalize">{type.name}: {type.value}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

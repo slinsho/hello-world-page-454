@@ -329,16 +329,15 @@ export default function BlogPost() {
         {/* Article Content */}
         <article className="container mx-auto px-4 py-10 max-w-4xl">
           <div 
-            className="prose prose-lg max-w-none 
-              prose-headings:text-black prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-8
-              prose-p:text-black prose-p:leading-[1.8] prose-p:text-base prose-p:mb-6
+            className="prose prose-lg max-w-none blog-content
+              prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-8
+              prose-p:leading-[1.8] prose-p:text-base prose-p:mb-6
               prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-black prose-strong:font-semibold
-              prose-ul:text-black prose-ol:text-black prose-ul:leading-[1.8] prose-ol:leading-[1.8]
-              prose-li:marker:text-red-600 prose-li:mb-2 prose-li:text-black
-              prose-blockquote:border-l-red-600 prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-black
-              [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-8 [&_.blog-full-image]:h-auto
-              [&_*]:text-black"
+              prose-strong:font-semibold
+              prose-ul:leading-[1.8] prose-ol:leading-[1.8]
+              prose-li:marker:text-red-600 prose-li:mb-2
+              prose-blockquote:border-l-red-600 prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic
+              [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-8 [&_.blog-full-image]:h-auto"
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />
         </article>
