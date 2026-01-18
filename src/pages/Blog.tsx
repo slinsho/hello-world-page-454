@@ -419,52 +419,56 @@ export default function Blog() {
           </section>
         )}
 
-        {/* Popular Tags */}
-        {categories && categories.length > 0 && (
-          <section className="px-4 mb-8">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Popular Tags</h2>
-              <div className="w-24 h-1 bg-red-600 mb-6" />
-              
-              <div className="flex flex-wrap gap-3">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className="px-5 py-3 bg-gray-900 text-white text-sm font-semibold rounded-md hover:bg-red-600 transition-colors"
+        {/* Newsletter & Tags Section - Professional Layout */}
+        <section className="px-4 py-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Newsletter Card */}
+              <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-xl p-6 text-white">
+                <div className="flex items-center gap-2 mb-3">
+                  <Send className="h-5 w-5" />
+                  <h3 className="text-lg font-bold">Newsletter</h3>
+                </div>
+                <p className="text-red-100 text-sm mb-4">
+                  Stay updated with our latest news and articles
+                </p>
+                <form onSubmit={handleSubscribe} className="space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="Your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white focus:ring-white/30"
+                    required
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-white text-red-600 hover:bg-red-50 font-semibold"
+                    disabled={newsletterMutation.isPending}
                   >
-                    {cat.name.toUpperCase()}
-                  </button>
-                ))}
+                    {newsletterMutation.isPending ? "Subscribing..." : "Subscribe Now"}
+                  </Button>
+                </form>
               </div>
-            </div>
-          </section>
-        )}
 
-        {/* Newsletter Section */}
-        <section className="px-4">
-          <div className="max-w-3xl mx-auto bg-gray-900 rounded-2xl p-6 md:p-8">
-            <h3 className="text-xl font-bold text-white mb-2">Subscribe to Newsletter</h3>
-            <p className="text-gray-400 text-sm mb-5">
-              Get the latest news delivered to your inbox
-            </p>
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-red-500"
-                required
-              />
-              <Button
-                type="submit"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6"
-                disabled={newsletterMutation.isPending}
-              >
-                {newsletterMutation.isPending ? "..." : <><Send className="h-4 w-4 mr-2" /> Subscribe</>}
-              </Button>
-            </form>
+              {/* Popular Tags Card */}
+              {categories && categories.length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Popular Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-full hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-sm"
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       </main>
