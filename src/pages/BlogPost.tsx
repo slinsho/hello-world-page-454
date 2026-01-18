@@ -270,7 +270,7 @@ export default function BlogPost() {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="pt-16">
+      <main>
         {/* Cover Image Banner */}
         {post.cover_image && (
           <div className="w-full relative">
@@ -285,7 +285,7 @@ export default function BlogPost() {
         )}
 
         {/* Title, Author, Date - Under Banner */}
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <div className="container mx-auto px-4 py-4 max-w-4xl">
           <Button variant="ghost" asChild className="mb-4 -ml-3 text-gray-600 hover:text-red-600">
             <Link to="/blog">
               <ArrowLeft className="h-4 w-4 mr-2" />
