@@ -64,7 +64,7 @@ const FONT_SIZES = [
 ];
 
 const TEXT_COLORS = [
-  { label: "Default", value: "" },
+  { label: "Black", value: "#000000" },
   { label: "Red", value: "#dc2626" },
   { label: "Orange", value: "#ea580c" },
   { label: "Yellow", value: "#ca8a04" },
@@ -73,6 +73,7 @@ const TEXT_COLORS = [
   { label: "Purple", value: "#9333ea" },
   { label: "Pink", value: "#db2777" },
   { label: "Gray", value: "#6b7280" },
+  { label: "White", value: "#ffffff" },
 ];
 
 const HIGHLIGHT_COLORS = [
@@ -149,6 +150,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
     editorProps: {
       attributes: {
         class: "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[200px] p-4 dark:prose-invert [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1",
+        style: "color: #000000;",
       },
     },
   });
@@ -189,11 +191,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
 
   const setTextColor = useCallback((color: string) => {
     if (!editor) return;
-    if (color) {
-      editor.chain().focus().setColor(color).run();
-    } else {
-      editor.chain().focus().unsetColor().run();
-    }
+    editor.chain().focus().setColor(color).run();
   }, [editor]);
 
   const setHighlightColor = useCallback((color: string) => {
@@ -274,16 +272,15 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-40 p-2">
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-4 gap-1">
               {TEXT_COLORS.map((color) => (
                 <button
-                  key={color.value || "default"}
+                  key={color.value}
                   onClick={() => setTextColor(color.value)}
                   className="w-8 h-8 rounded border flex items-center justify-center hover:scale-110 transition"
-                  style={{ backgroundColor: color.value || "transparent" }}
+                  style={{ backgroundColor: color.value }}
                   title={color.label}
                 >
-                  {!color.value && <span className="text-xs">A</span>}
                 </button>
               ))}
             </div>
