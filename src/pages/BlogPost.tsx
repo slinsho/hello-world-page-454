@@ -261,10 +261,14 @@ export default function BlogPost() {
     );
   }
 
-  // Process content to make images full width
+  // Process content to make images full width and preserve inline styles
   const processedContent = post.content
     .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
-    .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>');
+    .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>')
+    // Add !important to inline color styles to override prose
+    .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
+    // Add !important to inline font-size styles
+    .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"');
 
   return (
     <div className="min-h-screen bg-white">
