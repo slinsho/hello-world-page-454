@@ -92,27 +92,9 @@ All colors MUST be HSL.
   }
 }
 
-/* Blog content - preserve ALL inline styles from TipTap editor */
-/* Set default text color to black for the blog content container */
+/* Blog content - base styling */
 .blog-content {
   color: #000000;
-}
-
-/* Ensure elements with style attribute keep their inline styles */
-.blog-content span[style],
-.blog-content p[style],
-.blog-content h1[style],
-.blog-content h2[style],
-.blog-content h3[style],
-.blog-content h4[style],
-.blog-content h5[style],
-.blog-content h6[style],
-.blog-content mark[style],
-.blog-content div[style],
-.blog-content li[style] {
-  color: unset !important;
-  background-color: unset !important;
-  font-size: unset !important;
 }
 
 .blog-content mark {
