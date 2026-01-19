@@ -268,7 +268,11 @@ export default function BlogPost() {
     // Add !important to inline color styles to override prose
     .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
     // Add !important to inline font-size styles
-    .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"');
+    .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"')
+    // Add !important to inline font-family styles
+    .replace(/style="([^"]*)font-family:\s*([^;"]+)([^"]*)"/g, 'style="$1font-family: $2 !important$3"')
+    // Add !important to text-align styles
+    .replace(/style="([^"]*)text-align:\s*([^;"]+)([^"]*)"/g, 'style="$1text-align: $2 !important$3"');
 
   return (
     <div className="min-h-screen bg-white">

@@ -6,6 +6,8 @@ import Youtube from "@tiptap/extension-youtube";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
+import FontFamily from "@tiptap/extension-font-family";
 import { 
   Bold, 
   Italic, 
@@ -21,7 +23,11 @@ import {
   Redo,
   Highlighter,
   Type,
-  Palette
+  Palette,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -55,12 +61,16 @@ interface RichTextEditorProps {
   onInsertImage?: () => void;
 }
 
-const FONT_SIZES = [
-  { label: "Small", value: "0.875em" },
-  { label: "Normal", value: "1em" },
-  { label: "Large", value: "1.25em" },
-  { label: "X-Large", value: "1.5em" },
-  { label: "XX-Large", value: "2em" },
+const FONT_FAMILIES = [
+  { label: "Default", value: "" },
+  { label: "Arial", value: "Arial, sans-serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Times New Roman", value: "Times New Roman, serif" },
+  { label: "Courier New", value: "Courier New, monospace" },
+  { label: "Verdana", value: "Verdana, sans-serif" },
+  { label: "Trebuchet MS", value: "Trebuchet MS, sans-serif" },
+  { label: "Comic Sans MS", value: "Comic Sans MS, cursive" },
+  { label: "Impact", value: "Impact, sans-serif" },
 ];
 
 const TEXT_COLORS = [
@@ -91,6 +101,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
   const [videoUrl, setVideoUrl] = useState("");
   const [imageResizeDialogOpen, setImageResizeDialogOpen] = useState(false);
   const [imageWidth, setImageWidth] = useState("100");
+  const [fontSize, setFontSizeValue] = useState("16");
 
   const editor = useEditor({
     extensions: [
@@ -142,6 +153,12 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
       Highlight.configure({
         multicolor: true,
       }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -184,10 +201,13 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
     setVideoUrl("");
   }, [editor, videoUrl]);
 
-  const setFontSize = useCallback((size: string) => {
+  const applyFontSize = useCallback(() => {
     if (!editor) return;
-    editor.chain().focus().setMark("textStyle", { fontSize: size }).run();
-  }, [editor]);
+    const size = parseInt(fontSize);
+    if (size >= 8 && size <= 72) {
+      editor.chain().focus().setMark("textStyle", { fontSize: `${size}px` }).run();
+    }
+  }, [editor, fontSize]);
 
   const setTextColor = useCallback((color: string) => {
     if (!editor) return;
@@ -197,6 +217,15 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
   const setHighlightColor = useCallback((color: string) => {
     if (!editor) return;
     editor.chain().focus().toggleHighlight({ color }).run();
+  }, [editor]);
+
+  const setFontFamily = useCallback((fontFamily: string) => {
+    if (!editor) return;
+    if (fontFamily === "") {
+      editor.chain().focus().unsetFontFamily().run();
+    } else {
+      editor.chain().focus().setFontFamily(fontFamily).run();
+    }
   }, [editor]);
 
   const resizeSelectedImage = useCallback(() => {
@@ -241,23 +270,52 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        {/* Font Size */}
+        {/* Font Size - Numeric Input */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" title="Font Size">
               <Type className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-40 p-2">
-            <div className="space-y-1">
-              {FONT_SIZES.map((size) => (
+          <PopoverContent className="w-48 p-3">
+            <Label className="text-sm mb-2 block">Font Size (px)</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                min="8"
+                max="72"
+                value={fontSize}
+                onChange={(e) => setFontSizeValue(e.target.value)}
+                className="flex-1"
+                placeholder="16"
+              />
+              <Button size="sm" onClick={applyFontSize}>
+                Apply
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Range: 8px to 72px
+            </p>
+          </PopoverContent>
+        </Popover>
+
+        {/* Font Family */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" title="Font Family">
+              <span className="text-xs font-bold">Aa</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2">
+            <div className="space-y-1 max-h-60 overflow-y-auto">
+              {FONT_FAMILIES.map((font) => (
                 <button
-                  key={size.value}
-                  onClick={() => setFontSize(size.value)}
+                  key={font.label}
+                  onClick={() => setFontFamily(font.value)}
                   className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-muted transition"
-                  style={{ fontSize: size.value }}
+                  style={{ fontFamily: font.value || 'inherit' }}
                 >
-                  {size.label}
+                  {font.label}
                 </button>
               ))}
             </div>
@@ -313,6 +371,42 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             </div>
           </PopoverContent>
         </Popover>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        {/* Text Alignment */}
+        <Toggle
+          size="sm"
+          pressed={editor.isActive({ textAlign: 'left' })}
+          onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}
+          title="Align Left"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          size="sm"
+          pressed={editor.isActive({ textAlign: 'center' })}
+          onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}
+          title="Align Center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          size="sm"
+          pressed={editor.isActive({ textAlign: 'right' })}
+          onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}
+          title="Align Right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          size="sm"
+          pressed={editor.isActive({ textAlign: 'justify' })}
+          onPressedChange={() => editor.chain().focus().setTextAlign('justify').run()}
+          title="Justify"
+        >
+          <AlignJustify className="h-4 w-4" />
+        </Toggle>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
