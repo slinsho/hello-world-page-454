@@ -8,6 +8,13 @@ import { Color } from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import FontFamily from "@tiptap/extension-font-family";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
+import { FontSize } from "@/lib/tiptap-font-size";
 import { 
   Bold, 
   Italic, 
@@ -27,7 +34,12 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  AlignJustify
+  AlignJustify,
+  Code,
+  Table as TableIcon,
+  Plus,
+  Minus,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -51,6 +63,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useCallback } from "react";
@@ -60,6 +79,8 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
   onInsertImage?: () => void;
 }
+
+const lowlight = createLowlight(common);
 
 const FONT_FAMILIES = [
   { label: "Default", value: "" },
@@ -102,6 +123,8 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
   const [imageResizeDialogOpen, setImageResizeDialogOpen] = useState(false);
   const [imageWidth, setImageWidth] = useState("100");
   const [fontSize, setFontSizeValue] = useState("16");
+  const [tableRows, setTableRows] = useState("3");
+  const [tableCols, setTableCols] = useState("3");
 
   const editor = useEditor({
     extensions: [
@@ -128,6 +151,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             class: "my-1",
           },
         },
+        codeBlock: false, // Disable default, use lowlight version
       }),
       Link.configure({
         openOnClick: false,
@@ -150,6 +174,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
       }),
       TextStyle,
       Color,
+      FontSize,
       Highlight.configure({
         multicolor: true,
       }),
@@ -158,6 +183,33 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
       }),
       FontFamily.configure({
         types: ['textStyle'],
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: "border-collapse border border-border my-4",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border border-border",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "border border-border bg-muted p-2 font-bold text-left",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "border border-border p-2",
+        },
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+        HTMLAttributes: {
+          class: "bg-gray-900 text-gray-100 rounded-lg p-4 my-4 overflow-x-auto font-mono text-sm",
+        },
       }),
     ],
     content,
@@ -205,7 +257,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
     if (!editor) return;
     const size = parseInt(fontSize);
     if (size >= 8 && size <= 72) {
-      editor.chain().focus().setMark("textStyle", { fontSize: `${size}px` }).run();
+      editor.chain().focus().setFontSize(`${size}px`).run();
     }
   }, [editor, fontSize]);
 
@@ -227,6 +279,13 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
       editor.chain().focus().setFontFamily(fontFamily).run();
     }
   }, [editor]);
+
+  const insertTable = useCallback(() => {
+    if (!editor) return;
+    const rows = parseInt(tableRows) || 3;
+    const cols = parseInt(tableCols) || 3;
+    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+  }, [editor, tableRows, tableCols]);
 
   const resizeSelectedImage = useCallback(() => {
     if (!editor) return;
@@ -456,6 +515,94 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
+        {/* Code Block */}
+        <Toggle
+          size="sm"
+          pressed={editor.isActive("codeBlock")}
+          onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}
+          title="Code Block"
+        >
+          <Code className="h-4 w-4" />
+        </Toggle>
+
+        {/* Table */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              title="Table"
+              className={editor.isActive("table") ? "bg-accent" : ""}
+            >
+              <TableIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <div className="p-2">
+              <Label className="text-sm mb-2 block">Insert Table</Label>
+              <div className="flex gap-2 mb-2">
+                <div>
+                  <Label className="text-xs">Rows</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={tableRows}
+                    onChange={(e) => setTableRows(e.target.value)}
+                    className="w-16 h-8"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Cols</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={tableCols}
+                    onChange={(e) => setTableCols(e.target.value)}
+                    className="w-16 h-8"
+                  />
+                </div>
+              </div>
+              <Button size="sm" onClick={insertTable} className="w-full">
+                Insert Table
+              </Button>
+            </div>
+            {editor.isActive("table") && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => editor.chain().focus().addColumnAfter().run()}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Column After
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => editor.chain().focus().addColumnBefore().run()}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Column Before
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => editor.chain().focus().addRowAfter().run()}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Row After
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => editor.chain().focus().addRowBefore().run()}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Row Before
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => editor.chain().focus().deleteColumn().run()}>
+                  <Minus className="h-4 w-4 mr-2" /> Delete Column
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => editor.chain().focus().deleteRow().run()}>
+                  <Minus className="h-4 w-4 mr-2" /> Delete Row
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> Delete Table
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
         <Button
           variant="ghost"
           size="sm"
@@ -499,7 +646,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             <div className="flex gap-2">
               <Input
                 type="number"
-                min="25"
+                min="10"
                 max="100"
                 value={imageWidth}
                 onChange={(e) => setImageWidth(e.target.value)}
@@ -509,9 +656,6 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
                 Apply
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Select an image first, then set width
-            </p>
           </PopoverContent>
         </Popover>
 
@@ -537,8 +681,8 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
         </Button>
       </div>
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+      {/* Editor Content */}
+      <EditorContent editor={editor} className="min-h-[300px] bg-white" />
 
       {/* Link Dialog */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
@@ -546,14 +690,14 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
           <DialogHeader>
             <DialogTitle>Add Link</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
               <Label htmlFor="link-url">URL</Label>
               <Input
                 id="link-url"
+                placeholder="https://example.com"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://example.com"
               />
             </div>
           </div>
@@ -561,7 +705,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             <Button variant="outline" onClick={() => setLinkDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={setLink}>Add Link</Button>
+            <Button onClick={setLink}>Apply</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -570,16 +714,16 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
       <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Embed YouTube Video</DialogTitle>
+            <DialogTitle>Embed Video</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
               <Label htmlFor="video-url">YouTube URL</Label>
               <Input
                 id="video-url"
+                placeholder="https://www.youtube.com/watch?v=..."
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
               />
             </div>
           </div>
@@ -587,7 +731,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
             <Button variant="outline" onClick={() => setVideoDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={addVideo}>Embed Video</Button>
+            <Button onClick={addVideo}>Embed</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
