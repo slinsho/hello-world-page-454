@@ -39,7 +39,9 @@ import {
   Table as TableIcon,
   Plus,
   Minus,
-  Trash2
+  Trash2,
+  Minus as DividerIcon,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -125,6 +127,8 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
   const [fontSize, setFontSizeValue] = useState("16");
   const [tableRows, setTableRows] = useState("3");
   const [tableCols, setTableCols] = useState("3");
+  const [captionDialogOpen, setCaptionDialogOpen] = useState(false);
+  const [captionText, setCaptionText] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -303,6 +307,23 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
     
     setImageResizeDialogOpen(false);
   }, [editor, imageWidth]);
+
+  const insertHorizontalRule = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().setHorizontalRule().run();
+  }, [editor]);
+
+  const addImageCaption = useCallback(() => {
+    if (!editor || !captionText) return;
+    
+    // Insert a styled paragraph as caption after current position
+    editor.chain().focus()
+      .insertContent(`<p class="image-caption" style="text-align: center; font-style: italic; color: #6b7280; font-size: 14px; margin-top: 8px;">${captionText}</p>`)
+      .run();
+    
+    setCaptionDialogOpen(false);
+    setCaptionText("");
+  }, [editor, captionText]);
 
   if (!editor) return null;
 
@@ -659,6 +680,26 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
           </PopoverContent>
         </Popover>
 
+        {/* Image Caption */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCaptionDialogOpen(true)}
+          title="Add Image Caption"
+        >
+          <FileText className="h-4 w-4" />
+        </Button>
+
+        {/* Horizontal Divider */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={insertHorizontalRule}
+          title="Insert Horizontal Divider"
+        >
+          <DividerIcon className="h-4 w-4" />
+        </Button>
+
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         <Button
@@ -732,6 +773,35 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
               Cancel
             </Button>
             <Button onClick={addVideo}>Embed</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Caption Dialog */}
+      <Dialog open={captionDialogOpen} onOpenChange={setCaptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Image Caption</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="caption-text">Caption Text</Label>
+              <Input
+                id="caption-text"
+                placeholder="Enter caption for the image..."
+                value={captionText}
+                onChange={(e) => setCaptionText(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Position your cursor below the image before adding a caption.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCaptionDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addImageCaption}>Add Caption</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
