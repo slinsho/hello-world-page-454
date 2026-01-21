@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus } from "lucide-react";
+import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus, X } from "lucide-react";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import {
   Dialog,
@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageCropper } from "@/components/profile/ImageCropper";
+import { SocialLinksEditor } from "@/components/profile/SocialLinksEditor";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -46,6 +48,13 @@ const Profile = () => {
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [removingCover, setRemovingCover] = useState(false);
+  
+  // Cropper states
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState("");
+  const [cropType, setCropType] = useState<"profile" | "cover">("profile");
+  
   const isOwnProfile = !profileId || profileId === user?.id;
 
   useEffect(() => {
@@ -138,62 +147,82 @@ const Profile = () => {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user || !e.target.files || e.target.files.length === 0) return;
+  const handleSocialLinksUpdate = async (links: {
+    social_facebook?: string | null;
+    social_instagram?: string | null;
+    social_twitter?: string | null;
+    social_linkedin?: string | null;
+    social_whatsapp?: string | null;
+  }) => {
+    if (!user) return;
 
-    const file = e.target.files[0];
-    setUploadingPhoto(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update(links)
+      .eq("id", user.id);
 
-    try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/profile.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("property-photos")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("property-photos")
-        .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ profile_photo_url: publicUrl })
-        .eq("id", user.id);
-
-      if (updateError) throw updateError;
-
-      toast({
-        title: "Success",
-        description: "Profile photo updated",
-      });
-      fetchProfile();
-    } catch (error) {
+    if (error) {
       toast({
         title: "Error",
-        description: "Failed to upload photo",
+        description: "Failed to update social links",
         variant: "destructive",
       });
-    } finally {
-      setUploadingPhoto(false);
+      throw error;
+    } else {
+      toast({
+        title: "Success",
+        description: "Social links updated",
+      });
+      fetchProfile();
     }
   };
 
-  const handleCoverPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user || !e.target.files || e.target.files.length === 0) return;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: "profile" | "cover") => {
+    if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    setUploadingCover(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropType(type);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset input
+    e.target.value = "";
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user) return;
+
+    setCropperOpen(false);
+    
+    if (cropType === "profile") {
+      setUploadingPhoto(true);
+    } else {
+      setUploadingCover(true);
+    }
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/cover.${fileExt}`;
+      const fileName = cropType === "profile" ? "profile" : "cover";
+      const filePath = `${user.id}/${fileName}_${Date.now()}.jpg`;
+
+      // Delete old file if exists (for cover photos with timestamp)
+      if (cropType === "cover" && profile?.cover_photo_url) {
+        try {
+          const oldPath = profile.cover_photo_url.split("/property-photos/")[1];
+          if (oldPath && oldPath.includes("cover_")) {
+            await supabase.storage.from("property-photos").remove([oldPath]);
+          }
+        } catch {
+          // Ignore deletion errors
+        }
+      }
 
       const { error: uploadError } = await supabase.storage
         .from("property-photos")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, croppedBlob, { upsert: false });
 
       if (uploadError) throw uploadError;
 
@@ -201,26 +230,70 @@ const Profile = () => {
         .from("property-photos")
         .getPublicUrl(filePath);
 
+      const updateField = cropType === "profile" ? "profile_photo_url" : "cover_photo_url";
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ cover_photo_url: publicUrl })
+        .update({ [updateField]: publicUrl })
         .eq("id", user.id);
 
       if (updateError) throw updateError;
 
       toast({
         title: "Success",
-        description: "Cover photo updated",
+        description: `${cropType === "profile" ? "Profile photo" : "Cover photo"} updated`,
       });
       fetchProfile();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to upload cover photo",
+        description: `Failed to upload ${cropType} photo`,
         variant: "destructive",
       });
     } finally {
-      setUploadingCover(false);
+      if (cropType === "profile") {
+        setUploadingPhoto(false);
+      } else {
+        setUploadingCover(false);
+      }
+    }
+  };
+
+  const handleRemoveCover = async () => {
+    if (!user || !profile?.cover_photo_url) return;
+
+    setRemovingCover(true);
+    try {
+      // Delete the file from storage
+      try {
+        const oldPath = profile.cover_photo_url.split("/property-photos/")[1];
+        if (oldPath) {
+          await supabase.storage.from("property-photos").remove([oldPath]);
+        }
+      } catch {
+        // Ignore deletion errors
+      }
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ cover_photo_url: null })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Cover photo removed",
+      });
+      fetchProfile();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove cover photo",
+        variant: "destructive",
+      });
+    } finally {
+      setRemovingCover(false);
     }
   };
 
@@ -322,7 +395,7 @@ const Profile = () => {
   }[profile.verification_status];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
       
       <main className="pb-24 md:pb-8">
@@ -342,12 +415,22 @@ const Profile = () => {
             {/* Cover photo overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
             
-            {/* Cover photo upload button */}
+            {/* Cover photo buttons */}
             {isOwnProfile && (
-              <>
+              <div className="absolute bottom-3 right-3 flex gap-2">
+                {profile.cover_photo_url && (
+                  <button
+                    onClick={handleRemoveCover}
+                    disabled={removingCover}
+                    className="px-3 py-1.5 rounded-full bg-destructive/80 backdrop-blur-sm flex items-center gap-1.5 cursor-pointer shadow-lg hover:bg-destructive/90 transition-colors text-sm text-destructive-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="hidden sm:inline">{removingCover ? "Removing..." : "Remove"}</span>
+                  </button>
+                )}
                 <label 
                   htmlFor="cover-upload" 
-                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm flex items-center gap-1.5 cursor-pointer shadow-lg hover:bg-background/90 transition-colors text-sm"
+                  className="px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm flex items-center gap-1.5 cursor-pointer shadow-lg hover:bg-background/90 transition-colors text-sm"
                 >
                   <ImagePlus className="h-4 w-4" />
                   <span className="hidden sm:inline">{uploadingCover ? "Uploading..." : "Change Cover"}</span>
@@ -357,10 +440,10 @@ const Profile = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleCoverPhotoUpload}
+                  onChange={(e) => handleFileSelect(e, "cover")}
                   disabled={uploadingCover}
                 />
-              </>
+              </div>
             )}
           </div>
           
@@ -386,7 +469,7 @@ const Profile = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handlePhotoUpload}
+                    onChange={(e) => handleFileSelect(e, "profile")}
                     disabled={uploadingPhoto}
                   />
                 </>
@@ -395,42 +478,60 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Profile Info */}
-        <div className="pt-20 px-4 text-center">
-          <h1 className="text-2xl font-bold">{profile.name}</h1>
-          <p className="text-muted-foreground capitalize mt-1">
-            {profile.role?.replace("_", " ") || "User"}
-          </p>
-          
-          {/* Verification Badge */}
-          <div className="flex justify-center mt-3">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${verificationStatusColor}`}>
-              <Shield className="h-3 w-3" />
-              {VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS]}
-            </span>
-          </div>
-        </div>
+        {/* Profile Info Card */}
+        <div className="pt-20 px-4">
+          <div className="max-w-md mx-auto bg-card rounded-3xl p-6 shadow-sm border border-border/50">
+            {/* Name & Role */}
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">{profile.name}</h1>
+              <p className="text-muted-foreground capitalize mt-1">
+                {profile.role?.replace("_", " ") || "User"}
+              </p>
+            </div>
+            
+            {/* Verification Badge */}
+            <div className="flex justify-center mt-3">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${verificationStatusColor}`}>
+                <Shield className="h-3.5 w-3.5" />
+                {VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS]}
+              </span>
+            </div>
 
-        {/* Contact Info Pills */}
-        <div className="flex flex-wrap justify-center gap-2 mt-4 px-4">
-          {profile.email && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
-              <Mail className="h-3 w-3 text-muted-foreground" />
-              <span className="text-muted-foreground truncate max-w-[150px]">{profile.email}</span>
+            {/* Contact Info */}
+            <div className="mt-5 space-y-2">
+              {profile.email && (
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/50 rounded-xl">
+                  <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm text-foreground truncate">{profile.email}</span>
+                </div>
+              )}
+              {profile.phone && (
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/50 rounded-xl">
+                  <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm text-foreground">{profile.phone}</span>
+                </div>
+              )}
+              {profile.county && (
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/50 rounded-xl">
+                  <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm text-foreground">{profile.county}</span>
+                </div>
+              )}
             </div>
-          )}
-          {profile.phone && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
-              <Phone className="h-3 w-3 text-muted-foreground" />
-              <span className="text-muted-foreground">{profile.phone}</span>
-            </div>
-          )}
-          {profile.county && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary rounded-full text-xs">
-              <MapPin className="h-3 w-3 text-muted-foreground" />
-              <span className="text-muted-foreground">{profile.county}</span>
-            </div>
-          )}
+
+            {/* Social Links */}
+            <SocialLinksEditor
+              socialLinks={{
+                social_facebook: profile.social_facebook,
+                social_instagram: profile.social_instagram,
+                social_twitter: profile.social_twitter,
+                social_linkedin: profile.social_linkedin,
+                social_whatsapp: profile.social_whatsapp,
+              }}
+              onSave={handleSocialLinksUpdate}
+              isOwnProfile={isOwnProfile}
+            />
+          </div>
         </div>
 
         {/* Stats Section */}
@@ -556,7 +657,7 @@ const Profile = () => {
 
         {/* Verification Request Section */}
         {isOwnProfile && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
-          <div className="mx-4 mt-6 p-4 bg-secondary/50 rounded-2xl">
+          <div className="mx-4 mt-6 p-4 bg-secondary/50 rounded-2xl max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-sm">Get Verified</p>
@@ -575,7 +676,7 @@ const Profile = () => {
 
         {/* Admin Access Card */}
         {isAdmin && (
-          <div className="mx-4 mt-4 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+          <div className="mx-4 mt-4 p-4 bg-primary/10 border border-primary/20 rounded-2xl max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -594,7 +695,7 @@ const Profile = () => {
         )}
 
         {/* Properties Section */}
-        <div className="mt-8 px-4">
+        <div className="mt-8 px-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">
               {isOwnProfile ? "My Properties" : "Properties"}
@@ -727,6 +828,16 @@ const Profile = () => {
           )}
         </div>
       </main>
+
+      {/* Image Cropper Dialog */}
+      <ImageCropper
+        open={cropperOpen}
+        onClose={() => setCropperOpen(false)}
+        imageSrc={cropImageSrc}
+        aspectRatio={cropType === "cover" ? 16 / 9 : 1}
+        onCropComplete={handleCropComplete}
+        title={cropType === "cover" ? "Crop Cover Photo" : "Crop Profile Photo"}
+      />
     </div>
   );
 };
