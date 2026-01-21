@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings } from "lucide-react";
+import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus } from "lucide-react";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import {
   Dialog,
@@ -45,6 +45,7 @@ const Profile = () => {
     address: "",
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const isOwnProfile = !profileId || profileId === user?.id;
 
   useEffect(() => {
@@ -180,6 +181,49 @@ const Profile = () => {
     }
   };
 
+  const handleCoverPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    setUploadingCover(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/cover.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("property-photos")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("property-photos")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ cover_photo_url: publicUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Cover photo updated",
+      });
+      fetchProfile();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload cover photo",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
   const fetchProperties = async () => {
     const targetUserId = profileId || user?.id;
     if (!targetUserId) return;
@@ -284,10 +328,43 @@ const Profile = () => {
       <main className="pb-24 md:pb-8">
         {/* Profile Header Section */}
         <div className="relative">
-          {/* Background gradient */}
-          <div className="h-32 bg-gradient-to-b from-primary/20 to-background" />
+          {/* Cover Photo Banner */}
+          <div className="relative h-40 md:h-52 overflow-hidden">
+            {profile.cover_photo_url ? (
+              <img 
+                src={profile.cover_photo_url} 
+                alt="Cover" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-primary/20 to-background" />
+            )}
+            {/* Cover photo overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+            
+            {/* Cover photo upload button */}
+            {isOwnProfile && (
+              <>
+                <label 
+                  htmlFor="cover-upload" 
+                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-sm flex items-center gap-1.5 cursor-pointer shadow-lg hover:bg-background/90 transition-colors text-sm"
+                >
+                  <ImagePlus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{uploadingCover ? "Uploading..." : "Change Cover"}</span>
+                </label>
+                <input
+                  id="cover-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverPhotoUpload}
+                  disabled={uploadingCover}
+                />
+              </>
+            )}
+          </div>
           
-          {/* Profile Avatar - overlapping the gradient */}
+          {/* Profile Avatar - overlapping the banner */}
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-16">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-background shadow-xl">
