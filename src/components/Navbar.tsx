@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ const Navbar = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const [userCounty, setUserCounty] = useState<string | null>(null);
   
   const [filterOpen, setFilterOpen] = useState(false);
@@ -52,10 +53,35 @@ const Navbar = () => {
     if (user) {
       fetchUnreadCount();
       fetchUserProfile();
+      fetchUnreadMessages();
     } else {
       setUserCounty(null);
     }
   }, [user, location.pathname]);
+
+  const fetchUnreadMessages = async () => {
+    if (!user) return;
+    try {
+      // Get user's conversations
+      const { data: conversations } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`);
+      
+      if (conversations && conversations.length > 0) {
+        const conversationIds = conversations.map(c => c.id);
+        const { count } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .in("conversation_id", conversationIds)
+          .eq("is_read", false)
+          .neq("sender_id", user.id);
+        setUnreadMessages(count || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching unread messages:", error);
+    }
+  };
 
   const fetchUserProfile = async () => {
     if (!user) return;
@@ -173,6 +199,19 @@ const Navbar = () => {
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 relative"
+                  onClick={() => navigate("/messages")}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {unreadMessages > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 relative"
                   onClick={() => navigate("/notifications")}
                 >
                   <Bell className="h-4 w-4" />
@@ -181,6 +220,14 @@ const Navbar = () => {
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <BarChart3 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
