@@ -6,6 +6,7 @@ import PropertyCard from "@/components/PropertyCard";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
 import { HomepageBanners } from "@/components/HomepageBanners";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
@@ -118,6 +119,9 @@ const Index = () => {
       <main className="px-4 pt-4 md:px-6 space-y-6">
         {/* Homepage Banners */}
         <HomepageBanners />
+
+        {/* Recently Viewed Section */}
+        {user && <RecentlyViewed />}
         
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

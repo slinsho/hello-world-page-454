@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle } from "lucide-react";
+import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -12,11 +15,17 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import RecommendedProperties from "@/components/RecommendedProperties";
+import { PropertyInquiryForm } from "@/components/PropertyInquiryForm";
+import { UserReviews } from "@/components/UserReviews";
+import { trackPropertyView } from "@/lib/analytics";
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { addToRecentlyViewed } = useRecentlyViewed();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -24,6 +33,14 @@ const PropertyDetail = () => {
   useEffect(() => {
     fetchProperty();
   }, [id]);
+
+  // Track view and add to recently viewed
+  useEffect(() => {
+    if (id && property) {
+      trackPropertyView(id, user?.id);
+      addToRecentlyViewed(id);
+    }
+  }, [id, property, user?.id]);
 
   const fetchProperty = async () => {
     const { data: propertyData } = await supabase
@@ -131,8 +148,13 @@ const PropertyDetail = () => {
           >
             <Share2 className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="bg-card/80 backdrop-blur-sm rounded-full">
-            <Heart className="h-5 w-5" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="bg-card/80 backdrop-blur-sm rounded-full"
+            onClick={() => id && toggleFavorite(id)}
+          >
+            <Heart className={`h-5 w-5 ${id && isFavorite(id) ? "fill-red-500 text-red-500" : ""}`} />
           </Button>
         </div>
 
@@ -299,16 +321,35 @@ const PropertyDetail = () => {
             </div>
 
             {property.profiles?.id && (
-              <Button 
-                variant="outline" 
-                className="w-full mt-6"
-                onClick={() => navigate(`/profile/${property.profiles.id}`)}
-              >
-                View Full Profile
-              </Button>
+              <div className="flex gap-2 mt-6">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => navigate(`/profile/${property.profiles.id}`)}
+                >
+                  View Full Profile
+                </Button>
+                <PropertyInquiryForm
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  ownerId={property.profiles.id}
+                  ownerName={property.profiles.name || "Owner"}
+                />
+              </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Reviews Section */}
+        {property.profiles?.id && (
+          <div className="mb-6">
+            <UserReviews
+              userId={property.profiles.id}
+              userName={property.profiles.name || "Owner"}
+              propertyId={property.id}
+            />
+          </div>
+        )}
 
         {/* Recommended Section */}
         <RecommendedProperties 
