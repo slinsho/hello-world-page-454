@@ -7,6 +7,8 @@ import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
 import { HomepageBanners } from "@/components/HomepageBanners";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
+import MarketTrends from "@/components/MarketTrends";
+import PopularAreas from "@/components/PopularAreas";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
@@ -172,12 +174,38 @@ const Index = () => {
             )}
 
             {/* Remaining properties */}
-            {remainingProperties.length > 0 && (
+            {remainingProperties.length > 0 && remainingProperties.length <= 6 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
                 {remainingProperties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
               </div>
+            )}
+
+            {/* Insert Market Analytics after first batch */}
+            {remainingProperties.length > 6 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                  {remainingProperties.slice(0, 6).map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+
+                {/* Market Analytics Section */}
+                <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <MarketTrends />
+                  <PopularAreas />
+                </div>
+
+                {/* Remaining after analytics */}
+                {remainingProperties.length > 6 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                    {remainingProperties.slice(6).map((property) => (
+                      <PropertyCard key={property.id} property={property} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
