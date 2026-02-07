@@ -496,8 +496,11 @@ export type Database = {
           county: string
           created_at: string
           description: string | null
+          flagged_count: number | null
           id: string
           listing_type: Database["public"]["Enums"]["listing_type"]
+          moderation_note: string | null
+          moderation_status: string | null
           owner_id: string
           photos: string[]
           price_usd: number
@@ -517,8 +520,11 @@ export type Database = {
           county: string
           created_at?: string
           description?: string | null
+          flagged_count?: number | null
           id?: string
           listing_type: Database["public"]["Enums"]["listing_type"]
+          moderation_note?: string | null
+          moderation_status?: string | null
           owner_id: string
           photos: string[]
           price_usd: number
@@ -538,8 +544,11 @@ export type Database = {
           county?: string
           created_at?: string
           description?: string | null
+          flagged_count?: number | null
           id?: string
           listing_type?: Database["public"]["Enums"]["listing_type"]
+          moderation_note?: string | null
+          moderation_status?: string | null
           owner_id?: string
           photos?: string[]
           price_usd?: number

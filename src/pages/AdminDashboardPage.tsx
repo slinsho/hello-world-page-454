@@ -7,6 +7,7 @@ import AdminFeedback from "@/components/admin/AdminFeedback";
 import { AdminMarketing } from "@/components/admin/AdminMarketing";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminBlog } from "@/components/admin/AdminBlog";
+import { AdminContentModeration } from "@/components/admin/AdminContentModeration";
 import { Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,16 +63,19 @@ export default function AdminDashboardPage() {
       </div>
 
       <Tabs defaultValue={getDefaultTab()} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-8 h-auto">
-          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-1 sm:px-2">Dashboard</TabsTrigger>
-          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-1 sm:px-2">Analytics</TabsTrigger>
-          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-1 sm:px-2">Verifications</TabsTrigger>
-          <TabsTrigger value="users" className="text-xs sm:text-sm px-1 sm:px-2">Users</TabsTrigger>
-          <TabsTrigger value="properties" className="text-xs sm:text-sm px-1 sm:px-2">Properties</TabsTrigger>
-          <TabsTrigger value="blog" className="text-xs sm:text-sm px-1 sm:px-2">Blog</TabsTrigger>
-          <TabsTrigger value="marketing" className="text-xs sm:text-sm px-1 sm:px-2">Marketing</TabsTrigger>
-          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-1 sm:px-2">Feedback</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="inline-flex w-auto min-w-full h-auto">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2 sm:px-3">Dashboard</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 sm:px-3">Analytics</TabsTrigger>
+            <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 sm:px-3">Moderation</TabsTrigger>
+            <TabsTrigger value="verifications" className="text-xs sm:text-sm px-2 sm:px-3">Verifications</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 sm:px-3">Users</TabsTrigger>
+            <TabsTrigger value="properties" className="text-xs sm:text-sm px-2 sm:px-3">Properties</TabsTrigger>
+            <TabsTrigger value="blog" className="text-xs sm:text-sm px-2 sm:px-3">Blog</TabsTrigger>
+            <TabsTrigger value="marketing" className="text-xs sm:text-sm px-2 sm:px-3">Marketing</TabsTrigger>
+            <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2 sm:px-3">Feedback</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="dashboard">
           <AdminDashboard />
@@ -79,6 +83,10 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="analytics">
           <AdminAnalytics />
+        </TabsContent>
+
+        <TabsContent value="moderation">
+          <AdminContentModeration />
         </TabsContent>
 
         <TabsContent value="verifications">

@@ -17,6 +17,8 @@ import {
 import RecommendedProperties from "@/components/RecommendedProperties";
 import { PropertyInquiryForm } from "@/components/PropertyInquiryForm";
 import { UserReviews } from "@/components/UserReviews";
+import { SEOHead } from "@/components/SEOHead";
+import { PropertyJsonLd } from "@/components/PropertyJsonLd";
 import { trackPropertyView } from "@/lib/analytics";
 
 const PropertyDetail = () => {
@@ -126,7 +128,14 @@ const PropertyDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      {/* Hero Image Section */}
+      <SEOHead
+        title={`${property.title} - ${property.county}`}
+        description={property.description || `${property.property_type} ${property.listing_type === 'for_rent' ? 'for rent' : 'for sale'} in ${property.county} at $${property.price_usd.toLocaleString()}`}
+        ogImage={property.photos?.[0]}
+        ogType="article"
+        canonical={`${window.location.origin}/property/${property.id}`}
+      />
+      <PropertyJsonLd property={property} />
       <div className="relative h-[280px] bg-card">
         {/* Back Button */}
         <Button 
