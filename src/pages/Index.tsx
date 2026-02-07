@@ -9,6 +9,7 @@ import { HomepageBanners } from "@/components/HomepageBanners";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import MarketTrends from "@/components/MarketTrends";
 import PopularAreas from "@/components/PopularAreas";
+import { SEOHead } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
@@ -116,6 +117,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <SEOHead />
       <Navbar />
       
       <main className="px-4 pt-4 md:px-6 space-y-6">
