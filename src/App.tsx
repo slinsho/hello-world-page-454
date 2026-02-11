@@ -26,6 +26,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Messages from "./pages/Messages";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import PopularAreasPage from "./pages/PopularAreasPage";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<OwnerDashboard />} />
+            <Route path="/popular-areas" element={<PopularAreasPage />} />
             {/* Hidden Admin Routes */}
             <Route path="/winner-54/login" element={<AdminLogin />} />
             <Route path="/winner-54/dashboard" element={

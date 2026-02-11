@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus, X } from "lucide-react";
+import { UserReviews } from "@/components/UserReviews";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import {
   Dialog,
@@ -827,6 +828,17 @@ const Profile = () => {
             </div>
           )}
         </div>
+
+        {/* Reviews Section */}
+        {profile && (
+          <div className="mt-6">
+            <UserReviews
+              userId={profile.id}
+              userName={profile.name || "User"}
+              showAddReview={!!profileId && profileId !== user?.id}
+            />
+          </div>
+        )}
       </main>
 
       {/* Image Cropper Dialog */}
