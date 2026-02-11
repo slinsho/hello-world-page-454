@@ -3,17 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Star, MessageSquare, Mail, Phone, Send } from "lucide-react";
 import { z } from "zod";
+import Navbar from "@/components/Navbar";
 
-// Input validation schema
 const feedbackSchema = z.object({
   role: z.enum(["owner", "agent", "property_seeker"], { required_error: "Please select your role" }),
   rating: z.number().min(1, "Please rate your experience").max(5),
@@ -44,21 +41,13 @@ const Feedback = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form data with zod
     const validationResult = feedbackSchema.safeParse(formData);
-    
     if (!validationResult.success) {
-      const firstError = validationResult.error.errors[0];
-      toast({
-        title: "Validation Error",
-        description: firstError.message,
-        variant: "destructive",
-      });
+      toast({ title: "Validation Error", description: validationResult.error.errors[0].message, variant: "destructive" });
       return;
     }
 
     const validatedData = validationResult.data;
-
     setLoading(true);
     try {
       const { error } = await supabase.from("feedback").insert({
@@ -74,170 +63,193 @@ const Feedback = () => {
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Thank You!",
-        description: "Your feedback has been submitted successfully",
-      });
+      toast({ title: "Thank You!", description: "Your feedback has been submitted successfully" });
       navigate(-1);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit feedback. Please try again.",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: "Error", description: "Failed to submit feedback. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
+  const roles = [
+    { value: "owner", label: "Owner" },
+    { value: "agent", label: "Agent" },
+    { value: "property_seeker", label: "Seeker" },
+  ];
+
+  const activities = [
+    { value: "posting_property", label: "Posting a property" },
+    { value: "searching_property", label: "Searching property" },
+    { value: "contacting", label: "Contacting owner/agent" },
+    { value: "managing_listings", label: "Managing listings" },
+    { value: "uploading_media", label: "Uploading media" },
+    { value: "other", label: "Something else" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
+      <Navbar />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Tell Us Your Experience</CardTitle>
-            <CardDescription>
-              Your feedback helps us improve the app for everyone
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* A) Who Are You */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">A) Who Are You?</Label>
-                <RadioGroup
-                  value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
-                  className="space-y-2"
+      <main className="max-w-lg mx-auto px-4 pt-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">Your Feedback</h1>
+            <p className="text-xs text-muted-foreground">Help us improve the app</p>
+          </div>
+        </div>
+
+        {/* Hero Card */}
+        <div className="bg-card rounded-2xl p-5 border border-border mb-6 text-center">
+          <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <MessageSquare className="h-7 w-7 text-primary" />
+          </div>
+          <h2 className="font-semibold mb-1">Tell Us Your Experience</h2>
+          <p className="text-xs text-muted-foreground">Your feedback helps us build a better platform for everyone</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Who Are You - Pill Selector */}
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">Who Are You?</Label>
+            <div className="flex gap-2">
+              {roles.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: value })}
+                  className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all ${
+                    formData.role === value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground hover:border-muted-foreground/30"
+                  }`}
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="owner" id="owner" />
-                    <Label htmlFor="owner" className="font-normal cursor-pointer">Owner</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="agent" id="agent" />
-                    <Label htmlFor="agent" className="font-normal cursor-pointer">Agent</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="property_seeker" id="property_seeker" />
-                    <Label htmlFor="property_seeker" className="font-normal cursor-pointer">Property Seeker</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-              {/* B) Rate Your Experience */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">B) Rate Your Experience</Label>
-                <p className="text-sm text-muted-foreground">How would you rate our app from 1 to 5 stars?</p>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, rating: star })}
-                      className="transition-transform hover:scale-110"
-                    >
-                      <Star
-                        className={`h-8 w-8 ${
-                          star <= formData.rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-muted-foreground"
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* C) What Were You Trying to Do */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">C) What Were You Trying to Do?</Label>
-                <Select
-                  value={formData.activity}
-                  onValueChange={(value) => setFormData({ ...formData, activity: value })}
+          {/* Rating */}
+          <div className="bg-card rounded-2xl p-4 border border-border">
+            <Label className="text-sm font-semibold mb-3 block">Rate Your Experience</Label>
+            <div className="flex justify-center gap-3">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, rating: star })}
+                  className="transition-transform hover:scale-110 active:scale-95"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an activity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="posting_property">Posting a property</SelectItem>
-                    <SelectItem value="searching_property">Searching for a property</SelectItem>
-                    <SelectItem value="contacting">Contacting an owner or agent</SelectItem>
-                    <SelectItem value="managing_listings">Managing your listings</SelectItem>
-                    <SelectItem value="uploading_media">Uploading photos or videos</SelectItem>
-                    <SelectItem value="other">Something else</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <Star
+                    className={`h-10 w-10 ${
+                      star <= formData.rating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground/30"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            {formData.rating > 0 && (
+              <p className="text-center text-xs text-muted-foreground mt-2">
+                {formData.rating === 1 ? "Poor" : formData.rating === 2 ? "Fair" : formData.rating === 3 ? "Good" : formData.rating === 4 ? "Great" : "Excellent"}
+              </p>
+            )}
+          </div>
 
-              {/* D) What Problem Did You Face */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">D) What Problem Did You Face?</Label>
-                <p className="text-sm text-muted-foreground">What was difficult or confusing for you?</p>
-                <Textarea
-                  value={formData.problem}
-                  onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
-                  placeholder="Example: I couldn't upload pictures. Search is slow. I want more filters."
-                  className="min-h-[100px]"
-                  required
+          {/* Activity - Wrap Pills */}
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">What Were You Doing?</Label>
+            <div className="flex flex-wrap gap-2">
+              {activities.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, activity: value })}
+                  className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
+                    formData.activity === value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground hover:border-muted-foreground/30"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Problem */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">What Problem Did You Face?</Label>
+            <Textarea
+              value={formData.problem}
+              onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
+              placeholder="Describe what was difficult or confusing..."
+              className="min-h-[100px] rounded-xl resize-none"
+              required
+            />
+          </div>
+
+          {/* Suggestions */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">How Can We Improve? <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+            <Textarea
+              value={formData.suggestions}
+              onChange={(e) => setFormData({ ...formData, suggestions: e.target.value })}
+              placeholder="Share your ideas for improvement..."
+              className="min-h-[80px] rounded-xl resize-none"
+            />
+          </div>
+
+          {/* Contact - Compact */}
+          <div className="bg-card rounded-2xl p-4 border border-border space-y-3">
+            <Label className="text-sm font-semibold">Contact Info <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="Email"
+                className="rounded-xl h-11 pl-10"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Phone"
+                  className="rounded-xl h-11 pl-10"
                 />
               </div>
-
-              {/* E) How Can We Improve */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">E) How Can We Improve?</Label>
-                <p className="text-sm text-muted-foreground">What should we add or improve to make the app better?</p>
-                <Textarea
-                  value={formData.suggestions}
-                  onChange={(e) => setFormData({ ...formData, suggestions: e.target.value })}
-                  placeholder="Share your ideas for improvement..."
-                  className="min-h-[100px]"
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="tel"
+                  value={formData.whatsapp}
+                  onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                  placeholder="WhatsApp"
+                  className="rounded-xl h-11 pl-10"
                 />
               </div>
+            </div>
+          </div>
 
-              {/* F) Contact Information */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">F) Contact Information (Optional)</Label>
-                <p className="text-sm text-muted-foreground">Help us reach you if we need more details</p>
-                <div className="space-y-2">
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Email"
-                  />
-                  <Input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="Phone"
-                  />
-                  <Input
-                    type="tel"
-                    value={formData.whatsapp}
-                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                    placeholder="WhatsApp"
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Feedback"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Submit */}
+          <Button type="submit" className="w-full h-14 rounded-2xl text-base font-semibold gap-2" disabled={loading}>
+            <Send className="h-5 w-5" />
+            {loading ? "Submitting..." : "Submit Feedback"}
+          </Button>
+        </form>
+      </main>
     </div>
   );
 };

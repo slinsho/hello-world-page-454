@@ -75,7 +75,7 @@
            variant="ghost" 
            size="sm" 
            className="text-primary text-xs gap-1 h-8"
-           onClick={() => navigate("/explore")}
+           onClick={() => navigate("/popular-areas")}
          >
            See All <ChevronRight className="h-3 w-3" />
          </Button>

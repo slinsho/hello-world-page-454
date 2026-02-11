@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, Upload as UploadIcon, X } from "lucide-react";
+import { Home, Building2, Store, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler, ChevronRight } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { z } from "zod";
 
@@ -34,6 +34,7 @@ const Upload = () => {
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
+  const [agreed, setAgreed] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     property_type: "house",
@@ -81,66 +82,38 @@ const Upload = () => {
 
   const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
     if (files.length === 0) return;
-    
-    // Only allow 1 video
     const file = files[0];
     
-    // Check format (MP4 or MOV only)
     const validFormats = ['video/mp4', 'video/quicktime'];
     if (!validFormats.includes(file.type)) {
-      toast({
-        title: "Invalid Format",
-        description: "Only MP4 and MOV video formats are allowed.",
-        variant: "destructive",
-      });
+      toast({ title: "Invalid Format", description: "Only MP4 and MOV video formats are allowed.", variant: "destructive" });
       e.target.value = '';
       return;
     }
     
-    // Check size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast({
-        title: "File Too Large",
-        description: "Video size must be 10MB or less.",
-        variant: "destructive",
-      });
+      toast({ title: "File Too Large", description: "Video size must be 10MB or less.", variant: "destructive" });
       e.target.value = '';
       return;
     }
     
-    // Check duration (max 20 seconds)
     const video = document.createElement('video');
     video.preload = 'metadata';
-    
     video.onloadedmetadata = function() {
       window.URL.revokeObjectURL(video.src);
-      
       if (video.duration > 20) {
-        toast({
-          title: "Video Too Long",
-          description: "Video must be 20 seconds or less.",
-          variant: "destructive",
-        });
+        toast({ title: "Video Too Long", description: "Video must be 20 seconds or less.", variant: "destructive" });
         e.target.value = '';
         return;
       }
-      
-      // All validations passed, set the video
       setVideos([file]);
     };
-    
     video.onerror = function() {
-      toast({
-        title: "Error",
-        description: "Failed to load video file.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to load video file.", variant: "destructive" });
       e.target.value = '';
     };
-    
     video.src = URL.createObjectURL(file);
   };
 
@@ -152,22 +125,19 @@ const Upload = () => {
     e.preventDefault();
     if (!user) return;
 
+    if (!agreed) {
+      toast({ title: "Agreement Required", description: "Please agree to the terms before listing.", variant: "destructive" });
+      return;
+    }
+
     if (verificationStatus !== "approved") {
-      toast({
-        title: "Verification Required",
-        description: "You must be verified to upload properties.",
-        variant: "destructive",
-      });
+      toast({ title: "Verification Required", description: "You must be verified to upload properties.", variant: "destructive" });
       navigate("/profile");
       return;
     }
 
     if (photos.length === 0) {
-      toast({
-        title: "Photos Required",
-        description: "Please upload at least one photo.",
-        variant: "destructive",
-      });
+      toast({ title: "Photos Required", description: "Please upload at least one photo.", variant: "destructive" });
       return;
     }
 
@@ -180,47 +150,28 @@ const Upload = () => {
         contact_phone_2: formData.contact_phone_2 || undefined,
       });
 
-      // Upload all photos in parallel
       const photoUrls = await Promise.all(
         photos.map(async (photo) => {
           const fileExt = photo.name.split(".").pop();
           const fileName = `${user.id}/${Date.now()}-${Math.random()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from("property-photos")
-            .upload(fileName, photo);
-
+          const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, photo);
           if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from("property-photos")
-            .getPublicUrl(fileName);
-
+          const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName);
           return publicUrl;
         })
       );
 
-      // Upload all videos in parallel
       const videoUrls = await Promise.all(
         videos.map(async (video) => {
           const fileExt = video.name.split(".").pop();
           const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from("property-photos")
-            .upload(fileName, video);
-
+          const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video);
           if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from("property-photos")
-            .getPublicUrl(fileName);
-
+          const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName);
           return publicUrl;
         })
       );
 
-      // Create property
       const { error } = await supabase.from("properties").insert([{
         owner_id: user.id,
         title: validatedData.title,
@@ -241,24 +192,13 @@ const Upload = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success!",
-        description: "Your property has been listed.",
-      });
+      toast({ title: "Success!", description: "Your property has been listed." });
       navigate("/profile");
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        toast({
-          title: "Validation Error",
-          description: error.errors[0].message,
-          variant: "destructive",
-        });
+        toast({ title: "Validation Error", description: error.errors[0].message, variant: "destructive" });
       } else {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to upload property",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: error.message || "Failed to upload property", variant: "destructive" });
       }
     } finally {
       setLoading(false);
@@ -269,313 +209,339 @@ const Upload = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-16 text-center">
-          <h2 className="text-2xl font-bold mb-4">Verification Required</h2>
-          <p className="text-muted-foreground mb-6">
+        <div className="px-4 pt-16 text-center max-w-sm mx-auto">
+          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <FileText className="h-10 w-10 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Verification Required</h2>
+          <p className="text-sm text-muted-foreground mb-6">
             You need to be verified before you can upload properties.
           </p>
-          <Button onClick={() => navigate("/profile")}>Go to Profile</Button>
+          <Button onClick={() => navigate("/profile")} className="rounded-full px-8">
+            Go to Profile
+          </Button>
         </div>
       </div>
     );
   }
 
-  const TypeIcon = {
-    house: Home,
-    apartment: Building2,
-    shop: Store,
-  }[formData.property_type as "house" | "apartment" | "shop"];
+  const propertyTypes = [
+    { value: "house", label: "House", icon: Home },
+    { value: "apartment", label: "Apartment", icon: Building2 },
+    { value: "shop", label: "Shop", icon: Store },
+  ];
+
+  const listingTypes = [
+    { value: "for_sale", label: "For Sale" },
+    { value: "for_rent", label: "For Rent" },
+    { value: "for_lease", label: "For Lease" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
       <Navbar />
       
-      <main className="container py-8 max-w-2xl px-4 md:px-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>List a Property</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Property Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  maxLength={200}
-                  placeholder="e.g., Modern 3-Bedroom House in Monrovia"
-                />
-              </div>
+      <main className="max-w-lg mx-auto px-4 pt-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">List Property</h1>
+            <p className="text-xs text-muted-foreground">Add your property details</p>
+          </div>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Property Description (Optional)</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the property, its features, amenities, nearby locations, etc."
-                  rows={4}
-                  className="resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Property Type *</Label>
-                  <Select
-                    value={formData.property_type}
-                    onValueChange={(value) => setFormData({ ...formData, property_type: value })}
-                  >
-                    <SelectTrigger>
-                      <div className="flex items-center gap-2">
-                        <TypeIcon className="h-4 w-4" />
-                        <SelectValue />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="house">
-                        <div className="flex items-center gap-2">
-                          <Home className="h-4 w-4" />
-                          House
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="apartment">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4" />
-                          Apartment
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="shop">
-                        <div className="flex items-center gap-2">
-                          <Store className="h-4 w-4" />
-                          Shop
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Listing Type *</Label>
-                  <Select
-                    value={formData.listing_type}
-                    onValueChange={(value) => setFormData({ ...formData, listing_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="for_sale">For Sale</SelectItem>
-                      <SelectItem value="for_rent">For Rent</SelectItem>
-                      <SelectItem value="for_lease">For Lease</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (USD) *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={formData.price_usd}
-                  onChange={(e) => setFormData({ ...formData, price_usd: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address *</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  required
-                  maxLength={500}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>County *</Label>
-                <Select
-                  value={formData.county}
-                  onValueChange={(value) => setFormData({ ...formData, county: value })}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Property Type Selection */}
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">Property Type</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {propertyTypes.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, property_type: value })}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
+                    formData.property_type === value
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-muted-foreground/30"
+                  }`}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select county" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LIBERIA_COUNTIES.map((county) => (
-                      <SelectItem key={county} value={county}>
-                        {county}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  <Icon className={`h-6 w-6 ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className={`text-xs font-medium ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contact">Contact Phone 1 *</Label>
-                  <Input
-                    id="contact"
-                    type="tel"
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                    required
-                    maxLength={20}
-                  />
-                </div>
+          {/* Listing Type Pills */}
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">Listing Type</Label>
+            <div className="flex gap-2">
+              {listingTypes.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, listing_type: value })}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    formData.listing_type === value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground hover:border-muted-foreground/30"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="contact2">Contact Phone 2 (Optional)</Label>
-                  <Input
-                    id="contact2"
-                    type="tel"
-                    value={formData.contact_phone_2}
-                    onChange={(e) => setFormData({ ...formData, contact_phone_2: e.target.value })}
-                    maxLength={20}
-                  />
-                </div>
-              </div>
+          {/* Title */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Property Title</Label>
+            <Input
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+              maxLength={200}
+              placeholder="e.g., Modern 3-Bedroom House"
+              className="rounded-xl h-12"
+            />
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="bedrooms">Bedrooms (Optional)</Label>
-                  <Input
-                    id="bedrooms"
-                    type="number"
-                    min="0"
-                    value={formData.bedrooms}
-                    onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
-                  />
-                </div>
+          {/* Description */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Description <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe the property features..."
+              rows={3}
+              className="resize-none rounded-xl"
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="bathrooms">Bathrooms (Optional)</Label>
-                  <Input
-                    id="bathrooms"
-                    type="number"
-                    min="0"
-                    value={formData.bathrooms}
-                    onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
-                  />
-                </div>
-              </div>
+          {/* Price */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              Price (USD)
+            </Label>
+            <Input
+              type="number"
+              step="0.01"
+              value={formData.price_usd}
+              onChange={(e) => setFormData({ ...formData, price_usd: e.target.value })}
+              required
+              placeholder="0.00"
+              className="rounded-xl h-12"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="square_yards">Square Yards (Optional)</Label>
+          {/* Location */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              Location
+            </Label>
+            <Select
+              value={formData.county}
+              onValueChange={(value) => setFormData({ ...formData, county: value })}
+            >
+              <SelectTrigger className="rounded-xl h-12">
+                <SelectValue placeholder="Select county" />
+              </SelectTrigger>
+              <SelectContent>
+                {LIBERIA_COUNTIES.map((county) => (
+                  <SelectItem key={county} value={county}>{county}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              required
+              maxLength={500}
+              placeholder="Full address"
+              className="rounded-xl h-12"
+            />
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              Contact
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="tel"
+                value={formData.contact_phone}
+                onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                required
+                maxLength={20}
+                placeholder="Phone 1 *"
+                className="rounded-xl h-12"
+              />
+              <Input
+                type="tel"
+                value={formData.contact_phone_2}
+                onChange={(e) => setFormData({ ...formData, contact_phone_2: e.target.value })}
+                maxLength={20}
+                placeholder="Phone 2"
+                className="rounded-xl h-12"
+              />
+            </div>
+          </div>
+
+          {/* Details Row */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Property Details</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="relative">
+                <BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="square_yards"
+                  type="number"
+                  min="0"
+                  value={formData.bedrooms}
+                  onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                  placeholder="Beds"
+                  className="rounded-xl h-12 pl-10"
+                />
+              </div>
+              <div className="relative">
+                <Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  min="0"
+                  value={formData.bathrooms}
+                  onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                  placeholder="Baths"
+                  className="rounded-xl h-12 pl-10"
+                />
+              </div>
+              <div className="relative">
+                <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
                   type="number"
                   min="0"
                   value={formData.square_yards}
                   onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })}
-                  placeholder="e.g., 600"
+                  placeholder="Sq yd"
+                  className="rounded-xl h-12 pl-10"
                 />
               </div>
+            </div>
+          </div>
 
-              <div className="space-y-2">
-                <Label>Photos * (Max 10)</Label>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handlePhotoChange}
-                    className="hidden"
-                    id="photo-upload"
-                    disabled={photos.length >= 10}
-                  />
-                  <label
-                    htmlFor="photo-upload"
-                    className="cursor-pointer flex flex-col items-center gap-2"
-                  >
-                    <UploadIcon className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      Click to upload photos ({photos.length}/10)
-                    </span>
-                  </label>
+          {/* Photos */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Camera className="h-4 w-4 text-muted-foreground" />
+              Photos <span className="text-muted-foreground font-normal">({photos.length}/10)</span>
+            </Label>
+            <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center bg-card">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handlePhotoChange}
+                className="hidden"
+                id="photo-upload"
+                disabled={photos.length >= 10}
+              />
+              <label htmlFor="photo-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="h-6 w-6 text-primary" />
                 </div>
+                <span className="text-sm text-muted-foreground">Tap to add photos</span>
+              </label>
+            </div>
 
-                {photos.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 mt-4">
-                    {photos.map((photo, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={URL.createObjectURL(photo)}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6"
-                          onClick={() => removePhoto(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
+            {photos.length > 0 && (
+              <div className="grid grid-cols-4 gap-2">
+                {photos.map((photo, index) => (
+                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden">
+                    <img src={URL.createObjectURL(photo)} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive flex items-center justify-center"
+                      onClick={() => removePhoto(index)}
+                    >
+                      <X className="h-3 w-3 text-destructive-foreground" />
+                    </button>
                   </div>
-                )}
+                ))}
               </div>
+            )}
+          </div>
 
-              <div className="space-y-2">
-                <Label>Video (Optional, Max 1)</Label>
-                <p className="text-xs text-muted-foreground">Max 20 seconds, MP4 or MOV format, 10MB max</p>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                  <input
-                    type="file"
-                    accept="video/mp4,video/quicktime"
-                    onChange={handleVideoChange}
-                    className="hidden"
-                    id="video-upload"
-                    disabled={videos.length >= 1}
-                  />
-                  <label
-                    htmlFor="video-upload"
-                    className="cursor-pointer flex flex-col items-center gap-2"
-                  >
-                    <UploadIcon className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      Click to upload video ({videos.length}/1)
-                    </span>
-                  </label>
+          {/* Video */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Video className="h-4 w-4 text-muted-foreground" />
+              Video <span className="text-muted-foreground font-normal">(Optional, Max 1)</span>
+            </Label>
+            <p className="text-xs text-muted-foreground">Max 20 seconds · MP4 or MOV · 10MB max</p>
+            <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center bg-card">
+              <input
+                type="file"
+                accept="video/mp4,video/quicktime"
+                onChange={handleVideoChange}
+                className="hidden"
+                id="video-upload"
+                disabled={videos.length >= 1}
+              />
+              <label htmlFor="video-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Video className="h-6 w-6 text-primary" />
                 </div>
+                <span className="text-sm text-muted-foreground">Tap to add video</span>
+              </label>
+            </div>
 
-                {videos.length > 0 && (
-                  <div className="mt-4">
-                    <div className="relative">
-                      <video
-                        src={URL.createObjectURL(videos[0])}
-                        className="w-full h-48 object-cover rounded"
-                        controls
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6"
-                        onClick={() => removeVideo(0)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
+            {videos.length > 0 && (
+              <div className="relative rounded-2xl overflow-hidden">
+                <video src={URL.createObjectURL(videos[0])} className="w-full h-48 object-cover rounded-2xl" controls />
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 h-7 w-7 rounded-full bg-destructive flex items-center justify-center"
+                  onClick={() => removeVideo(0)}
+                >
+                  <X className="h-4 w-4 text-destructive-foreground" />
+                </button>
               </div>
+            )}
+          </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Uploading..." : "List Property"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          {/* Agreement Checkbox */}
+          <div className="bg-card rounded-2xl p-4 border border-border">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="agreement"
+                checked={agreed}
+                onCheckedChange={(checked) => setAgreed(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="agreement" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                I confirm that I am the rightful owner or authorized agent of this property. The information provided is accurate and I agree to the{" "}
+                <span className="text-primary cursor-pointer" onClick={() => navigate("/terms")}>
+                  Terms & Conditions
+                </span>.
+              </label>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            className="w-full h-14 rounded-2xl text-base font-semibold"
+            disabled={loading || !agreed}
+          >
+            {loading ? "Uploading..." : "List Property"}
+          </Button>
+        </form>
       </main>
     </div>
   );

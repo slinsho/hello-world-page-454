@@ -388,7 +388,7 @@ export default function OwnerDashboard() {
           <Button
             variant="outline"
             className="h-14 rounded-2xl flex-col gap-1"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate(`/profile/${user?.id}`)}
           >
             <Star className="h-5 w-5" />
             <span className="text-xs">Reviews</span>
