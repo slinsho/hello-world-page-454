@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus, X } from "lucide-react";
 import { UserReviews } from "@/components/UserReviews";
-import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
+import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
 import {
   Dialog,
   DialogContent,
@@ -764,6 +764,9 @@ const Profile = () => {
                         </div>
                         <p className="text-primary font-bold text-sm mt-1">
                           ${property.price_usd.toLocaleString()}
+                          <span className="text-[10px] font-normal text-muted-foreground ml-1">
+                            ({formatLRD(property.price_usd)})
+                          </span>
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           {LISTING_TYPE_LABELS[property.listing_type as keyof typeof LISTING_TYPE_LABELS]}

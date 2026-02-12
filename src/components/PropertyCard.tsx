@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { Home, Building2, Store, MapPin, Bed, Bath, Heart } from "lucide-react";
+import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LISTING_TYPE_LABELS } from "@/lib/constants";
+import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
 import { useFavorites } from "@/hooks/useFavorites";
 
 interface PropertyCardProps {
@@ -90,9 +90,14 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                 <h3 className="font-bold text-base text-foreground line-clamp-1 flex-1">
                   {property.title}
                 </h3>
-                <span className="font-bold text-lg text-primary whitespace-nowrap">
-                  ${property.price_usd.toLocaleString()}
-                </span>
+                <div className="text-right">
+                  <span className="font-bold text-lg text-primary whitespace-nowrap">
+                    ${property.price_usd.toLocaleString()}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {formatLRD(property.price_usd)}
+                  </span>
+                </div>
               </div>
               
               {/* Property Details */}
@@ -113,21 +118,36 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </Link>
           
-          {/* Contact Button */}
-          <Button 
-            variant="outline"
-            className="w-full mt-3 rounded-full border-foreground/20 bg-background/50 hover:bg-background text-foreground font-semibold"
-            onClick={(e) => {
-              e.preventDefault();
-              if (property.contact_phone) {
-                window.location.href = `tel:${property.contact_phone}`;
-              } else {
-                window.location.href = `/property/${property.id}`;
-              }
-            }}
-          >
-            Contact
-          </Button>
+          {/* Contact Buttons */}
+          <div className="flex gap-2 mt-3">
+            <Button 
+              variant="outline"
+              className="flex-1 rounded-full border-foreground/20 bg-background/50 hover:bg-background text-foreground font-semibold"
+              onClick={(e) => {
+                e.preventDefault();
+                if (property.contact_phone) {
+                  window.location.href = `tel:${property.contact_phone}`;
+                } else {
+                  window.location.href = `/property/${property.id}`;
+                }
+              }}
+            >
+              Contact
+            </Button>
+            {property.contact_phone && (
+              <Button
+                size="icon"
+                className="rounded-full h-10 w-10 bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const msg = `Hi, I'm interested in your property "${property.title}" listed at $${property.price_usd.toLocaleString()} (${formatLRD(property.price_usd)}).`;
+                  window.open(formatWhatsAppLink(property.contact_phone!, msg), '_blank');
+                }}
+              >
+                <MessageCircle className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>

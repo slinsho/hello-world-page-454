@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare } from "lucide-react";
-import { LISTING_TYPE_LABELS } from "@/lib/constants";
+import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import RecommendedProperties from "@/components/RecommendedProperties";
 import { PropertyInquiryForm } from "@/components/PropertyInquiryForm";
+import { MakeOfferForm } from "@/components/MakeOfferForm";
 import { UserReviews } from "@/components/UserReviews";
 import { SEOHead } from "@/components/SEOHead";
 import { PropertyJsonLd } from "@/components/PropertyJsonLd";
@@ -73,7 +74,8 @@ const PropertyDetail = () => {
 
   const handleWhatsApp = (phoneNumber?: string) => {
     const phone = phoneNumber || property.contact_phone;
-    window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
+    const msg = `Hi, I'm interested in your property "${property.title}" listed at $${property.price_usd.toLocaleString()} (${formatLRD(property.price_usd)}) in ${property.county}.`;
+    window.open(formatWhatsAppLink(phone, msg), '_blank');
   };
 
   const handleShare = async () => {
@@ -193,6 +195,7 @@ const PropertyDetail = () => {
               {property.listing_type === 'for_rent' || property.listing_type === 'for_lease' ? '/month' : ''}
             </span>
           </p>
+          <p className="text-xs text-muted-foreground">{formatLRD(property.price_usd)}</p>
         </div>
 
         {/* Title Row */}
@@ -330,21 +333,30 @@ const PropertyDetail = () => {
             </div>
 
             {property.profiles?.id && (
-              <div className="flex gap-2 mt-6">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => navigate(`/profile/${property.profiles.id}`)}
-                >
-                  View Full Profile
-                </Button>
-                <PropertyInquiryForm
-                  propertyId={property.id}
-                  propertyTitle={property.title}
-                  ownerId={property.profiles.id}
-                  ownerName={property.profiles.name || "Owner"}
-                />
-              </div>
+              <>
+                <div className="flex gap-2 mt-6">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => navigate(`/profile/${property.profiles.id}`)}
+                  >
+                    View Full Profile
+                  </Button>
+                  <MakeOfferForm
+                    propertyId={property.id}
+                    propertyTitle={property.title}
+                    askingPrice={property.price_usd}
+                  />
+                </div>
+                <div className="mt-3">
+                  <PropertyInquiryForm
+                    propertyId={property.id}
+                    propertyTitle={property.title}
+                    ownerId={property.profiles.id}
+                    ownerName={property.profiles.name || "Owner"}
+                  />
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

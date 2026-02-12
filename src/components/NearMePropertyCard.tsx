@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Home, Building2, Store } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { formatLRD } from "@/lib/constants";
 
 interface NearMePropertyCardProps {
   property: {
@@ -64,6 +65,9 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
           <div>
             <p className="text-lg font-bold text-foreground">
               ${property.price_usd.toLocaleString()}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {formatLRD(property.price_usd)}
             </p>
             <p className="text-xs text-muted-foreground line-clamp-1">
               {property.address}
