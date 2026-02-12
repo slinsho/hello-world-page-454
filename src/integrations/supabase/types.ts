@@ -605,6 +605,56 @@ export type Database = {
           },
         ]
       }
+      property_offers: {
+        Row: {
+          buyer_id: string | null
+          buyer_name: string
+          buyer_phone: string
+          counter_amount_usd: number | null
+          created_at: string
+          id: string
+          message: string | null
+          offer_amount_usd: number
+          property_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id?: string | null
+          buyer_name: string
+          buyer_phone: string
+          counter_amount_usd?: number | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          offer_amount_usd: number
+          property_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string | null
+          buyer_name?: string
+          buyer_phone?: string
+          counter_amount_usd?: number | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          offer_amount_usd?: number
+          property_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_views: {
         Row: {
           id: string

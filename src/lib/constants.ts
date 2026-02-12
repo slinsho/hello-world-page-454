@@ -43,6 +43,20 @@ export const STATUS_COLORS = {
   taken: "bg-gray-500"
 } as const;
 
+// Liberian Dollar exchange rate (approximate)
+export const USD_TO_LRD_RATE = 192;
+
+export const formatLRD = (usd: number) => {
+  const lrd = usd * USD_TO_LRD_RATE;
+  return `L$${lrd.toLocaleString()}`;
+};
+
+export const formatWhatsAppLink = (phone: string, message: string) => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+};
+
 export const VERIFICATION_STATUS_LABELS = {
   none: "Not Requested",
   pending: "Pending",
