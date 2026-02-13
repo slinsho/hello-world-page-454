@@ -391,9 +391,15 @@ const Profile = () => {
   const verificationStatusColor = {
     none: "bg-muted text-muted-foreground",
     pending: "bg-yellow-500/20 text-yellow-500",
-    approved: "bg-primary/20 text-primary",
+    approved: profile.role === "agent" 
+      ? "bg-blue-500/20 text-blue-500" 
+      : "bg-green-500/20 text-green-500",
     rejected: "bg-destructive/20 text-destructive",
   }[profile.verification_status];
+
+  const verifiedLabel = profile.verification_status === "approved"
+    ? (profile.role === "agent" ? "Verified Agent 🔵" : "Verified Owner ✅")
+    : VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS];
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -494,7 +500,7 @@ const Profile = () => {
             <div className="flex justify-center mt-3">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${verificationStatusColor}`}>
                 <Shield className="h-3.5 w-3.5" />
-                {VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS]}
+                {verifiedLabel}
               </span>
             </div>
 

@@ -32,6 +32,7 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [userCounty, setUserCounty] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   
   const [filterOpen, setFilterOpen] = useState(false);
   const [listingType, setListingType] = useState("all");
@@ -88,11 +89,14 @@ const Navbar = () => {
     try {
       const { data } = await supabase
         .from("profiles")
-        .select("county")
+        .select("county, role")
         .eq("id", user.id)
         .maybeSingle();
       if (data?.county) {
         setUserCounty(data.county);
+      }
+      if (data?.role) {
+        setUserRole(data.role);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -195,40 +199,44 @@ const Navbar = () => {
                 >
                   <Heart className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 relative"
-                  onClick={() => navigate("/messages")}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  {unreadMessages > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                      {unreadMessages > 9 ? "9+" : unreadMessages}
-                    </span>
-                  )}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 relative"
-                  onClick={() => navigate("/notifications")}
-                >
-                  <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <BarChart3 className="h-4 w-4" />
-                </Button>
+                {userRole === "agent" && (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 relative"
+                      onClick={() => navigate("/messages")}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      {unreadMessages > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                          {unreadMessages > 9 ? "9+" : unreadMessages}
+                        </span>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 relative"
+                      onClick={() => navigate("/notifications")}
+                    >
+                      <Bell className="h-4 w-4" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
 

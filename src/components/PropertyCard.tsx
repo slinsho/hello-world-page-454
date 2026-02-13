@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle } from "lucide-react";
+import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,9 @@ interface PropertyCardProps {
     contact_phone_2?: string;
     profiles?: {
       name: string;
+      role?: string;
+      verification_status?: string;
+      phone?: string;
     };
   };
 }
@@ -115,6 +118,19 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                   </div>
                 )}
               </div>
+
+              {/* Verified Badge */}
+              {property.profiles?.verification_status === "approved" && (
+                <div className="flex items-center gap-1 mt-1">
+                  <ShieldCheck className={`h-3.5 w-3.5 ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`} />
+                  <span className={`text-[10px] font-semibold ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`}>
+                    {property.profiles?.role === "agent" ? "Verified Agent" : "Verified Owner"}
+                  </span>
+                  {property.profiles?.phone && (
+                    <span className="text-[10px] text-muted-foreground ml-1">· {property.profiles.phone}</span>
+                  )}
+                </div>
+              )}
             </div>
           </Link>
           

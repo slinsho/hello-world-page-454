@@ -7,7 +7,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare } from "lucide-react";
+import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare, ShieldCheck } from "lucide-react";
 import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -55,7 +55,7 @@ const PropertyDetail = () => {
     if (propertyData) {
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("id, name, email, phone, profile_photo_url, role")
+        .select("id, name, email, phone, profile_photo_url, role, verification_status")
         .eq("id", propertyData.owner_id)
         .maybeSingle();
 
@@ -281,7 +281,9 @@ const PropertyDetail = () => {
 
         {/* Property Owner Section */}
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-3">Property Owner</h3>
+          <h3 className="text-lg font-semibold mb-3">
+            {property.profiles?.role === "agent" ? "Listed by Agent" : "Property Owner"}
+          </h3>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-16 h-16 rounded-full bg-card border border-border overflow-hidden">
               {property.profiles?.profile_photo_url ? (
@@ -299,6 +301,14 @@ const PropertyDetail = () => {
             <div>
               <p className="font-semibold text-lg">{property.profiles?.name || 'Unknown'}</p>
               <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
+              {property.profiles?.verification_status === "approved" && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <ShieldCheck className={`h-4 w-4 ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`} />
+                  <span className={`text-xs font-semibold ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`}>
+                    {property.profiles?.role === "agent" ? "Verified Agent" : "Verified Owner"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
