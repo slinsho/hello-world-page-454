@@ -32,6 +32,8 @@ const Upload = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [propertyCount, setPropertyCount] = useState(0);
   const [photos, setPhotos] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
   const [agreed, setAgreed] = useState(false);
@@ -56,20 +58,32 @@ const Upload = () => {
       return;
     }
 
-    const checkVerification = async () => {
+    const checkVerificationAndRole = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("verification_status")
+        .select("verification_status, role")
         .eq("id", user.id)
         .single();
 
       if (data) {
         setVerificationStatus(data.verification_status);
+        setUserRole(data.role);
       }
+
+      // Count user's existing properties
+      const { count } = await supabase
+        .from("properties")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", user.id);
+      
+      setPropertyCount(count || 0);
     };
 
-    checkVerification();
+    checkVerificationAndRole();
   }, [user, navigate]);
+
+  const isOwner = userRole === "property_owner";
+  const ownerAtLimit = isOwner && propertyCount >= 2;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -220,6 +234,39 @@ const Upload = () => {
           <Button onClick={() => navigate("/profile")} className="rounded-full px-8">
             Go to Profile
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (ownerAtLimit) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="px-4 pt-16 text-center max-w-sm mx-auto">
+          <div className="h-20 w-20 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-6">
+            <Building2 className="h-10 w-10 text-blue-500" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Property Limit Reached</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Owner accounts can list up to 2 properties. To upload more, upgrade to an Agent account.
+          </p>
+          <p className="text-xs text-muted-foreground mb-6">
+            You can also delete an existing property to make room for a new one.
+          </p>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => {
+                navigate("/profile");
+              }} 
+              className="w-full rounded-full"
+            >
+              Upgrade to Agent
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/profile")} className="w-full rounded-full">
+              Manage My Properties
+            </Button>
+          </div>
         </div>
       </div>
     );

@@ -48,7 +48,18 @@ const NearMe = () => {
         .order("created_at", { ascending: false });
 
       if (!error && data) {
-        setProperties(data);
+        // Fetch owner profiles for verification badges
+        const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
+        if (ownerIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from("profiles")
+            .select("id, name, role, verification_status, phone")
+            .in("id", ownerIds);
+          const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
+          setProperties(data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
+        } else {
+          setProperties(data);
+        }
       }
       setLoading(false);
     };

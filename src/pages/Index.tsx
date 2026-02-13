@@ -78,8 +78,21 @@ const Index = () => {
         return;
       }
 
+      // Fetch owner profiles for verification badges
+      const ownerIds = [...new Set(propertiesData.map(p => p.owner_id))];
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, name, role, verification_status, phone")
+        .in("id", ownerIds);
+      
+      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
+      const propertiesWithProfiles = propertiesData.map(p => ({
+        ...p,
+        profiles: profilesMap.get(p.owner_id) || null,
+      }));
+
       // Shuffle properties randomly
-      const shuffledProperties = [...propertiesData].sort(() => Math.random() - 0.5);
+      const shuffledProperties = [...propertiesWithProfiles].sort(() => Math.random() - 0.5);
       setProperties(shuffledProperties);
 
       // Get user's county from profile - only show Near Me for logged in users with county set

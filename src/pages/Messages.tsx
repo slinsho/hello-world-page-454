@@ -71,6 +71,17 @@ export default function Messages() {
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
+      return;
+    }
+    // Check if user is an agent
+    if (user) {
+      const checkRole = async () => {
+        const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+        if (data?.role === "property_owner") {
+          navigate("/");
+        }
+      };
+      checkRole();
     }
   }, [user, authLoading, navigate]);
 

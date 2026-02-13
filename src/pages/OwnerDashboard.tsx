@@ -59,6 +59,16 @@ export default function OwnerDashboard() {
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
+      return;
+    }
+    if (user) {
+      const checkRole = async () => {
+        const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+        if (data?.role === "property_owner") {
+          navigate("/");
+        }
+      };
+      checkRole();
     }
   }, [user, authLoading, navigate]);
 

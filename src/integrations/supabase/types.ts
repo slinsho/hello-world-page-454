@@ -812,41 +812,56 @@ export type Database = {
         Row: {
           admin_id: string | null
           admin_note: string | null
+          agency_logo: string | null
+          agency_name: string | null
+          business_phone: string | null
           created_at: string
           date_of_birth: string
           id: string
           id_images: string[]
           id_type: Database["public"]["Enums"]["id_type"]
+          office_location: string | null
           processed_at: string | null
           selfie_image: string
           status: Database["public"]["Enums"]["verification_status"]
           user_id: string
+          verification_type: string
         }
         Insert: {
           admin_id?: string | null
           admin_note?: string | null
+          agency_logo?: string | null
+          agency_name?: string | null
+          business_phone?: string | null
           created_at?: string
           date_of_birth: string
           id?: string
           id_images: string[]
           id_type: Database["public"]["Enums"]["id_type"]
+          office_location?: string | null
           processed_at?: string | null
           selfie_image: string
           status?: Database["public"]["Enums"]["verification_status"]
           user_id: string
+          verification_type?: string
         }
         Update: {
           admin_id?: string | null
           admin_note?: string | null
+          agency_logo?: string | null
+          agency_name?: string | null
+          business_phone?: string | null
           created_at?: string
           date_of_birth?: string
           id?: string
           id_images?: string[]
           id_type?: Database["public"]["Enums"]["id_type"]
+          office_location?: string | null
           processed_at?: string | null
           selfie_image?: string
           status?: Database["public"]["Enums"]["verification_status"]
           user_id?: string
+          verification_type?: string
         }
         Relationships: []
       }

@@ -36,7 +36,16 @@ const Notifications = () => {
       navigate("/auth");
       return;
     }
-    fetchNotifications();
+    // Check if user is an agent
+    const checkRole = async () => {
+      const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      if (data?.role === "property_owner") {
+        navigate("/");
+        return;
+      }
+      fetchNotifications();
+    };
+    checkRole();
   }, [user]);
 
   const fetchNotifications = async () => {
