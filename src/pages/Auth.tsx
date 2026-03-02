@@ -16,6 +16,8 @@ const signUpSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["agent", "property_owner"]),
+  phone: z.string().min(5, "Phone number is required").max(20),
+  phone_2: z.string().max(20).optional(),
 });
 
 const signInSchema = z.object({
@@ -33,6 +35,8 @@ const Auth = () => {
     email: "",
     password: "",
     role: "property_owner" as "agent" | "property_owner",
+    phone: "",
+    phone_2: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -80,7 +84,10 @@ const Auth = () => {
         });
         setIsForgotPassword(false);
       } else if (isSignUp) {
-        const validatedData = signUpSchema.parse(formData);
+        const validatedData = signUpSchema.parse({
+          ...formData,
+          phone_2: formData.phone_2 || undefined,
+        });
         
         const { error } = await supabase.auth.signUp({
           email: validatedData.email,
@@ -90,6 +97,8 @@ const Auth = () => {
             data: {
               name: validatedData.name,
               role: validatedData.role,
+              phone: validatedData.phone,
+              contact_phone_2: validatedData.phone_2 || null,
             },
           },
         });
@@ -214,6 +223,33 @@ const Auth = () => {
                           <SelectItem value="agent">Agent</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    {/* Phone Numbers */}
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-foreground">Phone Number 1 *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        required
+                        maxLength={20}
+                        placeholder="+231..."
+                        className="bg-card border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone_2" className="text-foreground">Phone Number 2 <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                      <Input
+                        id="phone_2"
+                        type="tel"
+                        value={formData.phone_2}
+                        onChange={(e) => setFormData({ ...formData, phone_2: e.target.value })}
+                        maxLength={20}
+                        placeholder="+231..."
+                        className="bg-card border-border text-foreground"
+                      />
                     </div>
                   </>
                 )}

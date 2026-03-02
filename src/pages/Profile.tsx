@@ -36,14 +36,10 @@ const Profile = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState<{
     name: string;
-    phone: string;
-    role: "agent" | "property_owner";
     county: string;
     address: string;
   }>({
     name: "",
-    phone: "",
-    role: "property_owner",
     county: "",
     address: "",
   });
@@ -105,8 +101,6 @@ const Profile = () => {
         setProfile(data);
         setEditForm({
           name: data.name || "",
-          phone: data.phone || "",
-          role: data.role || "property_owner",
           county: data.county || "",
           address: data.address || "",
         });
@@ -125,8 +119,6 @@ const Profile = () => {
       .from("profiles")
       .update({
         name: editForm.name,
-        phone: editForm.phone,
-        role: editForm.role,
         county: editForm.county || null,
         address: editForm.address || null,
       })
@@ -586,30 +578,18 @@ const Profile = () => {
                     <Input id="email" value={profile.email} disabled className="opacity-60 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      placeholder="+1234567890"
-                      className="rounded-xl"
-                    />
+                    <Label htmlFor="phone">Phone (non-editable)</Label>
+                    <Input id="phone" value={profile.phone || ""} disabled className="opacity-60 rounded-xl" />
                   </div>
+                  {profile.contact_phone_2 && (
+                    <div className="space-y-2">
+                      <Label htmlFor="phone2">Phone 2 (non-editable)</Label>
+                      <Input id="phone2" value={profile.contact_phone_2} disabled className="opacity-60 rounded-xl" />
+                    </div>
+                  )}
                   <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <Select
-                      value={editForm.role}
-                      onValueChange={(value) => setEditForm({ ...editForm, role: value as "agent" | "property_owner" })}
-                    >
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="property_owner">Property Owner</SelectItem>
-                        <SelectItem value="agent">Agent</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="role">Role (non-editable)</Label>
+                    <Input id="role" value={profile.role === "agent" ? "Agent" : "Property Owner"} disabled className="opacity-60 rounded-xl" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="county">County</Label>
@@ -639,6 +619,16 @@ const Profile = () => {
                       className="rounded-xl"
                     />
                   </div>
+                  {profile.role === "property_owner" && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
+                    <Button 
+                      variant="outline"
+                      onClick={() => { setIsEditingProfile(false); navigate("/verification?upgrade=agent"); }}
+                      className="w-full rounded-xl gap-2 border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      Upgrade to Agent
+                    </Button>
+                  )}
                   <Button onClick={handleProfileUpdate} className="w-full rounded-xl">
                     Save Changes
                   </Button>
@@ -838,8 +828,8 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Reviews Section */}
-        {profile && (
+        {/* Reviews Section - only for agents */}
+        {profile && profile.role === "agent" && (
           <div className="mt-6">
             <UserReviews
               userId={profile.id}

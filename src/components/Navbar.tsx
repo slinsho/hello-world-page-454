@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 
 const Navbar = () => {
   const location = useLocation();
@@ -33,6 +34,8 @@ const Navbar = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [userCounty, setUserCounty] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState("");
   
   const [filterOpen, setFilterOpen] = useState(false);
   const [listingType, setListingType] = useState("all");
@@ -63,7 +66,6 @@ const Navbar = () => {
   const fetchUnreadMessages = async () => {
     if (!user) return;
     try {
-      // Get user's conversations
       const { data: conversations } = await supabase
         .from("conversations")
         .select("id")
@@ -116,6 +118,16 @@ const Navbar = () => {
   };
 
   const isHomePage = location.pathname === "/";
+  const isOwner = userRole === "property_owner";
+
+  const handleOwnerFeatureClick = (feature: string, route: string) => {
+    if (isOwner) {
+      setUpgradeFeature(feature);
+      setUpgradeOpen(true);
+    } else {
+      navigate(route);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,39 +157,23 @@ const Navbar = () => {
     }
   };
 
-  const handleFilterClick = () => {
-    setFilterOpen(true);
-  };
-
   const applyFilters = () => {
     const params = new URLSearchParams();
-    if (selectedFilter !== "all") {
-      params.set("type", selectedFilter);
-    }
-    if (listingType !== "all") {
-      params.set("listing", listingType);
-    }
-    if (statusFilter !== "all") {
-      params.set("status", statusFilter);
-    }
-    if (countyFilter !== "all") {
-      params.set("county", countyFilter);
-    }
-    if (minPrice) {
-      params.set("minPrice", minPrice);
-    }
-    if (maxPrice) {
-      params.set("maxPrice", maxPrice);
-    }
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    }
+    if (selectedFilter !== "all") params.set("type", selectedFilter);
+    if (listingType !== "all") params.set("listing", listingType);
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    if (countyFilter !== "all") params.set("county", countyFilter);
+    if (minPrice) params.set("minPrice", minPrice);
+    if (maxPrice) params.set("maxPrice", maxPrice);
+    if (searchQuery) params.set("search", searchQuery);
     navigate(`/?${params.toString()}`);
     setFilterOpen(false);
   };
 
   return (
     <>
+      <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
+
       {/* Top Navigation - Home Page Only */}
       {isHomePage && (
         <div className="sticky top-0 z-50 bg-background border-b border-border">
@@ -199,44 +195,41 @@ const Navbar = () => {
                 >
                   <Heart className="h-4 w-4" />
                 </Button>
-                {userRole === "agent" && (
-                  <>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 relative"
-                      onClick={() => navigate("/messages")}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      {unreadMessages > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                          {unreadMessages > 9 ? "9+" : unreadMessages}
-                        </span>
-                      )}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 relative"
-                      onClick={() => navigate("/notifications")}
-                    >
-                      <Bell className="h-4 w-4" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </span>
-                      )}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                      onClick={() => navigate("/dashboard")}
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
+                {/* Show icons for all users but upgrade dialog for owners */}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 relative"
+                  onClick={() => handleOwnerFeatureClick("Messages", "/messages")}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {!isOwner && unreadMessages > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 relative"
+                  onClick={() => handleOwnerFeatureClick("Notifications", "/notifications")}
+                >
+                  <Bell className="h-4 w-4" />
+                  {!isOwner && unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
@@ -321,20 +314,8 @@ const Navbar = () => {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Price Range (USD)</Label>
                       <div className="flex gap-3">
-                        <Input
-                          type="number"
-                          placeholder="Min"
-                          value={minPrice}
-                          onChange={(e) => setMinPrice(e.target.value)}
-                          className="h-12 rounded-xl"
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Max"
-                          value={maxPrice}
-                          onChange={(e) => setMaxPrice(e.target.value)}
-                          className="h-12 rounded-xl"
-                        />
+                        <Input type="number" placeholder="Min" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="h-12 rounded-xl" />
+                        <Input type="number" placeholder="Max" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="h-12 rounded-xl" />
                       </div>
                     </div>
 
@@ -354,7 +335,6 @@ const Navbar = () => {
                       </Select>
                     </div>
 
-                    {/* Apply Button */}
                     <Button onClick={applyFilters} className="w-full rounded-xl h-12">
                       Apply
                     </Button>
@@ -365,34 +345,16 @@ const Navbar = () => {
 
             {/* Filter Chips */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <Badge 
-                variant={selectedFilter === "all" ? "default" : "secondary"}
-                className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => handleFilterChange("all")}
-              >
-                All
-              </Badge>
-              <Badge 
-                variant={selectedFilter === "house" ? "default" : "secondary"}
-                className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => handleFilterChange("house")}
-              >
-                House
-              </Badge>
-              <Badge 
-                variant={selectedFilter === "shop" ? "default" : "secondary"}
-                className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => handleFilterChange("shop")}
-              >
-                Shop
-              </Badge>
-              <Badge 
-                variant={selectedFilter === "apartment" ? "default" : "secondary"}
-                className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap"
-                onClick={() => handleFilterChange("apartment")}
-              >
-                Apartment
-              </Badge>
+              {["all", "house", "shop", "apartment"].map((filter) => (
+                <Badge 
+                  key={filter}
+                  variant={selectedFilter === filter ? "default" : "secondary"}
+                  className="cursor-pointer px-4 py-1.5 rounded-full whitespace-nowrap capitalize"
+                  onClick={() => handleFilterChange(filter)}
+                >
+                  {filter === "all" ? "All" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </Badge>
+              ))}
             </div>
           </div>
         </div>
@@ -407,22 +369,13 @@ const Navbar = () => {
               <span className="text-2xl font-bold text-primary">LibHub</span>
             </Link>
 
-            {/* Desktop/Tablet Navigation */}
             <div className="hidden md:flex items-center gap-2">
               {navItems.map((item) => {
                 if (item.requiresAuth && !user) return null;
-                
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
-                
                 return (
-                  <Button
-                    key={item.path}
-                    variant={isActive ? "default" : "ghost"}
-                    size="sm"
-                    asChild
-                    className="gap-2"
-                  >
+                  <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" asChild className="gap-2">
                     <Link to={item.path}>
                       <Icon className="h-4 w-4" />
                       <span>{item.label}</span>
@@ -430,7 +383,6 @@ const Navbar = () => {
                   </Button>
                 );
               })}
-              
               {!user && (
                 <Button variant="default" size="sm" asChild>
                   <Link to="/auth">Sign In</Link>
@@ -446,34 +398,30 @@ const Navbar = () => {
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             if (item.requiresAuth && !user) return null;
-            
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
             return (
               <Button
                 key={item.path}
                 variant="ghost"
                 size="sm"
-                asChild
-                className={`flex-col h-14 gap-0.5 flex-1 ${
-                  isActive ? "text-primary" : "text-muted-foreground"
-                }`}
+                className={`flex flex-col items-center gap-1 h-14 px-3 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                onClick={() => navigate(item.path)}
               >
-                <Link to={item.path}>
-                  <Icon className="h-5 w-5" />
-                  <span className="text-[10px]">{item.label}</span>
-                </Link>
+                <Icon className="h-5 w-5" />
+                <span className="text-[10px]">{item.label}</span>
               </Button>
             );
           })}
-          
           {!user && (
-            <Button variant="ghost" size="sm" asChild className="flex-col h-14 gap-0.5 flex-1 text-muted-foreground">
-              <Link to="/auth">
-                <User className="h-5 w-5" />
-                <span className="text-[10px]">Sign In</span>
-              </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center gap-1 h-14 px-3 text-muted-foreground"
+              onClick={() => navigate("/auth")}
+            >
+              <User className="h-5 w-5" />
+              <span className="text-[10px]">Sign In</span>
             </Button>
           )}
         </div>

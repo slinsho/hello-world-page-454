@@ -61,13 +61,20 @@ const Upload = () => {
     const checkVerificationAndRole = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("verification_status, role")
+        .select("verification_status, role, phone, contact_phone_2")
         .eq("id", user.id)
         .single();
 
       if (data) {
         setVerificationStatus(data.verification_status);
         setUserRole(data.role);
+        // Auto-fill phone numbers from profile (non-editable for owners)
+        if (data.phone) {
+          setFormData(prev => ({ ...prev, contact_phone: data.phone || "" }));
+        }
+        if (data.contact_phone_2) {
+          setFormData(prev => ({ ...prev, contact_phone_2: data.contact_phone_2 || "" }));
+        }
       }
 
       // Count user's existing properties
@@ -84,6 +91,38 @@ const Upload = () => {
 
   const isOwner = userRole === "property_owner";
   const ownerAtLimit = isOwner && propertyCount >= 2;
+
+  // Show upgrade immediately for owners at limit - before verification check
+  if (ownerAtLimit && verificationStatus !== null) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="px-4 pt-16 text-center max-w-sm mx-auto">
+          <div className="h-20 w-20 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-6">
+            <Building2 className="h-10 w-10 text-blue-500" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Property Limit Reached</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Owner accounts can list up to 2 properties. To upload more, upgrade to an Agent account.
+          </p>
+          <p className="text-xs text-muted-foreground mb-6">
+            You can also delete an existing property to make room for a new one.
+          </p>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => navigate("/verification?upgrade=agent")} 
+              className="w-full rounded-full"
+            >
+              Upgrade to Agent
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/profile")} className="w-full rounded-full">
+              Manage My Properties
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -239,38 +278,7 @@ const Upload = () => {
     );
   }
 
-  if (ownerAtLimit) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="px-4 pt-16 text-center max-w-sm mx-auto">
-          <div className="h-20 w-20 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-6">
-            <Building2 className="h-10 w-10 text-blue-500" />
-          </div>
-          <h2 className="text-xl font-bold mb-2">Property Limit Reached</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Owner accounts can list up to 2 properties. To upload more, upgrade to an Agent account.
-          </p>
-          <p className="text-xs text-muted-foreground mb-6">
-            You can also delete an existing property to make room for a new one.
-          </p>
-          <div className="space-y-3">
-            <Button 
-              onClick={() => {
-                navigate("/profile");
-              }} 
-              className="w-full rounded-full"
-            >
-              Upgrade to Agent
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/profile")} className="w-full rounded-full">
-              Manage My Properties
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // ownerAtLimit already handled above before verification check
 
   const propertyTypes = [
     { value: "house", label: "House", icon: Home },

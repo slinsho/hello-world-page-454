@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Bell, Check, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 
 interface Notification {
   id: string;
@@ -30,19 +31,23 @@ const Notifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
-    // Check if user is an agent
     const checkRole = async () => {
       const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
       if (data?.role === "property_owner") {
-        navigate("/");
+        setUserRole("property_owner");
+        setShowUpgrade(true);
+        setLoading(false);
         return;
       }
+      setUserRole(data?.role || null);
       fetchNotifications();
     };
     checkRole();
@@ -52,12 +57,8 @@ const Notifications = () => {
     try {
       const { data, error } = await supabase
         .from("notifications")
-        .select(`
-          *,
-          property:properties(id, title, photos, price_usd, county)
-        `)
+        .select(`*, property:properties(id, title, photos, price_usd, county)`)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       setNotifications(data || []);
     } catch (error) {
@@ -69,14 +70,8 @@ const Notifications = () => {
 
   const markAsRead = async (id: string) => {
     try {
-      await supabase
-        .from("notifications")
-        .update({ is_read: true })
-        .eq("id", id);
-      
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
-      );
+      await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -98,10 +93,18 @@ const Notifications = () => {
     }
   };
 
+  if (showUpgrade) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <Navbar />
+        <UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Notifications" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <Navbar />
-      
       <div className="container max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -129,32 +132,20 @@ const Notifications = () => {
             {notifications.map((notification) => (
               <Card
                 key={notification.id}
-                className={`p-4 cursor-pointer transition-colors ${
-                  !notification.is_read ? "bg-primary/5 border-primary/20" : ""
-                }`}
+                className={`p-4 cursor-pointer transition-colors ${!notification.is_read ? "bg-primary/5 border-primary/20" : ""}`}
                 onClick={() => handlePropertyClick(notification)}
               >
                 <div className="flex gap-3">
                   {notification.property?.photos?.[0] && (
-                    <img
-                      src={notification.property.photos[0]}
-                      alt={notification.property.title}
-                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                    />
+                    <img src={notification.property.photos[0]} alt={notification.property.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h3 className="font-semibold text-sm line-clamp-1">
-                          {notification.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                          {notification.message}
-                        </p>
+                        <h3 className="font-semibold text-sm line-clamp-1">{notification.title}</h3>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{notification.message}</p>
                       </div>
-                      {!notification.is_read && (
-                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
-                      )}
+                      {!notification.is_read && <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-muted-foreground">
@@ -162,27 +153,11 @@ const Notifications = () => {
                       </span>
                       <div className="flex gap-1">
                         {!notification.is_read && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsRead(notification.id);
-                            }}
-                          >
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); markAsRead(notification.id); }}>
                             <Check className="h-3.5 w-3.5" />
                           </Button>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteNotification(notification.id);
-                          }}
-                        >
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); deleteNotification(notification.id); }}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
