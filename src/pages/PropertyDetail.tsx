@@ -352,27 +352,31 @@ const PropertyDetail = () => {
                   >
                     View Full Profile
                   </Button>
-                  <MakeOfferForm
-                    propertyId={property.id}
-                    propertyTitle={property.title}
-                    askingPrice={property.price_usd}
-                  />
+                  {property.profiles?.role === "agent" && (
+                    <MakeOfferForm
+                      propertyId={property.id}
+                      propertyTitle={property.title}
+                      askingPrice={property.price_usd}
+                    />
+                  )}
                 </div>
-                <div className="mt-3">
-                  <PropertyInquiryForm
-                    propertyId={property.id}
-                    propertyTitle={property.title}
-                    ownerId={property.profiles.id}
-                    ownerName={property.profiles.name || "Owner"}
-                  />
-                </div>
+                {property.profiles?.role === "agent" && (
+                  <div className="mt-3">
+                    <PropertyInquiryForm
+                      propertyId={property.id}
+                      propertyTitle={property.title}
+                      ownerId={property.profiles.id}
+                      ownerName={property.profiles.name || "Owner"}
+                    />
+                  </div>
+                )}
               </>
             )}
           </CardContent>
         </Card>
 
-        {/* Reviews Section */}
-        {property.profiles?.id && (
+        {/* Reviews Section - only for agent properties */}
+        {property.profiles?.id && property.profiles?.role === "agent" && (
           <div className="mb-6">
             <UserReviews
               userId={property.profiles.id}

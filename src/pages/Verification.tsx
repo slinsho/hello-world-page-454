@@ -50,14 +50,21 @@ const Verification = () => {
       navigate("/auth");
       return;
     }
-    // Fetch user role
     const fetchRole = async () => {
       const { data } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
-      if (data) setUserRole(data.role);
+      if (data) {
+        // If upgrading from owner to agent, treat as agent verification
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("upgrade") === "agent") {
+          setUserRole("agent");
+        } else {
+          setUserRole(data.role);
+        }
+      }
     };
     fetchRole();
   }, [user, navigate]);

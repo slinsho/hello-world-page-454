@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
 import { useFavorites } from "@/hooks/useFavorites";
 
@@ -27,6 +28,7 @@ interface PropertyCardProps {
       role?: string;
       verification_status?: string;
       phone?: string;
+      profile_photo_url?: string;
     };
   };
 }
@@ -134,22 +136,22 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </Link>
           
-          {/* Contact Buttons */}
-          <div className="flex gap-2 mt-3">
-            <Button 
-              variant="outline"
-              className="flex-1 rounded-full border-foreground/20 bg-background/50 hover:bg-background text-foreground font-semibold"
-              onClick={(e) => {
-                e.preventDefault();
-                if (property.contact_phone) {
-                  window.location.href = `tel:${property.contact_phone}`;
-                } else {
-                  window.location.href = `/property/${property.id}`;
-                }
-              }}
+          {/* Owner Profile Photo + WhatsApp - Replace Contact button with avatar */}
+          <div className="flex items-center justify-between mt-3">
+            <Link to={`/profile/${property.profiles?.name ? '' : ''}${property.id}`} 
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2"
             >
-              Contact
-            </Button>
+              <Avatar className="h-8 w-8 border border-border">
+                <AvatarImage src={property.profiles?.profile_photo_url} className="object-cover" />
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                  {property.profiles?.name?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground line-clamp-1">
+                {property.profiles?.name || "Owner"}
+              </span>
+            </Link>
             {property.contact_phone && (
               <Button
                 size="icon"
