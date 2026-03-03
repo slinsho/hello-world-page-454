@@ -1,15 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Upload, X, Camera, Building2, User } from "lucide-react";
+import { Upload, X, Camera, Building2, User, ArrowLeft, ShieldCheck, ChevronRight } from "lucide-react";
 import { z } from "zod";
 
 const ownerVerificationSchema = z.object({
@@ -57,7 +55,6 @@ const Verification = () => {
         .eq("id", user.id)
         .single();
       if (data) {
-        // If upgrading from owner to agent, treat as agent verification
         const params = new URLSearchParams(window.location.search);
         if (params.get("upgrade") === "agent") {
           setUserRole("agent");
@@ -96,7 +93,6 @@ const Verification = () => {
     }
   };
 
-  // Attach stream to video element once camera is open and video ref is available
   useEffect(() => {
     if (isCameraOpen && streamRef.current && videoRef.current) {
       videoRef.current.srcObject = streamRef.current;
@@ -167,7 +163,6 @@ const Verification = () => {
 
       setLoading(true);
 
-      // Upload ID images
       const idPaths: string[] = [];
       for (const idImage of idImages) {
         const fileExt = idImage.name.split(".").pop();
@@ -177,13 +172,11 @@ const Verification = () => {
         idPaths.push(fileName);
       }
 
-      // Upload selfie
       const selfieExt = selfieImage.name.split(".").pop();
       const selfieFileName = `${user.id}/selfie-${Date.now()}.${selfieExt}`;
       const { error: selfieError } = await supabase.storage.from("verification-docs").upload(selfieFileName, selfieImage);
       if (selfieError) throw selfieError;
 
-      // Upload agency logo if agent
       let agencyLogoPath: string | null = null;
       if (isAgent && agencyLogo) {
         const logoExt = agencyLogo.name.split(".").pop();
@@ -193,7 +186,6 @@ const Verification = () => {
         agencyLogoPath = logoFileName;
       }
 
-      // Create verification request
       const insertData: any = {
         user_id: user.id,
         date_of_birth: formData.dateOfBirth,
@@ -213,15 +205,11 @@ const Verification = () => {
       const { error } = await supabase.from("verification_requests").insert([insertData]);
       if (error) throw error;
 
-      // Update profile status; if upgrading to agent, also update the role
       const profileUpdate: any = { verification_status: "pending" };
       if (isAgent) {
         profileUpdate.role = "agent";
       }
-      await supabase
-        .from("profiles")
-        .update(profileUpdate)
-        .eq("id", user.id);
+      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
 
       toast({ title: "Success!", description: "Your verification request has been submitted." });
       navigate("/profile");
@@ -238,217 +226,249 @@ const Verification = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <main className="container py-8 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3 mb-2">
-              {isAgent ? (
-                <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-blue-500" />
-                </div>
-              ) : (
-                <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <User className="h-5 w-5 text-green-500" />
-                </div>
-              )}
-              <div>
-                <CardTitle>{isAgent ? "Agent Verification" : "Owner Verification"}</CardTitle>
-                <CardDescription>
-                  {isAgent
-                    ? "Submit your documents and agency details to get your blue verified badge"
-                    : "Submit your documents to get your green verified badge and start listing properties"}
-                </CardDescription>
+      {/* Mobile App Header */}
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Button variant="ghost" size="icon" className="rounded-full shrink-0" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold truncate">
+            {isAgent ? "Agent Verification" : "Owner Verification"}
+          </h1>
+        </div>
+      </div>
+
+      <main className="px-4 py-6 max-w-lg mx-auto pb-12">
+        {/* Hero Badge */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-4 ${isAgent ? "bg-blue-500/10" : "bg-green-500/10"}`}>
+            {isAgent ? (
+              <Building2 className="h-10 w-10 text-blue-500" />
+            ) : (
+              <User className="h-10 w-10 text-green-500" />
+            )}
+          </div>
+          <h2 className="text-xl font-bold mb-1">
+            {isAgent ? "Get Your Blue Badge 🔵" : "Get Your Green Badge ✅"}
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            {isAgent
+              ? "Submit your documents and agency details to unlock unlimited listings and all features."
+              : "Verify your identity to start listing properties and earn trust from buyers."}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Agent: Business Phone */}
+          {isAgent && (
+            <div className="bg-card rounded-2xl p-4 border border-border space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldCheck className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-semibold">Business Contact</span>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="businessPhone" className="text-xs text-muted-foreground">Business Phone *</Label>
+                <Input
+                  id="businessPhone"
+                  type="tel"
+                  value={formData.businessPhone}
+                  onChange={(e) => setFormData({ ...formData, businessPhone: e.target.value })}
+                  placeholder="+231..."
+                  required
+                  className="rounded-xl"
+                />
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Phone Number - Agent only */}
-              {isAgent && (
-                <div className="space-y-2">
-                  <Label htmlFor="businessPhone">Business Phone *</Label>
-                  <Input
-                    id="businessPhone"
-                    type="tel"
-                    value={formData.businessPhone}
-                    onChange={(e) => setFormData({ ...formData, businessPhone: e.target.value })}
-                    placeholder="+231..."
-                    required
-                  />
-                </div>
-              )}
+          )}
 
-              <div className="space-y-2">
-                <Label htmlFor="dob">Date of Birth *</Label>
+          {/* Personal Info Card */}
+          <div className="bg-card rounded-2xl p-4 border border-border space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">Personal Information</span>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="dob" className="text-xs text-muted-foreground">Date of Birth *</Label>
+              <Input
+                id="dob"
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                required
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">National ID Type *</Label>
+              <Select
+                value={formData.idType}
+                onValueChange={(value: any) => setFormData({ ...formData, idType: value })}
+              >
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="citizen_card">Citizen Card</SelectItem>
+                  <SelectItem value="voter_card">Voter Card</SelectItem>
+                  <SelectItem value="passport">Passport</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* ID Upload Card */}
+          <div className="bg-card rounded-2xl p-4 border border-border space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-semibold">National ID (Front & Back) *</span>
+              <span className="text-xs text-muted-foreground">{idImages.length}/2</span>
+            </div>
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleIdImagesChange}
+              className="hidden"
+              id="id-upload"
+              disabled={idImages.length >= 2}
+            />
+            <label
+              htmlFor="id-upload"
+              className={`flex items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-5 cursor-pointer transition-colors hover:border-primary/50 ${idImages.length >= 2 ? "opacity-50 pointer-events-none" : ""}`}
+            >
+              <Upload className="h-6 w-6 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Tap to upload ID images</span>
+            </label>
+
+            {idImages.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {idImages.map((image, index) => (
+                  <div key={index} className="relative rounded-xl overflow-hidden">
+                    <img src={URL.createObjectURL(image)} alt={`ID ${index + 1}`} className="w-full h-28 object-cover" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full" onClick={() => removeIdImage(index)}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Selfie Card */}
+          <div className="bg-card rounded-2xl p-4 border border-border space-y-3">
+            <span className="text-sm font-semibold">Selfie Holding ID *</span>
+
+            {!isCameraOpen && !selfieImage && (
+              <div className="space-y-3">
+                <Button type="button" onClick={openCamera} className="w-full rounded-xl gap-2 h-12" variant="outline">
+                  <Camera className="h-5 w-5" />
+                  Take Selfie with Camera
+                </Button>
+                <div className="relative text-center">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
+                </div>
+                <div>
+                  <input type="file" accept="image/*" onChange={handleSelfieChange} className="hidden" id="selfie-upload" />
+                  <label
+                    htmlFor="selfie-upload"
+                    className="flex items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-5 cursor-pointer transition-colors hover:border-primary/50"
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Upload from files</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {isCameraOpen && (
+              <div className="space-y-3">
+                <div className="relative w-full bg-black rounded-2xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="button" onClick={capturePhoto} className="flex-1 rounded-xl h-11">
+                    <Camera className="h-4 w-4 mr-2" />
+                    Capture
+                  </Button>
+                  <Button type="button" onClick={closeCamera} variant="outline" className="flex-1 rounded-xl h-11">Cancel</Button>
+                </div>
+              </div>
+            )}
+
+            {selfieImage && !isCameraOpen && (
+              <div className="relative w-40 mx-auto">
+                <img src={URL.createObjectURL(selfieImage)} alt="Selfie" className="w-full h-40 object-cover rounded-2xl" />
+                <Button type="button" variant="destructive" size="icon" className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full" onClick={() => setSelfieImage(null)}>
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Agent: Agency Information Card */}
+          {isAgent && (
+            <div className="bg-card rounded-2xl p-4 border border-border space-y-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Building2 className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-semibold">Agency Information</span>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="agencyName" className="text-xs text-muted-foreground">Agency Name *</Label>
                 <Input
-                  id="dob"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  id="agencyName"
+                  value={formData.agencyName}
+                  onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
+                  placeholder="Your agency or company name"
                   required
+                  className="rounded-xl"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>National ID Type *</Label>
-                <Select
-                  value={formData.idType}
-                  onValueChange={(value: any) => setFormData({ ...formData, idType: value })}
+              <div className="space-y-1.5">
+                <Label htmlFor="officeLocation" className="text-xs text-muted-foreground">Office Location *</Label>
+                <Input
+                  id="officeLocation"
+                  value={formData.officeLocation}
+                  onChange={(e) => setFormData({ ...formData, officeLocation: e.target.value })}
+                  placeholder="Office address"
+                  required
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Agency Logo (Optional)</Label>
+                <input type="file" accept="image/*" onChange={handleAgencyLogoChange} className="hidden" id="logo-upload" />
+                <label
+                  htmlFor="logo-upload"
+                  className="flex items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-4 cursor-pointer transition-colors hover:border-primary/50"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="citizen_card">Citizen Card</SelectItem>
-                    <SelectItem value="voter_card">Voter Card</SelectItem>
-                    <SelectItem value="passport">Passport</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>National ID (Front & Back) * (Max 2)</Label>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleIdImagesChange}
-                    className="hidden"
-                    id="id-upload"
-                    disabled={idImages.length >= 2}
-                  />
-                  <label htmlFor="id-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Upload ID images ({idImages.length}/2)</span>
-                  </label>
-                </div>
-
-                {idImages.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-4">
-                    {idImages.map((image, index) => (
-                      <div key={index} className="relative">
-                        <img src={URL.createObjectURL(image)} alt={`ID ${index + 1}`} className="w-full h-32 object-cover rounded" />
-                        <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeIdImage(index)}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Selfie Holding ID *</Label>
-                
-                {!isCameraOpen && !selfieImage && (
-                  <div className="space-y-4">
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <Button type="button" onClick={openCamera} className="w-full flex items-center justify-center gap-2" variant="outline">
-                        <Camera className="h-5 w-5" />
-                        Take Selfie with Camera
-                      </Button>
-                    </div>
-                    <div className="relative text-center">
-                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
-                    </div>
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <input type="file" accept="image/*" onChange={handleSelfieChange} className="hidden" id="selfie-upload" />
-                      <label htmlFor="selfie-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Upload selfie from files</span>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {isCameraOpen && (
-                  <div className="space-y-4">
-                    <div className="relative w-full bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '4/3' }}>
-                      <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button type="button" onClick={capturePhoto} className="flex-1">
-                        <Camera className="h-4 w-4 mr-2" />
-                        Capture Photo
-                      </Button>
-                      <Button type="button" onClick={closeCamera} variant="outline" className="flex-1">Cancel</Button>
-                    </div>
-                  </div>
-                )}
-
-                {selfieImage && !isCameraOpen && (
-                  <div className="relative mt-4 w-48 mx-auto">
-                    <img src={URL.createObjectURL(selfieImage)} alt="Selfie" className="w-full h-48 object-cover rounded" />
-                    <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setSelfieImage(null)}>
-                      <X className="h-4 w-4" />
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {agencyLogo ? agencyLogo.name : "Upload agency logo"}
+                  </span>
+                </label>
+                {agencyLogo && (
+                  <div className="relative w-20 mx-auto mt-2">
+                    <img src={URL.createObjectURL(agencyLogo)} alt="Agency Logo" className="w-20 h-20 object-cover rounded-xl" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => setAgencyLogo(null)}>
+                      <X className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 )}
               </div>
+            </div>
+          )}
 
-              {/* Agent-specific: Agency Information */}
-              {isAgent && (
-                <div className="space-y-4 border-t pt-6">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-blue-500" />
-                    Agency Information
-                  </h3>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="agencyName">Agency Name *</Label>
-                    <Input
-                      id="agencyName"
-                      value={formData.agencyName}
-                      onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
-                      placeholder="Your agency or company name"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="officeLocation">Office Location *</Label>
-                    <Input
-                      id="officeLocation"
-                      value={formData.officeLocation}
-                      onChange={(e) => setFormData({ ...formData, officeLocation: e.target.value })}
-                      placeholder="Office address"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Agency Logo (Optional)</Label>
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <input type="file" accept="image/*" onChange={handleAgencyLogoChange} className="hidden" id="logo-upload" />
-                      <label htmlFor="logo-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {agencyLogo ? agencyLogo.name : "Upload agency logo"}
-                        </span>
-                      </label>
-                    </div>
-                    {agencyLogo && (
-                      <div className="relative mt-2 w-24 mx-auto">
-                        <img src={URL.createObjectURL(agencyLogo)} alt="Agency Logo" className="w-24 h-24 object-cover rounded-xl" />
-                        <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6" onClick={() => setAgencyLogo(null)}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : `Submit ${isAgent ? "Agent" : "Owner"} Verification`}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          {/* Submit Button */}
+          <Button type="submit" className="w-full rounded-xl h-12 text-base font-semibold" disabled={loading}>
+            {loading ? "Submitting..." : `Submit ${isAgent ? "Agent" : "Owner"} Verification`}
+          </Button>
+        </form>
       </main>
     </div>
   );

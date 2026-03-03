@@ -186,10 +186,15 @@ const PropertyDetail = () => {
 
       {/* Property Info */}
       <div className="px-4 pt-4">
-        {/* Location and Price Row */}
-        <div className="flex items-start justify-between mb-2">
+        {/* Location */}
+        <div className="flex items-center gap-1 mb-1">
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
           <p className="text-muted-foreground text-sm">{property.county}</p>
-          <p className="text-primary text-xl font-bold">
+        </div>
+
+        {/* Price Row */}
+        <div className="flex items-baseline gap-2 mb-1">
+          <p className="text-primary text-2xl font-bold">
             ${property.price_usd.toLocaleString()}
             <span className="text-sm font-normal text-muted-foreground">
               {property.listing_type === 'for_rent' || property.listing_type === 'for_lease' ? '/month' : ''}
@@ -199,18 +204,18 @@ const PropertyDetail = () => {
         </div>
 
         {/* Title Row */}
-        <div className="flex items-start justify-between mb-1">
-          <h1 className="text-xl font-bold flex-1">{property.title}</h1>
-          <Badge variant="secondary" className="text-xs ml-2">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-lg font-bold flex-1 leading-tight">{property.title}</h1>
+          <Badge variant="secondary" className="text-xs ml-2 shrink-0">
             {LISTING_TYPE_LABELS[property.listing_type as keyof typeof LISTING_TYPE_LABELS]}
           </Badge>
         </div>
 
         {/* Date and Verification */}
-        <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-6 text-xs text-muted-foreground">
           <span>On: {new Date(property.created_at).toLocaleDateString()}</span>
           <div className="flex items-center gap-1 text-primary">
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="h-3.5 w-3.5" />
             <span>Verified On: {new Date(property.updated_at).toLocaleDateString()}</span>
           </div>
         </div>
