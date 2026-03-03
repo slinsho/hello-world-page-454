@@ -136,14 +136,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </Link>
           
-          {/* Owner Profile Photo + WhatsApp - Replace Contact button with avatar */}
+          {/* Owner Profile Photo + WhatsApp */}
           <div className="flex items-center justify-between mt-3">
-            <Link to={`/profile/${property.profiles?.name ? '' : ''}${property.id}`} 
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-2"
-            >
+            <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8 border border-border">
-                <AvatarImage src={property.profiles?.profile_photo_url} className="object-cover" />
+                <AvatarImage src={property.profiles?.profile_photo_url || undefined} className="object-cover" />
                 <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                   {property.profiles?.name?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
@@ -151,7 +148,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
               <span className="text-xs text-muted-foreground line-clamp-1">
                 {property.profiles?.name || "Owner"}
               </span>
-            </Link>
+            </div>
             {property.contact_phone && (
               <Button
                 size="icon"

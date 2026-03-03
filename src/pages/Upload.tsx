@@ -433,19 +433,23 @@ const Upload = () => {
               <Input
                 type="tel"
                 value={formData.contact_phone}
-                onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                onChange={(e) => !isOwner && setFormData({ ...formData, contact_phone: e.target.value })}
                 required
                 maxLength={20}
                 placeholder="Phone 1 *"
                 className="rounded-xl h-12"
+                readOnly={isOwner}
+                disabled={isOwner}
               />
               <Input
                 type="tel"
                 value={formData.contact_phone_2}
-                onChange={(e) => setFormData({ ...formData, contact_phone_2: e.target.value })}
+                onChange={(e) => !isOwner && setFormData({ ...formData, contact_phone_2: e.target.value })}
                 maxLength={20}
                 placeholder="Phone 2"
                 className="rounded-xl h-12"
+                readOnly={isOwner}
+                disabled={isOwner}
               />
             </div>
           </div>

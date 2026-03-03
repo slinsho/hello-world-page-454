@@ -90,17 +90,19 @@ const Verification = () => {
       });
       streamRef.current = stream;
       setIsCameraOpen(true);
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(err => console.error("Error playing video:", err));
-        }
-      }, 100);
     } catch (error) {
       console.error("Camera error:", error);
       toast({ title: "Camera Error", description: "Unable to access camera. Please check permissions.", variant: "destructive" });
     }
   };
+
+  // Attach stream to video element once camera is open and video ref is available
+  useEffect(() => {
+    if (isCameraOpen && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(err => console.error("Error playing video:", err));
+    }
+  }, [isCameraOpen]);
 
   const capturePhoto = () => {
     if (!videoRef.current) return;
@@ -211,10 +213,14 @@ const Verification = () => {
       const { error } = await supabase.from("verification_requests").insert([insertData]);
       if (error) throw error;
 
-      // Update profile status
+      // Update profile status; if upgrading to agent, also update the role
+      const profileUpdate: any = { verification_status: "pending" };
+      if (isAgent) {
+        profileUpdate.role = "agent";
+      }
       await supabase
         .from("profiles")
-        .update({ verification_status: "pending" })
+        .update(profileUpdate)
         .eq("id", user.id);
 
       toast({ title: "Success!", description: "Your verification request has been submitted." });
