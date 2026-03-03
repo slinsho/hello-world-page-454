@@ -82,7 +82,7 @@ const Index = () => {
       const ownerIds = [...new Set(propertiesData.map(p => p.owner_id))];
       const { data: profilesData } = await supabase
         .from("profiles")
-        .select("id, name, role, verification_status, phone")
+        .select("id, name, role, verification_status, phone, profile_photo_url")
         .in("id", ownerIds);
       
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));

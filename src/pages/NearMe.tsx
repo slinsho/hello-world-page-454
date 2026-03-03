@@ -53,7 +53,7 @@ const NearMe = () => {
         if (ownerIds.length > 0) {
           const { data: profilesData } = await supabase
             .from("profiles")
-            .select("id, name, role, verification_status, phone")
+            .select("id, name, role, verification_status, phone, profile_photo_url")
             .in("id", ownerIds);
           const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
           setProperties(data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
