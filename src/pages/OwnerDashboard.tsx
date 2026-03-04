@@ -10,6 +10,7 @@ import { Eye, MessageSquare, Home, Star, ArrowUpRight, Plus, TrendingUp, Trendin
 import { format, subDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
+import { DashboardInquiries } from "@/components/dashboard/DashboardInquiries";
 
 interface PropertyStats {
   id: string;
@@ -198,7 +199,13 @@ export default function OwnerDashboard() {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mt-6">
+        {/* Inquiries & Offers Section */}
+        <div className="mt-6 mb-6">
+          <h2 className="font-semibold mb-3">Inquiries & Offers</h2>
+          <DashboardInquiries userId={user?.id || ""} propertyIds={properties.map(p => p.id)} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" className="h-14 rounded-2xl flex-col gap-1" onClick={() => navigate("/messages")}><MessageSquare className="h-5 w-5" /><span className="text-xs">Messages</span></Button>
           <Button variant="outline" className="h-14 rounded-2xl flex-col gap-1" onClick={() => navigate(`/profile/${user?.id}`)}><Star className="h-5 w-5" /><span className="text-xs">Reviews</span></Button>
         </div>
