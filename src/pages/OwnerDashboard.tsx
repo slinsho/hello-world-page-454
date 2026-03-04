@@ -42,11 +42,7 @@ export default function OwnerDashboard() {
     if (user) {
       const checkRole = async () => {
         const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-        if (data?.role === "property_owner") {
-          setShowUpgrade(true);
-          setLoading(false);
-          return;
-        }
+        if (data?.role === "property_owner") { setShowUpgrade(true); setLoading(false); return; }
       };
       checkRole();
     }
@@ -91,21 +87,15 @@ export default function OwnerDashboard() {
   };
 
   if (showUpgrade) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Dashboard" />
-      </div>
-    );
+    return (<div className="min-h-screen bg-background"><Navbar /><UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Dashboard" /></div>);
   }
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="px-4 pt-4 space-y-4">
+      <div className="min-h-screen bg-background"><Navbar />
+        <div className="px-4 pt-4 space-y-4 max-w-7xl mx-auto">
           <Skeleton className="h-8 w-48" />
-          <div className="grid grid-cols-2 gap-3">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
           <Skeleton className="h-48 rounded-2xl" />
         </div>
       </div>
@@ -115,13 +105,14 @@ export default function OwnerDashboard() {
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 pt-4">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
         <div className="flex items-center justify-between mb-6">
-          <div><h1 className="text-2xl font-bold">Dashboard</h1><p className="text-sm text-muted-foreground">Your property analytics</p></div>
+          <div><h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1><p className="text-sm text-muted-foreground">Your property analytics</p></div>
           <Button onClick={() => navigate("/upload")} size="icon" className="h-11 w-11 rounded-full"><Plus className="h-5 w-5" /></Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Stats Grid - 2 cols mobile, 4 cols desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-start justify-between mb-2">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center"><Eye className="h-5 w-5 text-primary" /></div>
@@ -148,59 +139,64 @@ export default function OwnerDashboard() {
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl p-4 border border-border mb-6">
-          <div className="flex items-center justify-between mb-4"><div><h2 className="font-semibold">Views Trend</h2><p className="text-xs text-muted-foreground">Last 7 days</p></div></div>
-          {dailyViews.length > 0 && dailyViews.some(d => d.views > 0) ? (
-            <ResponsiveContainer width="100%" height={140}>
-              <AreaChart data={dailyViews}>
-                <defs><linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} /></linearGradient></defs>
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
-                <YAxis hide />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} labelStyle={{ color: "hsl(var(--foreground))" }} />
-                <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#viewsGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[140px] flex items-center justify-center text-muted-foreground text-sm">No view data yet</div>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold">Your Properties</h2>
-            {properties.length > 3 && <Button variant="ghost" size="sm" className="text-primary text-xs gap-1 h-8">See All <ChevronRight className="h-3 w-3" /></Button>}
+        {/* Desktop: Views + Properties side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Views Trend */}
+          <div className="bg-card rounded-2xl p-4 md:p-6 border border-border">
+            <div className="flex items-center justify-between mb-4"><div><h2 className="font-semibold">Views Trend</h2><p className="text-xs text-muted-foreground">Last 7 days</p></div></div>
+            {dailyViews.length > 0 && dailyViews.some(d => d.views > 0) ? (
+              <ResponsiveContainer width="100%" height={180}>
+                <AreaChart data={dailyViews}>
+                  <defs><linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} /></linearGradient></defs>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} labelStyle={{ color: "hsl(var(--foreground))" }} />
+                  <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#viewsGradient)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[180px] flex items-center justify-center text-muted-foreground text-sm">No view data yet</div>
+            )}
           </div>
-          {properties.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 border border-border text-center">
-              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4"><Home className="h-8 w-8 text-muted-foreground" /></div>
-              <h3 className="font-semibold mb-1">No properties yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">Start by adding your first property listing</p>
-              <Button onClick={() => navigate("/upload")} className="rounded-full"><Plus className="h-4 w-4 mr-2" />Add Property</Button>
+
+          {/* Properties List */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold">Your Properties</h2>
+              {properties.length > 5 && <Button variant="ghost" size="sm" className="text-primary text-xs gap-1 h-8">See All <ChevronRight className="h-3 w-3" /></Button>}
             </div>
-          ) : (
-            <div className="space-y-3">
-              {properties.slice(0, 5).map((prop) => (
-                <div key={prop.id} className="bg-card rounded-2xl p-3 border border-border flex items-center gap-3 cursor-pointer hover:bg-muted/50 active:scale-[0.99] transition-all" onClick={() => navigate(`/property/${prop.id}`)}>
-                  <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0">
-                    {prop.photos?.[0] ? <img src={prop.photos[0]} alt={prop.title} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-muted flex items-center justify-center"><Home className="h-5 w-5 text-muted-foreground" /></div>}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{prop.title}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground"><Eye className="h-3 w-3" /><span>{prop.views_count}</span></div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground"><MessageSquare className="h-3 w-3" /><span>{prop.inquiries_count}</span></div>
-                      <Badge variant={prop.status === "active" ? "default" : "secondary"} className="text-[10px] h-5 px-2">{prop.status}</Badge>
+            {properties.length === 0 ? (
+              <div className="bg-card rounded-2xl p-8 border border-border text-center">
+                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4"><Home className="h-8 w-8 text-muted-foreground" /></div>
+                <h3 className="font-semibold mb-1">No properties yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">Start by adding your first property listing</p>
+                <Button onClick={() => navigate("/upload")} className="rounded-full"><Plus className="h-4 w-4 mr-2" />Add Property</Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {properties.slice(0, 5).map((prop) => (
+                  <div key={prop.id} className="bg-card rounded-2xl p-3 border border-border flex items-center gap-3 cursor-pointer hover:bg-muted/50 active:scale-[0.99] transition-all" onClick={() => navigate(`/property/${prop.id}`)}>
+                    <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0">
+                      {prop.photos?.[0] ? <img src={prop.photos[0]} alt={prop.title} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-muted flex items-center justify-center"><Home className="h-5 w-5 text-muted-foreground" /></div>}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{prop.title}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground"><Eye className="h-3 w-3" /><span>{prop.views_count}</span></div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground"><MessageSquare className="h-3 w-3" /><span>{prop.inquiries_count}</span></div>
+                        <Badge variant={prop.status === "active" ? "default" : "secondary"} className="text-[10px] h-5 px-2">{prop.status}</Badge>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0" />
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Inquiries & Offers Section */}
-        <div className="mt-6 mb-6">
+        {/* Inquiries & Offers */}
+        <div className="mb-6">
           <h2 className="font-semibold mb-3">Inquiries & Offers</h2>
           <DashboardInquiries userId={user?.id || ""} propertyIds={properties.map(p => p.id)} />
         </div>
