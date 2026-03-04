@@ -13,6 +13,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
+
 const Index = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -31,42 +32,29 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch properties
-      let query = supabase
-        .from("properties")
-        .select("*");
+      let query = supabase.from("properties").select("*");
 
-      // Apply status filter (default to active if not specified)
       if (statusFilter && statusFilter !== "all") {
         query = query.eq("status", statusFilter as "active" | "inactive" | "sold" | "rented");
       } else if (!statusFilter) {
         query = query.eq("status", "active");
       }
 
-      // Apply type filter
       if (typeFilter && typeFilter !== "all") {
         query = query.eq("property_type", typeFilter as "house" | "apartment" | "shop");
       }
-
-      // Apply listing type filter
       if (listingFilter && listingFilter !== "all") {
         query = query.eq("listing_type", listingFilter as "for_sale" | "for_rent" | "for_lease");
       }
-
-      // Apply county filter
       if (countyFilter && countyFilter !== "all") {
         query = query.eq("county", countyFilter);
       }
-
-      // Apply price range filters
       if (minPrice) {
         query = query.gte("price_usd", parseFloat(minPrice));
       }
       if (maxPrice) {
         query = query.lte("price_usd", parseFloat(maxPrice));
       }
-
-      // Apply search filter
       if (searchQuery) {
         query = query.or(`title.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%,county.ilike.%${searchQuery}%`);
       }
@@ -78,7 +66,6 @@ const Index = () => {
         return;
       }
 
-      // Fetch owner profiles for verification badges
       const ownerIds = [...new Set(propertiesData.map(p => p.owner_id))];
       const { data: profilesData } = await supabase
         .from("profiles")
@@ -91,11 +78,9 @@ const Index = () => {
         profiles: profilesMap.get(p.owner_id) || null,
       }));
 
-      // Shuffle properties randomly
       const shuffledProperties = [...propertiesWithProfiles].sort(() => Math.random() - 0.5);
       setProperties(shuffledProperties);
 
-      // Get user's county from profile - only show Near Me for logged in users with county set
       let county = "";
       if (user) {
         const { data: profileData } = await supabase
@@ -111,7 +96,6 @@ const Index = () => {
 
       setUserCounty(county);
       
-      // Filter properties for "Near Me" section - only if user has a county set
       if (county) {
         const nearby = propertiesData.filter(p => p.county === county).slice(0, 5);
         setNearMeProperties(nearby);
@@ -133,7 +117,7 @@ const Index = () => {
       <SEOHead />
       <Navbar />
       
-      <main className="px-4 pt-4 md:px-6 space-y-6">
+      <main className="px-4 pt-4 md:px-6 lg:px-8 space-y-6 max-w-7xl mx-auto">
         {/* Homepage Banners */}
         <HomepageBanners />
 
@@ -141,8 +125,8 @@ const Index = () => {
         {user && <RecentlyViewed />}
         
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="h-64 w-full rounded-2xl" />
                 <Skeleton className="h-4 w-3/4" />
@@ -158,8 +142,8 @@ const Index = () => {
           </div>
         ) : (
           <>
-            {/* First two properties */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* First batch of properties */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {firstTwoProperties.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
@@ -180,7 +164,7 @@ const Index = () => {
                     </Button>
                   </Link>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
                   {nearMeProperties.map((property) => (
                     <NearMePropertyCard key={property.id} property={property} />
                   ))}
@@ -190,7 +174,7 @@ const Index = () => {
 
             {/* Remaining properties */}
             {remainingProperties.length > 0 && remainingProperties.length <= 6 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
                 {remainingProperties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
@@ -200,7 +184,7 @@ const Index = () => {
             {/* Insert Market Analytics after first batch */}
             {remainingProperties.length > 6 && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
                   {remainingProperties.slice(0, 6).map((property) => (
                     <PropertyCard key={property.id} property={property} />
                   ))}
@@ -214,7 +198,7 @@ const Index = () => {
 
                 {/* Remaining after analytics */}
                 {remainingProperties.length > 6 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
                     {remainingProperties.slice(6).map((property) => (
                       <PropertyCard key={property.id} property={property} />
                     ))}
