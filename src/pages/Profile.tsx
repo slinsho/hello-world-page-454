@@ -297,20 +297,22 @@ const Profile = () => {
 
   // Listing Filter Tabs
   const ListingTabs = () => (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+    <div className="flex items-center gap-0 overflow-x-auto scrollbar-none border border-border rounded-lg w-fit">
       {([
         { key: "all", label: "All Listings" },
         { key: "for_sale", label: "For Sale" },
         { key: "for_rent", label: "For Rent" },
         { key: "for_lease", label: "For Lease" },
-      ] as const).map((tab) => (
+      ] as const).map((tab, index) => (
         <button
           key={tab.key}
           onClick={() => setListingFilter(tab.key)}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
+            index > 0 ? "border-l border-border" : ""
+          } ${
             listingFilter === tab.key
               ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-muted-foreground hover:text-foreground"
+              : "bg-card text-muted-foreground hover:text-foreground hover:bg-secondary/50"
           }`}
         >
           {tab.label}
