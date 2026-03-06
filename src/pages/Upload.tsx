@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Home, Building2, Store, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { z } from "zod";
+import { resizeImage } from "@/lib/imageResize";
 
 const uploadSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
@@ -102,7 +103,7 @@ const Upload = () => {
     setLoading(true);
     try {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
-      const photoUrls = await Promise.all(photos.map(async (photo) => { const fileExt = photo.name.split(".").pop(); const fileName = `${user.id}/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, photo); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
+      const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const { error } = await supabase.from("properties").insert([{ owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null, bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null, square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null }]);
       if (error) throw error;

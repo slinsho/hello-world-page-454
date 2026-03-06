@@ -28,6 +28,7 @@ import BlogPost from "./pages/BlogPost";
 import Messages from "./pages/Messages";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import PopularAreasPage from "./pages/PopularAreasPage";
+import EditProperty from "./pages/EditProperty";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<OwnerDashboard />} />
             <Route path="/popular-areas" element={<PopularAreasPage />} />
+            <Route path="/edit-property/:id" element={<EditProperty />} />
             {/* Hidden Admin Routes */}
             <Route path="/winner-54/login" element={<AdminLogin />} />
             <Route path="/winner-54/dashboard" element={
