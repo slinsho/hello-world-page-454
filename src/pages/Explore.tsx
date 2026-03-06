@@ -29,7 +29,11 @@ const Explore = () => {
     if (filters.county !== "all") query = query.eq("county", filters.county);
     if (filters.minPrice) query = query.gte("price_usd", parseFloat(filters.minPrice));
     if (filters.maxPrice) query = query.lte("price_usd", parseFloat(filters.maxPrice));
-    if (searchQuery) query = query.or(`title.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%,county.ilike.%${searchQuery}%`);
+    if (searchQuery) {
+      // Use full-text search with tsvector if available, fallback to ilike
+      const tsQuery = searchQuery.trim().split(/\s+/).join(' & ');
+      query = query.textSearch('search_vector', tsQuery, { config: 'english' });
+    }
 
     const { data, error } = await query;
     if (!error && data) {
