@@ -429,6 +429,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          bio: string | null
           contact_phone_2: string | null
           county: string | null
           cover_photo_url: string | null
@@ -449,6 +450,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          bio?: string | null
           contact_phone_2?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -469,6 +471,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          bio?: string | null
           contact_phone_2?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -508,6 +511,7 @@ export type Database = {
           photos: string[]
           price_usd: number
           property_type: Database["public"]["Enums"]["property_type"]
+          search_vector: unknown
           square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
           title: string
@@ -532,6 +536,7 @@ export type Database = {
           photos: string[]
           price_usd: number
           property_type: Database["public"]["Enums"]["property_type"]
+          search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title: string
@@ -556,6 +561,7 @@ export type Database = {
           photos?: string[]
           price_usd?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
