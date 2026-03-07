@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus, X, MessageSquare, Bed, Bath, Maximize, Pencil } from "lucide-react";
+import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UserReviews } from "@/components/UserReviews";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
 import {
@@ -146,8 +152,23 @@ const Profile = () => {
     }
   };
 
-  const handleSignOut = async () => { await supabase.auth.signOut(); navigate("/"); };
   const handleVerificationRequest = () => { navigate("/verification"); };
+
+  // Three-dot menu component
+  const SettingsMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors">
+          <MoreVertical className="h-5 w-5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 rounded-xl">
+        <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
+          <Settings className="h-4 w-4" />Settings
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "inactive" | "sold" | "rented") => {
     const { error } = await supabase.from("properties").update({ status: newStatus }).eq("id", propertyId);
