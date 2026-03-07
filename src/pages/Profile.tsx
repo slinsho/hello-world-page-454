@@ -222,7 +222,7 @@ const Profile = () => {
     <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="rounded-full gap-2 border-border">
-          <Edit className="h-3.5 w-3.5" />Edit
+          <Pencil className="h-3.5 w-3.5" />Edit
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-md rounded-3xl">
@@ -364,19 +364,10 @@ const Profile = () => {
                   <Shield className="h-3 w-3" />{verifiedLabel}
                 </span>
               </div>
-              {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
-            </div>
-
-            {/* Quick info */}
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {profile.county && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}</span>}
-              {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
-            </div>
-
-            {/* Action row */}
-            <div className="mt-3 flex gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              <div className="flex items-center gap-1">
+                {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
+                {isOwnProfile && <SettingsMenu />}
+              </div>
             </div>
           </div>
         </div>
@@ -431,7 +422,6 @@ const Profile = () => {
                 <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full h-8 text-xs">Open</Button>
               </div>
             )}
-            <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border h-9 text-xs"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
           </div>
         )}
 
