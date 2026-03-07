@@ -626,7 +626,7 @@ const Profile = () => {
                 <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full h-8 text-xs">Open</Button>
               </div>
             )}
-            <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border h-9 text-xs"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
+            
           </div>
         )}
 
@@ -676,9 +676,9 @@ const Profile = () => {
             </div>
 
             {isOwnProfile && (
-              <div className="px-5 pb-4 flex flex-col gap-2">
+              <div className="px-5 pb-4 flex items-center gap-2">
                 <EditProfileDialog triggerId="agent-desktop" />
-                <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border text-xs h-9"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
+                <SettingsMenu />
               </div>
             )}
 
