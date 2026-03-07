@@ -14,9 +14,24 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      manifest: false, // using public/manifest.json
+      includeAssets: ["favicon.ico", "pwa-192x192.png", "pwa-512x512.png"],
+      manifest: {
+        name: "LibHub - Property Finder",
+        short_name: "LibHub",
+        description: "Find and list properties across Liberia",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#0a0a0a",
+        theme_color: "#84cc16",
+        orientation: "portrait-primary",
+        icons: [
+          { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
+        ],
+      },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}"],
+        navigateFallbackDenylist: [/^\/~oauth/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/sijxsadlinayqxdxkmcr\.supabase\.co\/storage/,

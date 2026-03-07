@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Building2, Store, Edit, Shield, Camera, User, MapPin, Phone, Mail, ChevronRight, Trash2, Eye, Settings, ImagePlus, X, MessageSquare, Bed, Bath, Maximize, Pencil } from "lucide-react";
+import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UserReviews } from "@/components/UserReviews";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
 import {
@@ -146,8 +152,23 @@ const Profile = () => {
     }
   };
 
-  const handleSignOut = async () => { await supabase.auth.signOut(); navigate("/"); };
   const handleVerificationRequest = () => { navigate("/verification"); };
+
+  // Three-dot menu component
+  const SettingsMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors">
+          <MoreVertical className="h-5 w-5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 rounded-xl">
+        <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
+          <Settings className="h-4 w-4" />Settings
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "inactive" | "sold" | "rented") => {
     const { error } = await supabase.from("properties").update({ status: newStatus }).eq("id", propertyId);
@@ -201,7 +222,7 @@ const Profile = () => {
     <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="rounded-full gap-2 border-border">
-          <Edit className="h-3.5 w-3.5" />Edit
+          <Pencil className="h-3.5 w-3.5" />Edit
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-md rounded-3xl">
@@ -343,7 +364,10 @@ const Profile = () => {
                   <Shield className="h-3 w-3" />{verifiedLabel}
                 </span>
               </div>
-              {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
+              <div className="flex items-center gap-1">
+                {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
+                {isOwnProfile && <SettingsMenu />}
+              </div>
             </div>
 
             {/* Quick info */}
@@ -410,7 +434,6 @@ const Profile = () => {
                 <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full h-8 text-xs">Open</Button>
               </div>
             )}
-            <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border h-9 text-xs"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
           </div>
         )}
 
@@ -444,10 +467,11 @@ const Profile = () => {
                 {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
               {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
               {isOwnProfile && <EditProfileDialog triggerId="owner-desktop" />}
+              {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
 
@@ -495,7 +519,7 @@ const Profile = () => {
                   <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full">Open</Button>
                 </div>
               )}
-              <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border"><LogOut className="h-4 w-4" />Sign Out</Button>
+              
             </div>
           )}
         </div>
@@ -519,10 +543,11 @@ const Profile = () => {
                 <><label htmlFor="photo-upload-mobile-agent" className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center cursor-pointer shadow-lg"><Camera className="h-4 w-4 text-primary-foreground" /></label><input id="photo-upload-mobile-agent" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, "profile")} disabled={uploadingPhoto} /></>
               )}
             </div>
-            <div className="pb-1 min-w-0">
+            <div className="pb-1 min-w-0 flex-1">
               <h1 className="text-xl font-bold truncate">{profile.name}</h1>
               <p className="text-sm text-muted-foreground">Real Estate Agent</p>
             </div>
+            {isOwnProfile && <div className="pb-1"><SettingsMenu /></div>}
           </div>
         </div>
 
@@ -614,7 +639,7 @@ const Profile = () => {
                 <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full h-8 text-xs">Open</Button>
               </div>
             )}
-            <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border h-9 text-xs"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
+            
           </div>
         )}
 
@@ -664,9 +689,9 @@ const Profile = () => {
             </div>
 
             {isOwnProfile && (
-              <div className="px-5 pb-4 flex flex-col gap-2">
+              <div className="px-5 pb-4 flex items-center gap-2">
                 <EditProfileDialog triggerId="agent-desktop" />
-                <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border text-xs h-9"><LogOut className="h-3.5 w-3.5" />Sign Out</Button>
+                <SettingsMenu />
               </div>
             )}
 
