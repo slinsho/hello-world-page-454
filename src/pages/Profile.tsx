@@ -531,10 +531,11 @@ const Profile = () => {
                 <><label htmlFor="photo-upload-mobile-agent" className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center cursor-pointer shadow-lg"><Camera className="h-4 w-4 text-primary-foreground" /></label><input id="photo-upload-mobile-agent" type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, "profile")} disabled={uploadingPhoto} /></>
               )}
             </div>
-            <div className="pb-1 min-w-0">
+            <div className="pb-1 min-w-0 flex-1">
               <h1 className="text-xl font-bold truncate">{profile.name}</h1>
               <p className="text-sm text-muted-foreground">Real Estate Agent</p>
             </div>
+            {isOwnProfile && <div className="pb-1"><SettingsMenu /></div>}
           </div>
         </div>
 
