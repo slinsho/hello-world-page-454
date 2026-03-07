@@ -2,17 +2,13 @@
   "name": "LibHub - Property Finder",
   "short_name": "LibHub",
   "description": "Find and list properties across Liberia",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#84cc16",
   "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "64x64",
-      "type": "image/x-icon"
-    },
     {
       "src": "/pwa-192x192.png",
       "sizes": "192x192",
@@ -21,7 +17,8 @@
     {
       "src": "/pwa-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
