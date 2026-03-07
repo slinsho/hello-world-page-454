@@ -455,10 +455,11 @@ const Profile = () => {
                 {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
               {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
               {isOwnProfile && <EditProfileDialog triggerId="owner-desktop" />}
+              {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
 
@@ -506,7 +507,7 @@ const Profile = () => {
                   <Button size="sm" onClick={() => navigate("/admin")} className="rounded-full">Open</Button>
                 </div>
               )}
-              <Button variant="outline" onClick={handleSignOut} className="w-full rounded-full gap-2 border-border"><LogOut className="h-4 w-4" />Sign Out</Button>
+              
             </div>
           )}
         </div>
