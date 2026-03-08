@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, ChevronRight } from "lucide-react";
-import { formatLRD } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 
 interface FeaturedProperty {
   id: string;
