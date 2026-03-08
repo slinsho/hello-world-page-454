@@ -88,18 +88,35 @@ const DEFAULT_CONTENT: AboutContent = {
 const About = () => {
   const { toast } = useToast();
   const [content, setContent] = useState<AboutContent>(DEFAULT_CONTENT);
+  const [realStats, setRealStats] = useState<{ label: string; value: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   useEffect(() => {
     const fetchContent = async () => {
-      const { data } = await supabase
-        .from("platform_settings")
-        .select("value")
-        .eq("key", "about_page_content")
-        .single();
-      if (data?.value) setContent({ ...DEFAULT_CONTENT, ...(data.value as any) });
+      const [settingsRes, propsRes, profilesRes] = await Promise.all([
+        supabase.from("platform_settings").select("value").eq("key", "about_page_content").single(),
+        supabase.from("properties").select("county, status", { count: "exact" }),
+        supabase.from("profiles").select("verification_status", { count: "exact" }),
+      ]);
+
+      if (settingsRes.data?.value) setContent({ ...DEFAULT_CONTENT, ...(settingsRes.data.value as any) });
+
+      const totalProperties = propsRes.count || 0;
+      const activeProperties = propsRes.data?.filter(p => p.status === "active").length || 0;
+      const counties = new Set(propsRes.data?.map(p => p.county) || []).size;
+      const verifiedUsers = profilesRes.data?.filter(p => p.verification_status === "approved").length || 0;
+      const totalUsers = profilesRes.count || 0;
+
+      setRealStats([
+        { label: "Total Properties", value: totalProperties.toLocaleString() },
+        { label: "Active Listings", value: activeProperties.toLocaleString() },
+        { label: "Counties Covered", value: String(counties) },
+        { label: "Verified Users", value: verifiedUsers.toLocaleString() },
+        { label: "Registered Users", value: totalUsers.toLocaleString() },
+      ]);
+
       setLoading(false);
     };
     fetchContent();
