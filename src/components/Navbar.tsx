@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info } from "lucide-react";
+import lpropLogo from "@/assets/lprop-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -180,8 +181,8 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-6 flex h-16 items-center gap-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <Home className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-bold text-primary">LibHub</span>
+            <img src={lpropLogo} alt="L-Prop" className="h-8 w-8 rounded-lg" />
+            <span className="text-2xl font-bold text-primary">L-Prop</span>
           </Link>
 
           {/* Desktop Search */}
@@ -486,8 +487,8 @@ const Navbar = () => {
         <nav className="md:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur overflow-x-hidden">
           <div className="px-4 flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
-              <Home className="h-6 w-6 text-primary" />
-              <span className="text-2xl font-bold text-primary">LibHub</span>
+              <img src={lpropLogo} alt="L-Prop" className="h-8 w-8 rounded-lg" />
+              <span className="text-2xl font-bold text-primary">L-Prop</span>
             </Link>
           </div>
         </nav>

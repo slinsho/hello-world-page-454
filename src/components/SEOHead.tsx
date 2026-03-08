@@ -11,7 +11,7 @@ interface SEOHeadProps {
 }
 
 export function SEOHead({
-  title = "LibHub - Find Properties in Liberia",
+  title = "L-Prop - Find Properties in Liberia",
   description = "Discover houses, apartments, and shops for sale or rent across Liberia. Browse verified listings from trusted property owners and agents.",
   keywords = "Liberia real estate, property for sale Liberia, rent house Liberia, Monrovia apartments, Liberian property listings",
   ogImage = "/og-image.png",
@@ -21,7 +21,7 @@ export function SEOHead({
 }: SEOHeadProps) {
   useEffect(() => {
     // Title
-    document.title = title.includes("LibHub") ? title : `${title} | LibHub`;
+    document.title = title.includes("L-Prop") ? title : `${title} | L-Prop`;
 
     // Meta tags
     const setMeta = (name: string, content: string, property = false) => {
@@ -41,7 +41,7 @@ export function SEOHead({
     setMeta("og:description", description, true);
     setMeta("og:image", ogImage, true);
     setMeta("og:type", ogType, true);
-    setMeta("og:site_name", "LibHub", true);
+    setMeta("og:site_name", "L-Prop", true);
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
@@ -67,7 +67,7 @@ export function SEOHead({
     }
 
     return () => {
-      document.title = "LibHub - Find Properties in Liberia";
+      document.title = "L-Prop - Find Properties in Liberia";
     };
   }, [title, description, keywords, ogImage, ogType, canonical, noIndex]);
 

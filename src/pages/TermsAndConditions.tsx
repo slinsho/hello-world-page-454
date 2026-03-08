@@ -27,12 +27,12 @@ const defaultSections: Section[] = [
   {
     icon: "Scale",
     title: "1. Acceptance of Terms",
-    content: "By accessing and using LibHub, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these terms, please do not use our service.",
+    content: "By accessing and using L-Prop, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these terms, please do not use our service.",
   },
   {
     icon: "Home",
     title: "2. Use of Service",
-    content: "LibHub provides a platform for property owners and agents to list, browse, and connect regarding real estate properties in Liberia. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
+    content: "L-Prop provides a platform for property owners and agents to list, browse, and connect regarding real estate properties in Liberia. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
   },
   {
     icon: "Users",
@@ -52,37 +52,37 @@ const defaultSections: Section[] = [
   {
     icon: "FileText",
     title: "6. Property Listings",
-    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. LibHub reserves the right to remove any listing that violates these terms or is deemed inappropriate.\n\nListings may be categorized as For Sale, For Rent, or For Lease. Property types include Houses, Apartments, and Shops. All listings are subject to content moderation by platform administrators.",
+    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. L-Prop reserves the right to remove any listing that violates these terms or is deemed inappropriate.\n\nListings may be categorized as For Sale, For Rent, or For Lease. Property types include Houses, Apartments, and Shops. All listings are subject to content moderation by platform administrators.",
   },
   {
     icon: "Star",
     title: "7. Property Promotions",
-    content: "Users may request to promote their listings for increased visibility. Promotion requests are subject to admin approval and require payment of a promotion fee.\n\nPromoted properties receive priority placement on the homepage and explore pages through a fair round-robin display system. LibHub does not guarantee any specific results from property promotions.",
+    content: "Users may request to promote their listings for increased visibility. Promotion requests are subject to admin approval and require payment of a promotion fee.\n\nPromoted properties receive priority placement on the homepage and explore pages through a fair round-robin display system. L-Prop does not guarantee any specific results from property promotions.",
   },
   {
     icon: "MessageSquare",
     title: "8. Messaging & Inquiries",
-    content: "The platform provides direct messaging between agents and other users, property inquiry forms, and an offer system for negotiations. All communications must be respectful and related to legitimate property transactions.\n\nLibHub is not responsible for the content of messages exchanged between users or the outcome of any negotiations conducted through the platform.",
+    content: "The platform provides direct messaging between agents and other users, property inquiry forms, and an offer system for negotiations. All communications must be respectful and related to legitimate property transactions.\n\nL-Prop is not responsible for the content of messages exchanged between users or the outcome of any negotiations conducted through the platform.",
   },
   {
     icon: "Flag",
     title: "9. Reporting & Moderation",
-    content: "Users may report property listings they believe are fraudulent, misleading, or inappropriate. All reports are reviewed by platform administrators.\n\nLibHub reserves the right to flag, hide, or remove any listing and to suspend or terminate accounts that repeatedly violate platform policies. Users who submit false reports may also face account restrictions.",
+    content: "Users may report property listings they believe are fraudulent, misleading, or inappropriate. All reports are reviewed by platform administrators.\n\nL-Prop reserves the right to flag, hide, or remove any listing and to suspend or terminate accounts that repeatedly violate platform policies. Users who submit false reports may also face account restrictions.",
   },
   {
     icon: "Eye",
     title: "10. Privacy & Data",
-    content: "LibHub collects and stores user information necessary for platform operation, including profile details, verification documents, property data, and communication records.\n\nUsers can control the visibility of their phone number, email, and location through privacy settings. Verification documents (IDs, selfies) are stored securely and accessible only to platform administrators for verification purposes.\n\nWe use cookies and similar technologies for session management and platform functionality.",
+    content: "L-Prop collects and stores user information necessary for platform operation, including profile details, verification documents, property data, and communication records.\n\nUsers can control the visibility of their phone number, email, and location through privacy settings. Verification documents (IDs, selfies) are stored securely and accessible only to platform administrators for verification purposes.\n\nWe use cookies and similar technologies for session management and platform functionality.",
   },
   {
     icon: "Bell",
     title: "11. Notifications",
-    content: "LibHub sends notifications for property matches, inquiries, offers, verification status updates, and other platform activities. Users may customize their notification preferences through account settings.\n\nCritical notifications related to account security and verification status cannot be disabled.",
+    content: "L-Prop sends notifications for property matches, inquiries, offers, verification status updates, and other platform activities. Users may customize their notification preferences through account settings.\n\nCritical notifications related to account security and verification status cannot be disabled.",
   },
   {
     icon: "CreditCard",
     title: "12. Fees & Payments",
-    content: "All fees on the platform (verification fees, promotion fees) are set by the platform administrator and are subject to change. Current rates and exchange rates (USD to LRD) are displayed in the platform settings.\n\nPayments are processed via mobile money services. LibHub does not store payment credentials. All payment confirmations are verified manually by platform administrators.\n\nFees paid are non-refundable unless otherwise determined by the platform administrator.",
+    content: "All fees on the platform (verification fees, promotion fees) are set by the platform administrator and are subject to change. Current rates and exchange rates (USD to LRD) are displayed in the platform settings.\n\nPayments are processed via mobile money services. L-Prop does not store payment credentials. All payment confirmations are verified manually by platform administrators.\n\nFees paid are non-refundable unless otherwise determined by the platform administrator.",
   },
   {
     icon: "Ban",
@@ -102,12 +102,12 @@ const defaultSections: Section[] = [
   {
     icon: "BookOpen",
     title: "14. Intellectual Property",
-    content: "The service and its original content, features, and functionality are owned by LibHub and are protected by international copyright, trademark, and other intellectual property laws.\n\nUser-uploaded content (photos, descriptions) remains the property of the respective users but LibHub is granted a non-exclusive license to display such content on the platform.",
+    content: "The service and its original content, features, and functionality are owned by L-Prop and are protected by international copyright, trademark, and other intellectual property laws.\n\nUser-uploaded content (photos, descriptions) remains the property of the respective users but L-Prop is granted a non-exclusive license to display such content on the platform.",
   },
   {
     icon: "AlertTriangle",
     title: "15. Limitation of Liability",
-    content: "LibHub shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service.\n\nWe do not guarantee the accuracy of property listings, the identity of users (beyond our verification process), or the outcome of any property transactions. LibHub acts solely as a platform connecting property owners, agents, and prospective buyers or renters.",
+    content: "L-Prop shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service.\n\nWe do not guarantee the accuracy of property listings, the identity of users (beyond our verification process), or the outcome of any property transactions. L-Prop acts solely as a platform connecting property owners, agents, and prospective buyers or renters.",
   },
   {
     icon: "RefreshCw",
@@ -159,7 +159,7 @@ const TermsAndConditions = () => {
             </div>
           </div>
           <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 leading-relaxed">
-            Please read these terms carefully before using LibHub. By using our platform, you agree to be bound by these terms.
+            Please read these terms carefully before using L-Prop. By using our platform, you agree to be bound by these terms.
           </p>
           <div className="mt-2">
             <Link to="/privacy" className="text-sm text-primary hover:underline">
@@ -234,7 +234,7 @@ const TermsAndConditions = () => {
         {/* Footer note */}
         <div className="mt-8 md:mt-10 text-center">
           <p className="text-xs md:text-sm text-muted-foreground">
-            © {new Date().getFullYear()} LibHub. All rights reserved.
+            © {new Date().getFullYear()} L-Prop. All rights reserved.
           </p>
         </div>
       </main>

@@ -24,7 +24,7 @@ const defaultSections: Section[] = [
   {
     icon: "ShieldCheck",
     title: "1. Introduction",
-    content: "LibHub (\"we\", \"our\", \"us\") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.\n\nBy using LibHub, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our service.",
+    content: "L-Prop (\"we\", \"our\", \"us\") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.\n\nBy using L-Prop, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our service.",
   },
   {
     icon: "Database",
@@ -71,7 +71,7 @@ const defaultSections: Section[] = [
   {
     icon: "Cookie",
     title: "7. Cookies & Local Storage",
-    content: "LibHub uses cookies and browser local storage for:\n\nSession management and authentication state. Storing user preferences (currency display, default filters, privacy settings). Recently viewed properties and comparison lists.\n\nThese are essential for platform functionality and cannot be disabled while using the service.",
+    content: "L-Prop uses cookies and browser local storage for:\n\nSession management and authentication state. Storing user preferences (currency display, default filters, privacy settings). Recently viewed properties and comparison lists.\n\nThese are essential for platform functionality and cannot be disabled while using the service.",
   },
   {
     icon: "Globe",
@@ -81,7 +81,7 @@ const defaultSections: Section[] = [
   {
     icon: "Baby",
     title: "9. Children's Privacy",
-    content: "LibHub is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us to have it removed.",
+    content: "L-Prop is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us to have it removed.",
   },
   {
     icon: "FileText",
@@ -99,7 +99,7 @@ const defaultSections: Section[] = [
   {
     icon: "RefreshCw",
     title: "11. Changes to This Policy",
-    content: "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of LibHub after any changes constitutes acceptance of the updated policy.\n\nSignificant changes to data handling practices will be communicated through the platform's notification system.",
+    content: "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of L-Prop after any changes constitutes acceptance of the updated policy.\n\nSignificant changes to data handling practices will be communicated through the platform's notification system.",
   },
   {
     icon: "Mail",
@@ -146,7 +146,7 @@ const PrivacyPolicy = () => {
             </div>
           </div>
           <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 leading-relaxed">
-            This Privacy Policy describes how LibHub collects, uses, and protects your personal information.
+            This Privacy Policy describes how L-Prop collects, uses, and protects your personal information.
           </p>
         </div>
 
@@ -216,7 +216,7 @@ const PrivacyPolicy = () => {
         {/* Footer note */}
         <div className="mt-8 md:mt-10 text-center">
           <p className="text-xs md:text-sm text-muted-foreground">
-            © {new Date().getFullYear()} LibHub. All rights reserved.
+            © {new Date().getFullYear()} L-Prop. All rights reserved.
           </p>
         </div>
       </main>

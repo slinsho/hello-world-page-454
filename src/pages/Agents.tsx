@@ -93,8 +93,8 @@ export default function Agents() {
   return (
     <>
       <SEOHead
-        title="Agents & Property Owners | LibHub"
-        description="Browse verified real estate agents and property owners on LibHub. Find trusted professionals in Liberia."
+        title="Agents & Property Owners | L-Prop"
+        description="Browse verified real estate agents and property owners on L-Prop. Find trusted professionals in Liberia."
       />
       <div className="min-h-screen bg-background pb-20 md:pb-0">
         <Navbar />

@@ -123,7 +123,7 @@ const Auth = () => {
     : isForgotPassword
     ? "We'll send you a reset link"
     : isSignUp
-    ? "Join LibHub and start exploring"
+    ? "Join L-Prop and start exploring"
     : "Sign in to continue";
 
   // Form view
@@ -142,7 +142,7 @@ const Auth = () => {
               <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-2xl font-bold text-foreground">LibHub</span>
+              <span className="text-2xl font-bold text-foreground">L-Prop</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
               Your Trusted Guide<br />in finding properties
@@ -193,7 +193,7 @@ const Auth = () => {
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-xl font-bold text-foreground">LibHub</span>
+                  <span className="text-xl font-bold text-foreground">L-Prop</span>
                 </div>
                 <h1 className="text-3xl font-bold text-foreground">{formTitle}</h1>
                 <p className="text-muted-foreground">{formSubtitle}</p>
@@ -394,7 +394,7 @@ const Auth = () => {
                     </div>
                     <div className="relative flex justify-center text-xs">
                       <span className="bg-background px-4 text-muted-foreground">
-                        {isForgotPassword ? "or" : isSignUp ? "Already have an account?" : "New to LibHub?"}
+                        {isForgotPassword ? "or" : isSignUp ? "Already have an account?" : "New to L-Prop?"}
                       </span>
                     </div>
                   </div>
@@ -451,7 +451,7 @@ const Auth = () => {
             <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white drop-shadow-lg">LibHub</span>
+            <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
           </div>
           
           <div className="max-w-md">
@@ -493,7 +493,7 @@ const Auth = () => {
             <div className="w-11 h-11 rounded-xl bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
               <Building2 className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xl font-bold text-foreground">LibHub</span>
+            <span className="text-xl font-bold text-foreground">L-Prop</span>
           </div>
         </div>
       </div>
@@ -542,7 +542,7 @@ const Auth = () => {
           <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-xl">
             <div className="text-center mb-8">
               <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-                Welcome to LibHub
+                Welcome to L-Prop
               </h2>
               <p className="text-muted-foreground">
                 Find your dream property in Liberia
@@ -574,7 +574,7 @@ const Auth = () => {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-4 text-muted-foreground">New to LibHub?</span>
+                <span className="bg-card px-4 text-muted-foreground">New to L-Prop?</span>
               </div>
             </div>
 

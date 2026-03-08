@@ -92,7 +92,7 @@ const AdminLogin = () => {
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Admin Portal</h1>
           <p className="text-muted-foreground text-sm max-w-xs mb-2">
-            Secure access to the LibHub management dashboard
+            Secure access to the L-Prop management dashboard
           </p>
           <p className="text-muted-foreground/60 text-xs mb-10">
             Authorized personnel only
@@ -128,7 +128,7 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@libhub.com"
+                  placeholder="admin@lprop.com"
                   className="pl-10 h-12 rounded-xl bg-card border-border text-foreground"
                 />
               </div>
@@ -162,7 +162,7 @@ const AdminLogin = () => {
           </form>
 
           <p className="text-center text-muted-foreground/50 text-[11px] mt-6">
-            Protected by LibHub Security
+            Protected by L-Prop Security
           </p>
         </div>
       )}
@@ -229,7 +229,7 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@libhub.com"
+                  placeholder="admin@lprop.com"
                   className="pl-10 h-11 rounded-xl bg-card border-border text-foreground"
                 />
               </div>
@@ -263,7 +263,7 @@ const AdminLogin = () => {
           </form>
 
           <p className="text-center text-muted-foreground/40 text-xs mt-10">
-            © {new Date().getFullYear()} LibHub · Admin Access Only
+            © {new Date().getFullYear()} L-Prop · Admin Access Only
           </p>
         </div>
       </div>
