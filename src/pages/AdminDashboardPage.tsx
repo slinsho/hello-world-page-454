@@ -32,6 +32,16 @@ export default function AdminDashboardPage() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  // Determine default tab based on route
+  const getDefaultTab = () => {
+    if (location.pathname.includes("/listings")) return "properties";
+    if (location.pathname.includes("/users")) return "users";
+    return "dashboard";
+  };
+
+  const [activeTab, setActiveTab] = useState(getDefaultTab());
 
   useEffect(() => {
     fetchNotifications();
@@ -62,11 +72,32 @@ export default function AdminDashboardPage() {
     setUnreadCount(0);
   };
 
-  // Determine default tab based on route
-  const getDefaultTab = () => {
-    if (location.pathname.includes("/listings")) return "properties";
-    if (location.pathname.includes("/users")) return "users";
+  const markAsRead = async (id: string) => {
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const getTabForNotification = (notification: any): string => {
+    const title = (notification.title || "").toLowerCase();
+    const type = (notification.type || "").toLowerCase();
+
+    if (title.includes("contact form")) return "contacts";
+    if (title.includes("verification") || title.includes("verified")) return "verifications";
+    if (title.includes("promotion") || title.includes("promoted") || title.includes("payment")) return "promotions";
+    if (title.includes("report") || title.includes("flagged")) return "reports";
+    if (title.includes("feedback")) return "feedback";
+    if (title.includes("inquiry") || type === "inquiries") return "contacts";
+    if (title.includes("offer") || type === "offers") return "feedback";
+    if (title.includes("moderation")) return "moderation";
     return "dashboard";
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.is_read) markAsRead(notification.id);
+    const tab = getTabForNotification(notification);
+    setActiveTab(tab);
+    setPopoverOpen(false);
   };
 
   const handleLogout = async () => {
@@ -79,6 +110,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleTabChange = (value: string) => {
+    setActiveTab(value);
     switch (value) {
       case "dashboard":
         navigate("/winner-54/dashboard");
@@ -100,7 +132,7 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold">Admin Portal</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Popover>
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
@@ -125,7 +157,11 @@ export default function AdminDashboardPage() {
                   <p className="text-sm text-muted-foreground text-center py-6">No notifications</p>
                 ) : (
                   notifications.map((n) => (
-                    <div key={n.id} className={`p-3 border-b last:border-b-0 ${!n.is_read ? "bg-primary/5" : ""}`}>
+                    <div
+                      key={n.id}
+                      className={`p-3 border-b last:border-b-0 cursor-pointer hover:bg-muted/50 transition-colors ${!n.is_read ? "bg-primary/5" : ""}`}
+                      onClick={() => handleNotificationClick(n)}
+                    >
                       <p className="text-sm font-medium line-clamp-1">{n.title}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{n.message}</p>
                       <p className="text-[10px] text-muted-foreground mt-1">
@@ -144,7 +180,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <Tabs defaultValue={getDefaultTab()} onValueChange={handleTabChange} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-auto min-w-full h-auto">
             <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2 sm:px-3">Dashboard</TabsTrigger>
