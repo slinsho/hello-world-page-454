@@ -220,12 +220,36 @@ export function AdminContentModeration() {
             <DialogTitle>Review: {selectedProperty?.title}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Photo Gallery */}
+            {selectedProperty?.photos && selectedProperty.photos.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Photos ({selectedProperty.photos.length})</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {selectedProperty.photos.map((photo, idx) => (
+                    <img key={idx} src={photo} alt={`Photo ${idx + 1}`} className="w-full h-24 rounded-lg object-cover border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(photo, "_blank")} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="text-muted-foreground">Type:</span> <span className="capitalize">{selectedProperty?.property_type}</span></div>
               <div><span className="text-muted-foreground">Price:</span> ${selectedProperty?.price_usd.toLocaleString()}</div>
               <div><span className="text-muted-foreground">County:</span> {selectedProperty?.county}</div>
               <div><span className="text-muted-foreground">Owner:</span> {selectedProperty?.owner_name}</div>
+              <div><span className="text-muted-foreground">Address:</span> {selectedProperty?.address}</div>
+              <div><span className="text-muted-foreground">Listing:</span> <span className="capitalize">{selectedProperty?.listing_type?.replace("_", " ")}</span></div>
+              {selectedProperty?.bedrooms && <div><span className="text-muted-foreground">Bedrooms:</span> {selectedProperty.bedrooms}</div>}
+              {selectedProperty?.bathrooms && <div><span className="text-muted-foreground">Bathrooms:</span> {selectedProperty.bathrooms}</div>}
             </div>
+
+            {selectedProperty?.description && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-foreground bg-secondary/30 rounded-lg p-3 max-h-32 overflow-y-auto">{selectedProperty.description}</p>
+              </div>
+            )}
+
             <Textarea
               placeholder="Add a moderation note (optional)..."
               value={moderationNote}
