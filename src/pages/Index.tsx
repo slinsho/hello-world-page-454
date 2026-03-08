@@ -18,6 +18,7 @@ import { MapPin, ChevronRight } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
+  const { preferences } = useUserPreferences();
   const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState<any[]>([]);
   const [nearMeProperties, setNearMeProperties] = useState<any[]>([]);
