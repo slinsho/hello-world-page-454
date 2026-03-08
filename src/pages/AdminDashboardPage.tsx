@@ -15,16 +15,51 @@ import { AdminContentModeration } from "@/components/admin/AdminContentModeratio
 import { AdminVerifiedDocuments } from "@/components/admin/AdminVerifiedDocuments";
 import { AdminLegalPages } from "@/components/admin/AdminLegalPages";
 import { AdminAboutPage } from "@/components/admin/AdminAboutPage";
-import { Shield, LogOut } from "lucide-react";
+import { Shield, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (data) {
+      setNotifications(data);
+      setUnreadCount(data.filter((n: any) => !n.is_read).length);
+    }
+  };
+
+  const markAllRead = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false);
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setUnreadCount(0);
+  };
 
   // Determine default tab based on route
   const getDefaultTab = () => {
@@ -63,10 +98,49 @@ export default function AdminDashboardPage() {
           <Shield className="h-6 w-6 md:h-8 md:w-8 text-primary" />
           <h1 className="text-2xl md:text-3xl font-bold">Admin Portal</h1>
         </div>
-        <Button variant="outline" onClick={handleLogout} className="gap-2">
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline">Sign Out</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <div className="flex items-center justify-between p-3 border-b">
+                <h4 className="font-semibold text-sm">Notifications</h4>
+                {unreadCount > 0 && (
+                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                    Mark all read
+                  </Button>
+                )}
+              </div>
+              <ScrollArea className="max-h-80">
+                {notifications.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">No notifications</p>
+                ) : (
+                  notifications.map((n) => (
+                    <div key={n.id} className={`p-3 border-b last:border-b-0 ${!n.is_read ? "bg-primary/5" : ""}`}>
+                      <p className="text-sm font-medium line-clamp-1">{n.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{n.message}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </ScrollArea>
+            </PopoverContent>
+          </Popover>
+          <Button variant="outline" onClick={handleLogout} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Sign Out</span>
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue={getDefaultTab()} onValueChange={handleTabChange} className="w-full">
