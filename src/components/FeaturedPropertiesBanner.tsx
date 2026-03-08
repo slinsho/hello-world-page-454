@@ -20,19 +20,24 @@ export function FeaturedPropertiesBanner() {
   const formatLRD = useFormatLRD();
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("properties")
-        .select("id, title, price_usd, county, photos, property_type, listing_type")
-        .eq("is_promoted", true)
-        .eq("status", "active");
+    const fetchPromoted = async () => {
+      // Use round-robin RPC: returns least-shown promoted properties and increments their counts
+      const { data } = await supabase.rpc("get_round_robin_promoted", { limit_count: 10 });
       if (data) {
-        // Shuffle for fair rotation, then take 10
-        const shuffled = [...data].sort(() => Math.random() - 0.5);
-        setProperties(shuffled.slice(0, 10));
+        setProperties(
+          data.map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            price_usd: p.price_usd,
+            county: p.county,
+            photos: p.photos,
+            property_type: p.property_type,
+            listing_type: p.listing_type,
+          }))
+        );
       }
     };
-    fetch();
+    fetchPromoted();
   }, []);
 
   if (properties.length === 0) return null;
