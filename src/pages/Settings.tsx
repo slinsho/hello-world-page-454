@@ -392,24 +392,26 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-3">
-              <h3 className="text-sm font-semibold">Change Password</h3>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password (min 6 characters)"
-                  className="rounded-xl pr-10"
-                />
-                <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+            {!isAgent && (
+              <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-3">
+                <h3 className="text-sm font-semibold">Change Password</h3>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password (min 6 characters)"
+                    className="rounded-xl pr-10"
+                  />
+                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <Button onClick={handleChangePassword} disabled={changingPassword || newPassword.length < 6} className="w-full rounded-xl" size="sm">
+                  {changingPassword ? "Updating..." : "Update Password"}
+                </Button>
               </div>
-              <Button onClick={handleChangePassword} disabled={changingPassword || newPassword.length < 6} className="w-full rounded-xl" size="sm">
-                {changingPassword ? "Updating..." : "Update Password"}
-              </Button>
-            </div>
+            )}
 
             <div className="bg-card rounded-2xl border border-destructive/30 p-4 space-y-2">
               <h3 className="text-sm font-semibold text-destructive">Danger Zone</h3>
