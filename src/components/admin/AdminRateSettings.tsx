@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, DollarSign, Bell } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { RefreshCw, DollarSign, Bell, Phone, CreditCard } from "lucide-react";
 
 export function AdminRateSettings() {
   const { toast } = useToast();
