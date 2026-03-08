@@ -96,7 +96,7 @@ const Settings = () => {
     }
 
     // Save agency info for agents
-    if (isAgent && (agencyForm.agency_name || agencyForm.office_location)) {
+    if (profile?.role === "agent" && (agencyForm.agency_name || agencyForm.office_location)) {
       const { error: agencyError } = await supabase
         .from("verification_requests")
         .update({
