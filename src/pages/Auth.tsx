@@ -513,7 +513,7 @@ const Auth = () => {
           </div>
 
           {/* Buttons */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3">
             <Button
               onClick={() => navigate("/")}
               className="w-full h-14 text-base font-semibold rounded-xl"
