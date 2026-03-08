@@ -361,9 +361,9 @@ const Settings = () => {
                 <h3 className="text-sm font-semibold">Profile Visibility</h3>
               </div>
               <div className="divide-y divide-border/50">
-                <ToggleRow label="Show Phone Number" description="Allow others to see your phone" checked={privacyPrefs.showPhone} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showPhone: v })} />
-                <ToggleRow label="Show Email" description="Allow others to see your email" checked={privacyPrefs.showEmail} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showEmail: v })} />
-                <ToggleRow label="Show Location" description="Display your county on profile" checked={privacyPrefs.showLocation} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showLocation: v })} />
+                <ToggleRow label="Show Phone Number" description="Allow others to see your phone" checked={userPrefs.show_phone} onChange={(v) => { updatePreference("show_phone", v); toast({ title: "Updated", description: `Phone visibility ${v ? "enabled" : "disabled"}` }); }} />
+                <ToggleRow label="Show Email" description="Allow others to see your email" checked={userPrefs.show_email} onChange={(v) => { updatePreference("show_email", v); toast({ title: "Updated", description: `Email visibility ${v ? "enabled" : "disabled"}` }); }} />
+                <ToggleRow label="Show Location" description="Display your county on profile" checked={userPrefs.show_location} onChange={(v) => { updatePreference("show_location", v); toast({ title: "Updated", description: `Location visibility ${v ? "enabled" : "disabled"}` }); }} />
               </div>
             </div>
 
