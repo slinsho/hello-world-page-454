@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -274,8 +275,16 @@ export default function BlogPost() {
     );
   }
 
+  // Sanitize content first to prevent XSS, then process for styling
+  const sanitizedHtml = DOMPurify.sanitize(post.content, {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'style', 'class', 'target', 'rel'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus'],
+    ALLOW_DATA_ATTR: false,
+  });
+
   // Process content to make images full width and preserve inline styles
-  const processedContent = post.content
+  const processedContent = sanitizedHtml
     .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
     .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>')
     .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
