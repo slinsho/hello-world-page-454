@@ -59,20 +59,20 @@ export default function OwnerPromotionDashboard() {
     }
 
     const propertyIds = [...new Set(requests.map(r => r.property_id))];
-    const [{ data: propsData }, { data: viewsCounts }] = await Promise.all([
-      supabase.from("properties").select("id, title, photos, is_promoted").in("id", propertyIds),
-      Promise.resolve(
-        Promise.all(
-          propertyIds.map(async (pid) => {
-            const { count } = await supabase
-              .from("property_views")
-              .select("*", { count: "exact", head: true })
-              .eq("property_id", pid);
-            return { id: pid, count: count || 0 };
-          })
-        )
-      ),
-    ]);
+    const { data: propsData } = await supabase
+      .from("properties")
+      .select("id, title, photos, is_promoted")
+      .in("id", propertyIds);
+
+    const viewsCounts = await Promise.all(
+      propertyIds.map(async (pid) => {
+        const { count } = await supabase
+          .from("property_views")
+          .select("*", { count: "exact", head: true })
+          .eq("property_id", pid);
+        return { id: pid, count: count || 0 };
+      })
+    );
 
     const propsMap = new Map(propsData?.map(p => [p.id, p]) || []);
     const viewsMap = new Map(viewsCounts.map(v => [v.id, v.count]));
