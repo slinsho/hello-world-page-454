@@ -148,6 +148,10 @@ export default function AdminDashboardPage() {
         <TabsContent value="legal">
           <AdminLegalPages />
         </TabsContent>
+
+        <TabsContent value="about">
+          <AdminAboutPage />
+        </TabsContent>
       </Tabs>
     </div>
   );

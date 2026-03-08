@@ -269,7 +269,9 @@ const Settings = () => {
           </div>
 
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
-            <MenuItem icon={FileText} label="LibHub Terms & Conditions" onClick={() => navigate("/terms")} />
+            <MenuItem icon={FileText} label="Terms & Conditions" onClick={() => navigate("/terms")} />
+            <MenuItem icon={FileText} label="Privacy Policy" onClick={() => navigate("/privacy")} />
+            <MenuItem icon={HelpCircle} label="About Us" onClick={() => navigate("/about")} />
           </div>
 
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden">
