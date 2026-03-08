@@ -50,8 +50,8 @@ export default function OwnerDashboard() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user && !showUpgrade) fetchDashboardData();
-  }, [user, showUpgrade]);
+    if (user) fetchDashboardData();
+  }, [user]);
 
   const fetchDashboardData = async () => {
     if (!user) return;
