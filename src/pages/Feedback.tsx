@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,6 +64,12 @@ const Feedback = () => {
       });
 
       if (error) throw error;
+      // Notify admins
+      await notifyAdmins({
+        title: "New Feedback Submitted",
+        message: `${validatedData.role} feedback (${validatedData.rating}★): "${validatedData.problem.slice(0, 80)}..."`,
+        type: "status_updates",
+      });
       toast({ title: "Thank You!", description: "Your feedback has been submitted successfully" });
       navigate(-1);
     } catch {

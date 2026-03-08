@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -99,6 +100,12 @@ const Notifications = () => {
 
       if (error) throw error;
 
+      await notifyAdmins({
+        title: "Payment Reference Submitted",
+        message: `${name} submitted payment ref "${ref}" for a promotion request.`,
+        type: "status_updates",
+        propertyId: notification.property_id,
+      });
       toast({ title: "Payment Reference Sent!", description: "Admin will verify and activate your promotion shortly." });
       markAsRead(notification.id);
       setSubmittedNotifications(prev => new Set(prev).add(notification.id));

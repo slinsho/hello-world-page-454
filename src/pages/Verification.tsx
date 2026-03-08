@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,14 @@ const Verification = () => {
       const { error } = await supabase.from("verification_requests").insert([insertData]); if (error) throw error;
       const profileUpdate: any = { verification_status: "pending" }; if (isAgent) profileUpdate.role = "agent";
       await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      // Notify admins
+      const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
+      const userName = profile?.name || "A user";
+      await notifyAdmins({
+        title: "New Verification Request",
+        message: `${userName} submitted a ${isAgent ? "agent" : "owner"} verification request.`,
+        type: "status_updates",
+      });
       toast({ title: "Success!", description: "Your verification request has been submitted." }); navigate("/profile");
     } catch (error: any) {
       if (error instanceof z.ZodError) toast({ title: "Validation Error", description: error.errors[0].message, variant: "destructive" });
