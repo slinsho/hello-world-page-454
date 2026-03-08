@@ -131,6 +131,8 @@ const Favorites = () => {
                   <img
                     src={favorite.property.photos[0]}
                     alt={favorite.property.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">

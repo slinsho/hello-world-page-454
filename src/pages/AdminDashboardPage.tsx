@@ -14,6 +14,7 @@ import { AdminBlog } from "@/components/admin/AdminBlog";
 import { AdminContentModeration } from "@/components/admin/AdminContentModeration";
 import { AdminVerifiedDocuments } from "@/components/admin/AdminVerifiedDocuments";
 import { AdminLegalPages } from "@/components/admin/AdminLegalPages";
+import { AdminAboutPage } from "@/components/admin/AdminAboutPage";
 import { Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +87,7 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="verified-docs" className="text-xs sm:text-sm px-2 sm:px-3">Verified Docs</TabsTrigger>
             <TabsTrigger value="rates" className="text-xs sm:text-sm px-2 sm:px-3">Rates</TabsTrigger>
             <TabsTrigger value="legal" className="text-xs sm:text-sm px-2 sm:px-3">Legal</TabsTrigger>
+            <TabsTrigger value="about" className="text-xs sm:text-sm px-2 sm:px-3">About</TabsTrigger>
           </TabsList>
         </div>
 
@@ -145,6 +147,10 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="legal">
           <AdminLegalPages />
+        </TabsContent>
+
+        <TabsContent value="about">
+          <AdminAboutPage />
         </TabsContent>
       </Tabs>
     </div>

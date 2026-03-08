@@ -8,6 +8,9 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PlatformSettingsProvider } from "@/hooks/usePlatformSettings";
 import { UserPreferencesProvider } from "@/hooks/useUserPreferences";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SkipToContent } from "@/components/SkipToContent";
+import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
@@ -39,60 +42,68 @@ const PopularAreasPage = lazy(() => import("./pages/PopularAreasPage"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));
 const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
+const About = lazy(() => import("./pages/About"));
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-    <PlatformSettingsProvider>
-    <UserPreferencesProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <FeedbackButton />
-          <PWAInstallPrompt />
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/near-me" element={<NearMe />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:id" element={<Profile />} />
-              <Route path="/property/:id" element={<PropertyDetail />} />
-              <Route path="/verification" element={<Verification />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/feedback" element={<Feedback />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/terms" element={<TermsAndConditions />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/dashboard" element={<OwnerDashboard />} />
-              <Route path="/owner-promotions" element={<OwnerPromotionDashboard />} />
-              <Route path="/popular-areas" element={<PopularAreasPage />} />
-              <Route path="/edit-property/:id" element={<EditProperty />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/featured" element={<FeaturedListings />} />
-              <Route path="/winner-54/login" element={<AdminLogin />} />
-              <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
-              <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
-              <Route path="/winner-54/users" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </UserPreferencesProvider>
-    </PlatformSettingsProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+      <PlatformSettingsProvider>
+      <UserPreferencesProvider>
+        <TooltipProvider>
+          <SkipToContent />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <FeedbackButton />
+            <PWAInstallPrompt />
+            <OnboardingGuide />
+            <div id="main-content">
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center" role="status" aria-label="Loading"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/explore" element={<Explore />} />
+                  <Route path="/near-me" element={<NearMe />} />
+                  <Route path="/upload" element={<Upload />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/:id" element={<Profile />} />
+                  <Route path="/property/:id" element={<PropertyDetail />} />
+                  <Route path="/verification" element={<Verification />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/terms" element={<TermsAndConditions />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/dashboard" element={<OwnerDashboard />} />
+                  <Route path="/owner-promotions" element={<OwnerPromotionDashboard />} />
+                  <Route path="/popular-areas" element={<PopularAreasPage />} />
+                  <Route path="/edit-property/:id" element={<EditProperty />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/featured" element={<FeaturedListings />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/winner-54/login" element={<AdminLogin />} />
+                  <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+                  <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+                  <Route path="/winner-54/users" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </BrowserRouter>
+        </TooltipProvider>
+      </UserPreferencesProvider>
+      </PlatformSettingsProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
