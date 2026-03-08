@@ -109,12 +109,20 @@ export default function AdminDashboardPage() {
           <AdminBlog />
         </TabsContent>
 
+        <TabsContent value="promotions">
+          <AdminPromotions />
+        </TabsContent>
+
         <TabsContent value="marketing">
           <AdminMarketing />
         </TabsContent>
 
         <TabsContent value="feedback">
           <AdminFeedback />
+        </TabsContent>
+
+        <TabsContent value="rates">
+          <AdminRateSettings />
         </TabsContent>
       </Tabs>
     </div>
