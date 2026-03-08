@@ -31,7 +31,7 @@ const Notifications = () => {
   const [senderNames, setSenderNames] = useState<Record<string, string>>({});
   const [submittingRef, setSubmittingRef] = useState<string | null>(null);
   const [submittedNotifications, setSubmittedNotifications] = useState<Set<string>>(new Set());
-  const [paymentInfo, setPaymentInfo] = useState<{ number: string; name: string; instructions: string } | null>(null);
+  const [paymentInfo, setPaymentInfo] = useState<{ lonestar?: string; orange?: string; number?: string; name: string; instructions: string } | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -149,12 +149,26 @@ const Notifications = () => {
                   {/* Inline payment reference input — hidden after submission */}
                   {showPaymentInput && (
                     <div className="mt-3 pt-3 border-t space-y-3" onClick={(e) => e.stopPropagation()}>
-                      {/* Show payment number from admin */}
-                      {paymentInfo?.number && (
-                        <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                      {/* Show payment numbers from admin */}
+                      {paymentInfo && (paymentInfo.lonestar || paymentInfo.orange || paymentInfo.number) && (
+                        <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                           <p className="text-xs font-semibold text-foreground">Send payment to:</p>
                           {paymentInfo.name && <p className="text-sm font-medium text-foreground">{paymentInfo.name}</p>}
-                          <p className="text-lg font-bold text-primary tracking-wide">{paymentInfo.number}</p>
+                          {paymentInfo.lonestar && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground min-w-[70px]">Lonestar:</span>
+                              <span className="text-base font-bold text-primary tracking-wide">{paymentInfo.lonestar}</span>
+                            </div>
+                          )}
+                          {paymentInfo.orange && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground min-w-[70px]">Orange:</span>
+                              <span className="text-base font-bold text-primary tracking-wide">{paymentInfo.orange}</span>
+                            </div>
+                          )}
+                          {!paymentInfo.lonestar && !paymentInfo.orange && paymentInfo.number && (
+                            <p className="text-lg font-bold text-primary tracking-wide">{paymentInfo.number}</p>
+                          )}
                           {paymentInfo.instructions && <p className="text-xs text-muted-foreground mt-1">{paymentInfo.instructions}</p>}
                         </div>
                       )}
