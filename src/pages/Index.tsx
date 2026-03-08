@@ -122,6 +122,9 @@ const Index = () => {
         {/* Homepage Banners */}
         <HomepageBanners />
 
+        {/* Featured Promoted Properties */}
+        <FeaturedPropertiesBanner />
+
         {/* Recently Viewed Section */}
         {user && <RecentlyViewed />}
         
