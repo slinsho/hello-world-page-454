@@ -88,18 +88,35 @@ const DEFAULT_CONTENT: AboutContent = {
 const About = () => {
   const { toast } = useToast();
   const [content, setContent] = useState<AboutContent>(DEFAULT_CONTENT);
+  const [realStats, setRealStats] = useState<{ label: string; value: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   useEffect(() => {
     const fetchContent = async () => {
-      const { data } = await supabase
-        .from("platform_settings")
-        .select("value")
-        .eq("key", "about_page_content")
-        .single();
-      if (data?.value) setContent({ ...DEFAULT_CONTENT, ...(data.value as any) });
+      const [settingsRes, propsRes, profilesRes] = await Promise.all([
+        supabase.from("platform_settings").select("value").eq("key", "about_page_content").single(),
+        supabase.from("properties").select("county, status", { count: "exact" }),
+        supabase.from("profiles").select("verification_status", { count: "exact" }),
+      ]);
+
+      if (settingsRes.data?.value) setContent({ ...DEFAULT_CONTENT, ...(settingsRes.data.value as any) });
+
+      const totalProperties = propsRes.count || 0;
+      const activeProperties = propsRes.data?.filter(p => p.status === "active").length || 0;
+      const counties = new Set(propsRes.data?.map(p => p.county) || []).size;
+      const verifiedUsers = profilesRes.data?.filter(p => p.verification_status === "approved").length || 0;
+      const totalUsers = profilesRes.count || 0;
+
+      setRealStats([
+        { label: "Total Properties", value: totalProperties.toLocaleString() },
+        { label: "Active Listings", value: activeProperties.toLocaleString() },
+        { label: "Counties Covered", value: String(counties) },
+        { label: "Verified Users", value: verifiedUsers.toLocaleString() },
+        { label: "Registered Users", value: totalUsers.toLocaleString() },
+      ]);
+
       setLoading(false);
     };
     fetchContent();
@@ -184,9 +201,10 @@ const About = () => {
 
       <main className="max-w-5xl mx-auto px-4 space-y-12 mt-8">
         {/* Stats Bar */}
-        {content.stats && content.stats.length > 0 && (
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {content.stats.map((stat, i) => (
+        {/* Real Stats Bar */}
+        {realStats.length > 0 && (
+          <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {realStats.map((stat, i) => (
               <div key={i} className="bg-card rounded-2xl border border-border/50 p-5 text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary mb-1">{stat.value}</div>
                 <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
