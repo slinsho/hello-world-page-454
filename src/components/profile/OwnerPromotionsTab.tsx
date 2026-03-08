@@ -139,6 +139,10 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
     );
   };
 
+  const activePromotions = promotions.filter(
+    (p) => p.status === "approved" && p.payment_status === "confirmed" && p.is_promoted
+  );
+
   // Properties eligible for promotion (active, not already promoted)
   const eligibleProperties = properties.filter(
     (p) => p.status === "active" && !p.is_promoted
