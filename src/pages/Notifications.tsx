@@ -31,7 +31,7 @@ const Notifications = () => {
   const [senderNames, setSenderNames] = useState<Record<string, string>>({});
   const [submittingRef, setSubmittingRef] = useState<string | null>(null);
   const [submittedNotifications, setSubmittedNotifications] = useState<Set<string>>(new Set());
-  const [paymentInfo, setPaymentInfo] = useState<{ number: string; name: string; instructions: string } | null>(null);
+  const [paymentInfo, setPaymentInfo] = useState<{ lonestar?: string; orange?: string; number?: string; name: string; instructions: string } | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
