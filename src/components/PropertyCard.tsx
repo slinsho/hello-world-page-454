@@ -42,6 +42,8 @@ interface PropertyCardProps {
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
+  const { preferences } = useUserPreferences();
+  const showLRD = preferences.currency_display === "lrd";
   const favorited = isFavorite(property.id);
   
   const TypeIcon = {
