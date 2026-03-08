@@ -115,14 +115,30 @@ export function AdminAboutPage() {
 
   const triggerUpload = (field: keyof AboutContent) => handleImageUpload(field);
 
-  const handleTeamPhotoUpload = async (index: number, file: File) => {
-    const url = await uploadImage(file);
-    if (url) { const u = [...content.team_members]; u[index] = { ...u[index], photo: url }; setContent({ ...content, team_members: u }); }
+  const handleTeamPhotoUpload = (index: number) => {
+    const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+    input.onchange = (ev: any) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      openCropperForFile(file, "team_photo", async (blob) => {
+        const url = await uploadImage(blob);
+        if (url) setContent(prev => { const u = [...prev.team_members]; u[index] = { ...u[index], photo: url }; return { ...prev, team_members: u }; });
+      });
+    };
+    input.click();
   };
 
-  const handleWorkPhotoUpload = async (index: number, file: File) => {
-    const url = await uploadImage(file);
-    if (url) { const u = [...content.work_photos]; u[index] = { ...u[index], url }; setContent({ ...content, work_photos: u }); }
+  const handleWorkPhotoUpload = (index: number) => {
+    const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+    input.onchange = (ev: any) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      openCropperForFile(file, "work_photo", async (blob) => {
+        const url = await uploadImage(blob);
+        if (url) setContent(prev => { const u = [...prev.work_photos]; u[index] = { ...u[index], url }; return { ...prev, work_photos: u }; });
+      });
+    };
+    input.click();
   };
 
   const ImageField = ({ label, field }: { label: string; field: keyof AboutContent }) => (
