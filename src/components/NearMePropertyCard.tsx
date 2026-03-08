@@ -19,6 +19,7 @@ interface NearMePropertyCardProps {
 
 const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const formatLRD = useFormatLRD();
   const favorited = isFavorite(property.id);
 
   const getPropertyIcon = () => {

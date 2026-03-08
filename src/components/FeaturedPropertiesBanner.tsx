@@ -17,6 +17,7 @@ interface FeaturedProperty {
 
 export function FeaturedPropertiesBanner() {
   const [properties, setProperties] = useState<FeaturedProperty[]>([]);
+  const formatLRD = useFormatLRD();
 
   useEffect(() => {
     const fetch = async () => {

@@ -31,6 +31,7 @@ const PropertyDetail = () => {
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [property, setProperty] = useState<any>(null);
+  const formatLRD = useFormatLRD();
   const [loading, setLoading] = useState(true);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 

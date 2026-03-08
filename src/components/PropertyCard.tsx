@@ -36,6 +36,7 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const formatLRD = useFormatLRD();
   const favorited = isFavorite(property.id);
   
   const TypeIcon = {

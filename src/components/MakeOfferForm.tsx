@@ -25,6 +25,7 @@ interface MakeOfferFormProps {
 export const MakeOfferForm = ({ propertyId, propertyTitle, askingPrice }: MakeOfferFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const formatLRD = useFormatLRD();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({

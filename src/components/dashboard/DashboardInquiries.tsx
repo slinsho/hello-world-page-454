@@ -41,6 +41,7 @@ interface DashboardInquiriesProps {
 
 export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesProps) {
   const { toast } = useToast();
+  const formatLRD = useFormatLRD();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
