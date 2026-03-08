@@ -57,7 +57,13 @@ export function ReportPropertyDialog({ propertyId, propertyTitle }: ReportProper
         details: details.trim() || null,
       }]);
       if (error) throw error;
-
+      // Notify admins
+      await notifyAdmins({
+        title: "New Property Report",
+        message: `A property has been reported for: ${reason}.`,
+        type: "status_updates",
+        propertyId,
+      });
       toast({ title: "Report Submitted", description: "Thank you. Our team will review this property." });
       setOpen(false);
       setReason("");

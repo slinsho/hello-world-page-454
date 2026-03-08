@@ -63,6 +63,12 @@ const Feedback = () => {
       });
 
       if (error) throw error;
+      // Notify admins
+      await notifyAdmins({
+        title: "New Feedback Submitted",
+        message: `${validatedData.role} feedback (${validatedData.rating}★): "${validatedData.problem.slice(0, 80)}..."`,
+        type: "status_updates",
+      });
       toast({ title: "Thank You!", description: "Your feedback has been submitted successfully" });
       navigate(-1);
     } catch {

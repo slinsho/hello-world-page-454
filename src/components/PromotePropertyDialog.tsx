@@ -79,6 +79,13 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
         payment_amount: totalUsd,
       } as any]);
       if (error) throw error;
+      // Notify admins
+      await notifyAdmins({
+        title: "New Promotion Request",
+        message: `A user requested promotion for ${parseInt(durationMonths)} month(s) at $${totalUsd}.`,
+        type: "status_updates",
+        propertyId,
+      });
       toast({ title: "Request Submitted", description: "Your promotion request has been sent to admin for review." });
       setOpen(false);
       setReason("");
