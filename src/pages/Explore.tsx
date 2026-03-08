@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import PropertyCard from "@/components/PropertyCard";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
