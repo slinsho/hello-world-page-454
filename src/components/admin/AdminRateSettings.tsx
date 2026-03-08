@@ -86,14 +86,13 @@ export function AdminRateSettings() {
   };
 
   const handleSavePaymentInfo = async () => {
-    if (!paymentNumber.trim()) {
-      toast({ title: "Missing Number", description: "Please enter a payment number.", variant: "destructive" });
+    if (!lonestarNumber.trim() && !orangeNumber.trim()) {
+      toast({ title: "Missing Number", description: "Please enter at least one payment number.", variant: "destructive" });
       return;
     }
     setSavingPayment(true);
     try {
-      const paymentInfo = { number: paymentNumber.trim(), name: paymentName.trim(), instructions: paymentInstructions.trim() };
-      // Upsert payment_info setting
+      const paymentInfo = { lonestar: lonestarNumber.trim(), orange: orangeNumber.trim(), name: paymentName.trim(), instructions: paymentInstructions.trim() };
       const { data: existing } = await supabase.from("platform_settings" as any).select("key").eq("key", "payment_info").single();
       if (existing) {
         await supabase.from("platform_settings" as any).update({ value: paymentInfo, updated_at: new Date().toISOString() }).eq("key", "payment_info");
