@@ -43,6 +43,7 @@ const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));
 const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 const About = lazy(() => import("./pages/About"));
+const Agents = lazy(() => import("./pages/Agents"));
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/featured" element={<FeaturedListings />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/agents" element={<Agents />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />
                   <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
                   <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
