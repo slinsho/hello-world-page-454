@@ -48,6 +48,7 @@ const Navbar = () => {
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
     { path: "/blog", label: "News", icon: Newspaper },
+    { path: "/about", label: "About", icon: Info, guestOnly: true },
     { path: "/upload", label: "Add", icon: Upload, requiresAuth: true },
     { path: "/near-me", label: "Near Me", icon: Navigation },
     { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
