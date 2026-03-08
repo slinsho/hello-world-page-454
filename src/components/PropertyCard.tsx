@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck } from "lucide-react";
+import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
