@@ -1,1 +1,7 @@
 project_id = "sijxsadlinayqxdxkmcr"
+
+[functions.process-verification]
+verify_jwt = false
+
+[functions.check-verification-expiry]
+verify_jwt = false
