@@ -12,6 +12,9 @@ export function AdminRateSettings() {
   const { toast } = useToast();
   const [rate, setRate] = useState("");
   const [promoPrice, setPromoPrice] = useState("");
+  const [ownerVerifFee, setOwnerVerifFee] = useState("");
+  const [agentVerifFee, setAgentVerifFee] = useState("");
+  const [verifDuration, setVerifDuration] = useState("");
   const [lonestarNumber, setLonestarNumber] = useState("");
   const [orangeNumber, setOrangeNumber] = useState("");
   const [paymentName, setPaymentName] = useState("");
@@ -28,6 +31,9 @@ export function AdminRateSettings() {
         const map = new Map((data as any[]).map((d: any) => [d.key, d.value]));
         setRate(String(map.get("usd_to_lrd_rate") || "192"));
         setPromoPrice(String(map.get("promotion_price_per_month") || "5"));
+        setOwnerVerifFee(String(map.get("owner_verification_fee_lrd") || "500"));
+        setAgentVerifFee(String(map.get("agent_verification_fee_usd") || "20"));
+        setVerifDuration(String(map.get("verification_duration_days") || "5"));
         const paymentInfo = map.get("payment_info") as any;
         if (paymentInfo) {
           setLonestarNumber(paymentInfo.lonestar || paymentInfo.number || "");
