@@ -687,7 +687,6 @@ const Profile = () => {
 
             {isOwnProfile && (
               <div className="px-5 pb-4 flex items-center gap-2">
-                <EditProfileDialog triggerId="agent-desktop" />
                 <SettingsMenu />
               </div>
             )}
