@@ -484,13 +484,13 @@ const Profile = () => {
               </div>
               <p className="text-sm text-muted-foreground">Property Owner</p>
               <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                {profile.county && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{profile.county}, Liberia</span>}
-                {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
+                {canShowLocation && profile.county && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{profile.county}, Liberia</span>}
+                {canShowPhone && profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
               {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
