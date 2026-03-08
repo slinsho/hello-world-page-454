@@ -85,6 +85,7 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2 sm:px-3">Feedback</TabsTrigger>
             <TabsTrigger value="verified-docs" className="text-xs sm:text-sm px-2 sm:px-3">Verified Docs</TabsTrigger>
             <TabsTrigger value="rates" className="text-xs sm:text-sm px-2 sm:px-3">Rates</TabsTrigger>
+            <TabsTrigger value="legal" className="text-xs sm:text-sm px-2 sm:px-3">Legal</TabsTrigger>
           </TabsList>
         </div>
 
