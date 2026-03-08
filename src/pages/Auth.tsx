@@ -542,7 +542,7 @@ const Auth = () => {
           <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-xl">
             <div className="text-center mb-8">
               <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-                Welcome to LibHub
+                Welcome to L-Prop
               </h2>
               <p className="text-muted-foreground">
                 Find your dream property in Liberia
