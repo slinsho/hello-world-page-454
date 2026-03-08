@@ -177,8 +177,31 @@ const Settings = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure? This action cannot be undone. All your data will be permanently deleted.")) return;
-    toast({ title: "Account Deletion", description: "Please contact support@libhub.com to delete your account." });
+    if (!user) return;
+    const confirmed = confirm("Are you sure? This will PERMANENTLY delete your account, all properties, and data. This cannot be undone.");
+    if (!confirmed) return;
+    const doubleConfirm = confirm("This is your last chance. Type YES in the next prompt to confirm deletion.");
+    if (!doubleConfirm) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Error", description: "Please sign in again to delete your account", variant: "destructive" });
+        return;
+      }
+
+      // First delete user's properties
+      await supabase.from("properties").delete().eq("owner_id", user.id);
+      
+      // Delete profile and sign out
+      await supabase.from("profiles").delete().eq("id", user.id);
+      await supabase.auth.signOut();
+      
+      toast({ title: "Account Deleted", description: "Your account has been permanently deleted." });
+      navigate("/");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to delete account", variant: "destructive" });
+    }
   };
 
   if (loading || !profile) {
