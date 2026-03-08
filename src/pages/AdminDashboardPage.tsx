@@ -5,6 +5,7 @@ import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
 import { AdminPromotions } from "@/components/admin/AdminPromotions";
+import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminRateSettings } from "@/components/admin/AdminRateSettings";
 import { AdminMarketing } from "@/components/admin/AdminMarketing";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -75,6 +76,7 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="properties" className="text-xs sm:text-sm px-2 sm:px-3">Properties</TabsTrigger>
             <TabsTrigger value="blog" className="text-xs sm:text-sm px-2 sm:px-3">Blog</TabsTrigger>
             <TabsTrigger value="promotions" className="text-xs sm:text-sm px-2 sm:px-3">Promotions</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 sm:px-3">Reports</TabsTrigger>
             <TabsTrigger value="marketing" className="text-xs sm:text-sm px-2 sm:px-3">Marketing</TabsTrigger>
             <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2 sm:px-3">Feedback</TabsTrigger>
             <TabsTrigger value="rates" className="text-xs sm:text-sm px-2 sm:px-3">Rates</TabsTrigger>
@@ -111,6 +113,9 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="promotions">
           <AdminPromotions />
+        </TabsContent>
+        <TabsContent value="reports">
+          <AdminReports />
         </TabsContent>
 
         <TabsContent value="marketing">
