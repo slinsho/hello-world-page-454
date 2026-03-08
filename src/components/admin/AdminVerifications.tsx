@@ -79,6 +79,16 @@ export function AdminVerifications() {
           urlMap[request.selfie_image] = data.signedUrl;
         }
       }
+
+      // Generate signed URL for agency logo
+      if (request.agency_logo && !urlMap[request.agency_logo]) {
+        const { data } = await supabase.storage
+          .from("verification-docs")
+          .createSignedUrl(request.agency_logo, 3600);
+        if (data?.signedUrl) {
+          urlMap[request.agency_logo] = data.signedUrl;
+        }
+      }
     }
     setSignedUrls(urlMap);
   };
