@@ -41,8 +41,22 @@ const PropertyDetail = () => {
   const fetchProperty = async () => {
     const { data: propertyData } = await supabase.from("properties").select("*").eq("id", id).single();
     if (propertyData) {
-      const { data: profileData } = await supabase.from("profiles").select("id, name, email, phone, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle();
-      setProperty({ ...propertyData, profiles: profileData || null });
+      const [{ data: profileData }, { data: agentData }] = await Promise.all([
+        supabase.from("profiles").select("id, name, email, phone, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle(),
+        supabase.from("verification_requests").select("agency_name, agency_logo, verification_type").eq("user_id", propertyData.owner_id).eq("status", "approved").eq("verification_type", "agent").maybeSingle(),
+      ]);
+
+      let agentLogoUrl: string | null = null;
+      if (agentData?.agency_logo) {
+        const { data: signedData } = await supabase.storage.from("verification-docs").createSignedUrl(agentData.agency_logo, 3600);
+        agentLogoUrl = signedData?.signedUrl || null;
+      }
+
+      setProperty({
+        ...propertyData,
+        profiles: profileData || null,
+        agent_info: agentData ? { agency_name: agentData.agency_name, agency_logo: agentLogoUrl } : null,
+      });
     }
     setLoading(false);
   };
