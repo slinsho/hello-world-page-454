@@ -68,16 +68,29 @@ const Index = () => {
       }
 
       const ownerIds = [...new Set(propertiesData.map(p => p.owner_id))];
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("id, name, role, verification_status, phone, profile_photo_url")
-        .in("id", ownerIds);
+      const [{ data: profilesData }, { data: agentData }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, name, role, verification_status, phone, profile_photo_url")
+          .in("id", ownerIds),
+        supabase
+          .from("verification_requests")
+          .select("user_id, agency_name, agency_logo, verification_type")
+          .eq("status", "approved")
+          .eq("verification_type", "agent")
+          .in("user_id", ownerIds),
+      ]);
       
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-      const propertiesWithProfiles = propertiesData.map(p => ({
-        ...p,
-        profiles: profilesMap.get(p.owner_id) || null,
-      }));
+      const agentMap = new Map((agentData || []).map(a => [a.user_id, a]));
+      const propertiesWithProfiles = propertiesData.map(p => {
+        const agent = agentMap.get(p.owner_id);
+        return {
+          ...p,
+          profiles: profilesMap.get(p.owner_id) || null,
+          agent_info: agent ? { agency_name: agent.agency_name, agency_logo: agent.agency_logo } : null,
+        };
+      });
 
       const shuffledProperties = [...propertiesWithProfiles].sort(() => Math.random() - 0.5);
       setProperties(shuffledProperties);

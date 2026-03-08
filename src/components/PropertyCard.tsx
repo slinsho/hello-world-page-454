@@ -23,15 +23,19 @@ interface PropertyCardProps {
     bedrooms?: number;
     bathrooms?: number;
     contact_phone?: string;
-    contact_phone_2?: string;
-    profiles?: {
-      name: string;
-      role?: string;
-      verification_status?: string;
-      phone?: string;
-      profile_photo_url?: string;
+      contact_phone_2?: string;
+      profiles?: {
+        name: string;
+        role?: string;
+        verification_status?: string;
+        phone?: string;
+        profile_photo_url?: string;
+      };
+      agent_info?: {
+        agency_name?: string | null;
+        agency_logo?: string | null;
+      } | null;
     };
-  };
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
@@ -156,13 +160,16 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8 border border-border">
-                <AvatarImage src={property.profiles?.profile_photo_url || undefined} className="object-cover" />
+                <AvatarImage 
+                  src={property.agent_info?.agency_logo || property.profiles?.profile_photo_url || undefined} 
+                  className="object-cover" 
+                />
                 <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                  {property.profiles?.name?.charAt(0)?.toUpperCase() || "U"}
+                  {(property.agent_info?.agency_name || property.profiles?.name)?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs text-muted-foreground line-clamp-1">
-                {property.profiles?.name || "Owner"}
+                {property.agent_info?.agency_name || property.profiles?.name || "Owner"}
               </span>
             </div>
             {property.contact_phone && (
