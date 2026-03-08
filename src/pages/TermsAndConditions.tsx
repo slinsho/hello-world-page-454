@@ -102,7 +102,7 @@ const defaultSections: Section[] = [
   {
     icon: "BookOpen",
     title: "14. Intellectual Property",
-    content: "The service and its original content, features, and functionality are owned by LibHub and are protected by international copyright, trademark, and other intellectual property laws.\n\nUser-uploaded content (photos, descriptions) remains the property of the respective users but LibHub is granted a non-exclusive license to display such content on the platform.",
+    content: "The service and its original content, features, and functionality are owned by L-Prop and are protected by international copyright, trademark, and other intellectual property laws.\n\nUser-uploaded content (photos, descriptions) remains the property of the respective users but L-Prop is granted a non-exclusive license to display such content on the platform.",
   },
   {
     icon: "AlertTriangle",
