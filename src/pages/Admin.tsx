@@ -10,6 +10,7 @@ import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
 import { AdminPromotions } from "@/components/admin/AdminPromotions";
 import { AdminReports } from "@/components/admin/AdminReports";
+import { AdminRateSettings } from "@/components/admin/AdminRateSettings";
 import { Shield } from "lucide-react";
 
 export default function Admin() {
