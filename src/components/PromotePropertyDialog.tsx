@@ -75,14 +75,24 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
 
   const handleConfirmPayment = async () => {
     if (!existingRequest) return;
+    const trimmedRef = paymentRef.trim();
+    if (!trimmedRef) {
+      toast({ title: "Reference Required", description: "Please enter your transaction reference number.", variant: "destructive" });
+      return;
+    }
+    if (trimmedRef.length < 4 || trimmedRef.length > 100) {
+      toast({ title: "Invalid Reference", description: "Reference must be between 4 and 100 characters.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase
         .from("promotion_requests")
-        .update({ payment_status: "paid" } as any)
+        .update({ payment_status: "paid", payment_reference: trimmedRef } as any)
         .eq("id", existingRequest.id);
       if (error) throw error;
       toast({ title: "Payment Confirmed", description: "Admin will review and activate your promotion shortly." });
+      setPaymentRef("");
       fetchExistingRequest();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
