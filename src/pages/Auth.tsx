@@ -394,7 +394,7 @@ const Auth = () => {
                     </div>
                     <div className="relative flex justify-center text-xs">
                       <span className="bg-background px-4 text-muted-foreground">
-                        {isForgotPassword ? "or" : isSignUp ? "Already have an account?" : "New to LibHub?"}
+                        {isForgotPassword ? "or" : isSignUp ? "Already have an account?" : "New to L-Prop?"}
                       </span>
                     </div>
                   </div>
