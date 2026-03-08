@@ -233,10 +233,13 @@ const Profile = () => {
     pending: "bg-yellow-500/20 text-yellow-500",
     approved: isAgent ? "bg-blue-500/20 text-blue-500" : "bg-green-500/20 text-green-500",
     rejected: "bg-destructive/20 text-destructive",
+    expired: "bg-orange-500/20 text-orange-500",
   }[profile.verification_status];
 
   const verifiedLabel = profile.verification_status === "approved"
     ? (isAgent ? "Verified Agent 🔵" : "Verified Owner ✅")
+    : profile.verification_status === "expired"
+    ? "Verification Expired ⏰"
     : VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS];
 
   const filteredProperties = listingFilter === "all"
