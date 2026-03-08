@@ -156,18 +156,12 @@ const Profile = () => {
 
   // Three-dot menu component
   const SettingsMenu = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors">
-          <MoreVertical className="h-5 w-5" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 rounded-xl">
-        <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
-          <Settings className="h-4 w-4" />Settings
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button 
+      onClick={() => navigate("/settings")}
+      className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
+    >
+      <MoreVertical className="h-5 w-5" />
+    </button>
   );
 
   const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "inactive" | "sold" | "rented") => {
