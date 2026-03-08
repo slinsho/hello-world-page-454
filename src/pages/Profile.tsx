@@ -834,6 +834,14 @@ const Profile = () => {
                 </div>
               </div>
             )}
+            {isOwnProfile && profile.verification_status === "expired" && (
+              <div className="px-5 pb-4">
+                <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-between">
+                  <p className="font-medium text-xs text-orange-500">Verification Expired</p>
+                  <Button size="sm" onClick={handleRenewalRequest} className="rounded-full h-7 text-xs bg-orange-500 hover:bg-orange-600">Renew</Button>
+                </div>
+              </div>
+            )}
             {isAdmin && (
               <div className="px-5 pb-4">
                 <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-between">
