@@ -193,7 +193,7 @@ const Auth = () => {
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-xl font-bold text-foreground">LibHub</span>
+                  <span className="text-xl font-bold text-foreground">L-Prop</span>
                 </div>
                 <h1 className="text-3xl font-bold text-foreground">{formTitle}</h1>
                 <p className="text-muted-foreground">{formSubtitle}</p>
