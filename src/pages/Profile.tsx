@@ -832,6 +832,11 @@ const Profile = () => {
         </div>
 
         {isAgent ? <AgentLayout /> : <OwnerLayout />}
+
+        {/* Featured Properties Banner */}
+        <div className="px-4 md:px-6 max-w-7xl mx-auto">
+          <FeaturedPropertiesBanner />
+        </div>
       </main>
 
       <ImageCropper open={cropperOpen} onClose={() => setCropperOpen(false)} imageSrc={cropImageSrc} aspectRatio={cropType === "cover" ? 16 / 9 : 1} onCropComplete={handleCropComplete} title={cropType === "cover" ? "Crop Cover Photo" : "Crop Profile Photo"} />

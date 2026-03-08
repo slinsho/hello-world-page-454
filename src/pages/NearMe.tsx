@@ -111,6 +111,8 @@ const NearMe = () => {
             ))}
           </div>
         )}
+
+        <FeaturedPropertiesBanner />
       </main>
     </div>
   );
