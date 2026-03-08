@@ -21,16 +21,23 @@ const Explore = () => {
   const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
+  const [sortOrder, setSortOrder] = useState("newest");
 
-  // Apply default county from preferences on first load
+  // Apply defaults from preferences on first load
   useEffect(() => {
-    if (!initialized && preferences.default_county) {
-      const updated = { ...filters, county: preferences.default_county };
+    if (!initialized) {
+      const updated = {
+        ...filters,
+        county: preferences.default_county || "all",
+        listing: preferences.default_listing_type || "all",
+        type: preferences.default_property_type || "all",
+      };
       setFilters(updated);
       setTempFilters(updated);
+      setSortOrder(preferences.default_sort_order || "newest");
     }
     setInitialized(true);
-  }, [preferences.default_county]);
+  }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
 
   useEffect(() => { fetchProperties(); }, [filters, searchQuery]);
 
