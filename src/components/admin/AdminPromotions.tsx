@@ -206,6 +206,12 @@ export function AdminPromotions() {
                 </div>
               </div>
 
+              {/* Duration & Amount info */}
+              <div className="flex gap-3 text-xs">
+                <span className="bg-secondary/50 px-2 py-1 rounded">Duration: {(req as any).duration_months || 1} month(s)</span>
+                {req.payment_amount && <span className="bg-secondary/50 px-2 py-1 rounded">Amount: ${req.payment_amount.toLocaleString()}</span>}
+              </div>
+
               {req.reason && (
                 <div>
                   <p className="text-sm font-medium mb-1">Reason</p>
