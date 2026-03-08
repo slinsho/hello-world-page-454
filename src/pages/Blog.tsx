@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 
 // Social icons
 const FacebookIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
