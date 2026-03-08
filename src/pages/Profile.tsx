@@ -191,6 +191,52 @@ const Profile = () => {
   };
 
   const handleVerificationRequest = () => { navigate("/verification"); };
+  
+  const handleRenewalRequest = async () => {
+    if (!user) return;
+    // Find the user's latest expired verification request
+    const { data: verReq } = await supabase
+      .from("verification_requests")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("status", "expired" as any)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (verReq) {
+      // Mark as renewal
+      await supabase.from("verification_requests").update({ 
+        is_renewal: true,
+        payment_status: 'none',
+      } as any).eq("id", verReq.id);
+      
+      toast({ title: "Renewal Requested", description: "Your renewal request has been sent to the admin for review." });
+    } else {
+      toast({ title: "Error", description: "No expired verification found. Please submit a new verification.", variant: "destructive" });
+      navigate("/verification");
+    }
+  };
+
+  const handleSubmitPaymentReference = async (reference: string) => {
+    if (!user || !reference.trim()) return;
+    const { data: verReq } = await supabase
+      .from("verification_requests")
+      .select("id")
+      .eq("user_id", user.id)
+      .in("payment_status", ["payment_requested"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (verReq) {
+      await supabase.from("verification_requests").update({ 
+        payment_reference: reference.trim(),
+        payment_status: 'submitted',
+      } as any).eq("id", verReq.id);
+      toast({ title: "Payment Reference Submitted", description: "Your payment reference has been sent. Admin will verify and approve." });
+    }
+  };
 
   // Three-dot menu component
   const SettingsMenu = () => (
