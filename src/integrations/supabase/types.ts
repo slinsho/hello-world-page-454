@@ -498,6 +498,10 @@ export type Database = {
           admin_note: string | null
           created_at: string
           id: string
+          payment_amount: number | null
+          payment_confirmed_at: string | null
+          payment_requested_at: string | null
+          payment_status: string
           processed_at: string | null
           property_id: string
           reason: string | null
@@ -509,6 +513,10 @@ export type Database = {
           admin_note?: string | null
           created_at?: string
           id?: string
+          payment_amount?: number | null
+          payment_confirmed_at?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           processed_at?: string | null
           property_id: string
           reason?: string | null
@@ -520,6 +528,10 @@ export type Database = {
           admin_note?: string | null
           created_at?: string
           id?: string
+          payment_amount?: number | null
+          payment_confirmed_at?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           processed_at?: string | null
           property_id?: string
           reason?: string | null
