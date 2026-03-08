@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
-import { Building2, Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User } from "lucide-react";
+import { Building2, Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
 import heroImage from "@/assets/auth-hero.jpg";
 
 const signUpSchema = z.object({
@@ -157,6 +157,21 @@ const Auth = () => {
         <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
           {/* Mobile header */}
           <div className="p-4 md:hidden">
+            <button
+              onClick={() => {
+                if (isForgotPassword) setIsForgotPassword(false);
+                else if (isResettingPassword) setIsResettingPassword(false);
+                else { setShowForm(false); setIsSignUp(false); }
+              }}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-sm">Back</span>
+            </button>
+          </div>
+
+          {/* Desktop back button */}
+          <div className="hidden md:block p-6">
             <button
               onClick={() => {
                 if (isForgotPassword) setIsForgotPassword(false);
@@ -416,65 +431,169 @@ const Auth = () => {
     );
   }
 
-  // Welcome / splash screen
+  // Welcome / splash screen - Desktop & Mobile
   return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Hero background */}
-      <div className="flex-1 relative">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      {/* Left side - Hero image (desktop) / Full background (mobile) */}
+      <div className="relative flex-1 md:w-1/2 min-h-[55vh] md:min-h-screen">
         <div
-          className="absolute inset-0 bg-cover bg-center scale-105"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" />
-
-        {/* Content overlay */}
-        <div className="relative flex-1 flex flex-col justify-between h-full min-h-[60vh]">
-          {/* Top logo */}
-          <div className="p-6 pt-12">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
-                <Building2 className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-xl font-bold text-foreground">LibHub</span>
+        {/* Mobile gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/50 to-background md:hidden" />
+        {/* Desktop gradient */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/80" />
+        
+        {/* Desktop hero content */}
+        <div className="hidden md:flex relative z-10 h-full flex-col justify-between p-10 lg:p-14">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+              <Building2 className="w-6 h-6 text-white" />
             </div>
+            <span className="text-2xl font-bold text-white drop-shadow-lg">LibHub</span>
+          </div>
+          
+          <div className="max-w-md">
+            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
+              Your Trusted Guide<br />
+              <span className="text-primary">in Properties</span>
+            </h1>
+            <p className="text-lg text-white/90 drop-shadow mb-8">
+              Navigating the Path to Your Property in Liberia.
+            </p>
+            
+            {/* Feature highlights */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Home className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Browse verified property listings</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Trusted agents and property owners</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Star className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Premium listings for better visibility</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile logo */}
+        <div className="md:hidden relative z-10 p-6 pt-12">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
+              <Building2 className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-xl font-bold text-foreground">LibHub</span>
           </div>
         </div>
       </div>
 
-      {/* Bottom section */}
-      <div className="relative z-10 px-6 pb-10 pt-4 space-y-6">
-        <div className="space-y-3 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-[1.1] tracking-tight">
-            Your Trusted Guide<br />
-            <span className="text-primary">in Properties</span>
-          </h1>
-          <p className="text-muted-foreground text-base max-w-sm mx-auto">
-            Navigating the Path to Your Property.
-          </p>
+      {/* Right side - CTA (desktop) / Bottom section (mobile) */}
+      <div className="relative z-10 md:w-1/2 md:flex md:items-center md:justify-center">
+        {/* Mobile bottom section */}
+        <div className="md:hidden px-6 pb-10 pt-4 space-y-6">
+          <div className="space-y-3 text-center">
+            <h1 className="text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
+              Your Trusted Guide<br />
+              <span className="text-primary">in Properties</span>
+            </h1>
+            <p className="text-muted-foreground text-base max-w-sm mx-auto">
+              Navigating the Path to Your Property.
+            </p>
+          </div>
+
+          {/* Dots */}
+          <div className="flex justify-center gap-1.5">
+            <div className="w-7 h-1 bg-primary rounded-full" />
+            <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
+            <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-3 pt-2">
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full h-14 text-base font-semibold rounded-xl"
+            >
+              Get Started
+            </Button>
+            <Button
+              onClick={() => { setIsSignUp(false); setShowForm(true); }}
+              variant="outline"
+              className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary"
+            >
+              Log in
+            </Button>
+          </div>
         </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-1.5">
-          <div className="w-7 h-1 bg-primary rounded-full" />
-          <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
-          <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
-        </div>
+        {/* Desktop CTA section */}
+        <div className="hidden md:block w-full max-w-md px-10 lg:px-14">
+          <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                Welcome to LibHub
+              </h2>
+              <p className="text-muted-foreground">
+                Find your dream property in Liberia
+              </p>
+            </div>
 
-        {/* Buttons */}
-        <div className="space-y-3 pt-2">
-          <Button
-            onClick={() => navigate("/")}
-            className="w-full h-14 text-base font-semibold rounded-xl"
-          >
-            Get Started
-          </Button>
-          <Button
-            onClick={() => { setIsSignUp(false); setShowForm(true); }}
-            variant="outline"
-            className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary"
-          >
-            Log in
-          </Button>
+            <div className="space-y-4">
+              <Button
+                onClick={() => navigate("/")}
+                className="w-full h-14 text-base font-semibold rounded-xl gap-2"
+                size="lg"
+              >
+                <Home className="w-5 h-5" />
+                Get Started
+              </Button>
+              <Button
+                onClick={() => { setIsSignUp(false); setShowForm(true); }}
+                variant="outline"
+                className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary gap-2"
+                size="lg"
+              >
+                <LogIn className="w-5 h-5" />
+                Log in
+              </Button>
+            </div>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-card px-4 text-muted-foreground">New to LibHub?</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => { setIsSignUp(true); setShowForm(true); }}
+              variant="secondary"
+              className="w-full h-12 text-sm font-medium rounded-xl gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Create an Account
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center mt-6">
+              By continuing, you agree to our{" "}
+              <Link to="/terms" className="text-primary hover:underline">
+                Terms & Conditions
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
