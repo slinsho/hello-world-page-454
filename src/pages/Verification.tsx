@@ -118,8 +118,7 @@ const Verification = () => {
               {!isCameraOpen && !selfieImage && (
                 <div className="space-y-3">
                   <Button type="button" onClick={openCamera} className="w-full rounded-xl gap-2 h-12" variant="outline"><Camera className="h-5 w-5" />Take Selfie with Camera</Button>
-                  <div className="relative text-center"><div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div><div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div></div>
-                  <div><input type="file" accept="image/*" onChange={handleSelfieChange} className="hidden" id="selfie-upload" /><label htmlFor="selfie-upload" className="flex items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-5 cursor-pointer transition-colors hover:border-primary/50"><Upload className="h-6 w-6 text-muted-foreground" /><span className="text-sm text-muted-foreground">Upload from files</span></label></div>
+                  <p className="text-xs text-muted-foreground text-center">Hold your ID next to your face and take a clear selfie</p>
                 </div>
               )}
               {isCameraOpen && (<div className="space-y-3"><div className="relative w-full bg-black rounded-2xl overflow-hidden" style={{ aspectRatio: '4/3' }}><video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" /></div><div className="flex gap-2"><Button type="button" onClick={capturePhoto} className="flex-1 rounded-xl h-11"><Camera className="h-4 w-4 mr-2" />Capture</Button><Button type="button" onClick={closeCamera} variant="outline" className="flex-1 rounded-xl h-11">Cancel</Button></div></div>)}
