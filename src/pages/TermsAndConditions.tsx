@@ -159,7 +159,7 @@ const TermsAndConditions = () => {
             </div>
           </div>
           <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 leading-relaxed">
-            Please read these terms carefully before using LibHub. By using our platform, you agree to be bound by these terms.
+            Please read these terms carefully before using L-Prop. By using our platform, you agree to be bound by these terms.
           </p>
           <div className="mt-2">
             <Link to="/privacy" className="text-sm text-primary hover:underline">
