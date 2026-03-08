@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, Loader2, Plus, Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import { Save, Loader2, Plus, Trash2, Upload, Image as ImageIcon, Crop } from "lucide-react";
+import { ImageCropper } from "@/components/profile/ImageCropper";
 
 interface TeamMember { name: string; role: string; photo: string; bio: string; facebook?: string; instagram?: string; twitter?: string; linkedin?: string; }
 interface WorkPhoto { url: string; caption: string; }
