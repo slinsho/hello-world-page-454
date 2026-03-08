@@ -56,7 +56,7 @@ const DEFAULT_CONTENT: AboutContent = {
   banner_image: "",
   mission_image: "",
   experience_title: "Don't just buy real estate — experience it.",
-  experience_description: "Best opportunities lie at the junction — where your ambition meets our expertise. LibHub ensures every user gets personalized support throughout their property journey. Connect with verified agents and access premium listings.",
+  experience_description: "Best opportunities lie at the junction — where your ambition meets our expertise. L-Prop ensures every user gets personalized support throughout their property journey. Connect with verified agents and access premium listings.",
   experience_image: "",
   dreams_title: "Turning your real estate dreams true!",
   dreams_description: "We help you find the 5-star property — this isn't just a listing site, it's a platform to discover your ideal living space.",
