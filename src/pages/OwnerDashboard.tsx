@@ -9,8 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, MessageSquare, Home, Star, ArrowUpRight, Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
+
 import { DashboardInquiries } from "@/components/dashboard/DashboardInquiries";
+import { DashboardPromotions } from "@/components/dashboard/DashboardPromotions";
 
 interface PropertyStats {
   id: string;
@@ -35,22 +36,22 @@ export default function OwnerDashboard() {
     totalViews: 0, totalInquiries: 0, totalProperties: 0, avgRating: 0, reviewCount: 0, viewsTrend: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/auth"); return; }
     if (user) {
       const checkRole = async () => {
         const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-        if (data?.role === "property_owner") { setShowUpgrade(true); setLoading(false); return; }
+        if (data?.role === "property_owner") { navigate("/owner-promotions", { replace: true }); return; }
       };
       checkRole();
     }
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user && !showUpgrade) fetchDashboardData();
-  }, [user, showUpgrade]);
+    if (user) fetchDashboardData();
+  }, [user]);
 
   const fetchDashboardData = async () => {
     if (!user) return;
@@ -86,9 +87,6 @@ export default function OwnerDashboard() {
     setLoading(false);
   };
 
-  if (showUpgrade) {
-    return (<div className="min-h-screen bg-background"><Navbar /><UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Dashboard" /></div>);
-  }
 
   if (authLoading || loading) {
     return (
@@ -199,6 +197,12 @@ export default function OwnerDashboard() {
         <div className="mb-6">
           <h2 className="font-semibold mb-3">Inquiries & Offers</h2>
           <DashboardInquiries userId={user?.id || ""} propertyIds={properties.map(p => p.id)} />
+        </div>
+
+        {/* Promotion Stats */}
+        <div className="mb-6">
+          <h2 className="font-semibold mb-3">Promotions</h2>
+          <DashboardPromotions userId={user?.id || ""} propertyIds={properties.map(p => p.id)} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

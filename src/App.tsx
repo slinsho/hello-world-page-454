@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { PlatformSettingsProvider } from "@/hooks/usePlatformSettings";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
@@ -31,6 +32,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Messages = lazy(() => import("./pages/Messages"));
 const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const OwnerPromotionDashboard = lazy(() => import("./pages/OwnerPromotionDashboard"));
 const PopularAreasPage = lazy(() => import("./pages/PopularAreasPage"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -41,6 +43,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+    <PlatformSettingsProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -68,6 +71,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner-promotions" element={<OwnerPromotionDashboard />} />
               <Route path="/popular-areas" element={<PopularAreasPage />} />
               <Route path="/edit-property/:id" element={<EditProperty />} />
               <Route path="/settings" element={<Settings />} />
@@ -81,6 +85,7 @@ const App = () => (
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
+    </PlatformSettingsProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

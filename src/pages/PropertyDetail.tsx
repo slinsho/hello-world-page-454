@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare, ShieldCheck, Flag, Megaphone } from "lucide-react";
-import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
+import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import RecommendedProperties from "@/components/RecommendedProperties";
@@ -30,6 +31,7 @@ const PropertyDetail = () => {
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [property, setProperty] = useState<any>(null);
+  const formatLRD = useFormatLRD();
   const [loading, setLoading] = useState(true);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 

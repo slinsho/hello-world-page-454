@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Home, Building2, Store } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
-import { formatLRD } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 
 interface NearMePropertyCardProps {
   property: {
@@ -19,6 +19,7 @@ interface NearMePropertyCardProps {
 
 const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const formatLRD = useFormatLRD();
   const favorited = isFavorite(property.id);
 
   const getPropertyIcon = () => {

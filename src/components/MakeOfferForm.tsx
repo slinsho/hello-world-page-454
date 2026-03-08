@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { USD_TO_LRD_RATE, formatLRD } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ interface MakeOfferFormProps {
 export const MakeOfferForm = ({ propertyId, propertyTitle, askingPrice }: MakeOfferFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const formatLRD = useFormatLRD();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({

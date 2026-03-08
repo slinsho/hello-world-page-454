@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PlatformSettings {
@@ -11,12 +11,17 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   promotion_price_per_month: 5,
 };
 
-export function usePlatformSettings() {
+const PlatformSettingsContext = createContext<{
+  settings: PlatformSettings;
+  loading: boolean;
+}>({ settings: DEFAULT_SETTINGS, loading: true });
+
+export const PlatformSettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const [settings, setSettings] = useState<PlatformSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchSettings = async () => {
       const { data } = await supabase
         .from("platform_settings" as any)
         .select("key, value");
@@ -29,13 +34,26 @@ export function usePlatformSettings() {
       }
       setLoading(false);
     };
-    fetch();
+    fetchSettings();
   }, []);
 
-  return { settings, loading };
+  return (
+    <PlatformSettingsContext.Provider value={{ settings, loading }}>
+      {children}
+    </PlatformSettingsContext.Provider>
+  );
+};
+
+export function usePlatformSettings() {
+  return useContext(PlatformSettingsContext);
 }
 
 export function formatLRDDynamic(usd: number, rate: number) {
   const lrd = usd * rate;
   return `L$${lrd.toLocaleString()}`;
+}
+
+export function useFormatLRD() {
+  const { settings } = usePlatformSettings();
+  return (usd: number) => formatLRDDynamic(usd, settings.usd_to_lrd_rate);
 }

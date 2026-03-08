@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
+import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useFavorites } from "@/hooks/useFavorites";
 
 interface PropertyCardProps {
@@ -35,6 +36,7 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const formatLRD = useFormatLRD();
   const favorited = isFavorite(property.id);
   
   const TypeIcon = {
