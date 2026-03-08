@@ -82,7 +82,7 @@ const defaultSections: Section[] = [
   {
     icon: "CreditCard",
     title: "12. Fees & Payments",
-    content: "All fees on the platform (verification fees, promotion fees) are set by the platform administrator and are subject to change. Current rates and exchange rates (USD to LRD) are displayed in the platform settings.\n\nPayments are processed via mobile money services. LibHub does not store payment credentials. All payment confirmations are verified manually by platform administrators.\n\nFees paid are non-refundable unless otherwise determined by the platform administrator.",
+    content: "All fees on the platform (verification fees, promotion fees) are set by the platform administrator and are subject to change. Current rates and exchange rates (USD to LRD) are displayed in the platform settings.\n\nPayments are processed via mobile money services. L-Prop does not store payment credentials. All payment confirmations are verified manually by platform administrators.\n\nFees paid are non-refundable unless otherwise determined by the platform administrator.",
   },
   {
     icon: "Ban",
