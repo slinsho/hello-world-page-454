@@ -71,6 +71,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner-promotions" element={<OwnerPromotionDashboard />} />
               <Route path="/popular-areas" element={<PopularAreasPage />} />
               <Route path="/edit-property/:id" element={<EditProperty />} />
               <Route path="/settings" element={<Settings />} />
