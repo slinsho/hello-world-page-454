@@ -595,6 +595,7 @@ export type Database = {
           owner_id: string
           photos: string[]
           price_usd: number
+          promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
           search_vector: unknown
           square_yards: number | null
@@ -622,6 +623,7 @@ export type Database = {
           owner_id: string
           photos: string[]
           price_usd: number
+          promotion_impression_count?: number
           property_type: Database["public"]["Enums"]["property_type"]
           search_vector?: unknown
           square_yards?: number | null
@@ -649,6 +651,7 @@ export type Database = {
           owner_id?: string
           photos?: string[]
           price_usd?: number
+          promotion_impression_count?: number
           property_type?: Database["public"]["Enums"]["property_type"]
           search_vector?: unknown
           square_yards?: number | null
@@ -1015,6 +1018,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_round_robin_promoted: {
+        Args: { limit_count?: number }
+        Returns: {
+          address: string
+          bathrooms: number | null
+          bedrooms: number | null
+          contact_phone: string
+          contact_phone_2: string | null
+          county: string
+          created_at: string
+          description: string | null
+          flagged_count: number | null
+          id: string
+          is_flagged: boolean
+          is_promoted: boolean
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          moderation_note: string | null
+          moderation_status: string | null
+          owner_id: string
+          photos: string[]
+          price_usd: number
+          promotion_impression_count: number
+          property_type: Database["public"]["Enums"]["property_type"]
+          search_vector: unknown
+          square_yards: number | null
+          status: Database["public"]["Enums"]["property_status"]
+          title: string
+          updated_at: string
+          videos: string[] | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "properties"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
     }
