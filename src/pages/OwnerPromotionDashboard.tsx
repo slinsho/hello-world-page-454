@@ -20,6 +20,7 @@ interface PromotionStats {
   duration_months: number;
   payment_amount: number | null;
   created_at: string;
+  payment_confirmed_at: string | null;
   views_count: number;
   is_promoted: boolean;
 }
