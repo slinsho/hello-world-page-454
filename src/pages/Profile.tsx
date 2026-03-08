@@ -63,6 +63,35 @@ const Profile = () => {
     } catch {}
   };
 
+  const fetchAgencyInfo = async () => {
+    const targetUserId = profileId || user?.id;
+    if (!targetUserId) return;
+    const { data } = await supabase
+      .from("verification_requests")
+      .select("agency_name, office_location, agency_logo, business_phone")
+      .eq("user_id", targetUserId)
+      .eq("verification_type", "agent")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      let logoUrl: string | undefined;
+      if (data.agency_logo) {
+        const { data: signedData } = await supabase.storage
+          .from("verification-docs")
+          .createSignedUrl(data.agency_logo, 3600);
+        if (signedData?.signedUrl) logoUrl = signedData.signedUrl;
+      }
+      setAgencyInfo({
+        agency_name: data.agency_name || undefined,
+        office_location: data.office_location || undefined,
+        business_phone: data.business_phone || undefined,
+        agency_logo: logoUrl,
+      });
+    }
+  };
+
   const fetchProfile = async () => {
     const targetUserId = profileId || user?.id;
     if (!targetUserId) return;
