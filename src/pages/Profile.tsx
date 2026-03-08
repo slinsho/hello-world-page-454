@@ -498,6 +498,14 @@ const Profile = () => {
                 <Button size="sm" onClick={handleVerificationRequest} className="rounded-full h-8 text-xs">{profile.verification_status === "rejected" ? "Re-submit" : "Verify"}</Button>
               </div>
             )}
+            {profile.verification_status === "expired" && (
+              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div><p className="font-medium text-xs text-orange-500">Verification Expired</p><p className="text-[10px] text-muted-foreground">Your properties are hidden. Renew to restore.</p></div>
+                  <Button size="sm" onClick={handleRenewalRequest} className="rounded-full h-8 text-xs bg-orange-500 hover:bg-orange-600">Renew</Button>
+                </div>
+              </div>
+            )}
             {isAdmin && (
               <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-primary" /><p className="font-medium text-xs">Admin</p></div>
