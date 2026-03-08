@@ -163,6 +163,7 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="rates" className="text-xs sm:text-sm px-2 sm:px-3">Rates</TabsTrigger>
             <TabsTrigger value="legal" className="text-xs sm:text-sm px-2 sm:px-3">Legal</TabsTrigger>
             <TabsTrigger value="about" className="text-xs sm:text-sm px-2 sm:px-3">About</TabsTrigger>
+            <TabsTrigger value="contacts" className="text-xs sm:text-sm px-2 sm:px-3">Contacts</TabsTrigger>
           </TabsList>
         </div>
 
