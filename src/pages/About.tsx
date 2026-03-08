@@ -50,7 +50,7 @@ const DEFAULT_CONTENT: AboutContent = {
   company_name: "L-Prop",
   tagline: "About Us",
   description: "Explore your real estate dream into reality. Sharing home since 2024.",
-  hero_subtitle: "At LibHub, we're redefining how property is found by delivering end-to-end property services. From search to close, we provide real estate services, strategies, and resources for the entire Liberian market.",
+  hero_subtitle: "At L-Prop, we're redefining how property is found by delivering end-to-end property services. From search to close, we provide real estate services, strategies, and resources for the entire Liberian market.",
   mission: "Our mission is to transform property discovery and transactions into a transparent, accessible, and trusted digital experience that empowers every Liberian to make informed decisions about real estate, housing, and property investment.",
   vision: "Our vision is to create Africa's most trusted property ecosystem — where every citizen has effortless access to verified property listings, accessibility, and modern digital tools for growth.",
   banner_image: "",
