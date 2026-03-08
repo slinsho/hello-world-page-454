@@ -19,6 +19,8 @@ import { SEOHead } from "@/components/SEOHead";
 import { PropertyJsonLd } from "@/components/PropertyJsonLd";
 import { trackPropertyView } from "@/lib/analytics";
 import Navbar from "@/components/Navbar";
+import { ReportPropertyDialog } from "@/components/ReportPropertyDialog";
+import { PromotePropertyDialog } from "@/components/PromotePropertyDialog";
 
 const PropertyDetail = () => {
   const { id } = useParams();
