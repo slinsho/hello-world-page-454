@@ -30,7 +30,8 @@ export function AdminRateSettings() {
         setPromoPrice(String(map.get("promotion_price_per_month") || "5"));
         const paymentInfo = map.get("payment_info") as any;
         if (paymentInfo) {
-          setPaymentNumber(paymentInfo.number || "");
+          setLonestarNumber(paymentInfo.lonestar || paymentInfo.number || "");
+          setOrangeNumber(paymentInfo.orange || "");
           setPaymentName(paymentInfo.name || "");
           setPaymentInstructions(paymentInfo.instructions || "");
         }
