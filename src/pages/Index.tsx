@@ -62,7 +62,16 @@ const Index = () => {
         query = query.or(`title.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%,county.ilike.%${searchQuery}%`);
       }
 
-      const { data: propertiesData, error } = await query.order("created_at", { ascending: false });
+      // Apply user's sort preference
+      if (preferences.default_sort_order === "price_low") {
+        query = query.order("price_usd", { ascending: true });
+      } else if (preferences.default_sort_order === "price_high") {
+        query = query.order("price_usd", { ascending: false });
+      } else {
+        query = query.order("created_at", { ascending: false });
+      }
+
+      const { data: propertiesData, error } = await query;
 
       if (error || !propertiesData) {
         setLoading(false);
