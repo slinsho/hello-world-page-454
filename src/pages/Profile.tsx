@@ -604,9 +604,9 @@ const Profile = () => {
 
         {/* Action Buttons */}
         <div className="px-4 mt-3 flex gap-2">
-          {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center justify-center gap-2"><Phone className="h-4 w-4" />Call</a>}
+          {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center justify-center gap-2"><Phone className="h-4 w-4" />Call</a>}
           {!isOwnProfile && <button onClick={() => navigate("/messages")} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><MessageSquare className="h-4 w-4" />Message</button>}
-          {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><Mail className="h-4 w-4" />Email</a>}
+          {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><Mail className="h-4 w-4" />Email</a>}
         </div>
 
         {/* Tagline */}
