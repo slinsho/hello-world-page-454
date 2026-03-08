@@ -109,6 +109,10 @@ export default function Admin() {
         <TabsContent value="feedback">
           <AdminFeedback />
         </TabsContent>
+
+        <TabsContent value="rates">
+          <AdminRateSettings />
+        </TabsContent>
       </Tabs>
     </div>
   );
