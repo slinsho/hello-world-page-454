@@ -17,7 +17,7 @@ export function AdminRateSettings() {
   const [paymentInstructions, setPaymentInstructions] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
+  const [savingPayment, setSavingPayment] = useState(false);
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase
