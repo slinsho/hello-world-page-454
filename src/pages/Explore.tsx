@@ -43,7 +43,16 @@ const Explore = () => {
 
   const fetchProperties = async () => {
     setLoading(true);
-    let query = supabase.from("properties").select("*").order("is_promoted", { ascending: false }).order("created_at", { ascending: false });
+    let query = supabase.from("properties").select("*").order("is_promoted", { ascending: false });
+    
+    // Apply sort order
+    if (sortOrder === "price_low") {
+      query = query.order("price_usd", { ascending: true });
+    } else if (sortOrder === "price_high") {
+      query = query.order("price_usd", { ascending: false });
+    } else {
+      query = query.order("created_at", { ascending: false });
+    }
     if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
     if (filters.listing !== "all") query = query.eq("listing_type", filters.listing as any);
     if (filters.status !== "all") query = query.eq("status", filters.status as any);
