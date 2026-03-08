@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, DollarSign, Mail, Phone, User, Clock, Home, ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
-import { formatLRD } from "@/lib/constants";
+import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
