@@ -11,6 +11,7 @@ import { format, subDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 import { DashboardInquiries } from "@/components/dashboard/DashboardInquiries";
+import { DashboardPromotions } from "@/components/dashboard/DashboardPromotions";
 
 interface PropertyStats {
   id: string;
