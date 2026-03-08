@@ -366,9 +366,9 @@ const Navbar = () => {
                     </span>
                   )}
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 relative" onClick={() => handleOwnerFeatureClick("Notifications", "/notifications")}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 relative" onClick={() => navigate("/notifications")}>
                   <Bell className="h-4 w-4" />
-                  {!isOwner && unreadCount > 0 && (
+                  {unreadCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
