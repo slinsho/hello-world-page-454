@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { PlatformSettingsProvider } from "@/hooks/usePlatformSettings";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
