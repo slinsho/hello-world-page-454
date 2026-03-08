@@ -153,7 +153,7 @@ const Auth = () => {
         </div>
 
         {/* Right - Form */}
-        <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Mobile header */}
           <div className="p-4 md:hidden">
             <button
