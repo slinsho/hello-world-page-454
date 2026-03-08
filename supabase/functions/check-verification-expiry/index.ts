@@ -11,6 +11,21 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // Authenticate: require a shared secret or valid service-role JWT
+    const cronSecret = Deno.env.get('CRON_SECRET');
+    const authHeader = req.headers.get('authorization');
+    const providedSecret = req.headers.get('x-cron-secret');
+
+    const isServiceRole = authHeader?.startsWith('Bearer ') && 
+      authHeader.split(' ')[1] === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const isCronAuth = cronSecret && providedSecret === cronSecret;
+
+    if (!isServiceRole && !isCronAuth) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!supabaseUrl || !serviceRoleKey) {
@@ -32,7 +47,7 @@ Deno.serve(async (req: Request) => {
 
     if (error) {
       console.error('Error fetching expired verifications:', error);
-      return new Response(JSON.stringify({ error: error.message }), {
+      return new Response(JSON.stringify({ error: 'Internal error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
