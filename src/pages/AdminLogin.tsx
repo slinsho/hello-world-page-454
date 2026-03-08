@@ -229,7 +229,7 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@libhub.com"
+                  placeholder="admin@lprop.com"
                   className="pl-10 h-11 rounded-xl bg-card border-border text-foreground"
                 />
               </div>
