@@ -33,7 +33,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Notification preferences (local state - could be persisted to DB)
+  // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
     inquiries: true,
     messages: true,
@@ -41,6 +41,54 @@ const Settings = () => {
     statusUpdates: true,
     marketing: false,
   });
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  // Load notification preferences from DB
+  useEffect(() => {
+    if (!user) return;
+    const loadPrefs = async () => {
+      const { data } = await supabase
+        .from("notification_preferences" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+      if (data) {
+        const d = data as any;
+        setNotifPrefs({
+          inquiries: d.inquiries ?? true,
+          messages: d.messages ?? true,
+          offers: d.offers ?? true,
+          statusUpdates: d.status_updates ?? true,
+          marketing: d.marketing ?? false,
+        });
+      }
+    };
+    loadPrefs();
+  }, [user]);
+
+  const updateNotifPref = async (key: string, dbKey: string, value: boolean) => {
+    const updated = { ...notifPrefs, [key]: value };
+    setNotifPrefs(updated);
+    if (!user) return;
+    setNotifLoading(true);
+    const { data: existing } = await supabase
+      .from("notification_preferences" as any)
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    if (existing) {
+      await supabase
+        .from("notification_preferences" as any)
+        .update({ [dbKey]: value, updated_at: new Date().toISOString() } as any)
+        .eq("user_id", user.id);
+    } else {
+      await supabase
+        .from("notification_preferences" as any)
+        .insert({ user_id: user.id, [dbKey]: value } as any);
+    }
+    setNotifLoading(false);
+    toast({ title: "Preference Updated", description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${value ? "enabled" : "disabled"}.` });
+  };
 
   // Privacy preferences
   const [privacyPrefs, setPrivacyPrefs] = useState({
