@@ -94,7 +94,7 @@ const Notifications = () => {
 
       const { error } = await supabase
         .from("promotion_requests")
-        .update({ payment_status: "paid", payment_reference: ref } as any)
+        .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
         .eq("id", promoRequests[0].id);
 
       if (error) throw error;
