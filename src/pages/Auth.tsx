@@ -444,10 +444,8 @@ const Auth = () => {
         
         {/* Desktop hero content */}
         <div className="hidden md:flex relative z-10 h-full flex-col justify-between p-10 lg:p-14">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
+           <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-14 h-14 rounded-xl" />
             <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
           </div>
           
