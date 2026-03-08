@@ -62,7 +62,7 @@ const defaultSections: Section[] = [
   {
     icon: "MessageSquare",
     title: "8. Messaging & Inquiries",
-    content: "The platform provides direct messaging between agents and other users, property inquiry forms, and an offer system for negotiations. All communications must be respectful and related to legitimate property transactions.\n\nLibHub is not responsible for the content of messages exchanged between users or the outcome of any negotiations conducted through the platform.",
+    content: "The platform provides direct messaging between agents and other users, property inquiry forms, and an offer system for negotiations. All communications must be respectful and related to legitimate property transactions.\n\nL-Prop is not responsible for the content of messages exchanged between users or the outcome of any negotiations conducted through the platform.",
   },
   {
     icon: "Flag",
