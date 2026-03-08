@@ -130,7 +130,7 @@ const Auth = () => {
   // Form view
   if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
     return (
-      <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
         {/* Left - Hero (desktop only) */}
         <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
           <div
