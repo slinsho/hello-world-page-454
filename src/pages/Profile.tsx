@@ -442,6 +442,14 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* About */}
+        {aboutText && (
+          <div className="mt-6 bg-card rounded-xl p-5 border border-border/50">
+            <h2 className="text-base font-bold mb-2">About</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">{aboutText}</p>
+          </div>
+        )}
+
         {/* Listings */}
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
