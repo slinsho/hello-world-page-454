@@ -105,8 +105,12 @@ export default function OwnerPromotionDashboard() {
 
     setPromotions(enriched);
 
-    const activeCount = enriched.filter(p => p.status === "approved" && p.is_promoted).length;
-    const totalViews = enriched.reduce((sum, p) => sum + p.views_count, 0);
+    const activeCount = enriched.filter(
+      (p) => p.status === "approved" && p.payment_status === "confirmed" && p.is_promoted
+    ).length;
+    const totalViews = enriched
+      .filter((p) => p.status === "approved" && p.payment_status === "confirmed")
+      .reduce((sum, p) => sum + p.views_count, 0);
     const totalSpent = enriched
       .filter(p => p.payment_status === "paid" || p.payment_status === "confirmed")
       .reduce((sum, p) => sum + (p.payment_amount || 0), 0);
