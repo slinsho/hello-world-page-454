@@ -52,6 +52,8 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
             <img
               src={property.photos[0]}
               alt={property.title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           ) : (
