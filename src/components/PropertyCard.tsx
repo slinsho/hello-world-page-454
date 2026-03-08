@@ -23,15 +23,19 @@ interface PropertyCardProps {
     bedrooms?: number;
     bathrooms?: number;
     contact_phone?: string;
-    contact_phone_2?: string;
-    profiles?: {
-      name: string;
-      role?: string;
-      verification_status?: string;
-      phone?: string;
-      profile_photo_url?: string;
+      contact_phone_2?: string;
+      profiles?: {
+        name: string;
+        role?: string;
+        verification_status?: string;
+        phone?: string;
+        profile_photo_url?: string;
+      };
+      agent_info?: {
+        agency_name?: string | null;
+        agency_logo?: string | null;
+      } | null;
     };
-  };
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
