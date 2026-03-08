@@ -162,7 +162,7 @@ const AdminLogin = () => {
           </form>
 
           <p className="text-center text-muted-foreground/50 text-[11px] mt-6">
-            Protected by LibHub Security
+            Protected by L-Prop Security
           </p>
         </div>
       )}
