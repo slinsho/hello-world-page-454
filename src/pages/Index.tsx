@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import PropertyCard from "@/components/PropertyCard";
