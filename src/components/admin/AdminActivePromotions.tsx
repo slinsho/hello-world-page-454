@@ -134,10 +134,10 @@ export function AdminActivePromotions() {
       const profMap = new Map(profiles?.map((p) => [p.id, p]));
 
       const viewCounts: Record<string, number> = {};
-      views?.forEach((v: any) => { viewCounts[v.property_id] = (viewCounts[v.property_id] || 0) + 1; });
+      viewResults.forEach((v) => { viewCounts[v.pid] = v.count; });
 
       const inquiryCounts: Record<string, number> = {};
-      inquiries?.forEach((i: any) => { inquiryCounts[i.property_id] = (inquiryCounts[i.property_id] || 0) + 1; });
+      inquiryResults.forEach((i) => { inquiryCounts[i.pid] = i.count; });
 
       setPromotions(data.map((r: any) => ({
         ...r,
