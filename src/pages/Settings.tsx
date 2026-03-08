@@ -410,7 +410,7 @@ const Settings = () => {
             <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-4">
               <div className="space-y-2">
                 <Label>Default County Filter</Label>
-                <Select>
+                <Select value={userPrefs.default_county || "all"} onValueChange={(v) => { updatePreference("default_county", v === "all" ? null : v); toast({ title: "Updated", description: v === "all" ? "Showing all counties" : `Default county set to ${v}` }); }}>
                   <SelectTrigger className="rounded-xl"><SelectValue placeholder="All Counties" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Counties</SelectItem>
@@ -421,13 +421,14 @@ const Settings = () => {
               </div>
               <div className="space-y-2">
                 <Label>Currency Display</Label>
-                <Select defaultValue="usd">
+                <Select value={userPrefs.currency_display} onValueChange={(v) => { updatePreference("currency_display", v); toast({ title: "Updated", description: `Currency set to ${v === "usd" ? "USD ($)" : "LRD (L$)"}` }); }}>
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="usd">USD ($)</SelectItem>
                     <SelectItem value="lrd">LRD (L$)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">Choose how property prices are displayed</p>
               </div>
             </div>
           </div>
