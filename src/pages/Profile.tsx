@@ -47,9 +47,15 @@ const Profile = () => {
   const [cropType, setCropType] = useState<"profile" | "cover">("profile");
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
   const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
+  const [privacySettings, setPrivacySettings] = useState({ show_phone: true, show_email: true, show_location: true });
 
   const isOwnProfile = !profileId || profileId === user?.id;
   const isAgent = profile?.role === "agent";
+
+  // For other users' profiles, check their privacy settings
+  const canShowPhone = isOwnProfile || privacySettings.show_phone;
+  const canShowEmail = isOwnProfile || privacySettings.show_email;
+  const canShowLocation = isOwnProfile || privacySettings.show_location;
 
   useEffect(() => {
     if (!user && !profileId) { navigate("/auth"); return; }
