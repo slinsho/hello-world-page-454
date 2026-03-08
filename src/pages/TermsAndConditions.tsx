@@ -77,7 +77,7 @@ const defaultSections: Section[] = [
   {
     icon: "Bell",
     title: "11. Notifications",
-    content: "LibHub sends notifications for property matches, inquiries, offers, verification status updates, and other platform activities. Users may customize their notification preferences through account settings.\n\nCritical notifications related to account security and verification status cannot be disabled.",
+    content: "L-Prop sends notifications for property matches, inquiries, offers, verification status updates, and other platform activities. Users may customize their notification preferences through account settings.\n\nCritical notifications related to account security and verification status cannot be disabled.",
   },
   {
     icon: "CreditCard",
