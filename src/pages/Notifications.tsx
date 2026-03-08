@@ -66,6 +66,11 @@ const Notifications = () => {
   const handleSubmitPaymentRef = async (notification: Notification) => {
     if (!user || !notification.property_id) return;
     const ref = paymentRefs[notification.id]?.trim();
+    const name = senderNames[notification.id]?.trim();
+    if (!name || name.length < 2) {
+      toast({ title: "Name Required", description: "Please enter your full name.", variant: "destructive" });
+      return;
+    }
     if (!ref || ref.length < 4) {
       toast({ title: "Invalid Reference", description: "Reference must be at least 4 characters.", variant: "destructive" });
       return;
