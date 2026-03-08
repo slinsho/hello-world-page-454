@@ -89,6 +89,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "🎉 Promotion Qualified — Payment Required",
           message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to your notifications and submit your payment reference number.`,
+          type: "status_updates",
         });
       }
 
@@ -123,6 +124,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "Property Promoted! 🎉",
           message: `Your property "${req.property?.title}" is now featured and will appear at the top of listings.`,
+          type: "status_updates",
         });
       }
 
@@ -157,6 +159,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "⚠️ Payment Reference Rejected — Resend Required",
           message: `Your payment reference for "${req.property?.title}" was not verified. Reason: ${note}. Please submit a valid payment reference number.`,
+          type: "status_updates",
         });
       }
 
@@ -190,6 +193,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "Promotion Request Rejected",
           message: `Your promotion request for "${req.property?.title}" was rejected. Reason: ${notes[requestId]}`,
+          type: "status_updates",
         });
       }
 

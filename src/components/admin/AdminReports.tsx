@@ -93,6 +93,7 @@ export function AdminReports() {
           property_id: propertyId,
           title: "Property Flagged",
           message: `Your property has been flagged for review. Reason: ${notes[reportId] || "Reported by users"}. Please ensure your listing is accurate.`,
+          type: "status_updates",
         }]);
       }
 

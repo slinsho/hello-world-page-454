@@ -69,6 +69,7 @@ export function AdminRateSettings() {
             user_id: p.id,
             title: "Exchange Rate Updated",
             message: `The USD to LRD exchange rate has been updated to L$${newRate.toLocaleString()}. All property prices now reflect the new rate.`,
+            type: "marketing",
           }));
           // Insert in batches of 100
           for (let i = 0; i < notifications.length; i += 100) {

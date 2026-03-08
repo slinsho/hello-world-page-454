@@ -432,6 +432,7 @@ export type Database = {
           message: string
           property_id: string | null
           title: string
+          type: string
           user_id: string
         }
         Insert: {
@@ -441,6 +442,7 @@ export type Database = {
           message: string
           property_id?: string | null
           title: string
+          type?: string
           user_id: string
         }
         Update: {
@@ -450,6 +452,7 @@ export type Database = {
           message?: string
           property_id?: string | null
           title?: string
+          type?: string
           user_id?: string
         }
         Relationships: [

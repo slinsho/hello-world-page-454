@@ -117,6 +117,7 @@ export function AdminContentModeration() {
           property_id: propertyId,
           title,
           message,
+          type: "status_updates",
         });
       }
     }
