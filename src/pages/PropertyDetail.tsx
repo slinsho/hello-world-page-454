@@ -41,8 +41,22 @@ const PropertyDetail = () => {
   const fetchProperty = async () => {
     const { data: propertyData } = await supabase.from("properties").select("*").eq("id", id).single();
     if (propertyData) {
-      const { data: profileData } = await supabase.from("profiles").select("id, name, email, phone, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle();
-      setProperty({ ...propertyData, profiles: profileData || null });
+      const [{ data: profileData }, { data: agentData }] = await Promise.all([
+        supabase.from("profiles").select("id, name, email, phone, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle(),
+        supabase.from("verification_requests").select("agency_name, agency_logo, verification_type").eq("user_id", propertyData.owner_id).eq("status", "approved").eq("verification_type", "agent").maybeSingle(),
+      ]);
+
+      let agentLogoUrl: string | null = null;
+      if (agentData?.agency_logo) {
+        const { data: signedData } = await supabase.storage.from("verification-docs").createSignedUrl(agentData.agency_logo, 3600);
+        agentLogoUrl = signedData?.signedUrl || null;
+      }
+
+      setProperty({
+        ...propertyData,
+        profiles: profileData || null,
+        agent_info: agentData ? { agency_name: agentData.agency_name, agency_logo: agentLogoUrl } : null,
+      });
     }
     setLoading(false);
   };
@@ -59,6 +73,8 @@ const PropertyDetail = () => {
     else { navigator.clipboard.writeText(window.location.href); toast({ title: "Link Copied", description: "Property link copied to clipboard" }); }
   };
   const formatRole = (role: string) => { if (role === 'property_owner') return 'Property Owner'; if (role === 'agent') return 'Agent'; return role; };
+  const displayName = property?.agent_info?.agency_name || property?.profiles?.name || 'Unknown';
+  const displayPhoto = property?.agent_info?.agency_logo || property?.profiles?.profile_photo_url;
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="text-muted-foreground">Loading...</div></div>;
   if (!property) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4"><h2 className="text-xl font-bold">Property Not Found</h2><Button onClick={() => navigate("/")}>Go Home</Button></div>;
@@ -85,14 +101,14 @@ const PropertyDetail = () => {
       {/* Owner */}
       <div className="flex items-center gap-3 pb-4 border-b border-border">
         <div className="w-14 h-14 rounded-full bg-card border border-border overflow-hidden">
-          {property.profiles?.profile_photo_url ? (
-            <img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />
+          {displayPhoto ? (
+            <img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{property.profiles?.name?.charAt(0) || 'U'}</div>
+            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{displayName?.charAt(0) || 'U'}</div>
           )}
         </div>
         <div>
-          <p className="font-semibold">{property.profiles?.name || 'Unknown'}</p>
+          <p className="font-semibold">{displayName}</p>
           <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
           {property.profiles?.verification_status === "approved" && (
             <div className="flex items-center gap-1 mt-0.5">
@@ -232,10 +248,10 @@ const PropertyDetail = () => {
             <h3 className="text-lg font-semibold mb-3">{property.profiles?.role === "agent" ? "Listed by Agent" : "Property Owner"}</h3>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-16 h-16 rounded-full bg-card border border-border overflow-hidden">
-                {property.profiles?.profile_photo_url ? (<img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{property.profiles?.name?.charAt(0) || 'U'}</div>)}
+                {displayPhoto ? (<img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{displayName?.charAt(0) || 'U'}</div>)}
               </div>
               <div>
-                <p className="font-semibold text-lg">{property.profiles?.name || 'Unknown'}</p>
+                <p className="font-semibold text-lg">{displayName}</p>
                 <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
                 {property.profiles?.verification_status === "approved" && (
                   <div className="flex items-center gap-1 mt-0.5">
@@ -252,7 +268,7 @@ const PropertyDetail = () => {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-4">About the Owner</h3>
               <div className="space-y-3">
-                <div className="flex"><span className="text-muted-foreground w-16">Name:</span><span className="font-medium">{property.profiles?.name || 'Unknown'}</span></div>
+                <div className="flex"><span className="text-muted-foreground w-16">Name:</span><span className="font-medium">{displayName}</span></div>
                 <div className="flex"><span className="text-muted-foreground w-16">Role:</span><span className="font-medium">{formatRole(property.profiles?.role || 'property_owner')}</span></div>
                 <div className="flex"><span className="text-muted-foreground w-16">Phone:</span><span className="font-medium">{property.contact_phone}</span></div>
                 {property.contact_phone_2 && (<div className="flex"><span className="text-muted-foreground w-16">Phone 2:</span><span className="font-medium">{property.contact_phone_2}</span></div>)}
@@ -288,10 +304,10 @@ const PropertyDetail = () => {
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-card border border-border overflow-hidden">
-              {property.profiles?.profile_photo_url ? (<img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">{property.profiles?.name?.charAt(0) || 'U'}</div>)}
+              {displayPhoto ? (<img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">{displayName?.charAt(0) || 'U'}</div>)}
             </div>
             <div>
-              <p className="font-medium text-sm">{property.profiles?.name || 'Unknown'}</p>
+              <p className="font-medium text-sm">{displayName}</p>
               <p className="text-primary text-xs">{property.contact_phone}</p>
               {property.contact_phone_2 && <p className="text-primary text-xs">{property.contact_phone_2}</p>}
             </div>
