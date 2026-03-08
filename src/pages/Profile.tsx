@@ -732,6 +732,25 @@ const Profile = () => {
 
           {/* Right Main */}
           <div className="space-y-5 pt-20">
+            {/* Agency Info */}
+            {agencyInfo && (agencyInfo.agency_name || agencyInfo.office_location) && (
+              <div className="bg-card rounded-xl p-5 border border-border/50 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-bold">Agency</h2>
+                </div>
+                <div className="flex items-center gap-4">
+                  {agencyInfo.agency_logo && (
+                    <img src={agencyInfo.agency_logo} alt="Agency Logo" className="h-14 w-14 rounded-lg object-contain border border-border bg-background" />
+                  )}
+                  <div className="min-w-0">
+                    {agencyInfo.agency_name && <p className="font-semibold">{agencyInfo.agency_name}</p>}
+                    {agencyInfo.office_location && <p className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{agencyInfo.office_location}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* About */}
             <div className="bg-card rounded-xl p-5 border border-border/50">
               <h2 className="text-base font-bold mb-2">About</h2>
