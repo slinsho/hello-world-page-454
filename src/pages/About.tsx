@@ -3,8 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
   Mail, Phone, MapPin, Send, Loader2, Users, ArrowRight,
@@ -109,7 +107,6 @@ const About = () => {
       const savedContent = settingsRes.data?.value ? { ...DEFAULT_CONTENT, ...(settingsRes.data.value as any) } : DEFAULT_CONTENT;
       setContent(savedContent);
 
-      // Build admin description map from saved stats
       const descMap: Record<string, string> = {};
       (savedContent.stats || []).forEach((s: any) => {
         if (s.label && s.sublabel) descMap[s.label] = s.sublabel;
@@ -124,7 +121,7 @@ const About = () => {
         "Total Properties": "Listed properties across our growing real estate ecosystem.",
         "Active Listings": "Currently active and available properties.",
         "Verified Users": "Verified users trusting our marketplace.",
-        "Counties Covered": `Serving communities across Liberia.`,
+        "Counties Covered": "Serving communities across Liberia.",
       };
 
       setRealStats([
@@ -180,46 +177,46 @@ const About = () => {
   const displayStats = realStats;
 
   return (
-    <div className="about-page min-h-screen pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <SEOHead title={`About Us | ${content.company_name}`} description={content.description} />
       <Navbar />
 
-      {/* ===== 1. HERO BANNER — dark image with centered "About Us" ===== */}
+      {/* ===== 1. HERO BANNER ===== */}
       <section className="relative h-[300px] md:h-[450px] overflow-hidden">
         {content.banner_image ? (
           <img src={content.banner_image} alt="About Us" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full about-hero-fallback" />
+          <div className="w-full h-full bg-gradient-to-br from-secondary via-card to-background" />
         )}
-        <div className="absolute inset-0 about-hero-overlay" />
+        <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold about-hero-text tracking-wide">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-wide">
               {content.tagline || "About Us"}
             </h1>
-            <div className="w-20 h-0.5 about-hero-underline mx-auto mt-3" />
+            <div className="w-20 h-0.5 bg-primary mx-auto mt-3" />
           </div>
         </div>
       </section>
 
-      {/* ===== 2. TAGLINE + MISSION/VISION + IMAGE ===== */}
-      <section className="about-section-light">
+      {/* ===== 2. TAGLINE + MISSION/VISION ===== */}
+      <section className="bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
-          <h2 className="text-2xl md:text-4xl about-serif-heading leading-snug max-w-3xl mb-6">
+          <h2 className="text-2xl md:text-4xl font-bold text-foreground leading-snug max-w-3xl mb-6">
             <span className="italic">{content.description}</span>
           </h2>
-          <p className="about-body-text leading-relaxed max-w-3xl mb-12 text-sm md:text-base">
+          <p className="text-muted-foreground leading-relaxed max-w-3xl mb-12 text-sm md:text-base">
             {content.hero_subtitle}
           </p>
           <div className="grid md:grid-cols-2 gap-10 items-start">
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h3 className="font-bold text-base md:text-lg about-heading-text mb-3">Mission</h3>
-                <p className="text-xs md:text-sm about-body-text leading-relaxed">{content.mission}</p>
+                <h3 className="font-bold text-base md:text-lg text-foreground mb-3">Mission</h3>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{content.mission}</p>
               </div>
               <div>
-                <h3 className="font-bold text-base md:text-lg about-heading-text mb-3">Vision</h3>
-                <p className="text-xs md:text-sm about-body-text leading-relaxed">{content.vision}</p>
+                <h3 className="font-bold text-base md:text-lg text-foreground mb-3">Vision</h3>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{content.vision}</p>
               </div>
             </div>
             {content.mission_image ? (
@@ -227,69 +224,69 @@ const About = () => {
                 <img src={content.mission_image} alt="Our Mission" className="w-full h-64 md:h-72 object-cover" loading="lazy" />
               </div>
             ) : (
-              <div className="rounded-2xl overflow-hidden shadow-lg about-placeholder-img h-64 md:h-72" />
+              <div className="rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-muted to-secondary h-64 md:h-72" />
             )}
           </div>
         </div>
       </section>
 
-      {/* ===== 3. EXPERIENCE SECTION — image left, text right ===== */}
-      <section className="about-section-light">
+      {/* ===== 3. EXPERIENCE SECTION ===== */}
+      <section className="bg-card">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20 grid md:grid-cols-2 gap-10 items-center">
           {content.experience_image ? (
             <div className="rounded-2xl overflow-hidden shadow-lg">
               <img src={content.experience_image} alt="Experience" className="w-full h-72 md:h-80 object-cover" loading="lazy" />
             </div>
           ) : (
-            <div className="rounded-2xl overflow-hidden shadow-lg about-placeholder-img h-72 md:h-80" />
+            <div className="rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-muted to-secondary h-72 md:h-80" />
           )}
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold about-heading-text mb-5 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-5 leading-tight">
               {content.experience_title}
             </h2>
-            <p className="about-body-text leading-relaxed text-sm md:text-base">
+            <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
               {content.experience_description}
             </p>
           </div>
         </div>
       </section>
 
-      {/* ===== 4. STATS BAR — cream/warm background ===== */}
-      <section className="about-section-cream">
+      {/* ===== 4. STATS BAR ===== */}
+      <section className="bg-secondary">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
             {displayStats.map((stat, i) => (
               <div key={i} className="text-center">
-                <div className="text-4xl md:text-6xl font-bold about-heading-text mb-1">{stat.value}</div>
-                <div className="text-xs md:text-sm font-semibold about-heading-text mb-2 uppercase tracking-wider">{stat.label}</div>
-                <p className="text-[11px] md:text-xs about-body-text leading-relaxed max-w-[200px] mx-auto">{stat.sublabel}</p>
+                <div className="text-4xl md:text-6xl font-bold text-primary mb-1">{stat.value}</div>
+                <div className="text-xs md:text-sm font-semibold text-foreground mb-2 uppercase tracking-wider">{stat.label}</div>
+                <p className="text-[11px] md:text-xs text-muted-foreground leading-relaxed max-w-[200px] mx-auto">{stat.sublabel}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== 5. DREAMS SECTION — dark bg, text left, image right ===== */}
+      {/* ===== 5. DREAMS SECTION ===== */}
       {(content.dreams_title || content.dreams_checklist?.length > 0) && (
-        <section className="about-section-dark">
+        <section className="bg-card">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold about-dark-heading italic leading-tight mb-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground italic leading-tight mb-4">
                   {content.dreams_title}
                 </h2>
-                <p className="about-dark-body text-sm mb-6 leading-relaxed">
+                <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
                   {content.dreams_description}
                 </p>
                 <div className="space-y-3 mb-6">
                   {content.dreams_checklist?.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 about-checklist-item rounded-xl px-4 py-3">
-                      <CheckCircle2 className="h-5 w-5 about-checklist-icon flex-shrink-0" />
-                      <span className="text-sm font-medium about-dark-heading">{item}</span>
+                    <div key={i} className="flex items-center gap-3 bg-muted/50 border border-border rounded-xl px-4 py-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                      <span className="text-sm font-medium text-foreground">{item}</span>
                     </div>
                   ))}
                 </div>
-                <Button className="rounded-xl gap-2 about-cta-btn" asChild>
+                <Button className="rounded-xl gap-2" asChild>
                   <a href="/explore">Get started <ArrowRight className="h-4 w-4" /></a>
                 </Button>
               </div>
@@ -298,32 +295,32 @@ const About = () => {
                   <img src={content.dreams_image} alt="Dreams" className="w-full h-72 md:h-96 object-cover" loading="lazy" />
                 </div>
               ) : (
-                <div className="rounded-2xl overflow-hidden shadow-xl about-placeholder-dark h-72 md:h-96" />
+                <div className="rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-muted to-secondary h-72 md:h-96" />
               )}
             </div>
           </div>
         </section>
       )}
 
-      {/* ===== 6. SERVICES — "Your Trusted Real Estate Partner" ===== */}
+      {/* ===== 6. SERVICES ===== */}
       {content.services?.length > 0 && (
-        <section className="about-section-light">
+        <section className="bg-background">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold about-heading-text">Your Trusted Real Estate Partner</h2>
-              <div className="w-16 h-0.5 about-accent-line mx-auto mt-4" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Your Trusted Real Estate Partner</h2>
+              <div className="w-16 h-0.5 bg-primary mx-auto mt-4" />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {content.services.map((svc, i) => {
                 const icons = [Search, Award, TrendingUp, HeartHandshake];
                 const Icon = icons[i % icons.length];
                 return (
-                  <div key={i} className="about-service-card rounded-2xl p-6 text-center transition-shadow hover:shadow-lg">
-                    <div className="w-14 h-14 rounded-2xl about-service-icon-bg flex items-center justify-center mx-auto mb-4">
-                      <Icon className="h-7 w-7 about-service-icon" />
+                  <div key={i} className="bg-card border border-border rounded-2xl p-6 text-center transition-shadow hover:shadow-lg hover:border-primary/30">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Icon className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="font-bold about-heading-text mb-2 text-sm md:text-base">{svc.title}</h3>
-                    <p className="text-xs about-body-text leading-relaxed">{svc.description}</p>
+                    <h3 className="font-bold text-foreground mb-2 text-sm md:text-base">{svc.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{svc.description}</p>
                   </div>
                 );
               })}
@@ -332,36 +329,36 @@ const About = () => {
         </section>
       )}
 
-      {/* ===== 7. TEAM — "Start Your Journey With Our Amazing Agents" ===== */}
+      {/* ===== 7. TEAM ===== */}
       {content.team_members?.length > 0 && (
-        <section className="about-section-light">
+        <section className="bg-card">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold about-heading-text">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
                 Start Your Journey With Our<br className="hidden md:block" /> Amazing Agents
               </h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {content.team_members.map((member, i) => (
-                <div key={i} className="about-team-card rounded-2xl overflow-hidden group">
+                <div key={i} className="bg-secondary border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-colors">
                   {member.photo ? (
                     <img src={member.photo} alt={member.name} className="w-full h-60 md:h-72 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   ) : (
-                    <div className="w-full h-60 md:h-72 about-placeholder-img flex items-center justify-center">
-                      <Users className="h-16 w-16 opacity-20" />
+                    <div className="w-full h-60 md:h-72 bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                      <Users className="h-16 w-16 text-muted-foreground/30" />
                     </div>
                   )}
                   <div className="p-5 text-center">
-                    <h3 className="font-bold text-lg about-heading-text">{member.name}</h3>
-                    <p className="about-accent-text text-sm font-medium mb-2">{member.role}</p>
-                    {member.bio && <p className="text-xs about-body-text mb-3 leading-relaxed">{member.bio}</p>}
+                    <h3 className="font-bold text-lg text-foreground">{member.name}</h3>
+                    <p className="text-primary text-sm font-medium mb-2">{member.role}</p>
+                    {member.bio && <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{member.bio}</p>}
                     <div className="flex gap-2 justify-center">
                       {(["facebook", "instagram", "twitter", "linkedin"] as const).map((platform) => {
                         const url = member[platform];
                         if (!url) return null;
                         return (
                           <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full about-social-btn flex items-center justify-center transition-colors">
+                            className="w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors">
                             {getSocialIcon(platform)}
                           </a>
                         );
@@ -372,7 +369,7 @@ const About = () => {
               ))}
             </div>
             <div className="text-center mt-8">
-              <Button className="rounded-xl gap-2 about-cta-btn-outline" variant="outline" asChild>
+              <Button className="rounded-xl gap-2" variant="outline" asChild>
                 <a href="/agents">View all agents</a>
               </Button>
             </div>
@@ -380,97 +377,96 @@ const About = () => {
         </section>
       )}
 
-      {/* ===== 8. CONTACT FORM — dark left, form right ===== */}
-      <section className="about-section-dark">
+      {/* ===== 8. CONTACT FORM ===== */}
+      <section className="bg-secondary">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
           <div className="grid md:grid-cols-2 gap-10 items-start">
             <div>
-              <h2 className="text-2xl md:text-4xl font-bold about-dark-heading leading-tight mb-3">
+              <h2 className="text-2xl md:text-4xl font-bold text-foreground leading-tight mb-3">
                 Let's Find You<br />Perfect Property
               </h2>
-              <p className="about-dark-body text-sm mb-8">Fill in the form and we'll help you find the best match for your needs.</p>
+              <p className="text-muted-foreground text-sm mb-8">Fill in the form and we'll help you find the best match for your needs.</p>
               <div className="space-y-4">
                 {content.email && (
                   <a href={`mailto:${content.email}`} className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-xl about-contact-icon flex items-center justify-center">
-                      <Mail className="h-5 w-5" />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Mail className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm about-dark-body group-hover:underline">{content.email}</span>
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{content.email}</span>
                   </a>
                 )}
                 {content.phone && (
                   <a href={`tel:${content.phone}`} className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-xl about-contact-icon flex items-center justify-center">
-                      <Phone className="h-5 w-5" />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Phone className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm about-dark-body group-hover:underline">{content.phone}</span>
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{content.phone}</span>
                   </a>
                 )}
                 {content.whatsapp && (
                   <a href={`https://wa.me/${content.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 rounded-xl about-contact-icon flex items-center justify-center">
-                      <Phone className="h-5 w-5" />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Phone className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm about-dark-body group-hover:underline">{content.whatsapp}</span>
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{content.whatsapp}</span>
                   </a>
                 )}
                 {content.address && (
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl about-contact-icon flex items-center justify-center">
-                      <MapPin className="h-5 w-5" />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm about-dark-body">{content.address}</span>
+                    <span className="text-sm text-muted-foreground">{content.address}</span>
                   </div>
                 )}
               </div>
             </div>
-            <form onSubmit={handleSubmit} className="about-form-card rounded-2xl p-6 space-y-3">
+            <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">Your name</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">Your name</label>
                   <input placeholder="Barak Obama" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">What do you want?</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">What do you want?</label>
                   <input placeholder="Buy a home" value={form.property_type} onChange={e => setForm({ ...form, property_type: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">Phone number</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">Phone number</label>
                   <input placeholder="+231 886 XXX XXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">Your budget (USD)</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">Your budget (USD)</label>
                   <input placeholder="$5,000" value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">Your email address</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">Your email address</label>
                   <input type="email" placeholder="you@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
                 <div>
-                  <label className="about-form-label text-xs mb-1 block">Your address</label>
+                  <label className="text-xs text-muted-foreground font-medium mb-1 block">Your address</label>
                   <input placeholder="Monrovia, Liberia" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })}
-                    className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
-                <label className="about-form-label text-xs mb-1 block">Your message</label>
+                <label className="text-xs text-muted-foreground font-medium mb-1 block">Your message</label>
                 <textarea placeholder="Tell us more about what you're looking for..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}
-                  rows={3} className="about-form-input w-full rounded-lg px-3 py-2.5 text-sm resize-none" />
+                  rows={3} className="w-full rounded-lg px-3 py-2.5 text-sm bg-secondary border border-border text-foreground outline-none focus:border-primary transition-colors resize-none placeholder:text-muted-foreground" />
               </div>
-              <button type="submit" disabled={sending}
-                className="w-full about-form-btn rounded-lg py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-opacity disabled:opacity-50">
+              <Button type="submit" disabled={sending} className="w-full rounded-lg gap-2">
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 {sending ? "Sending..." : "Send Message"}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -478,15 +474,15 @@ const About = () => {
 
       {/* ===== 9. WORK PHOTOS ===== */}
       {content.work_photos?.length > 0 && (
-        <section className="about-section-light">
+        <section className="bg-background">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold about-heading-text">Our Work</h2>
-              <div className="w-16 h-0.5 about-accent-line mx-auto mt-4" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Our Work</h2>
+              <div className="w-16 h-0.5 bg-primary mx-auto mt-4" />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {content.work_photos.map((photo, i) => (
-                <div key={i} className="relative rounded-2xl overflow-hidden group shadow-md">
+                <div key={i} className="relative rounded-2xl overflow-hidden group shadow-md border border-border">
                   <img src={photo.url} alt={photo.caption} className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   {photo.caption && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
@@ -502,28 +498,28 @@ const About = () => {
 
       {/* ===== 10. FAQ ===== */}
       {content.faqs?.length > 0 && (
-        <section className="about-section-light">
+        <section className="bg-card">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold about-heading-text">Frequently Asked Questions</h2>
-              <div className="w-16 h-0.5 about-accent-line mx-auto mt-4" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Frequently Asked Questions</h2>
+              <div className="w-16 h-0.5 bg-primary mx-auto mt-4" />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {content.faqs.map((faq, i) => (
-                <div key={i} className="about-faq-card rounded-xl overflow-hidden">
+                <div key={i} className="bg-secondary border border-border rounded-xl overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex items-center justify-between p-4 text-left"
                   >
-                    <span className="text-sm font-medium about-heading-text pr-2">{faq.question}</span>
+                    <span className="text-sm font-medium text-foreground pr-2">{faq.question}</span>
                     {openFaq === i
-                      ? <ChevronUp className="h-4 w-4 about-body-text flex-shrink-0" />
-                      : <ChevronDown className="h-4 w-4 about-body-text flex-shrink-0" />
+                      ? <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      : <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     }
                   </button>
                   {openFaq === i && (
                     <div className="px-4 pb-4">
-                      <p className="text-sm about-body-text leading-relaxed">{faq.answer}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
                     </div>
                   )}
                 </div>
@@ -533,13 +529,13 @@ const About = () => {
         </section>
       )}
 
-      {/* ===== 11. NEWSLETTER — primary colored band ===== */}
-      <section className="about-newsletter-section">
+      {/* ===== 11. NEWSLETTER ===== */}
+      <section className="bg-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-14 md:py-20 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold about-newsletter-heading mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3">
             {content.newsletter_title || "Stay Updated on Latest Property"}
           </h2>
-          <p className="about-newsletter-body text-sm mb-8 max-w-md mx-auto">
+          <p className="text-primary-foreground/80 text-sm mb-8 max-w-md mx-auto">
             {content.newsletter_description || "Subscribe to our newsletter and stay updated."}
           </p>
           <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -548,52 +544,52 @@ const About = () => {
               placeholder="Your email"
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
-              className="about-newsletter-input flex-1 rounded-lg px-4 py-3 text-sm"
+              className="flex-1 rounded-lg px-4 py-3 text-sm bg-primary-foreground/20 border border-primary-foreground/30 text-primary-foreground outline-none placeholder:text-primary-foreground/60 focus:border-primary-foreground"
             />
             <button type="submit" disabled={subscribing}
-              className="about-newsletter-btn rounded-lg px-6 py-3 text-sm font-semibold whitespace-nowrap disabled:opacity-50">
+              className="rounded-lg px-6 py-3 text-sm font-semibold whitespace-nowrap bg-background text-foreground hover:bg-background/90 disabled:opacity-50 transition-colors">
               {subscribing ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Subscribe"}
             </button>
           </form>
         </div>
       </section>
 
-      {/* ===== 12. FOOTER — dark ===== */}
-      <footer className="about-footer">
+      {/* ===== 12. FOOTER ===== */}
+      <footer className="bg-card border-t border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-bold about-footer-heading mb-3">{content.company_name}</h3>
-              <p className="text-xs about-footer-body leading-relaxed max-w-xs">
+              <h3 className="text-lg font-bold text-foreground mb-3">{content.company_name}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
                 {content.company_name} is a premier marketplace designed for Liberian property seekers, agents, and owners — making real estate accessible for everyone.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold about-footer-heading mb-3 text-sm">Address</h4>
-              <p className="text-xs about-footer-body leading-relaxed">{content.address}</p>
-              {content.phone && <p className="text-xs about-footer-body mt-1">{content.phone}</p>}
-              {content.email && <p className="text-xs about-footer-body mt-1">{content.email}</p>}
+              <h4 className="font-semibold text-foreground mb-3 text-sm">Address</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">{content.address}</p>
+              {content.phone && <p className="text-xs text-muted-foreground mt-1">{content.phone}</p>}
+              {content.email && <p className="text-xs text-muted-foreground mt-1">{content.email}</p>}
             </div>
             <div>
-              <h4 className="font-semibold about-footer-heading mb-3 text-sm">Contact</h4>
+              <h4 className="font-semibold text-foreground mb-3 text-sm">Contact</h4>
               <div className="flex gap-3">
                 {content.whatsapp && (
                   <a href={`https://wa.me/${content.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
-                    className="about-footer-social w-8 h-8 rounded-full flex items-center justify-center">
+                    className="w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors">
                     <Phone className="h-4 w-4" />
                   </a>
                 )}
                 {content.email && (
                   <a href={`mailto:${content.email}`}
-                    className="about-footer-social w-8 h-8 rounded-full flex items-center justify-center">
+                    className="w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors">
                     <Mail className="h-4 w-4" />
                   </a>
                 )}
               </div>
             </div>
           </div>
-          <div className="about-footer-divider mt-10 pt-6 text-center">
-            <p className="text-xs about-footer-body">© {new Date().getFullYear()} {content.company_name}. All rights reserved.</p>
+          <div className="border-t border-border mt-10 pt-6 text-center">
+            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} {content.company_name}. All rights reserved.</p>
           </div>
         </div>
       </footer>
