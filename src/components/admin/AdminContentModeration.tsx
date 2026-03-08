@@ -29,11 +29,16 @@ interface ModerationProperty {
   listing_type: string;
   price_usd: number;
   county: string;
+  address: string;
   status: string;
   moderation_status: string | null;
   moderation_note: string | null;
   flagged_count: number | null;
   created_at: string;
+  photos: string[];
+  description: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
   owner_name?: string;
 }
 
@@ -53,7 +58,7 @@ export function AdminContentModeration() {
   const fetchProperties = async () => {
     const { data, error } = await supabase
       .from("properties")
-      .select("id, title, property_type, listing_type, price_usd, county, status, moderation_status, moderation_note, flagged_count, created_at, owner_id")
+      .select("id, title, property_type, listing_type, price_usd, county, address, status, moderation_status, moderation_note, flagged_count, created_at, owner_id, photos, description, bedrooms, bathrooms")
       .order("created_at", { ascending: false });
 
     if (error || !data) { setLoading(false); return; }
@@ -157,8 +162,18 @@ export function AdminContentModeration() {
         {filtered.map(property => (
           <Card key={property.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-1 flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Property Photos */}
+                <div className="flex gap-1.5 shrink-0">
+                  {property.photos?.slice(0, 2).map((photo, idx) => (
+                    <img key={idx} src={photo} alt={`${property.title} ${idx + 1}`} className="h-20 w-20 rounded-lg object-cover border border-border" />
+                  ))}
+                  {(!property.photos || property.photos.length === 0) && (
+                    <div className="h-20 w-20 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold truncate">{property.title}</h3>
                     {getModerationBadge(property.moderation_status)}
@@ -171,11 +186,17 @@ export function AdminContentModeration() {
                   <p className="text-sm text-muted-foreground">
                     {property.owner_name} · {property.county} · ${property.price_usd.toLocaleString()}
                   </p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {property.property_type} · {property.listing_type.replace("_", " ")}
+                    {property.bedrooms ? ` · ${property.bedrooms} bed` : ""}
+                    {property.bathrooms ? ` · ${property.bathrooms} bath` : ""}
+                  </p>
                   {property.moderation_note && (
                     <p className="text-xs text-muted-foreground italic">Note: {property.moderation_note}</p>
                   )}
                 </div>
-                <div className="flex gap-2 shrink-0">
+
+                <div className="flex sm:flex-col gap-2 shrink-0">
                   <Button size="sm" variant="outline" onClick={() => { setSelectedProperty(property); setModerationNote(property.moderation_note || ""); }}>
                     Review
                   </Button>
@@ -199,12 +220,36 @@ export function AdminContentModeration() {
             <DialogTitle>Review: {selectedProperty?.title}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Photo Gallery */}
+            {selectedProperty?.photos && selectedProperty.photos.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Photos ({selectedProperty.photos.length})</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {selectedProperty.photos.map((photo, idx) => (
+                    <img key={idx} src={photo} alt={`Photo ${idx + 1}`} className="w-full h-24 rounded-lg object-cover border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(photo, "_blank")} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="text-muted-foreground">Type:</span> <span className="capitalize">{selectedProperty?.property_type}</span></div>
               <div><span className="text-muted-foreground">Price:</span> ${selectedProperty?.price_usd.toLocaleString()}</div>
               <div><span className="text-muted-foreground">County:</span> {selectedProperty?.county}</div>
               <div><span className="text-muted-foreground">Owner:</span> {selectedProperty?.owner_name}</div>
+              <div><span className="text-muted-foreground">Address:</span> {selectedProperty?.address}</div>
+              <div><span className="text-muted-foreground">Listing:</span> <span className="capitalize">{selectedProperty?.listing_type?.replace("_", " ")}</span></div>
+              {selectedProperty?.bedrooms && <div><span className="text-muted-foreground">Bedrooms:</span> {selectedProperty.bedrooms}</div>}
+              {selectedProperty?.bathrooms && <div><span className="text-muted-foreground">Bathrooms:</span> {selectedProperty.bathrooms}</div>}
             </div>
+
+            {selectedProperty?.description && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-foreground bg-secondary/30 rounded-lg p-3 max-h-32 overflow-y-auto">{selectedProperty.description}</p>
+              </div>
+            )}
+
             <Textarea
               placeholder="Add a moderation note (optional)..."
               value={moderationNote}
