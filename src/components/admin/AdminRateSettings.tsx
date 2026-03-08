@@ -52,7 +52,7 @@ export function AdminRateSettings() {
 
     setSaving(true);
     try {
-      // Update both settings
+      // Update all settings
       await Promise.all([
         supabase.from("platform_settings" as any).update({ value: newRate, updated_at: new Date().toISOString() }).eq("key", "usd_to_lrd_rate"),
         supabase.from("platform_settings" as any).update({ value: newPromo, updated_at: new Date().toISOString() }).eq("key", "promotion_price_per_month"),
