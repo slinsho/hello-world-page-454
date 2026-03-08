@@ -204,42 +204,6 @@ const Profile = () => {
       ? `Experienced real estate agent helping clients buy, sell, and rent properties across Liberia. ${profile.county ? `Based in ${profile.county}.` : ""} Specialized in residential and commercial properties.`
       : `Property owner ${profile.county ? `based in ${profile.county}, Liberia` : "in Liberia"}. Browse listings below to find the perfect property.`;
 
-  // Edit Profile Dialog
-  const EditProfileDialog = ({ triggerId }: { triggerId: string }) => (
-    <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-full gap-2 border-border">
-          <Pencil className="h-3.5 w-3.5" />Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-[95vw] sm:max-w-md rounded-3xl">
-        <DialogHeader><DialogTitle>Edit Profile</DialogTitle></DialogHeader>
-        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
-          <div className="space-y-2"><Label htmlFor={`name-${triggerId}`}>Name</Label><Input id={`name-${triggerId}`} value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="rounded-xl" /></div>
-          <div className="space-y-2"><Label>Email (non-editable)</Label><Input value={profile.email} disabled className="opacity-60 rounded-xl" /></div>
-          <div className="space-y-2"><Label>Phone (non-editable)</Label><Input value={profile.phone || ""} disabled className="opacity-60 rounded-xl" /></div>
-          {profile.contact_phone_2 && (<div className="space-y-2"><Label>Phone 2</Label><Input value={profile.contact_phone_2} disabled className="opacity-60 rounded-xl" /></div>)}
-          <div className="space-y-2"><Label>Role</Label><Input value={isAgent ? "Agent" : "Property Owner"} disabled className="opacity-60 rounded-xl" /></div>
-          <div className="space-y-2">
-            <Label>County</Label>
-            <Select value={editForm.county} onValueChange={(value) => setEditForm({ ...editForm, county: value })}>
-              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select your county" /></SelectTrigger>
-              <SelectContent>{LIBERIA_COUNTIES.map((county) => (<SelectItem key={county} value={county}>{county}</SelectItem>))}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2"><Label htmlFor={`addr-${triggerId}`}>Address</Label><Input id={`addr-${triggerId}`} value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} placeholder="Enter your address" className="rounded-xl" /></div>
-          <div className="space-y-2">
-            <Label htmlFor={`bio-${triggerId}`}>Bio / About</Label>
-            <Textarea id={`bio-${triggerId}`} value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} placeholder="Write about yourself..." rows={3} className="rounded-xl resize-none" />
-          </div>
-          {profile.role === "property_owner" && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
-            <Button variant="outline" onClick={() => { setIsEditingProfile(false); navigate("/verification?upgrade=agent"); }} className="w-full rounded-xl gap-2 border-blue-500 text-blue-500 hover:bg-blue-500/10"><Building2 className="h-4 w-4" />Upgrade to Agent</Button>
-          )}
-          <Button onClick={handleProfileUpdate} className="w-full rounded-xl">Save Changes</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 
   // Compact Property Card for profile
   const MiniPropertyCard = ({ property }: { property: any }) => {
