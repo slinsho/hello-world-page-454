@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Users, Home, Shield, Ban, BookOpen, AlertTriangle, RefreshCw, Mail, Scale } from "lucide-react";
+import { FileText, Users, Home, Shield, Ban, BookOpen, AlertTriangle, RefreshCw, Mail, Scale, CreditCard, Eye, Star, MessageSquare, Bell, Flag, Camera, Clock } from "lucide-react";
 
 const sections = [
   {
