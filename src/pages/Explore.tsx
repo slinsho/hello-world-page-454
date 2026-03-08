@@ -68,11 +68,16 @@ const Explore = () => {
     const { data, error } = await query;
     if (!error && data) {
       const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
+      let results = data as any[];
       if (ownerIds.length > 0) {
         const { data: profilesData } = await supabase.from("profiles").select("id, name, role, verification_status, phone, profile_photo_url").in("id", ownerIds);
         const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-        setProperties(data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
-      } else { setProperties(data); }
+        results = data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null }));
+      }
+      if (sortOrder === "random") {
+        results.sort(() => Math.random() - 0.5);
+      }
+      setProperties(results);
     }
     setLoading(false);
   };
