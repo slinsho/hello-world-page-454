@@ -448,12 +448,13 @@ const Settings = () => {
               </div>
               <div className="space-y-2">
                 <Label>Default Sort Order</Label>
-                <Select value={userPrefs.default_sort_order} onValueChange={(v) => { updatePreference("default_sort_order", v); toast({ title: "Updated", description: `Sort order set to ${v === "newest" ? "Newest First" : v === "price_low" ? "Price: Low to High" : "Price: High to Low"}` }); }}>
+                <Select value={userPrefs.default_sort_order} onValueChange={(v) => { updatePreference("default_sort_order", v); toast({ title: "Updated", description: `Sort order set to ${v === "newest" ? "Newest First" : v === "price_low" ? "Price: Low to High" : v === "price_high" ? "Price: High to Low" : "Random"}` }); }}>
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="price_low">Price: Low to High</SelectItem>
                     <SelectItem value="price_high">Price: High to Low</SelectItem>
+                    <SelectItem value="random">Random</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">How properties are sorted by default</p>
