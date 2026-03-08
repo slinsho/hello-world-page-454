@@ -64,6 +64,20 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         >
           {LISTING_TYPE_LABELS[property.listing_type]}
         </Badge>
+
+        {/* Featured Badge */}
+        {(property as any).is_promoted && (
+          <Badge className="absolute top-3 left-24 bg-primary/90 text-primary-foreground px-2 py-0.5 rounded-lg text-[10px] gap-1">
+            <Sparkles className="h-3 w-3" />Featured
+          </Badge>
+        )}
+
+        {/* Flagged Badge */}
+        {(property as any).is_flagged && (
+          <Badge className="absolute top-12 left-3 bg-destructive text-destructive-foreground px-2 py-0.5 rounded-lg text-[10px] gap-1">
+            <AlertTriangle className="h-3 w-3" />Flagged
+          </Badge>
+        )}
         
         {/* Favorite Button */}
         <Button
