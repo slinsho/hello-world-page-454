@@ -83,6 +83,29 @@ export function AdminRateSettings() {
     }
   };
 
+  const handleSavePaymentInfo = async () => {
+    if (!paymentNumber.trim()) {
+      toast({ title: "Missing Number", description: "Please enter a payment number.", variant: "destructive" });
+      return;
+    }
+    setSavingPayment(true);
+    try {
+      const paymentInfo = { number: paymentNumber.trim(), name: paymentName.trim(), instructions: paymentInstructions.trim() };
+      // Upsert payment_info setting
+      const { data: existing } = await supabase.from("platform_settings" as any).select("key").eq("key", "payment_info").single();
+      if (existing) {
+        await supabase.from("platform_settings" as any).update({ value: paymentInfo, updated_at: new Date().toISOString() }).eq("key", "payment_info");
+      } else {
+        await supabase.from("platform_settings" as any).insert({ key: "payment_info", value: paymentInfo } as any);
+      }
+      toast({ title: "Payment Info Saved", description: "Users will now see this payment number in their payment notifications." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingPayment(false);
+    }
+  };
+
   if (loading) {
     return <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">Loading settings...</p></CardContent></Card>;
   }
