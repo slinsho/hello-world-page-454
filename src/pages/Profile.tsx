@@ -63,6 +63,10 @@ const Profile = () => {
     fetchProperties();
     fetchAgencyInfo();
     if (user) checkAdminStatus();
+    // Fetch privacy settings for other users
+    if (profileId && profileId !== user?.id) {
+      fetchUserPrivacySettings(profileId).then(setPrivacySettings);
+    }
   }, [user, navigate, profileId]);
 
   const checkAdminStatus = async () => {
