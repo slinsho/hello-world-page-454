@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageCropper } from "@/components/profile/ImageCropper";
 import { SocialLinksEditor } from "@/components/profile/SocialLinksEditor";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 
 const Profile = () => {
   const navigate = useNavigate();
