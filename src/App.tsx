@@ -43,6 +43,7 @@ const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));
 const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 const About = lazy(() => import("./pages/About"));
+const Agents = lazy(() => import("./pages/Agents"));
 
 const queryClient = new QueryClient();
 
