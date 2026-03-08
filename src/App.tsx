@@ -34,6 +34,7 @@ const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
 const PopularAreasPage = lazy(() => import("./pages/PopularAreasPage"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));
+const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 
 const queryClient = new QueryClient();
 
