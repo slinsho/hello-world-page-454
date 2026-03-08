@@ -365,7 +365,6 @@ const Profile = () => {
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
                 {isOwnProfile && <SettingsMenu />}
               </div>
             </div>
