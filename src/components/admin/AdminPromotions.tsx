@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Megaphone, DollarSign, CheckCircle2, XCircle } from "lucide-react";
+import { Megaphone, DollarSign, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 
 interface PromotionRequest {
   id: string;
@@ -86,8 +86,8 @@ export function AdminPromotions() {
         await supabase.from("notifications").insert({
           user_id: req.user_id,
           property_id: req.property_id,
-          title: "Promotion Payment Required",
-          message: `Your promotion request for "${req.property?.title}" has been approved. Payment of $${amount.toLocaleString()} is required to feature your listing.`,
+          title: "🎉 Promotion Qualified — Payment Required",
+          message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to the property page and click "Promote" to submit your payment reference.`,
         });
       }
 
@@ -159,6 +159,20 @@ export function AdminPromotions() {
       }
 
       toast({ title: "Rejected", description: "Promotion request rejected." });
+      fetchRequests();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from("promotion_requests")
+        .delete()
+        .eq("id", requestId);
+      if (error) throw error;
+      toast({ title: "Deleted", description: "Promotion request deleted." });
       fetchRequests();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -274,6 +288,13 @@ export function AdminPromotions() {
                   <p className="text-sm text-amber-700">Waiting for user to pay ${(req.payment_amount || 0).toLocaleString()}</p>
                 </div>
               )}
+
+              {/* Delete button */}
+              <div className="pt-2 border-t">
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-1.5" onClick={() => handleDelete(req.id)}>
+                  <Trash2 className="h-3.5 w-3.5" /> Delete Request
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))

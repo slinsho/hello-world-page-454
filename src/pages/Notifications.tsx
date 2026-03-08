@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Bell, Check, Trash2 } from "lucide-react";
+import { ArrowLeft, Bell, Check, Trash2, Send, DollarSign } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
@@ -22,8 +24,11 @@ interface Notification {
 const Notifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentRefs, setPaymentRefs] = useState<Record<string, string>>({});
+  const [submittingRef, setSubmittingRef] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -43,6 +48,52 @@ const Notifications = () => {
   const deleteNotification = async (id: string) => { await supabase.from("notifications").delete().eq("id", id); setNotifications(prev => prev.filter(n => n.id !== id)); };
   const handlePropertyClick = (notification: Notification) => { if (notification.property_id) { markAsRead(notification.id); navigate(`/property/${notification.property_id}`); } };
 
+  const isPaymentNotification = (notification: Notification) => {
+    return notification.title.includes("Payment Required") || notification.title.includes("Qualified");
+  };
+
+  const handleSubmitPaymentRef = async (notification: Notification) => {
+    if (!user || !notification.property_id) return;
+    const ref = paymentRefs[notification.id]?.trim();
+    if (!ref || ref.length < 4) {
+      toast({ title: "Invalid Reference", description: "Reference must be at least 4 characters.", variant: "destructive" });
+      return;
+    }
+
+    setSubmittingRef(notification.id);
+    try {
+      // Find the pending promotion request for this property
+      const { data: promoRequests } = await supabase
+        .from("promotion_requests")
+        .select("id")
+        .eq("property_id", notification.property_id)
+        .eq("user_id", user.id)
+        .eq("status", "approved")
+        .eq("payment_status", "requested")
+        .limit(1);
+
+      if (!promoRequests || promoRequests.length === 0) {
+        toast({ title: "No Pending Request", description: "Could not find a pending promotion request for this property.", variant: "destructive" });
+        return;
+      }
+
+      const { error } = await supabase
+        .from("promotion_requests")
+        .update({ payment_status: "paid", payment_reference: ref } as any)
+        .eq("id", promoRequests[0].id);
+
+      if (error) throw error;
+
+      toast({ title: "Payment Reference Sent!", description: "Admin will verify and activate your promotion shortly." });
+      markAsRead(notification.id);
+      setPaymentRefs(prev => ({ ...prev, [notification.id]: "" }));
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmittingRef(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-8">
       <Navbar />
@@ -58,8 +109,8 @@ const Notifications = () => {
         ) : (
           <div className="space-y-3">
             {notifications.map((notification) => (
-              <Card key={notification.id} className={`p-4 cursor-pointer transition-colors ${!notification.is_read ? "bg-primary/5 border-primary/20" : ""}`} onClick={() => handlePropertyClick(notification)}>
-                <div className="flex gap-3">
+              <Card key={notification.id} className={`p-4 transition-colors ${!notification.is_read ? "bg-primary/5 border-primary/20" : ""}`}>
+                <div className="flex gap-3 cursor-pointer" onClick={() => handlePropertyClick(notification)}>
                   {notification.property?.photos?.[0] && <img src={notification.property.photos[0]} alt={notification.property.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
@@ -75,6 +126,35 @@ const Notifications = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Inline payment reference input for promotion payment notifications */}
+                {isPaymentNotification(notification) && (
+                  <div className="mt-3 pt-3 border-t space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-amber-700">
+                      <DollarSign className="h-3.5 w-3.5" />
+                      <span className="font-medium">Submit your payment reference below:</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={paymentRefs[notification.id] || ""}
+                        onChange={(e) => setPaymentRefs(prev => ({ ...prev, [notification.id]: e.target.value }))}
+                        placeholder="e.g. TXN-20260308-12345"
+                        maxLength={100}
+                        className="rounded-xl text-sm h-9"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <Button
+                        size="sm"
+                        className="gap-1.5 rounded-xl h-9 px-3"
+                        disabled={submittingRef === notification.id || !paymentRefs[notification.id]?.trim()}
+                        onClick={(e) => { e.stopPropagation(); handleSubmitPaymentRef(notification); }}
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        {submittingRef === notification.id ? "Sending..." : "Send"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
