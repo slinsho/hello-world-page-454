@@ -96,6 +96,17 @@ const About = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeWorkPhoto, setActiveWorkPhoto] = useState(0);
+  const workScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleWorkScroll = useCallback(() => {
+    const el = workScrollRef.current;
+    if (!el) return;
+    const scrollLeft = el.scrollLeft;
+    const childWidth = el.children[0]?.clientWidth || 1;
+    const gap = 12;
+    setActiveWorkPhoto(Math.round(scrollLeft / (childWidth + gap)));
+  }, []);
 
   useEffect(() => {
     const fetchContent = async () => {
