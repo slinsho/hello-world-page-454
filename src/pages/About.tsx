@@ -230,8 +230,8 @@ const About = () => {
         <div className="absolute inset-0 bg-foreground/50" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block border-b-2 border-amber-400 pb-2 mb-2">
-              <h1 className="text-3xl md:text-5xl font-bold text-white">{content.tagline || "About Us"}</h1>
+            <div className="inline-block border-b-2 border-primary pb-2 mb-2">
+              <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground">{content.tagline || "About Us"}</h1>
             </div>
           </div>
         </div>
