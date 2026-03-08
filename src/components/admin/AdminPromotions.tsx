@@ -89,6 +89,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "🎉 Promotion Qualified — Payment Required",
           message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to your notifications and submit your payment reference number.`,
+          type: "status_updates",
         });
       }
 
