@@ -92,6 +92,9 @@ const Explore = () => {
           </div>
         </div>
 
+        {/* Featured Promoted Properties */}
+        <FeaturedPropertiesBanner />
+
         {/* Desktop: Sidebar + Grid */}
         <div className="md:grid md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr] md:gap-8">
           {/* Desktop Sidebar Filters */}
