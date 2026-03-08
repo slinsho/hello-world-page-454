@@ -15,6 +15,7 @@ import { AdminContentModeration } from "@/components/admin/AdminContentModeratio
 import { AdminVerifiedDocuments } from "@/components/admin/AdminVerifiedDocuments";
 import { AdminLegalPages } from "@/components/admin/AdminLegalPages";
 import { AdminAboutPage } from "@/components/admin/AdminAboutPage";
+import { AdminContactSubmissions } from "@/components/admin/AdminContactSubmissions";
 import { Shield, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
