@@ -27,7 +27,7 @@ const defaultSections: Section[] = [
   {
     icon: "Scale",
     title: "1. Acceptance of Terms",
-    content: "By accessing and using LibHub, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these terms, please do not use our service.",
+    content: "By accessing and using L-Prop, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these terms, please do not use our service.",
   },
   {
     icon: "Home",
