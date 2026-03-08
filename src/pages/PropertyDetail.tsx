@@ -73,6 +73,8 @@ const PropertyDetail = () => {
     else { navigator.clipboard.writeText(window.location.href); toast({ title: "Link Copied", description: "Property link copied to clipboard" }); }
   };
   const formatRole = (role: string) => { if (role === 'property_owner') return 'Property Owner'; if (role === 'agent') return 'Agent'; return role; };
+  const displayName = property?.agent_info?.agency_name || property?.profiles?.name || 'Unknown';
+  const displayPhoto = property?.agent_info?.agency_logo || property?.profiles?.profile_photo_url;
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="text-muted-foreground">Loading...</div></div>;
   if (!property) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4"><h2 className="text-xl font-bold">Property Not Found</h2><Button onClick={() => navigate("/")}>Go Home</Button></div>;
