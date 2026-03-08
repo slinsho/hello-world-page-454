@@ -101,14 +101,14 @@ const PropertyDetail = () => {
       {/* Owner */}
       <div className="flex items-center gap-3 pb-4 border-b border-border">
         <div className="w-14 h-14 rounded-full bg-card border border-border overflow-hidden">
-          {property.profiles?.profile_photo_url ? (
-            <img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />
+          {displayPhoto ? (
+            <img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{property.profiles?.name?.charAt(0) || 'U'}</div>
+            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{displayName?.charAt(0) || 'U'}</div>
           )}
         </div>
         <div>
-          <p className="font-semibold">{property.profiles?.name || 'Unknown'}</p>
+          <p className="font-semibold">{displayName}</p>
           <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
           {property.profiles?.verification_status === "approved" && (
             <div className="flex items-center gap-1 mt-0.5">
