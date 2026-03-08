@@ -263,7 +263,7 @@ const AdminLogin = () => {
           </form>
 
           <p className="text-center text-muted-foreground/40 text-xs mt-10">
-            © {new Date().getFullYear()} LibHub · Admin Access Only
+            © {new Date().getFullYear()} L-Prop · Admin Access Only
           </p>
         </div>
       </div>
