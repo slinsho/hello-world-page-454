@@ -27,11 +27,11 @@ interface AboutContent {
 }
 
 const DEFAULT: AboutContent = {
-  company_name: "LibHub", tagline: "About Us", description: "", hero_subtitle: "",
+  company_name: "L-Prop", tagline: "About Us", description: "", hero_subtitle: "",
   mission: "", vision: "", banner_image: "", mission_image: "",
   experience_title: "", experience_description: "", experience_image: "",
   dreams_title: "", dreams_description: "", dreams_image: "", dreams_checklist: [],
-  email: "support@libhub.com", phone: "", address: "Monrovia, Liberia", whatsapp: "",
+  email: "support@lprop.com", phone: "", address: "Monrovia, Liberia", whatsapp: "",
   values: [], stats: [], team_members: [], work_photos: [], services: [], faqs: [],
   newsletter_title: "", newsletter_description: "",
 };

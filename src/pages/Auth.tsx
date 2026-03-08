@@ -574,7 +574,7 @@ const Auth = () => {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-4 text-muted-foreground">New to LibHub?</span>
+                <span className="bg-card px-4 text-muted-foreground">New to L-Prop?</span>
               </div>
             </div>
 

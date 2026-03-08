@@ -14,10 +14,10 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-192x192.png", "pwa-512x512.png"],
+      includeAssets: ["favicon.png", "pwa-192x192.png", "pwa-512x512.png"],
       manifest: {
-        name: "LibHub - Property Finder",
-        short_name: "LibHub",
+        name: "L-Prop - Liberia Property",
+        short_name: "L-Prop",
         description: "Find and list properties across Liberia",
         start_url: "/",
         display: "standalone",
