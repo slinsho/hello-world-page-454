@@ -25,10 +25,12 @@ export function FeaturedPropertiesBanner() {
         .from("properties")
         .select("id, title, price_usd, county, photos, property_type, listing_type")
         .eq("is_promoted", true)
-        .eq("status", "active")
-        .order("updated_at", { ascending: false })
-        .limit(10);
-      if (data) setProperties(data);
+        .eq("status", "active");
+      if (data) {
+        // Shuffle for fair rotation, then take 10
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
+        setProperties(shuffled.slice(0, 10));
+      }
     };
     fetch();
   }, []);
