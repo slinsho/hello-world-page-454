@@ -120,8 +120,7 @@ const Index = () => {
         };
       });
 
-      const shuffledProperties = [...propertiesWithProfiles].sort(() => Math.random() - 0.5);
-      setProperties(shuffledProperties);
+      setProperties(propertiesWithProfiles);
 
       let county = "";
       if (user) {
