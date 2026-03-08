@@ -34,6 +34,7 @@ const Profile = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, taken: 0 });
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [agencyInfo, setAgencyInfo] = useState<{ agency_name?: string; office_location?: string; agency_logo?: string; business_phone?: string } | null>(null);
   const [editForm, setEditForm] = useState<{ name: string; county: string; address: string; bio: string }>({ name: "", county: "", address: "", bio: "" });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
