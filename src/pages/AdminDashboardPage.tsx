@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <Tabs defaultValue={getDefaultTab()} onValueChange={handleTabChange} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-auto min-w-full h-auto">
             <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2 sm:px-3">Dashboard</TabsTrigger>
