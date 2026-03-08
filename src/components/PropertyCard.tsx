@@ -120,10 +120,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                 </h3>
                 <div className="text-right">
                   <span className="font-bold text-lg text-primary whitespace-nowrap">
-                    ${property.price_usd.toLocaleString()}
+                    {showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {formatLRD(property.price_usd)}
+                    {showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)}
                   </span>
                 </div>
               </div>
