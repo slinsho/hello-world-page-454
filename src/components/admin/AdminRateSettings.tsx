@@ -12,7 +12,8 @@ export function AdminRateSettings() {
   const { toast } = useToast();
   const [rate, setRate] = useState("");
   const [promoPrice, setPromoPrice] = useState("");
-  const [paymentNumber, setPaymentNumber] = useState("");
+  const [lonestarNumber, setLonestarNumber] = useState("");
+  const [orangeNumber, setOrangeNumber] = useState("");
   const [paymentName, setPaymentName] = useState("");
   const [paymentInstructions, setPaymentInstructions] = useState("");
   const [loading, setLoading] = useState(true);
