@@ -598,7 +598,7 @@ const Profile = () => {
         <div className="px-4 mt-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${verificationStatusColor}`}><Shield className="h-3.5 w-3.5" />{verifiedLabel}</span>
-            {profile.county && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}, Liberia</span>}
+            {canShowLocation && profile.county && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}, Liberia</span>}
           </div>
         </div>
 
