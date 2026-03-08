@@ -70,12 +70,14 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto">
-          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2">Dashboard</TabsTrigger>
-          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-2">Verifications</TabsTrigger>
-          <TabsTrigger value="users" className="text-xs sm:text-sm px-2">Users</TabsTrigger>
-          <TabsTrigger value="properties" className="text-xs sm:text-sm px-2">Properties</TabsTrigger>
-          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2">Feedback</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 h-auto">
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-1.5">Dashboard</TabsTrigger>
+          <TabsTrigger value="verifications" className="text-xs sm:text-sm px-1.5">Verifications</TabsTrigger>
+          <TabsTrigger value="promotions" className="text-xs sm:text-sm px-1.5">Promotions</TabsTrigger>
+          <TabsTrigger value="reports" className="text-xs sm:text-sm px-1.5">Reports</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs sm:text-sm px-1.5">Users</TabsTrigger>
+          <TabsTrigger value="properties" className="text-xs sm:text-sm px-1.5">Properties</TabsTrigger>
+          <TabsTrigger value="feedback" className="text-xs sm:text-sm px-1.5">Feedback</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
@@ -84,6 +86,14 @@ export default function Admin() {
 
         <TabsContent value="verifications">
           <AdminVerifications />
+        </TabsContent>
+
+        <TabsContent value="promotions">
+          <AdminPromotions />
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <AdminReports />
         </TabsContent>
 
         <TabsContent value="users">
