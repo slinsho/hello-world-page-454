@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, MessageSquare, Home, Star, ArrowUpRight, Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
+
 import { DashboardInquiries } from "@/components/dashboard/DashboardInquiries";
 import { DashboardPromotions } from "@/components/dashboard/DashboardPromotions";
 
