@@ -11,6 +11,9 @@ export function AdminRateSettings() {
   const { toast } = useToast();
   const [rate, setRate] = useState("");
   const [promoPrice, setPromoPrice] = useState("");
+  const [paymentNumber, setPaymentNumber] = useState("");
+  const [paymentName, setPaymentName] = useState("");
+  const [paymentInstructions, setPaymentInstructions] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -23,6 +26,12 @@ export function AdminRateSettings() {
         const map = new Map((data as any[]).map((d: any) => [d.key, d.value]));
         setRate(String(map.get("usd_to_lrd_rate") || "192"));
         setPromoPrice(String(map.get("promotion_price_per_month") || "5"));
+        const paymentInfo = map.get("payment_info") as any;
+        if (paymentInfo) {
+          setPaymentNumber(paymentInfo.number || "");
+          setPaymentName(paymentInfo.name || "");
+          setPaymentInstructions(paymentInfo.instructions || "");
+        }
       }
       setLoading(false);
     };
