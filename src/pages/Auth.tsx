@@ -142,7 +142,7 @@ const Auth = () => {
               <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-2xl font-bold text-foreground">LibHub</span>
+              <span className="text-2xl font-bold text-foreground">L-Prop</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
               Your Trusted Guide<br />in finding properties
