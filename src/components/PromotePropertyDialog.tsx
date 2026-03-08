@@ -29,6 +29,7 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [existingRequest, setExistingRequest] = useState<any>(null);
   const [loadingRequest, setLoadingRequest] = useState(false);
+  const [paymentRef, setPaymentRef] = useState("");
 
   const fetchExistingRequest = async () => {
     if (!user) return;
