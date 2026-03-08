@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
@@ -298,7 +299,7 @@ const About = () => {
                   ))}
                 </div>
                 <Button className="rounded-xl gap-2" asChild>
-                  <a href="/explore">Get started <ArrowRight className="h-4 w-4" /></a>
+                  <Link to="/explore">Get started <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
               </div>
               {content.dreams_image ? (
@@ -422,7 +423,7 @@ const About = () => {
             Browse verified real estate agents and property owners ready to help you find your perfect property.
           </p>
           <Button className="rounded-xl gap-2" asChild>
-            <a href="/agents">View All Agents & Owners <ArrowRight className="h-4 w-4" /></a>
+            <Link to="/agents">View All Agents & Owners <ArrowRight className="h-4 w-4" /></Link>
           </Button>
         </div>
       </section>
