@@ -122,14 +122,17 @@ const Settings = () => {
   });
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut({ scope: 'local' });
-    } catch (e) {
-      // Even if signOut fails, clear local state
-      console.error('Sign out error:', e);
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+    if (error) {
+      const storageKeys = Object.keys(localStorage).filter(
+        (key) => key.startsWith("sb-") && key.includes("auth-token")
+      );
+      storageKeys.forEach((key) => localStorage.removeItem(key));
+      sessionStorage.clear();
     }
-    // Force a full page reload to clear all cached state
-    window.location.href = '/';
+
+    window.location.replace("/auth");
   };
 
   const handleSaveAccount = async () => {
