@@ -124,6 +124,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "Property Promoted! 🎉",
           message: `Your property "${req.property?.title}" is now featured and will appear at the top of listings.`,
+          type: "status_updates",
         });
       }
 
