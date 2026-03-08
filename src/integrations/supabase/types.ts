@@ -492,6 +492,50 @@ export type Database = {
         }
         Relationships: []
       }
+      promotion_requests: {
+        Row: {
+          admin_id: string | null
+          admin_note: string | null
+          created_at: string
+          id: string
+          processed_at: string | null
+          property_id: string
+          reason: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          property_id: string
+          reason?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          property_id?: string
+          reason?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       properties: {
         Row: {
           address: string
@@ -504,6 +548,8 @@ export type Database = {
           description: string | null
           flagged_count: number | null
           id: string
+          is_flagged: boolean
+          is_promoted: boolean
           listing_type: Database["public"]["Enums"]["listing_type"]
           moderation_note: string | null
           moderation_status: string | null
@@ -529,6 +575,8 @@ export type Database = {
           description?: string | null
           flagged_count?: number | null
           id?: string
+          is_flagged?: boolean
+          is_promoted?: boolean
           listing_type: Database["public"]["Enums"]["listing_type"]
           moderation_note?: string | null
           moderation_status?: string | null
@@ -554,6 +602,8 @@ export type Database = {
           description?: string | null
           flagged_count?: number | null
           id?: string
+          is_flagged?: boolean
+          is_promoted?: boolean
           listing_type?: Database["public"]["Enums"]["listing_type"]
           moderation_note?: string | null
           moderation_status?: string | null
@@ -657,6 +707,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "property_offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_reports: {
+        Row: {
+          admin_id: string | null
+          admin_note: string | null
+          created_at: string
+          details: string | null
+          id: string
+          processed_at: string | null
+          property_id: string
+          reason: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          processed_at?: string | null
+          property_id: string
+          reason: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          processed_at?: string | null
+          property_id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_reports_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"

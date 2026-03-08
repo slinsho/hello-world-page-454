@@ -7,7 +7,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare, ShieldCheck } from "lucide-react";
+import { Phone, MessageCircle, Share2, Heart, MapPin, Bed, Bath, Grid3X3, ArrowLeft, CheckCircle, GitCompare, ShieldCheck, Flag, Megaphone } from "lucide-react";
 import { LISTING_TYPE_LABELS, formatLRD, formatWhatsAppLink } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -19,6 +19,8 @@ import { SEOHead } from "@/components/SEOHead";
 import { PropertyJsonLd } from "@/components/PropertyJsonLd";
 import { trackPropertyView } from "@/lib/analytics";
 import Navbar from "@/components/Navbar";
+import { ReportPropertyDialog } from "@/components/ReportPropertyDialog";
+import { PromotePropertyDialog } from "@/components/PromotePropertyDialog";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -189,6 +191,16 @@ const PropertyDetail = () => {
           </div>
 
           {property.description && (<div className="mb-6"><h3 className="font-semibold mb-2 hidden md:block">Description</h3><p className="text-sm text-muted-foreground">{property.description}</p></div>)}
+
+          {/* Promote & Report Actions */}
+          <div className="flex items-center gap-2 mb-6">
+            {user && property.owner_id === user.id && (
+              <PromotePropertyDialog propertyId={property.id} propertyTitle={property.title} isOwner={true} />
+            )}
+            {user && property.owner_id !== user.id && (
+              <ReportPropertyDialog propertyId={property.id} propertyTitle={property.title} />
+            )}
+          </div>
 
           {/* Photo Gallery */}
           {allPhotos.length > 1 && (
