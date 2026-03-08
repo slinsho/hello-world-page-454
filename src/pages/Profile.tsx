@@ -45,6 +45,7 @@ const Profile = () => {
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropType, setCropType] = useState<"profile" | "cover">("profile");
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
+  const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
 
   const isOwnProfile = !profileId || profileId === user?.id;
   const isAgent = profile?.role === "agent";
