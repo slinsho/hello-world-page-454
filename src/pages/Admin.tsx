@@ -71,7 +71,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 h-auto">
+        <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 h-auto">
           <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-1.5">Dashboard</TabsTrigger>
           <TabsTrigger value="verifications" className="text-xs sm:text-sm px-1.5">Verifications</TabsTrigger>
           <TabsTrigger value="promotions" className="text-xs sm:text-sm px-1.5">Promotions</TabsTrigger>
@@ -79,6 +79,7 @@ export default function Admin() {
           <TabsTrigger value="users" className="text-xs sm:text-sm px-1.5">Users</TabsTrigger>
           <TabsTrigger value="properties" className="text-xs sm:text-sm px-1.5">Properties</TabsTrigger>
           <TabsTrigger value="feedback" className="text-xs sm:text-sm px-1.5">Feedback</TabsTrigger>
+          <TabsTrigger value="rates" className="text-xs sm:text-sm px-1.5">Rates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
