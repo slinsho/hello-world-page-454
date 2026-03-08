@@ -310,7 +310,7 @@ export function AdminAboutPage() {
                 {m.photo ? (
                   <div className="flex items-center gap-3">
                     <img src={m.photo} alt={m.name} className="w-14 h-14 rounded-xl object-cover" />
-                    <Button size="sm" variant="outline" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleTeamPhotoUpload(i, ev.target.files[0]); input.click(); }}>Change</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleTeamPhotoUpload(i)}>Change</Button>
                     <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { const u = [...content.team_members]; u[i] = { ...u[i], photo: "" }; setContent({ ...content, team_members: u }); }}>Remove</Button>
                   </div>
                 ) : (
