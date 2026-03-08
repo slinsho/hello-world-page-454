@@ -408,6 +408,7 @@ const Settings = () => {
           <SectionHeader title="Preferences" />
           <div className="mt-4 space-y-4">
             <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">Browsing Defaults</h3>
               <div className="space-y-2">
                 <Label>Default County Filter</Label>
                 <Select value={userPrefs.default_county || "all"} onValueChange={(v) => { updatePreference("default_county", v === "all" ? null : v); toast({ title: "Updated", description: v === "all" ? "Showing all counties" : `Default county set to ${v}` }); }}>
@@ -417,8 +418,50 @@ const Settings = () => {
                     {LIBERIA_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">Set your preferred county for property browsing</p>
+                <p className="text-xs text-muted-foreground">Auto-filter Explore page by this county</p>
               </div>
+              <div className="space-y-2">
+                <Label>Default Listing Type</Label>
+                <Select value={userPrefs.default_listing_type || "all"} onValueChange={(v) => { updatePreference("default_listing_type", v === "all" ? null : v); toast({ title: "Updated", description: v === "all" ? "Showing all listing types" : `Default listing type set` }); }}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Listing Types</SelectItem>
+                    <SelectItem value="for_sale">For Sale</SelectItem>
+                    <SelectItem value="for_rent">For Rent</SelectItem>
+                    <SelectItem value="for_lease">For Lease</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Pre-select listing type when browsing</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Default Property Type</Label>
+                <Select value={userPrefs.default_property_type || "all"} onValueChange={(v) => { updatePreference("default_property_type", v === "all" ? null : v); toast({ title: "Updated", description: v === "all" ? "Showing all property types" : `Default property type set` }); }}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Property Types</SelectItem>
+                    <SelectItem value="house">House</SelectItem>
+                    <SelectItem value="apartment">Apartment</SelectItem>
+                    <SelectItem value="shop">Shop</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Pre-select property type when browsing</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Default Sort Order</Label>
+                <Select value={userPrefs.default_sort_order} onValueChange={(v) => { updatePreference("default_sort_order", v); toast({ title: "Updated", description: `Sort order set to ${v === "newest" ? "Newest First" : v === "price_low" ? "Price: Low to High" : "Price: High to Low"}` }); }}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="price_low">Price: Low to High</SelectItem>
+                    <SelectItem value="price_high">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">How properties are sorted by default</p>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">Display</h3>
               <div className="space-y-2">
                 <Label>Currency Display</Label>
                 <Select value={userPrefs.currency_display} onValueChange={(v) => { updatePreference("currency_display", v); toast({ title: "Updated", description: `Currency set to ${v === "usd" ? "USD ($)" : "LRD (L$)"}` }); }}>
@@ -431,6 +474,8 @@ const Settings = () => {
                 <p className="text-xs text-muted-foreground">Choose how property prices are displayed</p>
               </div>
             </div>
+
+            <p className="text-xs text-muted-foreground px-2">All preferences are saved automatically.</p>
           </div>
         </div>
       </div>

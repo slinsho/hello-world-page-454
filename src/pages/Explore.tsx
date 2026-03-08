@@ -21,22 +21,38 @@ const Explore = () => {
   const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
+  const [sortOrder, setSortOrder] = useState("newest");
 
-  // Apply default county from preferences on first load
+  // Apply defaults from preferences on first load
   useEffect(() => {
-    if (!initialized && preferences.default_county) {
-      const updated = { ...filters, county: preferences.default_county };
+    if (!initialized) {
+      const updated = {
+        ...filters,
+        county: preferences.default_county || "all",
+        listing: preferences.default_listing_type || "all",
+        type: preferences.default_property_type || "all",
+      };
       setFilters(updated);
       setTempFilters(updated);
+      setSortOrder(preferences.default_sort_order || "newest");
     }
     setInitialized(true);
-  }, [preferences.default_county]);
+  }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
 
-  useEffect(() => { fetchProperties(); }, [filters, searchQuery]);
+  useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
 
   const fetchProperties = async () => {
     setLoading(true);
-    let query = supabase.from("properties").select("*").order("is_promoted", { ascending: false }).order("created_at", { ascending: false });
+    let query = supabase.from("properties").select("*").order("is_promoted", { ascending: false });
+    
+    // Apply sort order
+    if (sortOrder === "price_low") {
+      query = query.order("price_usd", { ascending: true });
+    } else if (sortOrder === "price_high") {
+      query = query.order("price_usd", { ascending: false });
+    } else {
+      query = query.order("created_at", { ascending: false });
+    }
     if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
     if (filters.listing !== "all") query = query.eq("listing_type", filters.listing as any);
     if (filters.status !== "all") query = query.eq("status", filters.status as any);
