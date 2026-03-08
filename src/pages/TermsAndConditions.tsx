@@ -52,7 +52,7 @@ const defaultSections: Section[] = [
   {
     icon: "FileText",
     title: "6. Property Listings",
-    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. LibHub reserves the right to remove any listing that violates these terms or is deemed inappropriate.\n\nListings may be categorized as For Sale, For Rent, or For Lease. Property types include Houses, Apartments, and Shops. All listings are subject to content moderation by platform administrators.",
+    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. L-Prop reserves the right to remove any listing that violates these terms or is deemed inappropriate.\n\nListings may be categorized as For Sale, For Rent, or For Lease. Property types include Houses, Apartments, and Shops. All listings are subject to content moderation by platform administrators.",
   },
   {
     icon: "Star",
