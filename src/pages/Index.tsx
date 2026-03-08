@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import PropertyCard from "@/components/PropertyCard";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
