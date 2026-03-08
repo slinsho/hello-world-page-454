@@ -122,8 +122,14 @@ const Settings = () => {
   });
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut({ scope: 'local' });
-    navigate("/");
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (e) {
+      // Even if signOut fails, clear local state
+      console.error('Sign out error:', e);
+    }
+    // Force a full page reload to clear all cached state
+    window.location.href = '/';
   };
 
   const handleSaveAccount = async () => {
