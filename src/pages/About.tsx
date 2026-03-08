@@ -201,9 +201,10 @@ const About = () => {
 
       <main className="max-w-5xl mx-auto px-4 space-y-12 mt-8">
         {/* Stats Bar */}
-        {content.stats && content.stats.length > 0 && (
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {content.stats.map((stat, i) => (
+        {/* Real Stats Bar */}
+        {realStats.length > 0 && (
+          <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {realStats.map((stat, i) => (
               <div key={i} className="bg-card rounded-2xl border border-border/50 p-5 text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary mb-1">{stat.value}</div>
                 <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
