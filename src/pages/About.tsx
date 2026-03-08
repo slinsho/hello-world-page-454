@@ -338,7 +338,7 @@ const About = () => {
                 Start Your Journey With Our<br className="hidden md:block" /> Amazing Team
               </h2>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {content.team_members.map((member, i) => (
                 <div key={i} className="bg-secondary border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-colors">
                   {member.photo ? (
