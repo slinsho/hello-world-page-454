@@ -67,12 +67,7 @@ const DEFAULT_CONTENT: AboutContent = {
   address: "Monrovia, Liberia",
   whatsapp: "",
   values: [],
-  stats: [
-    { label: "Properties", value: "10K+", sublabel: "Listed properties reflect our growing real estate ecosystem." },
-    { label: "Happy Clients", value: "5K", sublabel: "Happy clients through our marketplace and local connections." },
-    { label: "Properties Agents", value: "100+", sublabel: "Professional agents bringing experience, trust, and reliability." },
-    { label: "Satisfaction", value: "95%", sublabel: "High satisfaction every time across all interactions." },
-  ],
+  stats: [],
   team_members: [],
   work_photos: [],
   services: [
