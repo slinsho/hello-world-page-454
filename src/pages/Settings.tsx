@@ -570,11 +570,11 @@ const Settings = () => {
 
             <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-3">
               <h3 className="text-sm font-semibold">Contact Support</h3>
-              <a href="mailto:support@libhub.com" className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary/80 transition-colors">
+              <a href="mailto:support@lprop.com" className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary/80 transition-colors">
                 <Mail className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm font-medium">Email Support</p>
-                  <p className="text-xs text-muted-foreground">support@libhub.com</p>
+                  <p className="text-xs text-muted-foreground">support@lprop.com</p>
                 </div>
               </a>
               <Button variant="outline" onClick={() => navigate("/feedback")} className="w-full rounded-xl gap-2">
