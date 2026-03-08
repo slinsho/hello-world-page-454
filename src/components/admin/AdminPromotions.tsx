@@ -288,6 +288,13 @@ export function AdminPromotions() {
                   <p className="text-sm text-amber-700">Waiting for user to pay ${(req.payment_amount || 0).toLocaleString()}</p>
                 </div>
               )}
+
+              {/* Delete button */}
+              <div className="pt-2 border-t">
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-1.5" onClick={() => handleDelete(req.id)}>
+                  <Trash2 className="h-3.5 w-3.5" /> Delete Request
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))
