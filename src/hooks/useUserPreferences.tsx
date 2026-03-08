@@ -64,6 +64,9 @@ export const UserPreferencesProvider = ({ children }: { children: React.ReactNod
           show_location: d.show_location ?? true,
           default_county: d.default_county || null,
           currency_display: d.currency_display || "usd",
+          default_listing_type: d.default_listing_type || null,
+          default_property_type: d.default_property_type || null,
+          default_sort_order: d.default_sort_order || "newest",
         });
         setHasRecord(true);
       }
