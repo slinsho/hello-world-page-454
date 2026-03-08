@@ -346,7 +346,7 @@ export function AdminAboutPage() {
               )}
               <div className="flex-1 space-y-2">
                 <Input placeholder="Caption" value={p.caption} onChange={e => { const u = [...content.work_photos]; u[i] = { ...u[i], caption: e.target.value }; setContent({ ...content, work_photos: u }); }} />
-                {p.url && <Button size="sm" variant="outline" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleWorkPhotoUpload(i, ev.target.files[0]); input.click(); }}>Change</Button>}
+                {p.url && <Button size="sm" variant="outline" onClick={() => handleWorkPhotoUpload(i)}>Change</Button>}
               </div>
               <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setContent({ ...content, work_photos: content.work_photos.filter((_, idx) => idx !== i) })}><Trash2 className="h-4 w-4" /></Button>
             </div>
