@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageCropper } from "@/components/profile/ImageCropper";
 import { SocialLinksEditor } from "@/components/profile/SocialLinksEditor";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
+import { OwnerPromotionsTab } from "@/components/profile/OwnerPromotionsTab";
 
 const Profile = () => {
   const navigate = useNavigate();
