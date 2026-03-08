@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Image as ImageIcon, Video, Star, StarOff, FolderOpen } from "lucide-react";
+import {
+  Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, Image as ImageIcon,
+  Video, Star, StarOff, FolderOpen, Search, FileText, Globe, BookOpen, TrendingUp
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -70,6 +73,9 @@ export function AdminBlog() {
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const coverInputRef = useRef<HTMLInputElement>(null);
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const [editorKey, setEditorKey] = useState(0);
@@ -118,6 +124,27 @@ export function AdminBlog() {
     },
   });
 
+  // Computed stats
+  const totalPosts = posts?.length || 0;
+  const publishedPosts = posts?.filter(p => p.is_published).length || 0;
+  const draftPosts = posts?.filter(p => !p.is_published).length || 0;
+  const totalViews = posts?.reduce((sum, p) => sum + (p.views_count || 0), 0) || 0;
+
+  // Filtered posts
+  const filteredPosts = posts?.filter(post => {
+    const matchesSearch = !searchQuery ||
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (post.excerpt || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "published" && post.is_published) ||
+      (statusFilter === "draft" && !post.is_published) ||
+      (statusFilter === "featured" && post.is_featured);
+    const matchesCategory =
+      categoryFilter === "all" || post.category_id === categoryFilter;
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
+
   const uploadFile = async (file: File, type: "cover" | "media"): Promise<string | null> => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -142,12 +169,9 @@ export function AdminBlog() {
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploadingCover(true);
     const url = await uploadFile(file, "cover");
-    if (url) {
-      setFormData((prev) => ({ ...prev, cover_image: url }));
-    }
+    if (url) setFormData((prev) => ({ ...prev, cover_image: url }));
     setUploadingCover(false);
     if (coverInputRef.current) coverInputRef.current.value = "";
   };
@@ -155,7 +179,6 @@ export function AdminBlog() {
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploadingMedia(true);
     const url = await uploadFile(file, "media");
     if (url) {
@@ -204,15 +227,10 @@ export function AdminBlog() {
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<BlogFormData> & { is_published?: boolean } }) => {
       const updateData: Record<string, unknown> = { ...data };
-      
       if (data.is_published && editingPost && !editingPost.published_at) {
         updateData.published_at = new Date().toISOString();
       }
-      
-      const { error } = await supabase
-        .from("blog_posts")
-        .update(updateData)
-        .eq("id", id);
+      const { error } = await supabase.from("blog_posts").update(updateData).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -288,16 +306,7 @@ export function AdminBlog() {
 
   const handleOpenCreate = () => {
     setEditingPost(null);
-    setFormData({
-      title: "",
-      slug: "",
-      excerpt: "",
-      content: "",
-      cover_image: "",
-      is_published: false,
-      is_featured: false,
-      category_id: "",
-    });
+    setFormData({ title: "", slug: "", excerpt: "", content: "", cover_image: "", is_published: false, is_featured: false, category_id: "" });
     setEditorKey((k) => k + 1);
     setIsDialogOpen(true);
   };
@@ -336,7 +345,6 @@ export function AdminBlog() {
       toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-
     if (editingPost) {
       updateMutation.mutate({ id: editingPost.id, data: formData });
     } else {
@@ -345,20 +353,13 @@ export function AdminBlog() {
   };
 
   const togglePublish = (post: BlogPost) => {
-    updateMutation.mutate({
-      id: post.id,
-      data: { is_published: !post.is_published },
-    });
+    updateMutation.mutate({ id: post.id, data: { is_published: !post.is_published } });
   };
 
   const toggleFeatured = (post: BlogPost) => {
-    updateMutation.mutate({
-      id: post.id,
-      data: { is_featured: !post.is_featured },
-    });
+    updateMutation.mutate({ id: post.id, data: { is_featured: !post.is_featured } });
   };
 
-  // Category handlers
   const handleOpenCreateCategory = () => {
     setEditingCategory(null);
     setCategoryFormData({ name: "", slug: "", display_order: (categories?.length || 0) + 1 });
@@ -389,7 +390,6 @@ export function AdminBlog() {
       toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-
     if (editingCategory) {
       updateCategoryMutation.mutate({ id: editingCategory.id, data: categoryFormData });
     } else {
@@ -398,184 +398,440 @@ export function AdminBlog() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle>Blog Management</CardTitle>
-            <TabsList>
-              <TabsTrigger value="posts">Posts</TabsTrigger>
-              <TabsTrigger value="categories">Categories</TabsTrigger>
-              <TabsTrigger value="social">Social Links</TabsTrigger>
-            </TabsList>
+    <div className="space-y-6">
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{totalPosts}</p>
+                <p className="text-xs text-muted-foreground">Total Posts</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <Globe className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{publishedPosts}</p>
+                <p className="text-xs text-muted-foreground">Published</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-muted">
+                <BookOpen className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{draftPosts}</p>
+                <p className="text-xs text-muted-foreground">Drafts</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{totalViews.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Views</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Card */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-xl">Blog Management</CardTitle>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="posts">Posts</TabsTrigger>
+                <TabsTrigger value="categories">Categories</TabsTrigger>
+                <TabsTrigger value="social">Social Links</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            {/* Posts Tab */}
+            <TabsContent value="posts" className="mt-0 space-y-4">
+              {/* Toolbar */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search posts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-36">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="featured">Featured</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories?.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleOpenCreate} className="shrink-0">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Post
+                </Button>
+              </div>
 
-          <TabsContent value="posts" className="mt-0">
-            <div className="flex justify-end mb-4">
-              <Button onClick={handleOpenCreate}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Post
-              </Button>
-            </div>
-
-            {postsLoading ? (
-              <p className="text-muted-foreground">Loading posts...</p>
-            ) : posts && posts.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Views</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {posts.map((post) => (
-                    <TableRow key={post.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {post.is_featured && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
-                          {post.title}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {categories?.find(c => c.id === post.category_id)?.name || "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={post.is_published ? "default" : "secondary"}>
-                          {post.is_published ? "Published" : "Draft"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{post.views_count || 0}</TableCell>
-                      <TableCell>
-                        {format(new Date(post.created_at), "MMM d, yyyy")}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => toggleFeatured(post)}
-                            title={post.is_featured ? "Remove from featured" : "Add to featured"}
-                          >
-                            {post.is_featured ? (
-                              <StarOff className="h-4 w-4" />
-                            ) : (
-                              <Star className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => togglePublish(post)}
-                            title={post.is_published ? "Unpublish" : "Publish"}
-                          >
-                            {post.is_published ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleOpenEdit(post)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() => setDeletePostId(post.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+              {/* Posts Table */}
+              {postsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
                   ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No blog posts yet. Create your first post!
-              </p>
-            )}
-          </TabsContent>
+                </div>
+              ) : filteredPosts && filteredPosts.length > 0 ? (
+                <>
+                  {/* Desktop Table */}
+                  <div className="hidden md:block rounded-lg border border-border overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="w-[60px]">Cover</TableHead>
+                          <TableHead>Title</TableHead>
+                          <TableHead className="w-[120px]">Category</TableHead>
+                          <TableHead className="w-[100px]">Status</TableHead>
+                          <TableHead className="w-[70px]">Views</TableHead>
+                          <TableHead className="w-[100px]">Created</TableHead>
+                          <TableHead className="text-right w-[130px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredPosts.map((post) => (
+                          <TableRow key={post.id} className="group">
+                            <TableCell>
+                              {post.cover_image ? (
+                                <img
+                                  src={post.cover_image}
+                                  alt={post.title}
+                                  className="w-10 h-10 object-cover rounded-md"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                                  <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {post.is_featured && (
+                                  <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 shrink-0" />
+                                )}
+                                <span className="font-medium line-clamp-1">{post.title}</span>
+                              </div>
+                              {post.excerpt && (
+                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{post.excerpt}</p>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {categories?.find(c => c.id === post.category_id) ? (
+                                <Badge variant="outline" className="text-xs font-normal">
+                                  {categories.find(c => c.id === post.category_id)?.name}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={post.is_published ? "default" : "secondary"}
+                                className={post.is_published ? "bg-green-500/15 text-green-500 border-green-500/20 hover:bg-green-500/20" : ""}
+                              >
+                                {post.is_published ? "Published" : "Draft"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-sm">
+                              {(post.views_count || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-sm">
+                              {format(new Date(post.created_at), "MMM d, yyyy")}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => toggleFeatured(post)}
+                                  title={post.is_featured ? "Remove from featured" : "Add to featured"}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  {post.is_featured ? (
+                                    <StarOff className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Star className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => togglePublish(post)}
+                                  title={post.is_published ? "Unpublish" : "Publish"}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  {post.is_published ? (
+                                    <EyeOff className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Eye className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleOpenEdit(post)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                  onClick={() => setDeletePostId(post.id)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
 
-          <TabsContent value="categories" className="mt-0">
-            <div className="flex justify-end mb-4">
-              <Button onClick={handleOpenCreateCategory}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Category
-              </Button>
-            </div>
+                  {/* Mobile Cards */}
+                  <div className="md:hidden space-y-3">
+                    {filteredPosts.map((post) => (
+                      <Card key={post.id} className="overflow-hidden">
+                        <CardContent className="p-0">
+                          <div className="flex gap-3 p-3">
+                            {post.cover_image ? (
+                              <img
+                                src={post.cover_image}
+                                alt={post.title}
+                                className="w-16 h-16 object-cover rounded-lg shrink-0"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {post.is_featured && (
+                                    <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  )}
+                                  <p className="font-medium text-sm line-clamp-2">{post.title}</p>
+                                </div>
+                                <Badge
+                                  variant={post.is_published ? "default" : "secondary"}
+                                  className={`shrink-0 text-xs ${post.is_published ? "bg-green-500/15 text-green-500 border-green-500/20" : ""}`}
+                                >
+                                  {post.is_published ? "Live" : "Draft"}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1.5">
+                                {categories?.find(c => c.id === post.category_id) && (
+                                  <Badge variant="outline" className="text-xs font-normal">
+                                    {categories.find(c => c.id === post.category_id)?.name}
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {(post.views_count || 0).toLocaleString()} views
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(post.created_at), "MMM d")}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex border-t border-border">
+                            <button
+                              onClick={() => toggleFeatured(post)}
+                              className="flex-1 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-1"
+                            >
+                              {post.is_featured ? <StarOff className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5" />}
+                              {post.is_featured ? "Unfeature" : "Feature"}
+                            </button>
+                            <button
+                              onClick={() => togglePublish(post)}
+                              className="flex-1 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-1 border-x border-border"
+                            >
+                              {post.is_published ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                              {post.is_published ? "Unpublish" : "Publish"}
+                            </button>
+                            <button
+                              onClick={() => handleOpenEdit(post)}
+                              className="flex-1 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-1 border-r border-border"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => setDeletePostId(post.id)}
+                              className="flex-1 py-2 text-xs text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
+                            </button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
 
-            {categoriesLoading ? (
-              <p className="text-muted-foreground">Loading categories...</p>
-            ) : categories && categories.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Slug</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {categories.map((cat) => (
-                    <TableRow key={cat.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                          {cat.name}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{cat.slug}</TableCell>
-                      <TableCell>{cat.display_order}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleOpenEditCategory(cat)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() => setDeleteCategoryId(cat.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                  <p className="text-xs text-muted-foreground text-right">
+                    Showing {filteredPosts.length} of {totalPosts} posts
+                  </p>
+                </>
+              ) : (
+                <div className="text-center py-16 text-muted-foreground">
+                  {searchQuery || statusFilter !== "all" || categoryFilter !== "all" ? (
+                    <>
+                      <Search className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No posts match your filters</p>
+                      <p className="text-sm mt-1">Try adjusting your search or filters</p>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No blog posts yet</p>
+                      <p className="text-sm mt-1">Create your first post to get started</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Categories Tab */}
+            <TabsContent value="categories" className="mt-0 space-y-4">
+              <div className="flex justify-end">
+                <Button onClick={handleOpenCreateCategory}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Category
+                </Button>
+              </div>
+
+              {categoriesLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-14 rounded-lg bg-muted animate-pulse" />
                   ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No categories yet. Create your first category!
-              </p>
-            )}
-          </TabsContent>
+                </div>
+              ) : categories && categories.length > 0 ? (
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead>Name</TableHead>
+                        <TableHead>Slug</TableHead>
+                        <TableHead className="w-[80px]">Posts</TableHead>
+                        <TableHead className="w-[70px] text-center">Order</TableHead>
+                        <TableHead className="text-right w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {categories.map((cat) => (
+                        <TableRow key={cat.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded bg-primary/10">
+                                <FolderOpen className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              {cat.name}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <code className="text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground">
+                              {cat.slug}
+                            </code>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {posts?.filter(p => p.category_id === cat.id).length || 0}
+                          </TableCell>
+                          <TableCell className="text-center text-muted-foreground text-sm">
+                            {cat.display_order}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleOpenEditCategory(cat)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                onClick={() => setDeleteCategoryId(cat.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-16 text-muted-foreground">
+                  <FolderOpen className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                  <p className="font-medium">No categories yet</p>
+                  <p className="text-sm mt-1">Create categories to organize your posts</p>
+                </div>
+              )}
+            </TabsContent>
 
-          <TabsContent value="social" className="mt-0">
-            <SocialLinksManager />
-          </TabsContent>
-        </Tabs>
-      </CardHeader>
-      <CardContent>
-        {/* Empty - content is in tabs */}
-      </CardContent>
+            {/* Social Links Tab */}
+            <TabsContent value="social" className="mt-0">
+              <SocialLinksManager />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Create/Edit Post Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -608,9 +864,7 @@ export function AdminBlog() {
                 <Textarea
                   id="excerpt"
                   value={formData.excerpt}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, excerpt: e.target.value }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
                   placeholder="Brief summary of the post"
                   rows={2}
                 />
@@ -649,9 +903,7 @@ export function AdminBlog() {
                 <RichTextEditor
                   key={editorKey}
                   content={formData.content}
-                  onChange={(content) =>
-                    setFormData((prev) => ({ ...prev, content }))
-                  }
+                  onChange={(content) => setFormData((prev) => ({ ...prev, content }))}
                   onInsertImage={() => mediaInputRef.current?.click()}
                 />
               </div>
@@ -663,9 +915,7 @@ export function AdminBlog() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, slug: e.target.value }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
                   placeholder="post-url-slug"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -677,18 +927,14 @@ export function AdminBlog() {
                 <Label>Category</Label>
                 <Select
                   value={formData.category_id}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, category_id: value }))
-                  }
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, category_id: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories?.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -699,9 +945,7 @@ export function AdminBlog() {
                 <div className="flex gap-2">
                   <Input
                     value={formData.cover_image}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, cover_image: e.target.value }))
-                    }
+                    onChange={(e) => setFormData((prev) => ({ ...prev, cover_image: e.target.value }))}
                     placeholder="https://example.com/image.jpg or upload"
                   />
                   <input
@@ -739,14 +983,12 @@ export function AdminBlog() {
                 )}
               </div>
 
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-6 pt-2">
                 <div className="flex items-center gap-2">
                   <Switch
                     id="is_published"
                     checked={formData.is_published}
-                    onCheckedChange={(checked) =>
-                      setFormData((prev) => ({ ...prev, is_published: checked }))
-                    }
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_published: checked }))}
                   />
                   <Label htmlFor="is_published">Publish immediately</Label>
                 </div>
@@ -754,9 +996,7 @@ export function AdminBlog() {
                   <Switch
                     id="is_featured"
                     checked={formData.is_featured}
-                    onCheckedChange={(checked) =>
-                      setFormData((prev) => ({ ...prev, is_featured: checked }))
-                    }
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_featured: checked }))}
                   />
                   <Label htmlFor="is_featured">Featured post</Label>
                 </div>
@@ -765,18 +1005,14 @@ export function AdminBlog() {
           </Tabs>
 
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={handleCloseDialog}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
             <Button
               onClick={handleSubmit}
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               {createMutation.isPending || updateMutation.isPending
                 ? "Saving..."
-                : editingPost
-                ? "Update Post"
-                : "Create Post"}
+                : editingPost ? "Update Post" : "Create Post"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -786,9 +1022,7 @@ export function AdminBlog() {
       <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingCategory ? "Edit Category" : "Create Category"}
-            </DialogTitle>
+            <DialogTitle>{editingCategory ? "Edit Category" : "Create Category"}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -801,48 +1035,35 @@ export function AdminBlog() {
                 placeholder="Category name"
               />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="cat-slug">Slug *</Label>
               <Input
                 id="cat-slug"
                 value={categoryFormData.slug}
-                onChange={(e) =>
-                  setCategoryFormData((prev) => ({ ...prev, slug: e.target.value }))
-                }
+                onChange={(e) => setCategoryFormData((prev) => ({ ...prev, slug: e.target.value }))}
                 placeholder="category-slug"
               />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="cat-order">Display Order</Label>
               <Input
                 id="cat-order"
                 type="number"
                 value={categoryFormData.display_order}
-                onChange={(e) =>
-                  setCategoryFormData((prev) => ({
-                    ...prev,
-                    display_order: parseInt(e.target.value) || 0,
-                  }))
-                }
+                onChange={(e) => setCategoryFormData((prev) => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
               />
             </div>
           </div>
 
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={handleCloseCategoryDialog}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={handleCloseCategoryDialog}>Cancel</Button>
             <Button
               onClick={handleCategorySubmit}
               disabled={createCategoryMutation.isPending || updateCategoryMutation.isPending}
             >
               {createCategoryMutation.isPending || updateCategoryMutation.isPending
                 ? "Saving..."
-                : editingCategory
-                ? "Update Category"
-                : "Create Category"}
+                : editingCategory ? "Update Category" : "Create Category"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -889,6 +1110,6 @@ export function AdminBlog() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </div>
   );
 }
