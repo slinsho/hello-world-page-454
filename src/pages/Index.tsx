@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import PropertyCard from "@/components/PropertyCard";
@@ -120,6 +121,9 @@ const Index = () => {
       <main className="px-4 pt-4 md:px-6 lg:px-8 space-y-6 max-w-7xl mx-auto">
         {/* Homepage Banners */}
         <HomepageBanners />
+
+        {/* Featured Promoted Properties */}
+        <FeaturedPropertiesBanner />
 
         {/* Recently Viewed Section */}
         {user && <RecentlyViewed />}
