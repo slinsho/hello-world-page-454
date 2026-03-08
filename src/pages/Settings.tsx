@@ -28,6 +28,7 @@ const Settings = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState({ name: "", county: "", address: "", bio: "" });
+  const [agencyForm, setAgencyForm] = useState({ agency_name: "", office_location: "" });
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
