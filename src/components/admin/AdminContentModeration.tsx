@@ -79,6 +79,9 @@ export function AdminContentModeration() {
   };
 
   const handleModerate = async (propertyId: string, status: string) => {
+    // Find the property to get owner info
+    const property = properties.find(p => p.id === propertyId);
+
     const { error } = await supabase
       .from("properties")
       .update({ 
@@ -91,6 +94,31 @@ export function AdminContentModeration() {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
+    }
+
+    // Send notification to owner for flagged or rejected properties
+    if (property && (status === "flagged" || status === "rejected")) {
+      const { data: prop } = await supabase
+        .from("properties")
+        .select("owner_id, title")
+        .eq("id", propertyId)
+        .single();
+
+      if (prop) {
+        const title = status === "flagged"
+          ? "⚠️ Property Flagged"
+          : "❌ Property Rejected";
+        const message = status === "flagged"
+          ? `Your property "${prop.title}" has been flagged for review.${moderationNote ? ` Reason: ${moderationNote}` : " Please review and update your listing."}`
+          : `Your property "${prop.title}" has been rejected and is now inactive.${moderationNote ? ` Reason: ${moderationNote}` : " Please contact support for more details."}`;
+
+        await supabase.from("notifications").insert({
+          user_id: prop.owner_id,
+          property_id: propertyId,
+          title,
+          message,
+        });
+      }
     }
 
     toast({ title: "Updated", description: `Property ${status}` });
