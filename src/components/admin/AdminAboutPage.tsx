@@ -399,6 +399,15 @@ export function AdminAboutPage() {
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save All Changes
         </Button>
       </div>
+
+      <ImageCropper
+        open={cropperOpen}
+        onClose={() => { setCropperOpen(false); if (cropperSrc) URL.revokeObjectURL(cropperSrc); }}
+        imageSrc={cropperSrc}
+        aspectRatio={cropperAspect}
+        onCropComplete={handleCropComplete}
+        title={cropperTitle}
+      />
     </div>
   );
 }
