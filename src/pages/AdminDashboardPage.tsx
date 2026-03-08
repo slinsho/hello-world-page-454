@@ -4,6 +4,8 @@ import { AdminVerifications } from "@/components/admin/AdminVerifications";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
+import { AdminPromotions } from "@/components/admin/AdminPromotions";
+import { AdminRateSettings } from "@/components/admin/AdminRateSettings";
 import { AdminMarketing } from "@/components/admin/AdminMarketing";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminBlog } from "@/components/admin/AdminBlog";
