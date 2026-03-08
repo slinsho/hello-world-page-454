@@ -248,10 +248,10 @@ const PropertyDetail = () => {
             <h3 className="text-lg font-semibold mb-3">{property.profiles?.role === "agent" ? "Listed by Agent" : "Property Owner"}</h3>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-16 h-16 rounded-full bg-card border border-border overflow-hidden">
-                {property.profiles?.profile_photo_url ? (<img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{property.profiles?.name?.charAt(0) || 'U'}</div>)}
+                {displayPhoto ? (<img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl font-semibold">{displayName?.charAt(0) || 'U'}</div>)}
               </div>
               <div>
-                <p className="font-semibold text-lg">{property.profiles?.name || 'Unknown'}</p>
+                <p className="font-semibold text-lg">{displayName}</p>
                 <p className="text-muted-foreground text-sm">{formatRole(property.profiles?.role || 'property_owner')}</p>
                 {property.profiles?.verification_status === "approved" && (
                   <div className="flex items-center gap-1 mt-0.5">
