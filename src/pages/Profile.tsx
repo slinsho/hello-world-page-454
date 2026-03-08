@@ -350,6 +350,16 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* About */}
+        {aboutText && (
+          <div className="px-4 mt-4">
+            <div className="bg-card rounded-xl p-4 border border-border/50">
+              <h2 className="text-sm font-bold mb-1.5">About</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed">{aboutText}</p>
+            </div>
+          </div>
+        )}
+
         {/* Listings */}
         <div className="px-4 mt-5">
           <div className="flex items-center justify-between mb-3">
@@ -431,6 +441,14 @@ const Profile = () => {
             <div className="bg-secondary/50 rounded-xl p-4 text-center"><p className="text-2xl font-bold">{stats.taken}</p><p className="text-xs text-muted-foreground">Sold/Rented</p></div>
           </div>
         </div>
+
+        {/* About */}
+        {aboutText && (
+          <div className="mt-6 bg-card rounded-xl p-5 border border-border/50">
+            <h2 className="text-base font-bold mb-2">About</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">{aboutText}</p>
+          </div>
+        )}
 
         {/* Listings */}
         <div className="mt-6">
