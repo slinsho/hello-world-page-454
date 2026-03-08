@@ -114,6 +114,9 @@ export default function AdminDashboardPage() {
         <TabsContent value="promotions">
           <AdminPromotions />
         </TabsContent>
+        <TabsContent value="reports">
+          <AdminReports />
+        </TabsContent>
 
         <TabsContent value="marketing">
           <AdminMarketing />
