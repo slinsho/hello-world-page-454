@@ -15,11 +15,15 @@ import { AdminContentModeration } from "@/components/admin/AdminContentModeratio
 import { AdminVerifiedDocuments } from "@/components/admin/AdminVerifiedDocuments";
 import { AdminLegalPages } from "@/components/admin/AdminLegalPages";
 import { AdminAboutPage } from "@/components/admin/AdminAboutPage";
-import { Shield, LogOut } from "lucide-react";
+import { Shield, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
