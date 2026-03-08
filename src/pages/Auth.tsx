@@ -494,7 +494,7 @@ const Auth = () => {
       {/* Right side - CTA (desktop) / Bottom section (mobile) */}
       <div className="relative z-10 md:w-1/2 md:flex md:items-center md:justify-center">
         {/* Mobile bottom section */}
-        <div className="md:hidden px-6 pb-10 pt-4 space-y-6">
+        <div className="md:hidden px-6 pb-8 pt-2 space-y-4">
           <div className="space-y-3 text-center">
             <h1 className="text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
               Your Trusted Guide<br />
