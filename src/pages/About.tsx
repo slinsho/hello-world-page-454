@@ -340,25 +340,25 @@ const About = () => {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {content.team_members.map((member, i) => (
-                <div key={i} className="bg-secondary border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-colors">
+                <div key={i} className="bg-secondary border border-border rounded-xl md:rounded-2xl overflow-hidden group hover:border-primary/30 transition-colors">
                   {member.photo ? (
-                    <img src={member.photo} alt={member.name} className="w-full h-60 md:h-72 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <img src={member.photo} alt={member.name} className="w-full h-36 md:h-72 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   ) : (
-                    <div className="w-full h-60 md:h-72 bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
-                      <Users className="h-16 w-16 text-muted-foreground/30" />
+                    <div className="w-full h-36 md:h-72 bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                      <Users className="h-10 w-10 md:h-16 md:w-16 text-muted-foreground/30" />
                     </div>
                   )}
-                  <div className="p-5 text-center">
-                    <h3 className="font-bold text-lg text-foreground">{member.name}</h3>
-                    <p className="text-primary text-sm font-medium mb-2">{member.role}</p>
-                    {member.bio && <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{member.bio}</p>}
-                    <div className="flex gap-2 justify-center">
+                  <div className="p-2.5 md:p-5 text-center">
+                    <h3 className="font-bold text-xs md:text-lg text-foreground truncate">{member.name}</h3>
+                    <p className="text-primary text-[10px] md:text-sm font-medium mb-1 md:mb-2">{member.role}</p>
+                    {member.bio && <p className="text-[10px] md:text-xs text-muted-foreground mb-2 md:mb-3 leading-relaxed line-clamp-2 hidden md:block">{member.bio}</p>}
+                    <div className="flex gap-1.5 md:gap-2 justify-center">
                       {(["facebook", "instagram", "twitter", "linkedin"] as const).map((platform) => {
                         const url = member[platform];
                         if (!url) return null;
                         return (
                           <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors">
+                            className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors">
                             {getSocialIcon(platform)}
                           </a>
                         );
