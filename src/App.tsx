@@ -32,6 +32,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Messages = lazy(() => import("./pages/Messages"));
 const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const OwnerPromotionDashboard = lazy(() => import("./pages/OwnerPromotionDashboard"));
 const PopularAreasPage = lazy(() => import("./pages/PopularAreasPage"));
 const EditProperty = lazy(() => import("./pages/EditProperty"));
 const Settings = lazy(() => import("./pages/Settings"));

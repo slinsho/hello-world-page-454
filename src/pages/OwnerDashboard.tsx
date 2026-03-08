@@ -42,7 +42,7 @@ export default function OwnerDashboard() {
     if (user) {
       const checkRole = async () => {
         const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-        if (data?.role === "property_owner") { setShowUpgrade(true); setLoading(false); return; }
+        if (data?.role === "property_owner") { navigate("/owner-promotions", { replace: true }); return; }
       };
       checkRole();
     }
