@@ -41,7 +41,7 @@ export function SEOHead({
     setMeta("og:description", description, true);
     setMeta("og:image", ogImage, true);
     setMeta("og:type", ogType, true);
-    setMeta("og:site_name", "LibHub", true);
+    setMeta("og:site_name", "L-Prop", true);
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
