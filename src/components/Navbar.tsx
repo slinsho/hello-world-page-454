@@ -201,6 +201,7 @@ const Navbar = () => {
           <div className="flex items-center gap-1">
             {navItems.map((item) => {
               if (item.requiresAuth && !user) return null;
+              if ((item as any).guestOnly && user) return null;
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
