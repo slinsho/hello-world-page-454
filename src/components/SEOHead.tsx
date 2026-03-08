@@ -21,7 +21,7 @@ export function SEOHead({
 }: SEOHeadProps) {
   useEffect(() => {
     // Title
-    document.title = title.includes("LibHub") ? title : `${title} | LibHub`;
+    document.title = title.includes("L-Prop") ? title : `${title} | L-Prop`;
 
     // Meta tags
     const setMeta = (name: string, content: string, property = false) => {
