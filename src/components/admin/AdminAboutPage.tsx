@@ -205,25 +205,31 @@ export function AdminAboutPage() {
         </CardContent>
       </Card>
 
-      {/* Stats */}
+      {/* Stats Descriptions */}
       <Card><CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Statistics</CardTitle>
-          <Button size="sm" variant="outline" onClick={() => setContent({ ...content, stats: [...content.stats, { label: "", value: "", sublabel: "" }] })} className="gap-1"><Plus className="h-3 w-3" /> Add</Button>
-        </div>
+        <CardTitle className="text-base">Statistics Descriptions</CardTitle>
       </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground">Note: Real-time data will override these values on the public page, but sublabels will show.</p>
-          {content.stats.map((s, i) => (
-            <div key={i} className="flex gap-3 items-start">
-              <div className="flex-1 grid grid-cols-3 gap-2">
-                <Input placeholder="Value (e.g. 10K+)" value={s.value} onChange={e => { const u = [...content.stats]; u[i] = { ...u[i], value: e.target.value }; setContent({ ...content, stats: u }); }} />
-                <Input placeholder="Label" value={s.label} onChange={e => { const u = [...content.stats]; u[i] = { ...u[i], label: e.target.value }; setContent({ ...content, stats: u }); }} />
-                <Input placeholder="Sublabel" value={s.sublabel} onChange={e => { const u = [...content.stats]; u[i] = { ...u[i], sublabel: e.target.value }; setContent({ ...content, stats: u }); }} />
+          <p className="text-xs text-muted-foreground">Statistics values are pulled from real database data automatically. You can optionally customize the description shown below each stat.</p>
+          {["Total Properties", "Active Listings", "Verified Users", "Counties Covered"].map((label) => {
+            const existing = content.stats.find(s => s.label === label);
+            return (
+              <div key={label} className="space-y-1">
+                <Label className="text-sm font-medium">{label}</Label>
+                <Input
+                  placeholder={`Optional description for "${label}"`}
+                  value={existing?.sublabel || ""}
+                  onChange={e => {
+                    const newStats = content.stats.filter(s => s.label !== label);
+                    if (e.target.value) {
+                      newStats.push({ label, value: "", sublabel: e.target.value });
+                    }
+                    setContent({ ...content, stats: newStats });
+                  }}
+                />
               </div>
-              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setContent({ ...content, stats: content.stats.filter((_, idx) => idx !== i) })}><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
 

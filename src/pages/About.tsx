@@ -183,7 +183,7 @@ const About = () => {
     <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div></div>
   );
 
-  const displayStats = realStats.length > 0 ? realStats : content.stats;
+  const displayStats = realStats;
 
   return (
     <div className="about-page min-h-screen pb-20 md:pb-0">
