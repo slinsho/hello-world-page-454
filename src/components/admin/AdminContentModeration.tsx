@@ -162,8 +162,18 @@ export function AdminContentModeration() {
         {filtered.map(property => (
           <Card key={property.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-1 flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Property Photos */}
+                <div className="flex gap-1.5 shrink-0">
+                  {property.photos?.slice(0, 2).map((photo, idx) => (
+                    <img key={idx} src={photo} alt={`${property.title} ${idx + 1}`} className="h-20 w-20 rounded-lg object-cover border border-border" />
+                  ))}
+                  {(!property.photos || property.photos.length === 0) && (
+                    <div className="h-20 w-20 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold truncate">{property.title}</h3>
                     {getModerationBadge(property.moderation_status)}
@@ -176,11 +186,17 @@ export function AdminContentModeration() {
                   <p className="text-sm text-muted-foreground">
                     {property.owner_name} · {property.county} · ${property.price_usd.toLocaleString()}
                   </p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {property.property_type} · {property.listing_type.replace("_", " ")}
+                    {property.bedrooms ? ` · ${property.bedrooms} bed` : ""}
+                    {property.bathrooms ? ` · ${property.bathrooms} bath` : ""}
+                  </p>
                   {property.moderation_note && (
                     <p className="text-xs text-muted-foreground italic">Note: {property.moderation_note}</p>
                   )}
                 </div>
-                <div className="flex gap-2 shrink-0">
+
+                <div className="flex sm:flex-col gap-2 shrink-0">
                   <Button size="sm" variant="outline" onClick={() => { setSelectedProperty(property); setModerationNote(property.moderation_note || ""); }}>
                     Review
                   </Button>
