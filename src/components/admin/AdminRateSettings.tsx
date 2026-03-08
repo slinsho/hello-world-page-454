@@ -5,15 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, DollarSign, Bell } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { RefreshCw, DollarSign, Bell, Phone, CreditCard } from "lucide-react";
 
 export function AdminRateSettings() {
   const { toast } = useToast();
   const [rate, setRate] = useState("");
   const [promoPrice, setPromoPrice] = useState("");
+  const [paymentNumber, setPaymentNumber] = useState("");
+  const [paymentName, setPaymentName] = useState("");
+  const [paymentInstructions, setPaymentInstructions] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
+  const [savingPayment, setSavingPayment] = useState(false);
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase
@@ -23,6 +27,12 @@ export function AdminRateSettings() {
         const map = new Map((data as any[]).map((d: any) => [d.key, d.value]));
         setRate(String(map.get("usd_to_lrd_rate") || "192"));
         setPromoPrice(String(map.get("promotion_price_per_month") || "5"));
+        const paymentInfo = map.get("payment_info") as any;
+        if (paymentInfo) {
+          setPaymentNumber(paymentInfo.number || "");
+          setPaymentName(paymentInfo.name || "");
+          setPaymentInstructions(paymentInfo.instructions || "");
+        }
       }
       setLoading(false);
     };
@@ -43,7 +53,7 @@ export function AdminRateSettings() {
 
     setSaving(true);
     try {
-      // Update both settings
+      // Update all settings
       await Promise.all([
         supabase.from("platform_settings" as any).update({ value: newRate, updated_at: new Date().toISOString() }).eq("key", "usd_to_lrd_rate"),
         supabase.from("platform_settings" as any).update({ value: newPromo, updated_at: new Date().toISOString() }).eq("key", "promotion_price_per_month"),
@@ -70,6 +80,29 @@ export function AdminRateSettings() {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSavePaymentInfo = async () => {
+    if (!paymentNumber.trim()) {
+      toast({ title: "Missing Number", description: "Please enter a payment number.", variant: "destructive" });
+      return;
+    }
+    setSavingPayment(true);
+    try {
+      const paymentInfo = { number: paymentNumber.trim(), name: paymentName.trim(), instructions: paymentInstructions.trim() };
+      // Upsert payment_info setting
+      const { data: existing } = await supabase.from("platform_settings" as any).select("key").eq("key", "payment_info").single();
+      if (existing) {
+        await supabase.from("platform_settings" as any).update({ value: paymentInfo, updated_at: new Date().toISOString() }).eq("key", "payment_info");
+      } else {
+        await supabase.from("platform_settings" as any).insert({ key: "payment_info", value: paymentInfo } as any);
+      }
+      toast({ title: "Payment Info Saved", description: "Users will now see this payment number in their payment notifications." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingPayment(false);
     }
   };
 
@@ -141,6 +174,53 @@ export function AdminRateSettings() {
               {saving ? "Saving..." : "Save & Notify All Users"}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Number Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Phone className="h-4 w-4 text-primary" />
+            Payment Number / Account
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            This payment number will be shown to users when they need to make a payment for promotions. Users will see it automatically in their payment notification.
+          </p>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Account / Business Name</Label>
+            <Input
+              value={paymentName}
+              onChange={(e) => setPaymentName(e.target.value)}
+              placeholder="e.g. LibbProperty Mobile Money"
+              maxLength={100}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Payment Number</Label>
+            <Input
+              value={paymentNumber}
+              onChange={(e) => setPaymentNumber(e.target.value)}
+              placeholder="e.g. 0770000000"
+              maxLength={50}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Payment Instructions (optional)</Label>
+            <Textarea
+              value={paymentInstructions}
+              onChange={(e) => setPaymentInstructions(e.target.value)}
+              placeholder="e.g. Send payment via Orange Money to the number above. Include your property title as reference."
+              maxLength={300}
+              rows={3}
+            />
+          </div>
+          <Button onClick={handleSavePaymentInfo} disabled={savingPayment} className="w-full gap-1.5">
+            <CreditCard className="h-4 w-4" />
+            {savingPayment ? "Saving..." : "Save Payment Info"}
+          </Button>
         </CardContent>
       </Card>
     </div>

@@ -28,13 +28,21 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [paymentRefs, setPaymentRefs] = useState<Record<string, string>>({});
+  const [senderNames, setSenderNames] = useState<Record<string, string>>({});
   const [submittingRef, setSubmittingRef] = useState<string | null>(null);
   const [submittedNotifications, setSubmittedNotifications] = useState<Set<string>>(new Set());
+  const [paymentInfo, setPaymentInfo] = useState<{ number: string; name: string; instructions: string } | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     fetchNotifications();
+    fetchPaymentInfo();
   }, [user]);
+
+  const fetchPaymentInfo = async () => {
+    const { data } = await supabase.from("platform_settings" as any).select("value").eq("key", "payment_info").single();
+    if (data) setPaymentInfo((data as any).value);
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -58,6 +66,11 @@ const Notifications = () => {
   const handleSubmitPaymentRef = async (notification: Notification) => {
     if (!user || !notification.property_id) return;
     const ref = paymentRefs[notification.id]?.trim();
+    const name = senderNames[notification.id]?.trim();
+    if (!name || name.length < 2) {
+      toast({ title: "Name Required", description: "Please enter your full name.", variant: "destructive" });
+      return;
+    }
     if (!ref || ref.length < 4) {
       toast({ title: "Invalid Reference", description: "Reference must be at least 4 characters.", variant: "destructive" });
       return;
@@ -81,7 +94,7 @@ const Notifications = () => {
 
       const { error } = await supabase
         .from("promotion_requests")
-        .update({ payment_status: "paid", payment_reference: ref } as any)
+        .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
         .eq("id", promoRequests[0].id);
 
       if (error) throw error;
@@ -135,24 +148,39 @@ const Notifications = () => {
 
                   {/* Inline payment reference input — hidden after submission */}
                   {showPaymentInput && (
-                    <div className="mt-3 pt-3 border-t space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <div className="mt-3 pt-3 border-t space-y-3" onClick={(e) => e.stopPropagation()}>
+                      {/* Show payment number from admin */}
+                      {paymentInfo?.number && (
+                        <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                          <p className="text-xs font-semibold text-foreground">Send payment to:</p>
+                          {paymentInfo.name && <p className="text-sm font-medium text-foreground">{paymentInfo.name}</p>}
+                          <p className="text-lg font-bold text-primary tracking-wide">{paymentInfo.number}</p>
+                          {paymentInfo.instructions && <p className="text-xs text-muted-foreground mt-1">{paymentInfo.instructions}</p>}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
                         <DollarSign className="h-3.5 w-3.5" />
-                        <span className="font-medium">Submit your payment reference below:</span>
+                        <span className="font-medium">After payment, fill in your details below:</span>
                       </div>
+                      <Input
+                        value={senderNames[notification.id] || ""}
+                        onChange={(e) => setSenderNames(prev => ({ ...prev, [notification.id]: e.target.value }))}
+                        placeholder="Your full name"
+                        maxLength={100}
+                        className="rounded-xl text-sm h-9"
+                      />
                       <div className="flex gap-2">
                         <Input
                           value={paymentRefs[notification.id] || ""}
                           onChange={(e) => setPaymentRefs(prev => ({ ...prev, [notification.id]: e.target.value }))}
-                          placeholder="e.g. TXN-20260308-12345"
+                          placeholder="Payment reference number"
                           maxLength={100}
                           className="rounded-xl text-sm h-9"
-                          onClick={(e) => e.stopPropagation()}
                         />
                         <Button
                           size="sm"
                           className="gap-1.5 rounded-xl h-9 px-3"
-                          disabled={submittingRef === notification.id || !paymentRefs[notification.id]?.trim()}
+                          disabled={submittingRef === notification.id || !paymentRefs[notification.id]?.trim() || !senderNames[notification.id]?.trim()}
                           onClick={(e) => { e.stopPropagation(); handleSubmitPaymentRef(notification); }}
                         >
                           <Send className="h-3.5 w-3.5" />
