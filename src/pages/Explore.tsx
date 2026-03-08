@@ -39,7 +39,7 @@ const Explore = () => {
     setInitialized(true);
   }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
 
-  useEffect(() => { fetchProperties(); }, [filters, searchQuery]);
+  useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
 
   const fetchProperties = async () => {
     setLoading(true);
