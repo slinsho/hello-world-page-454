@@ -1,8 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Sends a notification to all admin users.
- * Fetches admin user IDs from user_roles and inserts notifications for each.
+ * Sends a notification to all admin users via a SECURITY DEFINER database function.
+ * This bypasses RLS so non-admin users can trigger admin notifications.
  */
 export async function notifyAdmins({
   title,
@@ -16,22 +16,15 @@ export async function notifyAdmins({
   propertyId?: string | null;
 }) {
   try {
-    const { data: adminRoles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "admin");
-
-    if (!adminRoles?.length) return;
-
-    const notifications = adminRoles.map((admin) => ({
-      user_id: admin.user_id,
-      title,
-      message,
-      type,
-      ...(propertyId ? { property_id: propertyId } : {}),
-    }));
-
-    await supabase.from("notifications").insert(notifications);
+    const { error } = await supabase.rpc("notify_all_admins" as any, {
+      p_title: title,
+      p_message: message,
+      p_type: type,
+      p_property_id: propertyId || null,
+    });
+    if (error) {
+      console.error("Failed to notify admins:", error);
+    }
   } catch (err) {
     console.error("Failed to notify admins:", err);
   }

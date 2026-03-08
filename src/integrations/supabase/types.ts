@@ -1162,6 +1162,15 @@ export type Database = {
       }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      notify_all_admins: {
+        Args: {
+          p_message: string
+          p_property_id?: string
+          p_title: string
+          p_type?: string
+        }
+        Returns: undefined
+      }
       user_wants_notification: {
         Args: { p_type: string; p_user_id: string }
         Returns: boolean
