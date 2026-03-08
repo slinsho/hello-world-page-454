@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import FeedbackButton from "@/components/FeedbackButton";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import Index from "./pages/Index";
 import NearMe from "./pages/NearMe";
 import Auth from "./pages/Auth";
@@ -42,6 +43,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <FeedbackButton />
+          <PWAInstallPrompt />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
