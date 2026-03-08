@@ -234,7 +234,7 @@ const TermsAndConditions = () => {
         {/* Footer note */}
         <div className="mt-8 md:mt-10 text-center">
           <p className="text-xs md:text-sm text-muted-foreground">
-            © {new Date().getFullYear()} LibHub. All rights reserved.
+            © {new Date().getFullYear()} L-Prop. All rights reserved.
           </p>
         </div>
       </main>
