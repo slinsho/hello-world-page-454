@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Megaphone, DollarSign, CheckCircle2, XCircle, Trash2 } from "lucide-react";
+import { Megaphone, DollarSign, CheckCircle2, XCircle, Trash2, RotateCcw } from "lucide-react";
 
 interface PromotionRequest {
   id: string;
@@ -19,6 +19,8 @@ interface PromotionRequest {
   admin_note: string | null;
   payment_amount: number | null;
   payment_status: string;
+  payment_reference: string | null;
+  duration_months: number | null;
   created_at: string;
   property?: { title: string; county: string; price_usd: number; photos: string[] } | null;
   profile?: { name: string; email: string; role: string } | null;
@@ -80,14 +82,13 @@ export function AdminPromotions() {
 
       if (error) throw error;
 
-      // Notify user about payment request
       const req = requests.find(r => r.id === requestId);
       if (req) {
         await supabase.from("notifications").insert({
           user_id: req.user_id,
           property_id: req.property_id,
           title: "🎉 Promotion Qualified — Payment Required",
-          message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to the property page and click "Promote" to submit your payment reference.`,
+          message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to your notifications and submit your payment reference number.`,
         });
       }
 
@@ -126,6 +127,40 @@ export function AdminPromotions() {
       }
 
       toast({ title: "Property Promoted!", description: "The property is now featured." });
+      fetchRequests();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRequestResend = async (requestId: string) => {
+    const note = notes[requestId];
+    if (!note) {
+      toast({ title: "Note Required", description: "Please provide a reason why the reference is invalid", variant: "destructive" });
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from("promotion_requests")
+        .update({
+          payment_status: "requested",
+          payment_reference: null,
+          admin_note: note,
+        } as any)
+        .eq("id", requestId);
+      if (error) throw error;
+
+      const req = requests.find(r => r.id === requestId);
+      if (req) {
+        await supabase.from("notifications").insert({
+          user_id: req.user_id,
+          property_id: req.property_id,
+          title: "⚠️ Payment Reference Rejected — Resend Required",
+          message: `Your payment reference for "${req.property?.title}" was not verified. Reason: ${note}. Please submit a valid payment reference number.`,
+        });
+      }
+
+      toast({ title: "Resend Requested", description: "User has been notified to resend payment reference." });
       fetchRequests();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -180,8 +215,9 @@ export function AdminPromotions() {
   };
 
   const getStatusBadge = (req: PromotionRequest) => {
-    if (req.status === "approved" && req.payment_status === "requested") return <Badge variant="outline" className="text-amber-600 border-amber-300">Awaiting Payment</Badge>;
-    if (req.status === "approved" && req.payment_status === "paid") return <Badge className="bg-green-100 text-green-700 border-green-300">Payment Received</Badge>;
+    if (req.status === "approved" && req.payment_status === "confirmed") return <Badge className="bg-green-100 text-green-700 border-green-300">Promoted ✓</Badge>;
+    if (req.status === "approved" && req.payment_status === "paid") return <Badge className="bg-green-100 text-green-700 border-green-300">Payment Received — Verify</Badge>;
+    if (req.status === "approved" && req.payment_status === "requested") return <Badge variant="outline" className="text-amber-600 border-amber-300">Qualified — Awaiting Payment</Badge>;
     return <Badge variant="secondary">Pending Review</Badge>;
   };
 
@@ -222,7 +258,7 @@ export function AdminPromotions() {
 
               {/* Duration & Amount info */}
               <div className="flex gap-3 text-xs">
-                <span className="bg-secondary/50 px-2 py-1 rounded">Duration: {(req as any).duration_months || 1} month(s)</span>
+                <span className="bg-secondary/50 px-2 py-1 rounded">Duration: {req.duration_months || 1} month(s)</span>
                 {req.payment_amount && <span className="bg-secondary/50 px-2 py-1 rounded">Amount: ${req.payment_amount.toLocaleString()}</span>}
               </div>
 
@@ -255,7 +291,7 @@ export function AdminPromotions() {
                   </div>
                   <div className="flex gap-3">
                     <Button onClick={() => handleSendPaymentRequest(req.id)} className="flex-1 gap-1.5">
-                      <DollarSign className="h-4 w-4" /> Send Payment Request
+                      <DollarSign className="h-4 w-4" /> Qualify & Request Payment
                     </Button>
                     <Button onClick={() => handleReject(req.id)} variant="destructive" className="flex-1 gap-1.5">
                       <XCircle className="h-4 w-4" /> Reject
@@ -268,16 +304,27 @@ export function AdminPromotions() {
                 <div className="space-y-3">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-1">
                     <p className="text-sm text-green-700 font-medium">User confirmed payment of ${(req.payment_amount || 0).toLocaleString()}</p>
-                    {(req as any).payment_reference && (
-                      <p className="text-xs text-green-600">Transaction Ref: <span className="font-mono font-bold">{(req as any).payment_reference}</span></p>
+                    {req.payment_reference && (
+                      <p className="text-xs text-green-600">Transaction Ref: <span className="font-mono font-bold">{req.payment_reference}</span></p>
                     )}
+                  </div>
+                  <div>
+                    <Label className="text-sm">Admin Note (required for resend)</Label>
+                    <Textarea
+                      placeholder="e.g. Reference number not found in our records"
+                      value={notes[req.id] || ""}
+                      onChange={(e) => setNotes({ ...notes, [req.id]: e.target.value })}
+                    />
                   </div>
                   <div className="flex gap-3">
                     <Button onClick={() => handleConfirmPaymentAndPromote(req.id, req.property_id)} className="flex-1 gap-1.5">
                       <CheckCircle2 className="h-4 w-4" /> Confirm & Promote
                     </Button>
-                    <Button onClick={() => handleReject(req.id)} variant="destructive" className="flex-1 gap-1.5">
-                      <XCircle className="h-4 w-4" /> Reject
+                    <Button onClick={() => handleRequestResend(req.id)} variant="outline" className="flex-1 gap-1.5 text-amber-600 border-amber-300 hover:bg-amber-50">
+                      <RotateCcw className="h-4 w-4" /> Request Resend
+                    </Button>
+                    <Button onClick={() => handleReject(req.id)} variant="destructive" className="gap-1.5">
+                      <XCircle className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -285,7 +332,7 @@ export function AdminPromotions() {
 
               {req.status === "approved" && req.payment_status === "requested" && (
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <p className="text-sm text-amber-700">Waiting for user to pay ${(req.payment_amount || 0).toLocaleString()}</p>
+                  <p className="text-sm text-amber-700">Qualified — Waiting for user to pay ${(req.payment_amount || 0).toLocaleString()} and submit reference</p>
                 </div>
               )}
 
