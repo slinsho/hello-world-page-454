@@ -92,7 +92,7 @@ const AdminLogin = () => {
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Admin Portal</h1>
           <p className="text-muted-foreground text-sm max-w-xs mb-2">
-            Secure access to the LibHub management dashboard
+            Secure access to the L-Prop management dashboard
           </p>
           <p className="text-muted-foreground/60 text-xs mb-10">
             Authorized personnel only
