@@ -159,6 +159,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "⚠️ Payment Reference Rejected — Resend Required",
           message: `Your payment reference for "${req.property?.title}" was not verified. Reason: ${note}. Please submit a valid payment reference number.`,
+          type: "status_updates",
         });
       }
 
