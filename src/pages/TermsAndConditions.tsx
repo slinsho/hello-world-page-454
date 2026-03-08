@@ -72,7 +72,7 @@ const defaultSections: Section[] = [
   {
     icon: "Eye",
     title: "10. Privacy & Data",
-    content: "LibHub collects and stores user information necessary for platform operation, including profile details, verification documents, property data, and communication records.\n\nUsers can control the visibility of their phone number, email, and location through privacy settings. Verification documents (IDs, selfies) are stored securely and accessible only to platform administrators for verification purposes.\n\nWe use cookies and similar technologies for session management and platform functionality.",
+    content: "L-Prop collects and stores user information necessary for platform operation, including profile details, verification documents, property data, and communication records.\n\nUsers can control the visibility of their phone number, email, and location through privacy settings. Verification documents (IDs, selfies) are stored securely and accessible only to platform administrators for verification purposes.\n\nWe use cookies and similar technologies for session management and platform functionality.",
   },
   {
     icon: "Bell",
