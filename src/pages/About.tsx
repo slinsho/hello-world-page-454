@@ -519,10 +519,10 @@ const About = () => {
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Our Work</h2>
               <div className="w-16 h-0.5 bg-primary mx-auto mt-4" />
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {content.work_photos.map((photo, i) => (
-                <div key={i} className="relative rounded-2xl overflow-hidden group shadow-md border border-border">
-                  <img src={photo.url} alt={photo.caption} className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <div key={i} className="relative rounded-xl md:rounded-2xl overflow-hidden group shadow-md border border-border">
+                  <img src={photo.url} alt={photo.caption} className="w-full h-32 md:h-52 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   {photo.caption && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                       <p className="text-sm font-medium text-primary">{photo.caption}</p>
