@@ -56,6 +56,22 @@ const Settings = () => {
       if (data) {
         setProfile(data);
         setEditForm({ name: data.name || "", county: data.county || "", address: data.address || "", bio: (data as any).bio || "" });
+        // Fetch agency info for agents
+        if (data.role === "agent") {
+          supabase.from("verification_requests")
+            .select("agency_name, office_location")
+            .eq("user_id", user.id)
+            .eq("verification_type", "agent")
+            .eq("status", "approved")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+            .then(({ data: agencyData }) => {
+              if (agencyData) {
+                setAgencyForm({ agency_name: agencyData.agency_name || "", office_location: agencyData.office_location || "" });
+              }
+            });
+        }
       }
       setLoading(false);
     });
