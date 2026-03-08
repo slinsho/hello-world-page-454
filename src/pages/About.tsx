@@ -414,15 +414,15 @@ const About = () => {
         </section>
       )}
 
-      {/* ===== 7b. VIEW ALL AGENTS — separate section ===== */}
+      {/* ===== 7b. VIEW ALL AGENTS & OWNERS — separate section ===== */}
       <section className="bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Meet Our Agents</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Meet Our Agents & Owners</h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
-            Browse our verified real estate professionals ready to help you find your perfect property.
+            Browse verified real estate agents and property owners ready to help you find your perfect property.
           </p>
           <Button className="rounded-xl gap-2" asChild>
-            <a href="/agents">View All Agents <ArrowRight className="h-4 w-4" /></a>
+            <a href="/agents">View All Agents & Owners <ArrowRight className="h-4 w-4" /></a>
           </Button>
         </div>
       </section>
