@@ -367,14 +367,14 @@ const Profile = () => {
 
             {/* Quick info */}
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {profile.county && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}</span>}
-              {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
+              {canShowLocation && profile.county && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}</span>}
+              {canShowPhone && profile.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
             </div>
 
             {/* Action row */}
             <div className="mt-3 flex gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
             </div>
           </div>
         </div>
