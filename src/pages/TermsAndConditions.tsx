@@ -67,7 +67,7 @@ const defaultSections: Section[] = [
   {
     icon: "Flag",
     title: "9. Reporting & Moderation",
-    content: "Users may report property listings they believe are fraudulent, misleading, or inappropriate. All reports are reviewed by platform administrators.\n\nLibHub reserves the right to flag, hide, or remove any listing and to suspend or terminate accounts that repeatedly violate platform policies. Users who submit false reports may also face account restrictions.",
+    content: "Users may report property listings they believe are fraudulent, misleading, or inappropriate. All reports are reviewed by platform administrators.\n\nL-Prop reserves the right to flag, hide, or remove any listing and to suspend or terminate accounts that repeatedly violate platform policies. Users who submit false reports may also face account restrictions.",
   },
   {
     icon: "Eye",
