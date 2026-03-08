@@ -146,7 +146,7 @@ const PrivacyPolicy = () => {
             </div>
           </div>
           <p className="text-sm md:text-base text-muted-foreground mt-3 md:mt-4 leading-relaxed">
-            This Privacy Policy describes how LibHub collects, uses, and protects your personal information.
+            This Privacy Policy describes how L-Prop collects, uses, and protects your personal information.
           </p>
         </div>
 
