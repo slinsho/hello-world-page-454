@@ -14,11 +14,23 @@ import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Explore = () => {
+  const { preferences } = useUserPreferences();
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
+
+  // Apply default county from preferences on first load
+  useEffect(() => {
+    if (!initialized && preferences.default_county) {
+      const updated = { ...filters, county: preferences.default_county };
+      setFilters(updated);
+      setTempFilters(updated);
+    }
+    setInitialized(true);
+  }, [preferences.default_county]);
 
   useEffect(() => { fetchProperties(); }, [filters, searchQuery]);
 
