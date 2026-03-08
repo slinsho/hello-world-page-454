@@ -268,7 +268,7 @@ const PropertyDetail = () => {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-4">About the Owner</h3>
               <div className="space-y-3">
-                <div className="flex"><span className="text-muted-foreground w-16">Name:</span><span className="font-medium">{property.profiles?.name || 'Unknown'}</span></div>
+                <div className="flex"><span className="text-muted-foreground w-16">Name:</span><span className="font-medium">{displayName}</span></div>
                 <div className="flex"><span className="text-muted-foreground w-16">Role:</span><span className="font-medium">{formatRole(property.profiles?.role || 'property_owner')}</span></div>
                 <div className="flex"><span className="text-muted-foreground w-16">Phone:</span><span className="font-medium">{property.contact_phone}</span></div>
                 {property.contact_phone_2 && (<div className="flex"><span className="text-muted-foreground w-16">Phone 2:</span><span className="font-medium">{property.contact_phone_2}</span></div>)}
