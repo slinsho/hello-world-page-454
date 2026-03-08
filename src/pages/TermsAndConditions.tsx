@@ -107,7 +107,7 @@ const defaultSections: Section[] = [
   {
     icon: "AlertTriangle",
     title: "15. Limitation of Liability",
-    content: "LibHub shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service.\n\nWe do not guarantee the accuracy of property listings, the identity of users (beyond our verification process), or the outcome of any property transactions. LibHub acts solely as a platform connecting property owners, agents, and prospective buyers or renters.",
+    content: "L-Prop shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service.\n\nWe do not guarantee the accuracy of property listings, the identity of users (beyond our verification process), or the outcome of any property transactions. L-Prop acts solely as a platform connecting property owners, agents, and prospective buyers or renters.",
   },
   {
     icon: "RefreshCw",
