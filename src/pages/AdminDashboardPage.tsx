@@ -5,6 +5,7 @@ import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
 import { AdminPromotions } from "@/components/admin/AdminPromotions";
+import { AdminActivePromotions } from "@/components/admin/AdminActivePromotions";
 import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminRateSettings } from "@/components/admin/AdminRateSettings";
 import { AdminMarketing } from "@/components/admin/AdminMarketing";
