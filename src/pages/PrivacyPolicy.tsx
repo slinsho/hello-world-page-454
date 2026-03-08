@@ -99,7 +99,7 @@ const defaultSections: Section[] = [
   {
     icon: "RefreshCw",
     title: "11. Changes to This Policy",
-    content: "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of LibHub after any changes constitutes acceptance of the updated policy.\n\nSignificant changes to data handling practices will be communicated through the platform's notification system.",
+    content: "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of L-Prop after any changes constitutes acceptance of the updated policy.\n\nSignificant changes to data handling practices will be communicated through the platform's notification system.",
   },
   {
     icon: "Mail",
