@@ -342,7 +342,7 @@ export function AdminAboutPage() {
               {p.url ? (
                 <img src={p.url} alt={p.caption} className="w-20 h-16 rounded-lg object-cover flex-shrink-0" />
               ) : (
-                <Button variant="outline" className="w-20 h-16 flex-shrink-0" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleWorkPhotoUpload(i, ev.target.files[0]); input.click(); }}><Upload className="h-4 w-4" /></Button>
+                <Button variant="outline" className="w-20 h-16 flex-shrink-0" onClick={() => handleWorkPhotoUpload(i)}><Upload className="h-4 w-4" /></Button>
               )}
               <div className="flex-1 space-y-2">
                 <Input placeholder="Caption" value={p.caption} onChange={e => { const u = [...content.work_photos]; u[i] = { ...u[i], caption: e.target.value }; setContent({ ...content, work_photos: u }); }} />
