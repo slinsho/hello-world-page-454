@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -33,7 +33,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Notification preferences (local state - could be persisted to DB)
+  // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
     inquiries: true,
     messages: true,
@@ -41,6 +41,54 @@ const Settings = () => {
     statusUpdates: true,
     marketing: false,
   });
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  // Load notification preferences from DB
+  useEffect(() => {
+    if (!user) return;
+    const loadPrefs = async () => {
+      const { data } = await supabase
+        .from("notification_preferences" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+      if (data) {
+        const d = data as any;
+        setNotifPrefs({
+          inquiries: d.inquiries ?? true,
+          messages: d.messages ?? true,
+          offers: d.offers ?? true,
+          statusUpdates: d.status_updates ?? true,
+          marketing: d.marketing ?? false,
+        });
+      }
+    };
+    loadPrefs();
+  }, [user]);
+
+  const updateNotifPref = async (key: string, dbKey: string, value: boolean) => {
+    const updated = { ...notifPrefs, [key]: value };
+    setNotifPrefs(updated);
+    if (!user) return;
+    setNotifLoading(true);
+    const { data: existing } = await supabase
+      .from("notification_preferences" as any)
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    if (existing) {
+      await supabase
+        .from("notification_preferences" as any)
+        .update({ [dbKey]: value, updated_at: new Date().toISOString() } as any)
+        .eq("user_id", user.id);
+    } else {
+      await supabase
+        .from("notification_preferences" as any)
+        .insert({ user_id: user.id, [dbKey]: value } as any);
+    }
+    setNotifLoading(false);
+    toast({ title: "Preference Updated", description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${value ? "enabled" : "disabled"}.` });
+  };
 
   // Privacy preferences
   const [privacyPrefs, setPrivacyPrefs] = useState({
@@ -291,13 +339,13 @@ const Settings = () => {
         <div className="max-w-lg mx-auto px-4 py-6">
           <SectionHeader title="Notification Setting" />
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
-            <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => setNotifPrefs({ ...notifPrefs, inquiries: v })} />
-            <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => setNotifPrefs({ ...notifPrefs, messages: v })} />
-            <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => setNotifPrefs({ ...notifPrefs, offers: v })} />
-            <ToggleRow label="Status Updates" description="Property status change alerts" checked={notifPrefs.statusUpdates} onChange={(v) => setNotifPrefs({ ...notifPrefs, statusUpdates: v })} />
-            <ToggleRow label="Marketing & Tips" description="Receive tips and promotional content" checked={notifPrefs.marketing} onChange={(v) => setNotifPrefs({ ...notifPrefs, marketing: v })} />
+            <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => updateNotifPref("inquiries", "inquiries", v)} />
+            <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => updateNotifPref("messages", "messages", v)} />
+            <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => updateNotifPref("offers", "offers", v)} />
+            <ToggleRow label="Status Updates" description="Property status change alerts" checked={notifPrefs.statusUpdates} onChange={(v) => updateNotifPref("statusUpdates", "status_updates", v)} />
+            <ToggleRow label="Marketing & Tips" description="Receive tips and promotional content" checked={notifPrefs.marketing} onChange={(v) => updateNotifPref("marketing", "marketing", v)} />
           </div>
-          <p className="text-xs text-muted-foreground mt-3 px-2">Notification preferences are saved locally. Push notifications require PWA installation.</p>
+          <p className="text-xs text-muted-foreground mt-3 px-2">Your notification preferences are saved automatically and applied server-side.</p>
         </div>
       </div>
     );
