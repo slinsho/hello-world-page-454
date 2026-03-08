@@ -57,7 +57,7 @@ const defaultSections: Section[] = [
   {
     icon: "Star",
     title: "7. Property Promotions",
-    content: "Users may request to promote their listings for increased visibility. Promotion requests are subject to admin approval and require payment of a promotion fee.\n\nPromoted properties receive priority placement on the homepage and explore pages through a fair round-robin display system. LibHub does not guarantee any specific results from property promotions.",
+    content: "Users may request to promote their listings for increased visibility. Promotion requests are subject to admin approval and require payment of a promotion fee.\n\nPromoted properties receive priority placement on the homepage and explore pages through a fair round-robin display system. L-Prop does not guarantee any specific results from property promotions.",
   },
   {
     icon: "MessageSquare",
