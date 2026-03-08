@@ -151,11 +151,11 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-sm font-bold">Reviews</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-bold">Reviews</h3>
           {reviews.length > 0 && (
             <div className="flex items-center gap-1.5">
               <StarRating rating={Math.round(averageRating)} size="xs" />
