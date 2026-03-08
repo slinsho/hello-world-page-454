@@ -191,6 +191,52 @@ const Profile = () => {
   };
 
   const handleVerificationRequest = () => { navigate("/verification"); };
+  
+  const handleRenewalRequest = async () => {
+    if (!user) return;
+    // Find the user's latest expired verification request
+    const { data: verReq } = await supabase
+      .from("verification_requests")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("status", "expired" as any)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (verReq) {
+      // Mark as renewal
+      await supabase.from("verification_requests").update({ 
+        is_renewal: true,
+        payment_status: 'none',
+      } as any).eq("id", verReq.id);
+      
+      toast({ title: "Renewal Requested", description: "Your renewal request has been sent to the admin for review." });
+    } else {
+      toast({ title: "Error", description: "No expired verification found. Please submit a new verification.", variant: "destructive" });
+      navigate("/verification");
+    }
+  };
+
+  const handleSubmitPaymentReference = async (reference: string) => {
+    if (!user || !reference.trim()) return;
+    const { data: verReq } = await supabase
+      .from("verification_requests")
+      .select("id")
+      .eq("user_id", user.id)
+      .in("payment_status", ["payment_requested"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (verReq) {
+      await supabase.from("verification_requests").update({ 
+        payment_reference: reference.trim(),
+        payment_status: 'submitted',
+      } as any).eq("id", verReq.id);
+      toast({ title: "Payment Reference Submitted", description: "Your payment reference has been sent. Admin will verify and approve." });
+    }
+  };
 
   // Three-dot menu component
   const SettingsMenu = () => (
@@ -233,10 +279,13 @@ const Profile = () => {
     pending: "bg-yellow-500/20 text-yellow-500",
     approved: isAgent ? "bg-blue-500/20 text-blue-500" : "bg-green-500/20 text-green-500",
     rejected: "bg-destructive/20 text-destructive",
+    expired: "bg-orange-500/20 text-orange-500",
   }[profile.verification_status];
 
   const verifiedLabel = profile.verification_status === "approved"
     ? (isAgent ? "Verified Agent 🔵" : "Verified Owner ✅")
+    : profile.verification_status === "expired"
+    ? "Verification Expired ⏰"
     : VERIFICATION_STATUS_LABELS[profile.verification_status as keyof typeof VERIFICATION_STATUS_LABELS];
 
   const filteredProperties = listingFilter === "all"
@@ -449,6 +498,14 @@ const Profile = () => {
                 <Button size="sm" onClick={handleVerificationRequest} className="rounded-full h-8 text-xs">{profile.verification_status === "rejected" ? "Re-submit" : "Verify"}</Button>
               </div>
             )}
+            {profile.verification_status === "expired" && (
+              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div><p className="font-medium text-xs text-orange-500">Verification Expired</p><p className="text-[10px] text-muted-foreground">Your properties are hidden. Renew to restore.</p></div>
+                  <Button size="sm" onClick={handleRenewalRequest} className="rounded-full h-8 text-xs bg-orange-500 hover:bg-orange-600">Renew</Button>
+                </div>
+              </div>
+            )}
             {isAdmin && (
               <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-primary" /><p className="font-medium text-xs">Admin</p></div>
@@ -554,6 +611,12 @@ const Profile = () => {
                 <div className="p-4 bg-secondary/50 rounded-xl flex items-center justify-between">
                   <div><p className="font-medium text-sm">Get Verified</p></div>
                   <Button size="sm" onClick={handleVerificationRequest} className="rounded-full">Verify</Button>
+                </div>
+              )}
+              {profile.verification_status === "expired" && (
+                <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-between">
+                  <div><p className="font-medium text-sm text-orange-500">Verification Expired</p><p className="text-xs text-muted-foreground">Renew to restore property visibility</p></div>
+                  <Button size="sm" onClick={handleRenewalRequest} className="rounded-full bg-orange-500 hover:bg-orange-600">Renew</Button>
                 </div>
               )}
               {isAdmin && (
@@ -696,6 +759,12 @@ const Profile = () => {
                 <Button size="sm" onClick={handleVerificationRequest} className="rounded-full h-8 text-xs">Verify</Button>
               </div>
             )}
+            {profile.verification_status === "expired" && (
+              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-between">
+                <div><p className="font-medium text-xs text-orange-500">Verification Expired</p><p className="text-[10px] text-muted-foreground">Properties hidden. Renew now.</p></div>
+                <Button size="sm" onClick={handleRenewalRequest} className="rounded-full h-8 text-xs bg-orange-500 hover:bg-orange-600">Renew</Button>
+              </div>
+            )}
             {isAdmin && (
               <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-primary" /><p className="font-medium text-xs">Admin</p></div>
@@ -762,6 +831,14 @@ const Profile = () => {
                 <div className="p-3 bg-secondary/50 rounded-xl flex items-center justify-between">
                   <p className="font-medium text-xs">Get Verified</p>
                   <Button size="sm" onClick={handleVerificationRequest} className="rounded-full h-7 text-xs">Verify</Button>
+                </div>
+              </div>
+            )}
+            {isOwnProfile && profile.verification_status === "expired" && (
+              <div className="px-5 pb-4">
+                <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-between">
+                  <p className="font-medium text-xs text-orange-500">Verification Expired</p>
+                  <Button size="sm" onClick={handleRenewalRequest} className="rounded-full h-7 text-xs bg-orange-500 hover:bg-orange-600">Renew</Button>
                 </div>
               </div>
             )}

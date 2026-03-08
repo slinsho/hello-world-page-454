@@ -12,6 +12,9 @@ export function AdminRateSettings() {
   const { toast } = useToast();
   const [rate, setRate] = useState("");
   const [promoPrice, setPromoPrice] = useState("");
+  const [ownerVerifFee, setOwnerVerifFee] = useState("");
+  const [agentVerifFee, setAgentVerifFee] = useState("");
+  const [verifDuration, setVerifDuration] = useState("");
   const [lonestarNumber, setLonestarNumber] = useState("");
   const [orangeNumber, setOrangeNumber] = useState("");
   const [paymentName, setPaymentName] = useState("");
@@ -28,6 +31,9 @@ export function AdminRateSettings() {
         const map = new Map((data as any[]).map((d: any) => [d.key, d.value]));
         setRate(String(map.get("usd_to_lrd_rate") || "192"));
         setPromoPrice(String(map.get("promotion_price_per_month") || "5"));
+        setOwnerVerifFee(String(map.get("owner_verification_fee_lrd") || "500"));
+        setAgentVerifFee(String(map.get("agent_verification_fee_usd") || "20"));
+        setVerifDuration(String(map.get("verification_duration_days") || "5"));
         const paymentInfo = map.get("payment_info") as any;
         if (paymentInfo) {
           setLonestarNumber(paymentInfo.lonestar || paymentInfo.number || "");
@@ -59,6 +65,9 @@ export function AdminRateSettings() {
       await Promise.all([
         supabase.from("platform_settings" as any).update({ value: newRate, updated_at: new Date().toISOString() }).eq("key", "usd_to_lrd_rate"),
         supabase.from("platform_settings" as any).update({ value: newPromo, updated_at: new Date().toISOString() }).eq("key", "promotion_price_per_month"),
+        supabase.from("platform_settings" as any).upsert({ key: "owner_verification_fee_lrd", value: parseFloat(ownerVerifFee) || 500, updated_at: new Date().toISOString() } as any),
+        supabase.from("platform_settings" as any).upsert({ key: "agent_verification_fee_usd", value: parseFloat(agentVerifFee) || 20, updated_at: new Date().toISOString() } as any),
+        supabase.from("platform_settings" as any).upsert({ key: "verification_duration_days", value: parseInt(verifDuration) || 5, updated_at: new Date().toISOString() } as any),
       ]);
 
       if (notifyUsers) {
@@ -166,6 +175,32 @@ export function AdminRateSettings() {
             </p>
           </div>
 
+          {/* Verification Fees */}
+          <div className="space-y-4 border-t border-border pt-4">
+            <Label className="text-sm font-semibold">Verification Fees</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Owner Fee (LRD)</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">L$</span>
+                  <Input type="number" value={ownerVerifFee} onChange={(e) => setOwnerVerifFee(e.target.value)} placeholder="500" className="max-w-[120px]" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">≈ ${((parseFloat(ownerVerifFee) || 500) / previewLrd).toFixed(2)} USD</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Agent Fee (USD)</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">$</span>
+                  <Input type="number" value={agentVerifFee} onChange={(e) => setAgentVerifFee(e.target.value)} placeholder="20" className="max-w-[120px]" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">≈ L${((parseFloat(agentVerifFee) || 20) * previewLrd).toLocaleString()}</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Duration (Days)</Label>
+                <Input type="number" value={verifDuration} onChange={(e) => setVerifDuration(e.target.value)} placeholder="5" className="max-w-[120px]" />
+              </div>
+            </div>
+          </div>
           <div className="flex gap-3 pt-2">
             <Button onClick={() => handleSave(false)} disabled={saving} variant="outline" className="flex-1 gap-1.5">
               <RefreshCw className="h-4 w-4" />

@@ -1049,10 +1049,17 @@ export type Database = {
           business_phone: string | null
           created_at: string
           date_of_birth: string
+          expires_at: string | null
           id: string
           id_images: string[]
           id_type: Database["public"]["Enums"]["id_type"]
+          is_renewal: boolean
           office_location: string | null
+          payment_amount: number | null
+          payment_confirmed_at: string | null
+          payment_reference: string | null
+          payment_requested_at: string | null
+          payment_status: string
           processed_at: string | null
           selfie_image: string
           status: Database["public"]["Enums"]["verification_status"]
@@ -1067,10 +1074,17 @@ export type Database = {
           business_phone?: string | null
           created_at?: string
           date_of_birth: string
+          expires_at?: string | null
           id?: string
           id_images: string[]
           id_type: Database["public"]["Enums"]["id_type"]
+          is_renewal?: boolean
           office_location?: string | null
+          payment_amount?: number | null
+          payment_confirmed_at?: string | null
+          payment_reference?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           processed_at?: string | null
           selfie_image: string
           status?: Database["public"]["Enums"]["verification_status"]
@@ -1085,10 +1099,17 @@ export type Database = {
           business_phone?: string | null
           created_at?: string
           date_of_birth?: string
+          expires_at?: string | null
           id?: string
           id_images?: string[]
           id_type?: Database["public"]["Enums"]["id_type"]
+          is_renewal?: boolean
           office_location?: string | null
+          payment_amount?: number | null
+          payment_confirmed_at?: string | null
+          payment_reference?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           processed_at?: string | null
           selfie_image?: string
           status?: Database["public"]["Enums"]["verification_status"]
@@ -1153,7 +1174,12 @@ export type Database = {
       property_status: "active" | "inactive" | "sold" | "rented"
       property_type: "house" | "apartment" | "shop"
       user_role: "property_owner" | "agent"
-      verification_status: "none" | "pending" | "approved" | "rejected"
+      verification_status:
+        | "none"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1287,7 +1313,13 @@ export const Constants = {
       property_status: ["active", "inactive", "sold", "rented"],
       property_type: ["house", "apartment", "shop"],
       user_role: ["property_owner", "agent"],
-      verification_status: ["none", "pending", "approved", "rejected"],
+      verification_status: [
+        "none",
+        "pending",
+        "approved",
+        "rejected",
+        "expired",
+      ],
     },
   },
 } as const

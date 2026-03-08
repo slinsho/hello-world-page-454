@@ -61,5 +61,6 @@ export const VERIFICATION_STATUS_LABELS = {
   none: "Not Requested",
   pending: "Pending",
   approved: "Verified",
-  rejected: "Rejected"
+  rejected: "Rejected",
+  expired: "Expired"
 } as const;

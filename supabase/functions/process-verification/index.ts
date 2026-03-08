@@ -1,6 +1,3 @@
-// Backend function to approve/reject user verification requests securely
-// Uses service role to bypass RLS and update both verification_requests and profiles
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -11,8 +8,9 @@ const corsHeaders = {
 interface RequestBody {
   requestId: string;
   userId: string;
-  action: 'approve' | 'reject';
+  action: 'approve' | 'reject' | 'request_payment' | 'confirm_payment' | 'request_renewal_payment' | 'confirm_renewal_payment';
   adminNote?: string | null;
+  paymentAmount?: number | null;
 }
 
 Deno.serve(async (req: Request) => {
@@ -21,118 +19,204 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { requestId, userId, action, adminNote }: RequestBody = await req.json();
+    const { requestId, userId, action, adminNote, paymentAmount }: RequestBody = await req.json();
 
     if (!requestId || !userId || !action) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: requestId, userId, action' }),
+        JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
     if (!supabaseUrl || !serviceRoleKey) {
       return new Response(
-        JSON.stringify({ error: 'Server misconfiguration: missing URL or service role key' }),
+        JSON.stringify({ error: 'Server misconfiguration' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get the admin user performing this action (from Authorization header)
+    // Authenticate admin
     let adminId: string | null = null;
     try {
       const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
       const jwt = authHeader?.replace('Bearer ', '');
       if (jwt) {
         const { data, error } = await adminClient.auth.getUser(jwt);
-        if (!error && data?.user) {
-          adminId = data.user.id;
-        }
+        if (!error && data?.user) adminId = data.user.id;
       }
-    } catch (_) {
-      // Could not resolve admin id
-    }
+    } catch (_) {}
 
-    // Require authentication
     if (!adminId) {
-      console.error('Authentication required');
       return new Response(
         JSON.stringify({ error: 'Authentication required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Verify admin authorization
-    const { data: isAdmin, error: adminCheckError } = await adminClient.rpc('is_admin', { 
-      user_id: adminId 
-    });
-
-    if (adminCheckError) {
-      console.error('Error checking admin status:', adminCheckError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to verify admin status' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
+    const { data: isAdmin } = await adminClient.rpc('is_admin', { user_id: adminId });
     if (!isAdmin) {
-      console.error('User is not an admin:', adminId);
       return new Response(
         JSON.stringify({ error: 'Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Admin authorization verified:', adminId);
+    // Get platform settings for fees & payment info
+    const { data: settingsData } = await adminClient.from('platform_settings').select('key, value');
+    const settingsMap = new Map((settingsData || []).map((s: any) => [s.key, s.value]));
+    const ownerFeeLrd = Number(settingsMap.get('owner_verification_fee_lrd')) || 500;
+    const agentFeeUsd = Number(settingsMap.get('agent_verification_fee_usd')) || 20;
+    const durationDays = Number(settingsMap.get('verification_duration_days')) || 5;
+    const usdToLrd = Number(settingsMap.get('usd_to_lrd_rate')) || 192;
+    const paymentInfo = settingsMap.get('payment_info') as any;
 
-    const newStatus = action === 'approve' ? 'approved' : 'rejected';
-
-    // 1) Update verification request
-    const { error: reqUpdateError } = await adminClient
+    // Get the verification request
+    const { data: verReq, error: verErr } = await adminClient
       .from('verification_requests')
-      .update({
-        status: newStatus,
-        admin_note: adminNote ?? null,
-        admin_id: adminId,
-        processed_at: new Date().toISOString(),
-      })
-      .eq('id', requestId);
+      .select('*')
+      .eq('id', requestId)
+      .single();
 
-    if (reqUpdateError) {
-      console.error('Error updating verification_requests:', reqUpdateError);
+    if (verErr || !verReq) {
       return new Response(
-        JSON.stringify({ error: `Failed to update verification request: ${reqUpdateError.message}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Verification request not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 2) Update profile verification status
-    const { error: profileError } = await adminClient
-      .from('profiles')
-      .update({ verification_status: newStatus })
-      .eq('id', userId);
+    const isAgentVerification = verReq.verification_type === 'agent';
+    const feeUsd = isAgentVerification ? agentFeeUsd : (ownerFeeLrd / usdToLrd);
+    const feeLrd = isAgentVerification ? (agentFeeUsd * usdToLrd) : ownerFeeLrd;
 
-    if (profileError) {
-      console.error('Error updating profiles:', profileError);
+    // Build payment details string
+    let paymentDetails = '';
+    if (paymentInfo) {
+      if (paymentInfo.name) paymentDetails += `Account: ${paymentInfo.name}\n`;
+      if (paymentInfo.lonestar) paymentDetails += `Lonestar/MTN: ${paymentInfo.lonestar}\n`;
+      if (paymentInfo.orange) paymentDetails += `Orange: ${paymentInfo.orange}\n`;
+      if (paymentInfo.instructions) paymentDetails += `${paymentInfo.instructions}\n`;
+    }
+
+    if (action === 'reject') {
+      // Reject verification
+      await adminClient.from('verification_requests').update({
+        status: 'rejected',
+        admin_note: adminNote ?? null,
+        admin_id: adminId,
+        processed_at: new Date().toISOString(),
+      }).eq('id', requestId);
+
+      await adminClient.from('profiles').update({ verification_status: 'rejected' }).eq('id', userId);
+
+      // Notify user
+      await adminClient.from('notifications').insert({
+        user_id: userId,
+        title: 'Verification Rejected',
+        message: `Your verification request has been rejected.${adminNote ? ` Reason: ${adminNote}` : ''}`,
+        type: 'status_updates',
+      });
+
       return new Response(
-        JSON.stringify({ error: `Failed to update profile: ${profileError.message}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, status: 'rejected' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'request_payment' || action === 'request_renewal_payment') {
+      // Admin requests payment from user before approving
+      const isRenewal = action === 'request_renewal_payment';
+      
+      await adminClient.from('verification_requests').update({
+        payment_status: 'payment_requested',
+        payment_amount: feeUsd,
+        payment_requested_at: new Date().toISOString(),
+        admin_id: adminId,
+        admin_note: adminNote ?? null,
+      }).eq('id', requestId);
+
+      const feeDisplay = isAgentVerification
+        ? `$${agentFeeUsd} (L$${feeLrd.toLocaleString()})`
+        : `L$${ownerFeeLrd.toLocaleString()} ($${feeUsd.toFixed(2)})`;
+
+      await adminClient.from('notifications').insert({
+        user_id: userId,
+        title: isRenewal ? 'Renewal Payment Required' : 'Verification Payment Required',
+        message: `${isRenewal ? 'Your renewal' : 'Your verification'} has been qualified! Please make a payment of ${feeDisplay} to proceed.\n\n${paymentDetails}Please include your FULL NAME as payment reference and submit the reference number via the notification on your profile.`,
+        type: 'status_updates',
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, status: 'payment_requested' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'confirm_payment' || action === 'confirm_renewal_payment') {
+      // Admin confirms payment and approves verification
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+      await adminClient.from('verification_requests').update({
+        status: 'approved',
+        payment_status: 'confirmed',
+        payment_confirmed_at: new Date().toISOString(),
+        admin_id: adminId,
+        admin_note: adminNote ?? null,
+        processed_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+      }).eq('id', requestId);
+
+      await adminClient.from('profiles').update({ verification_status: 'approved' }).eq('id', userId);
+
+      // Re-enable all user properties
+      await adminClient.from('properties').update({ status: 'active' }).eq('owner_id', userId).eq('status', 'inactive');
+
+      const isRenewal = action === 'confirm_renewal_payment';
+      await adminClient.from('notifications').insert({
+        user_id: userId,
+        title: isRenewal ? 'Renewal Approved!' : 'Verification Approved!',
+        message: `Your ${isRenewal ? 'renewal' : 'verification'} has been approved. Payment confirmed. Your verification is valid for ${durationDays} days (expires ${expiresAt.toLocaleDateString()}).`,
+        type: 'status_updates',
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, status: 'approved', expires_at: expiresAt.toISOString() }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'approve') {
+      // Direct approve (legacy, shouldn't normally be used now but kept for compatibility)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+      await adminClient.from('verification_requests').update({
+        status: 'approved',
+        admin_note: adminNote ?? null,
+        admin_id: adminId,
+        processed_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+      }).eq('id', requestId);
+
+      await adminClient.from('profiles').update({ verification_status: 'approved' }).eq('id', userId);
+
+      return new Response(
+        JSON.stringify({ success: true, status: 'approved' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, status: newStatus }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Invalid action' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (e) {
-    console.error('Unexpected error in process-verification:', e);
-    const message = (typeof e === 'object' && e && 'message' in e)
-      ? String((e as any).message)
-      : 'Unexpected error';
+    console.error('Unexpected error:', e);
+    const message = (typeof e === 'object' && e && 'message' in e) ? String((e as any).message) : 'Unexpected error';
     return new Response(
       JSON.stringify({ error: message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
