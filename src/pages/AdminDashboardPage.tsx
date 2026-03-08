@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold">Admin Portal</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Popover>
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
@@ -157,7 +157,11 @@ export default function AdminDashboardPage() {
                   <p className="text-sm text-muted-foreground text-center py-6">No notifications</p>
                 ) : (
                   notifications.map((n) => (
-                    <div key={n.id} className={`p-3 border-b last:border-b-0 ${!n.is_read ? "bg-primary/5" : ""}`}>
+                    <div
+                      key={n.id}
+                      className={`p-3 border-b last:border-b-0 cursor-pointer hover:bg-muted/50 transition-colors ${!n.is_read ? "bg-primary/5" : ""}`}
+                      onClick={() => handleNotificationClick(n)}
+                    >
                       <p className="text-sm font-medium line-clamp-1">{n.title}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{n.message}</p>
                       <p className="text-[10px] text-muted-foreground mt-1">
