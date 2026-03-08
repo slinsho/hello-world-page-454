@@ -181,7 +181,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-6 flex h-16 items-center gap-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src={lpropLogo} alt="L-Prop" className="h-8 w-8 rounded-lg" />
+            <img src={lpropLogo} alt="L-Prop" className="h-10 w-10 rounded-lg" />
             <span className="text-2xl font-bold text-primary">L-Prop</span>
           </Link>
 
