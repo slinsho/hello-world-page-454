@@ -34,6 +34,7 @@ const Profile = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, taken: 0 });
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [agencyInfo, setAgencyInfo] = useState<{ agency_name?: string; office_location?: string; agency_logo?: string; business_phone?: string } | null>(null);
   const [editForm, setEditForm] = useState<{ name: string; county: string; address: string; bio: string }>({ name: "", county: "", address: "", bio: "" });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -50,6 +51,7 @@ const Profile = () => {
     if (!user && !profileId) { navigate("/auth"); return; }
     fetchProfile();
     fetchProperties();
+    fetchAgencyInfo();
     if (user) checkAdminStatus();
   }, [user, navigate, profileId]);
 
@@ -59,6 +61,35 @@ const Profile = () => {
       const { data, error } = await supabase.rpc("is_admin", { user_id: user.id });
       if (!error && data) setIsAdmin(true);
     } catch {}
+  };
+
+  const fetchAgencyInfo = async () => {
+    const targetUserId = profileId || user?.id;
+    if (!targetUserId) return;
+    const { data } = await supabase
+      .from("verification_requests")
+      .select("agency_name, office_location, agency_logo, business_phone")
+      .eq("user_id", targetUserId)
+      .eq("verification_type", "agent")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      let logoUrl: string | undefined;
+      if (data.agency_logo) {
+        const { data: signedData } = await supabase.storage
+          .from("verification-docs")
+          .createSignedUrl(data.agency_logo, 3600);
+        if (signedData?.signedUrl) logoUrl = signedData.signedUrl;
+      }
+      setAgencyInfo({
+        agency_name: data.agency_name || undefined,
+        office_location: data.office_location || undefined,
+        business_phone: data.business_phone || undefined,
+        agency_logo: logoUrl,
+      });
+    }
   };
 
   const fetchProfile = async () => {
@@ -545,6 +576,27 @@ const Profile = () => {
           <SocialLinksEditor socialLinks={{ social_facebook: profile.social_facebook, social_instagram: profile.social_instagram, social_twitter: profile.social_twitter, social_linkedin: profile.social_linkedin, social_whatsapp: profile.social_whatsapp }} onSave={handleSocialLinksUpdate} isOwnProfile={isOwnProfile} />
         </div>
 
+        {/* Agency Info */}
+        {agencyInfo && (agencyInfo.agency_name || agencyInfo.office_location) && (
+          <div className="px-4 mt-4">
+            <div className="bg-card rounded-xl p-4 border border-border/50 space-y-3">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold">Agency</h2>
+              </div>
+              <div className="flex items-center gap-3">
+                {agencyInfo.agency_logo && (
+                  <img src={agencyInfo.agency_logo} alt="Agency Logo" className="h-12 w-12 rounded-lg object-contain border border-border bg-background" />
+                )}
+                <div className="min-w-0">
+                  {agencyInfo.agency_name && <p className="text-sm font-semibold truncate">{agencyInfo.agency_name}</p>}
+                  {agencyInfo.office_location && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{agencyInfo.office_location}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* About */}
         <div className="px-4 mt-5">
           <div className="border-t border-border pt-4">
@@ -680,6 +732,25 @@ const Profile = () => {
 
           {/* Right Main */}
           <div className="space-y-5 pt-20">
+            {/* Agency Info */}
+            {agencyInfo && (agencyInfo.agency_name || agencyInfo.office_location) && (
+              <div className="bg-card rounded-xl p-5 border border-border/50 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-bold">Agency</h2>
+                </div>
+                <div className="flex items-center gap-4">
+                  {agencyInfo.agency_logo && (
+                    <img src={agencyInfo.agency_logo} alt="Agency Logo" className="h-14 w-14 rounded-lg object-contain border border-border bg-background" />
+                  )}
+                  <div className="min-w-0">
+                    {agencyInfo.agency_name && <p className="font-semibold">{agencyInfo.agency_name}</p>}
+                    {agencyInfo.office_location && <p className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{agencyInfo.office_location}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* About */}
             <div className="bg-card rounded-xl p-5 border border-border/50">
               <h2 className="text-base font-bold mb-2">About</h2>

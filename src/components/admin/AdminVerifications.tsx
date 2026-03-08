@@ -79,6 +79,16 @@ export function AdminVerifications() {
           urlMap[request.selfie_image] = data.signedUrl;
         }
       }
+
+      // Generate signed URL for agency logo
+      if (request.agency_logo && !urlMap[request.agency_logo]) {
+        const { data } = await supabase.storage
+          .from("verification-docs")
+          .createSignedUrl(request.agency_logo, 3600);
+        if (data?.signedUrl) {
+          urlMap[request.agency_logo] = data.signedUrl;
+        }
+      }
     }
     setSignedUrls(urlMap);
   };
@@ -197,6 +207,47 @@ export function AdminVerifications() {
                   </p>
                 </div>
               </div>
+
+              {/* Agency Information (for agent verifications) */}
+              {(request as any).verification_type === 'agent' && (
+                <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-semibold text-blue-500">Agency Information</span>
+                    <Badge variant="outline" className="text-[10px] border-blue-500/30 text-blue-500">Agent Upgrade</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(request as any).agency_name && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Agency Name</p>
+                        <p className="text-sm font-medium">{(request as any).agency_name}</p>
+                      </div>
+                    )}
+                    {(request as any).office_location && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Office Location</p>
+                        <p className="text-sm font-medium">{(request as any).office_location}</p>
+                      </div>
+                    )}
+                    {(request as any).business_phone && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Business Phone</p>
+                        <p className="text-sm font-medium">{(request as any).business_phone}</p>
+                      </div>
+                    )}
+                  </div>
+                  {(request as any).agency_logo && signedUrls[(request as any).agency_logo] && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Agency Logo</p>
+                      <img
+                        src={signedUrls[(request as any).agency_logo]}
+                        alt="Agency Logo"
+                        className="h-16 w-16 object-contain rounded-lg border border-border bg-white cursor-pointer"
+                        onClick={() => setSelectedImage(signedUrls[(request as any).agency_logo])}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div>
                 <p className="text-sm font-medium mb-2">Verification Documents</p>
