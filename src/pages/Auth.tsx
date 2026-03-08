@@ -430,9 +430,9 @@ const Auth = () => {
 
   // Welcome / splash screen - Desktop & Mobile
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+    <div className="min-h-screen md:min-h-screen flex flex-col md:flex-row bg-background h-[100dvh] md:h-auto overflow-hidden">
       {/* Left side - Hero image (desktop) / Full background (mobile) */}
-      <div className="relative flex-1 md:w-1/2 min-h-[55vh] md:min-h-screen">
+      <div className="relative flex-1 md:w-1/2 md:min-h-screen">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
