@@ -67,7 +67,7 @@ export function SEOHead({
     }
 
     return () => {
-      document.title = "LibHub - Find Properties in Liberia";
+      document.title = "L-Prop - Find Properties in Liberia";
     };
   }, [title, description, keywords, ogImage, ogType, canonical, noIndex]);
 
