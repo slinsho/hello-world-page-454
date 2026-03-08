@@ -133,6 +133,10 @@ export default function AdminDashboardPage() {
           <AdminFeedback />
         </TabsContent>
 
+        <TabsContent value="verified-docs">
+          <AdminVerifiedDocuments />
+        </TabsContent>
+
         <TabsContent value="rates">
           <AdminRateSettings />
         </TabsContent>
