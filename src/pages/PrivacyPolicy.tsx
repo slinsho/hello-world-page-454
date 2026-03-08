@@ -71,7 +71,7 @@ const defaultSections: Section[] = [
   {
     icon: "Cookie",
     title: "7. Cookies & Local Storage",
-    content: "LibHub uses cookies and browser local storage for:\n\nSession management and authentication state. Storing user preferences (currency display, default filters, privacy settings). Recently viewed properties and comparison lists.\n\nThese are essential for platform functionality and cannot be disabled while using the service.",
+    content: "L-Prop uses cookies and browser local storage for:\n\nSession management and authentication state. Storing user preferences (currency display, default filters, privacy settings). Recently viewed properties and comparison lists.\n\nThese are essential for platform functionality and cannot be disabled while using the service.",
   },
   {
     icon: "Globe",
