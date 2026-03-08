@@ -737,14 +737,14 @@ const Profile = () => {
             </div>
 
             <div className="px-5 pb-3 space-y-1.5 text-sm text-muted-foreground">
-              {profile.county && <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" />{profile.county}, Liberia</div>}
-              {profile.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 flex-shrink-0" /><span className="truncate">{profile.email}</span></div>}
-              {profile.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 flex-shrink-0" />{profile.phone}</div>}
+              {canShowLocation && profile.county && <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" />{profile.county}, Liberia</div>}
+              {canShowEmail && profile.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 flex-shrink-0" /><span className="truncate">{profile.email}</span></div>}
+              {canShowPhone && profile.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 flex-shrink-0" />{profile.phone}</div>}
             </div>
 
             <div className="px-5 pb-3 flex gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
             </div>
 
             <div className="px-5 pb-3">
