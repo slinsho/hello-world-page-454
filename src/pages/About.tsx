@@ -156,8 +156,23 @@ const About = () => {
       email: form.email, phone: form.phone,
       suggestions: `From: ${form.name} | Address: ${form.address} | Type: ${form.property_type} | Budget: ${form.budget}`,
     });
-    if (error) toast({ title: "Error", description: "Failed to send", variant: "destructive" });
-    else { toast({ title: "Sent!", description: "We'll get back to you soon." }); setForm({ name: "", email: "", phone: "", address: "", message: "", property_type: "", budget: "" }); }
+    if (!error) {
+      // Notify all admins about the new contact form submission
+      const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
+      if (adminRoles && adminRoles.length > 0) {
+        const notifications = adminRoles.map((admin) => ({
+          user_id: admin.user_id,
+          title: "New Contact Form Submission",
+          message: `${form.name} submitted a contact form: "${form.message.slice(0, 100)}${form.message.length > 100 ? "..." : ""}"`,
+          type: "inquiries",
+        }));
+        await supabase.from("notifications").insert(notifications);
+      }
+      toast({ title: "Sent!", description: "We'll get back to you soon." });
+      setForm({ name: "", email: "", phone: "", address: "", message: "", property_type: "", budget: "" });
+    } else {
+      toast({ title: "Error", description: "Failed to send", variant: "destructive" });
+    }
     setSending(false);
   };
 
