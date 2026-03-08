@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   ChevronLeft, ChevronRight, User, Bell, Shield, SlidersHorizontal, 
   LayoutList, HelpCircle, FileText, LogOut, Mail, Phone, MapPin,
-  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon
+  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 
