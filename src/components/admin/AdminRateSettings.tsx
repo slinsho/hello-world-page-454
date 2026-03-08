@@ -65,6 +65,9 @@ export function AdminRateSettings() {
       await Promise.all([
         supabase.from("platform_settings" as any).update({ value: newRate, updated_at: new Date().toISOString() }).eq("key", "usd_to_lrd_rate"),
         supabase.from("platform_settings" as any).update({ value: newPromo, updated_at: new Date().toISOString() }).eq("key", "promotion_price_per_month"),
+        supabase.from("platform_settings" as any).upsert({ key: "owner_verification_fee_lrd", value: parseFloat(ownerVerifFee) || 500, updated_at: new Date().toISOString() } as any),
+        supabase.from("platform_settings" as any).upsert({ key: "agent_verification_fee_usd", value: parseFloat(agentVerifFee) || 20, updated_at: new Date().toISOString() } as any),
+        supabase.from("platform_settings" as any).upsert({ key: "verification_duration_days", value: parseInt(verifDuration) || 5, updated_at: new Date().toISOString() } as any),
       ]);
 
       if (notifyUsers) {
