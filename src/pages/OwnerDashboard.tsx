@@ -36,7 +36,7 @@ export default function OwnerDashboard() {
     totalViews: 0, totalInquiries: 0, totalProperties: 0, avgRating: 0, reviewCount: 0, viewsTrend: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/auth"); return; }
