@@ -151,11 +151,11 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-sm font-bold">Reviews</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-bold">Reviews</h3>
           {reviews.length > 0 && (
             <div className="flex items-center gap-1.5">
               <StarRating rating={Math.round(averageRating)} size="xs" />
@@ -218,33 +218,33 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
 
       {/* Reviews Horizontal Slider */}
       {loading ? (
-        <div className="text-center py-6 text-xs text-muted-foreground">Loading reviews...</div>
+        <div className="text-center py-3 text-[10px] text-muted-foreground">Loading reviews...</div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-6 text-xs text-muted-foreground">
-          <Star className="h-6 w-6 mx-auto text-muted-foreground/20 mb-1" />
+        <div className="text-center py-3 text-[10px] text-muted-foreground">
+          <Star className="h-4 w-4 mx-auto text-muted-foreground/20 mb-0.5" />
           No reviews yet
         </div>
       ) : (
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-1 -mx-1 px-1"
+          className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-1 -mx-1 px-1"
         >
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="flex-shrink-0 w-[240px] sm:w-[260px] snap-start bg-card rounded-xl border border-border/50 p-3.5 space-y-2.5"
+              className="flex-shrink-0 w-[180px] sm:w-[220px] md:w-[240px] snap-start bg-card rounded-lg border border-border/50 p-2.5 space-y-1.5"
             >
               {/* Reviewer info */}
-              <div className="flex items-center gap-2.5">
-                <Avatar className="h-8 w-8">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-6 w-6">
                   <AvatarImage src={review.reviewer?.profile_photo_url || undefined} className="object-cover" />
-                  <AvatarFallback className="text-[10px] bg-secondary">
+                  <AvatarFallback className="text-[8px] bg-secondary">
                     {review.reviewer?.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold truncate">{review.reviewer?.name || "Anonymous"}</p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[10px] font-semibold truncate">{review.reviewer?.name || "Anonymous"}</p>
+                  <p className="text-[9px] text-muted-foreground">
                     {format(new Date(review.created_at), "MMM d, yyyy")}
                   </p>
                 </div>
@@ -255,7 +255,7 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
 
               {/* Comment */}
               {review.comment && (
-                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
+                <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">
                   "{review.comment}"
                 </p>
               )}
