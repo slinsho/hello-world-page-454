@@ -87,9 +87,6 @@ export default function OwnerDashboard() {
     setLoading(false);
   };
 
-  if (showUpgrade) {
-    return (<div className="min-h-screen bg-background"><Navbar /><UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Dashboard" /></div>);
-  }
 
   if (authLoading || loading) {
     return (
