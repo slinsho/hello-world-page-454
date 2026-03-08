@@ -17,6 +17,7 @@ interface PromotionWithProperty {
   payment_amount: number | null;
   created_at: string;
   processed_at: string | null;
+  payment_confirmed_at: string | null;
   admin_note: string | null;
   property_title: string;
   property_photo: string;
