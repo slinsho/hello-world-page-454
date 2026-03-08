@@ -26,6 +26,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const AdminProtectedRoute = lazy(() => import("./components/admin/AdminProtectedRoute"));
