@@ -145,7 +145,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery]);
+  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
