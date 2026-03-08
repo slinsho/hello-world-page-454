@@ -97,21 +97,47 @@ export function AdminActivePromotions() {
       const propertyIds = [...new Set(data.map((r: any) => r.property_id))];
       const userIds = [...new Set(data.map((r: any) => r.user_id))];
 
-      const [{ data: properties }, { data: profiles }, { data: views }, { data: inquiries }] = await Promise.all([
+      // Find earliest promotion start date per property to filter views/inquiries
+      const promoStartDates: Record<string, string> = {};
+      data.forEach((r: any) => {
+        const start = r.payment_confirmed_at;
+        if (start && (!promoStartDates[r.property_id] || start < promoStartDates[r.property_id])) {
+          promoStartDates[r.property_id] = start;
+        }
+      });
+
+      const [{ data: properties }, { data: profiles }] = await Promise.all([
         supabase.from("properties").select("id, title, county, price_usd, photos, listing_type, property_type, bedrooms, bathrooms, status").in("id", propertyIds.length ? propertyIds : ["_"]),
         supabase.from("profiles").select("id, name, email, role, phone").in("id", userIds.length ? userIds : ["_"]),
-        supabase.from("property_views").select("property_id").in("property_id", propertyIds.length ? propertyIds : ["_"]),
-        supabase.from("property_inquiries").select("property_id").in("property_id", propertyIds.length ? propertyIds : ["_"]),
+      ]);
+
+      // Fetch views and inquiries only since each property's promotion start
+      const viewPromises = propertyIds.map(async (pid) => {
+        const since = promoStartDates[pid];
+        if (!since) return { pid, count: 0 };
+        const { count } = await supabase.from("property_views").select("*", { count: "exact", head: true }).eq("property_id", pid).gte("viewed_at", since);
+        return { pid, count: count || 0 };
+      });
+      const inquiryPromises = propertyIds.map(async (pid) => {
+        const since = promoStartDates[pid];
+        if (!since) return { pid, count: 0 };
+        const { count } = await supabase.from("property_inquiries").select("*", { count: "exact", head: true }).eq("property_id", pid).gte("created_at", since);
+        return { pid, count: count || 0 };
+      });
+
+      const [viewResults, inquiryResults] = await Promise.all([
+        Promise.all(viewPromises),
+        Promise.all(inquiryPromises),
       ]);
 
       const propMap = new Map(properties?.map((p) => [p.id, p]));
       const profMap = new Map(profiles?.map((p) => [p.id, p]));
 
       const viewCounts: Record<string, number> = {};
-      views?.forEach((v: any) => { viewCounts[v.property_id] = (viewCounts[v.property_id] || 0) + 1; });
+      viewResults.forEach((v) => { viewCounts[v.pid] = v.count; });
 
       const inquiryCounts: Record<string, number> = {};
-      inquiries?.forEach((i: any) => { inquiryCounts[i.property_id] = (inquiryCounts[i.property_id] || 0) + 1; });
+      inquiryResults.forEach((i) => { inquiryCounts[i.pid] = i.count; });
 
       setPromotions(data.map((r: any) => ({
         ...r,
