@@ -74,8 +74,10 @@ export default function AdminDashboardPage() {
             <TabsTrigger value="users" className="text-xs sm:text-sm px-2 sm:px-3">Users</TabsTrigger>
             <TabsTrigger value="properties" className="text-xs sm:text-sm px-2 sm:px-3">Properties</TabsTrigger>
             <TabsTrigger value="blog" className="text-xs sm:text-sm px-2 sm:px-3">Blog</TabsTrigger>
+            <TabsTrigger value="promotions" className="text-xs sm:text-sm px-2 sm:px-3">Promotions</TabsTrigger>
             <TabsTrigger value="marketing" className="text-xs sm:text-sm px-2 sm:px-3">Marketing</TabsTrigger>
             <TabsTrigger value="feedback" className="text-xs sm:text-sm px-2 sm:px-3">Feedback</TabsTrigger>
+            <TabsTrigger value="rates" className="text-xs sm:text-sm px-2 sm:px-3">Rates</TabsTrigger>
           </TabsList>
         </div>
 
