@@ -451,7 +451,7 @@ const Auth = () => {
             <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white drop-shadow-lg">LibHub</span>
+            <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
           </div>
           
           <div className="max-w-md">
