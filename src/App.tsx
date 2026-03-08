@@ -70,6 +70,7 @@ const App = () => (
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/messages" element={<Messages />} />

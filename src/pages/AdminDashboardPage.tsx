@@ -142,6 +142,10 @@ export default function AdminDashboardPage() {
         <TabsContent value="rates">
           <AdminRateSettings />
         </TabsContent>
+
+        <TabsContent value="legal">
+          <AdminLegalPages />
+        </TabsContent>
       </Tabs>
     </div>
   );
