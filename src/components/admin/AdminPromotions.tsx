@@ -202,12 +202,24 @@ export function AdminPromotions() {
 
   const handleDelete = async (requestId: string) => {
     try {
+      // Find the promotion request to get the property_id
+      const request = requests.find(r => r.id === requestId);
+      
       const { error } = await supabase
         .from("promotion_requests")
         .delete()
         .eq("id", requestId);
       if (error) throw error;
-      toast({ title: "Deleted", description: "Promotion request deleted." });
+
+      // Also remove is_promoted flag from the property
+      if (request?.property_id) {
+        await supabase
+          .from("properties")
+          .update({ is_promoted: false, promotion_impression_count: 0 })
+          .eq("id", request.property_id);
+      }
+
+      toast({ title: "Deleted", description: "Promotion request deleted and property demoted." });
       fetchRequests();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
