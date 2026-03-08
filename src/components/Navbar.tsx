@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3 } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,7 @@ const Navbar = () => {
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
     { path: "/blog", label: "News", icon: Newspaper },
+    { path: "/about", label: "About", icon: Info, guestOnly: true },
     { path: "/upload", label: "Add", icon: Upload, requiresAuth: true },
     { path: "/near-me", label: "Near Me", icon: Navigation },
     { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
@@ -200,6 +201,7 @@ const Navbar = () => {
           <div className="flex items-center gap-1">
             {navItems.map((item) => {
               if (item.requiresAuth && !user) return null;
+              if ((item as any).guestOnly && user) return null;
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
@@ -496,6 +498,7 @@ const Navbar = () => {
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             if (item.requiresAuth && !user) return null;
+            if ((item as any).guestOnly && user) return null;
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
