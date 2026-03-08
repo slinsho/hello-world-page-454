@@ -29,11 +29,16 @@ interface ModerationProperty {
   listing_type: string;
   price_usd: number;
   county: string;
+  address: string;
   status: string;
   moderation_status: string | null;
   moderation_note: string | null;
   flagged_count: number | null;
   created_at: string;
+  photos: string[];
+  description: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
   owner_name?: string;
 }
 
