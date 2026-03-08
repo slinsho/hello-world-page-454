@@ -79,7 +79,7 @@ const Profile = () => {
     if (!user) return;
     const { error } = await supabase.from("profiles").update({ name: editForm.name, county: editForm.county || null, address: editForm.address || null, bio: editForm.bio || null } as any).eq("id", user.id);
     if (error) { toast({ title: "Error", description: "Failed to update profile", variant: "destructive" }); }
-    else { toast({ title: "Success", description: "Profile updated successfully" }); setIsEditingProfile(false); fetchProfile(); }
+    else { toast({ title: "Success", description: "Profile updated successfully" }); fetchProfile(); }
   };
 
   const handleSocialLinksUpdate = async (links: { social_facebook?: string | null; social_instagram?: string | null; social_twitter?: string | null; social_linkedin?: string | null; social_whatsapp?: string | null }) => {
