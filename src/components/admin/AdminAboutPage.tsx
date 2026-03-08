@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, Loader2, Plus, Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import { Save, Loader2, Plus, Trash2, Upload, Image as ImageIcon, Crop } from "lucide-react";
+import { ImageCropper } from "@/components/profile/ImageCropper";
 
 interface TeamMember { name: string; role: string; photo: string; bio: string; facebook?: string; instagram?: string; twitter?: string; linkedin?: string; }
 interface WorkPhoto { url: string; caption: string; }
@@ -43,6 +44,22 @@ export function AdminAboutPage() {
   const [saving, setSaving] = useState(false);
   const bannerRef = useRef<HTMLInputElement>(null);
 
+  // Cropper state
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState("");
+  const [cropperAspect, setCropperAspect] = useState(16 / 9);
+  const [cropperTitle, setCropperTitle] = useState("Crop Image");
+  const [cropperCallback, setCropperCallback] = useState<{ fn: (blob: Blob) => void } | null>(null);
+
+  const ASPECT_RATIOS: Record<string, { ratio: number; title: string }> = {
+    banner_image: { ratio: 16 / 5, title: "Crop Banner Image" },
+    mission_image: { ratio: 4 / 3, title: "Crop Mission Image" },
+    experience_image: { ratio: 4 / 3, title: "Crop Experience Image" },
+    dreams_image: { ratio: 4 / 3, title: "Crop Dreams Image" },
+    team_photo: { ratio: 1, title: "Crop Team Photo" },
+    work_photo: { ratio: 16 / 9, title: "Crop Work Photo" },
+  };
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("platform_settings").select("value").eq("key", "about_page_content").single();
@@ -59,32 +76,69 @@ export function AdminAboutPage() {
     setSaving(false);
   };
 
-  const uploadImage = async (file: File): Promise<string | null> => {
-    const ext = file.name.split(".").pop();
+  const uploadImage = async (file: File | Blob): Promise<string | null> => {
+    const ext = file instanceof File ? file.name.split(".").pop() : "jpg";
     const path = `about/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from("blog-media").upload(path, file);
     if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); return null; }
     return supabase.storage.from("blog-media").getPublicUrl(path).data.publicUrl;
   };
 
-  const handleImageUpload = async (field: keyof AboutContent, file: File) => {
-    const url = await uploadImage(file);
-    if (url) setContent({ ...content, [field]: url });
+  const openCropperForFile = (file: File, aspectKey: string, onComplete: (blob: Blob) => void) => {
+    const src = URL.createObjectURL(file);
+    const config = ASPECT_RATIOS[aspectKey] || { ratio: 16 / 9, title: "Crop Image" };
+    setCropperSrc(src);
+    setCropperAspect(config.ratio);
+    setCropperTitle(config.title);
+    setCropperCallback({ fn: onComplete });
+    setCropperOpen(true);
   };
 
-  const triggerUpload = (field: keyof AboutContent) => {
+  const handleCropComplete = async (blob: Blob) => {
+    setCropperOpen(false);
+    if (cropperSrc) URL.revokeObjectURL(cropperSrc);
+    cropperCallback?.fn(blob);
+  };
+
+  const handleImageUpload = (field: keyof AboutContent) => {
     const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
-    input.onchange = (ev: any) => ev.target.files[0] && handleImageUpload(field, ev.target.files[0]); input.click();
+    input.onchange = (ev: any) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      openCropperForFile(file, field as string, async (blob) => {
+        const url = await uploadImage(blob);
+        if (url) setContent(prev => ({ ...prev, [field]: url }));
+      });
+    };
+    input.click();
   };
 
-  const handleTeamPhotoUpload = async (index: number, file: File) => {
-    const url = await uploadImage(file);
-    if (url) { const u = [...content.team_members]; u[index] = { ...u[index], photo: url }; setContent({ ...content, team_members: u }); }
+  const triggerUpload = (field: keyof AboutContent) => handleImageUpload(field);
+
+  const handleTeamPhotoUpload = (index: number) => {
+    const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+    input.onchange = (ev: any) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      openCropperForFile(file, "team_photo", async (blob) => {
+        const url = await uploadImage(blob);
+        if (url) setContent(prev => { const u = [...prev.team_members]; u[index] = { ...u[index], photo: url }; return { ...prev, team_members: u }; });
+      });
+    };
+    input.click();
   };
 
-  const handleWorkPhotoUpload = async (index: number, file: File) => {
-    const url = await uploadImage(file);
-    if (url) { const u = [...content.work_photos]; u[index] = { ...u[index], url }; setContent({ ...content, work_photos: u }); }
+  const handleWorkPhotoUpload = (index: number) => {
+    const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+    input.onchange = (ev: any) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      openCropperForFile(file, "work_photo", async (blob) => {
+        const url = await uploadImage(blob);
+        if (url) setContent(prev => { const u = [...prev.work_photos]; u[index] = { ...u[index], url }; return { ...prev, work_photos: u }; });
+      });
+    };
+    input.click();
   };
 
   const ImageField = ({ label, field }: { label: string; field: keyof AboutContent }) => (
@@ -256,11 +310,11 @@ export function AdminAboutPage() {
                 {m.photo ? (
                   <div className="flex items-center gap-3">
                     <img src={m.photo} alt={m.name} className="w-14 h-14 rounded-xl object-cover" />
-                    <Button size="sm" variant="outline" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleTeamPhotoUpload(i, ev.target.files[0]); input.click(); }}>Change</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleTeamPhotoUpload(i)}>Change</Button>
                     <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { const u = [...content.team_members]; u[i] = { ...u[i], photo: "" }; setContent({ ...content, team_members: u }); }}>Remove</Button>
                   </div>
                 ) : (
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleTeamPhotoUpload(i, ev.target.files[0]); input.click(); }}><ImageIcon className="h-3 w-3" /> Upload</Button>
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => handleTeamPhotoUpload(i)}><ImageIcon className="h-3 w-3" /> Upload</Button>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -288,11 +342,11 @@ export function AdminAboutPage() {
               {p.url ? (
                 <img src={p.url} alt={p.caption} className="w-20 h-16 rounded-lg object-cover flex-shrink-0" />
               ) : (
-                <Button variant="outline" className="w-20 h-16 flex-shrink-0" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleWorkPhotoUpload(i, ev.target.files[0]); input.click(); }}><Upload className="h-4 w-4" /></Button>
+                <Button variant="outline" className="w-20 h-16 flex-shrink-0" onClick={() => handleWorkPhotoUpload(i)}><Upload className="h-4 w-4" /></Button>
               )}
               <div className="flex-1 space-y-2">
                 <Input placeholder="Caption" value={p.caption} onChange={e => { const u = [...content.work_photos]; u[i] = { ...u[i], caption: e.target.value }; setContent({ ...content, work_photos: u }); }} />
-                {p.url && <Button size="sm" variant="outline" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleWorkPhotoUpload(i, ev.target.files[0]); input.click(); }}>Change</Button>}
+                {p.url && <Button size="sm" variant="outline" onClick={() => handleWorkPhotoUpload(i)}>Change</Button>}
               </div>
               <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setContent({ ...content, work_photos: content.work_photos.filter((_, idx) => idx !== i) })}><Trash2 className="h-4 w-4" /></Button>
             </div>
@@ -345,6 +399,15 @@ export function AdminAboutPage() {
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save All Changes
         </Button>
       </div>
+
+      <ImageCropper
+        open={cropperOpen}
+        onClose={() => { setCropperOpen(false); if (cropperSrc) URL.revokeObjectURL(cropperSrc); }}
+        imageSrc={cropperSrc}
+        aspectRatio={cropperAspect}
+        onCropComplete={handleCropComplete}
+        title={cropperTitle}
+      />
     </div>
   );
 }
