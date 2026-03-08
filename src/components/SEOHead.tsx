@@ -11,7 +11,7 @@ interface SEOHeadProps {
 }
 
 export function SEOHead({
-  title = "LibHub - Find Properties in Liberia",
+  title = "L-Prop - Find Properties in Liberia",
   description = "Discover houses, apartments, and shops for sale or rent across Liberia. Browse verified listings from trusted property owners and agents.",
   keywords = "Liberia real estate, property for sale Liberia, rent house Liberia, Monrovia apartments, Liberian property listings",
   ogImage = "/og-image.png",
