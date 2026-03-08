@@ -373,7 +373,7 @@ const About = () => {
             </div>
             <div className="text-center mt-8">
               <Button className="rounded-xl gap-2 about-cta-btn-outline" variant="outline" asChild>
-                <a href="/explore">View all agents</a>
+                <a href="/agents">View all agents</a>
               </Button>
             </div>
           </div>
