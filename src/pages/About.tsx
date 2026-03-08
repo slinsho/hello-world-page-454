@@ -67,12 +67,7 @@ const DEFAULT_CONTENT: AboutContent = {
   address: "Monrovia, Liberia",
   whatsapp: "",
   values: [],
-  stats: [
-    { label: "Properties", value: "10K+", sublabel: "Listed properties reflect our growing real estate ecosystem." },
-    { label: "Happy Clients", value: "5K", sublabel: "Happy clients through our marketplace and local connections." },
-    { label: "Properties Agents", value: "100+", sublabel: "Professional agents bringing experience, trust, and reliability." },
-    { label: "Satisfaction", value: "95%", sublabel: "High satisfaction every time across all interactions." },
-  ],
+  stats: [],
   team_members: [],
   work_photos: [],
   services: [
@@ -111,16 +106,32 @@ const About = () => {
         supabase.from("properties").select("county, status", { count: "exact" }),
         supabase.from("profiles").select("verification_status", { count: "exact" }),
       ]);
-      if (settingsRes.data?.value) setContent({ ...DEFAULT_CONTENT, ...(settingsRes.data.value as any) });
+      const savedContent = settingsRes.data?.value ? { ...DEFAULT_CONTENT, ...(settingsRes.data.value as any) } : DEFAULT_CONTENT;
+      setContent(savedContent);
+
+      // Build admin description map from saved stats
+      const descMap: Record<string, string> = {};
+      (savedContent.stats || []).forEach((s: any) => {
+        if (s.label && s.sublabel) descMap[s.label] = s.sublabel;
+      });
+
       const totalProperties = propsRes.count || 0;
       const activeProperties = propsRes.data?.filter(p => p.status === "active").length || 0;
       const counties = new Set(propsRes.data?.map(p => p.county) || []).size;
       const verifiedUsers = profilesRes.data?.filter(p => p.verification_status === "approved").length || 0;
+
+      const defaultDescs: Record<string, string> = {
+        "Total Properties": "Listed properties across our growing real estate ecosystem.",
+        "Active Listings": "Currently active and available properties.",
+        "Verified Users": "Verified users trusting our marketplace.",
+        "Counties Covered": `Serving communities across Liberia.`,
+      };
+
       setRealStats([
-        { label: "Properties", value: `${totalProperties.toLocaleString()}+`, sublabel: "Listed properties reflect our growing real estate ecosystem." },
-        { label: "Happy Clients", value: `${verifiedUsers.toLocaleString()}`, sublabel: "Happy clients through our marketplace and local connections." },
-        { label: "Properties Agents", value: `${activeProperties.toLocaleString()}+`, sublabel: "Professional agents bringing experience, trust, and reliability." },
-        { label: "Satisfaction", value: "95%", sublabel: `High satisfaction across ${counties} counties.` },
+        { label: "Total Properties", value: totalProperties.toLocaleString(), sublabel: descMap["Total Properties"] || defaultDescs["Total Properties"] },
+        { label: "Active Listings", value: activeProperties.toLocaleString(), sublabel: descMap["Active Listings"] || defaultDescs["Active Listings"] },
+        { label: "Verified Users", value: verifiedUsers.toLocaleString(), sublabel: descMap["Verified Users"] || defaultDescs["Verified Users"] },
+        { label: "Counties Covered", value: counties.toLocaleString(), sublabel: descMap["Counties Covered"] || defaultDescs["Counties Covered"] },
       ]);
       setLoading(false);
     };
@@ -166,7 +177,7 @@ const About = () => {
     <div className="min-h-screen bg-background"><Navbar /><div className="flex items-center justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div></div>
   );
 
-  const displayStats = realStats.length > 0 ? realStats : content.stats;
+  const displayStats = realStats;
 
   return (
     <div className="about-page min-h-screen pb-20 md:pb-0">
