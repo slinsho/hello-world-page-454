@@ -47,47 +47,36 @@ const App = () => (
           <ScrollToTop />
           <FeedbackButton />
           <PWAInstallPrompt />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/near-me" element={<NearMe />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/property/:id" element={<PropertyDetail />} />
-            <Route path="/verification" element={<Verification />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/dashboard" element={<OwnerDashboard />} />
-            <Route path="/popular-areas" element={<PopularAreasPage />} />
-            <Route path="/edit-property/:id" element={<EditProperty />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* Hidden Admin Routes */}
-            <Route path="/winner-54/login" element={<AdminLogin />} />
-            <Route path="/winner-54/dashboard" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/winner-54/listings" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/winner-54/users" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/near-me" element={<NearMe />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/verification" element={<Verification />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/dashboard" element={<OwnerDashboard />} />
+              <Route path="/popular-areas" element={<PopularAreasPage />} />
+              <Route path="/edit-property/:id" element={<EditProperty />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/winner-54/login" element={<AdminLogin />} />
+              <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="/winner-54/users" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
