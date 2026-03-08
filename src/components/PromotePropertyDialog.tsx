@@ -122,10 +122,20 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
               <p className="text-xs text-amber-600 italic">Admin note: {existingRequest.admin_note}</p>
             )}
           </div>
-          <Button onClick={handleConfirmPayment} disabled={submitting} className="w-full rounded-xl gap-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Transaction Reference Number</Label>
+            <Input
+              value={paymentRef}
+              onChange={(e) => setPaymentRef(e.target.value)}
+              placeholder="e.g. TXN-20260308-12345"
+              maxLength={100}
+              className="rounded-xl"
+            />
+          </div>
+          <Button onClick={handleConfirmPayment} disabled={submitting || !paymentRef.trim()} className="w-full rounded-xl gap-2">
             {submitting ? "Confirming..." : <><CheckCircle2 className="h-4 w-4" /> I've Made the Payment</>}
           </Button>
-          <p className="text-[10px] text-muted-foreground text-center">After confirming, admin will verify and promote your listing.</p>
+          <p className="text-[10px] text-muted-foreground text-center">After confirming, admin will verify your payment reference and promote your listing.</p>
         </div>
       );
     }
