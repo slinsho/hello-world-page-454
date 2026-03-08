@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 import { z } from "zod";
+import { Building2, Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User } from "lucide-react";
 import heroImage from "@/assets/auth-hero.jpg";
 
 const signUpSchema = z.object({
@@ -30,6 +30,7 @@ const Auth = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -41,11 +42,11 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type');
-    
     if (type === 'recovery') {
       setIsResettingPassword(true);
     } else if (user && !isResettingPassword) {
@@ -56,39 +57,22 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (isResettingPassword) {
-        const { error } = await supabase.auth.updateUser({
-          password: formData.password,
-        });
-
+        const { error } = await supabase.auth.updateUser({ password: formData.password });
         if (error) throw error;
-
-        toast({
-          title: "Password updated!",
-          description: "Your password has been successfully reset.",
-        });
+        toast({ title: "Password updated!", description: "Your password has been successfully reset." });
         setIsResettingPassword(false);
         navigate("/");
       } else if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
           redirectTo: `${window.location.origin}/auth`,
         });
-
         if (error) throw error;
-
-        toast({
-          title: "Check your email",
-          description: "We've sent you a password reset link.",
-        });
+        toast({ title: "Check your email", description: "We've sent you a password reset link." });
         setIsForgotPassword(false);
       } else if (isSignUp) {
-        const validatedData = signUpSchema.parse({
-          ...formData,
-          phone_2: formData.phone_2 || undefined,
-        });
-        
+        const validatedData = signUpSchema.parse({ ...formData, phone_2: formData.phone_2 || undefined });
         const { error } = await supabase.auth.signUp({
           email: validatedData.email,
           password: validatedData.password,
@@ -102,300 +86,396 @@ const Auth = () => {
             },
           },
         });
-
         if (error) throw error;
-
-        toast({
-          title: "Account created!",
-          description: "You can now sign in.",
-        });
+        toast({ title: "Account created!", description: "You can now sign in." });
         setIsSignUp(false);
       } else {
         const validatedData = signInSchema.parse({ email: formData.email, password: formData.password });
-        
         const { error } = await supabase.auth.signInWithPassword({
           email: validatedData.email,
           password: validatedData.password,
         });
-
         if (error) throw error;
-
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
+        toast({ title: "Welcome back!", description: "You've successfully signed in." });
         navigate("/");
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        toast({
-          title: "Validation Error",
-          description: error.errors[0].message,
-          variant: "destructive",
-        });
+        toast({ title: "Validation Error", description: error.errors[0].message, variant: "destructive" });
       } else {
-        toast({
-          title: "Error",
-          description: error.message || "An error occurred",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const [showForm, setShowForm] = useState(false);
+  const formTitle = isResettingPassword
+    ? "Set New Password"
+    : isForgotPassword
+    ? "Reset Password"
+    : isSignUp
+    ? "Create Account"
+    : "Welcome Back";
 
-  // Show form for login, signup, password reset, or forgot password
+  const formSubtitle = isResettingPassword
+    ? "Enter your new password below"
+    : isForgotPassword
+    ? "We'll send you a reset link"
+    : isSignUp
+    ? "Join LibHub and start exploring"
+    : "Sign in to continue";
+
+  // Form view
   if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">
-              {isResettingPassword 
-                ? "Set New Password" 
-                : isForgotPassword 
-                ? "Reset Password" 
-                : isSignUp
-                ? "Create Account"
-                : "Sign In"}
-            </h1>
-            <p className="text-muted-foreground">
-              {isResettingPassword
-                ? "Enter your new password"
-                : isForgotPassword
-                ? "Enter your email to receive a password reset link"
-                : isSignUp
-                ? "Join LibHub to list your properties"
-                : "Welcome back to LibHub"}
+      <div className="min-h-screen flex flex-col md:flex-row bg-background">
+        {/* Left - Hero (desktop only) */}
+        <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+          <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-primary" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">LibHub</span>
+            </div>
+            <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
+              Your Trusted Guide<br />in finding properties
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Navigating the Path to Your Property.
             </p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isResettingPassword ? (
+        {/* Right - Form */}
+        <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
+          {/* Mobile header */}
+          <div className="p-4 md:hidden">
+            <button
+              onClick={() => {
+                if (isForgotPassword) setIsForgotPassword(false);
+                else if (isResettingPassword) setIsResettingPassword(false);
+                else { setShowForm(false); setIsSignUp(false); }
+              }}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-sm">Back</span>
+            </button>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center px-6 py-8 md:px-12">
+            <div className="w-full max-w-md space-y-8">
+              {/* Header */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">New Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Enter your new password"
-                  required
-                  minLength={6}
-                  className="bg-card border-border text-foreground"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Password must be at least 6 characters
-                </p>
+                <div className="flex items-center gap-3 mb-6 md:hidden">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-xl font-bold text-foreground">LibHub</span>
+                </div>
+                <h1 className="text-3xl font-bold text-foreground">{formTitle}</h1>
+                <p className="text-muted-foreground">{formSubtitle}</p>
               </div>
-            ) : (
-              <>
-                {isSignUp && (
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {isResettingPassword ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-foreground text-sm font-medium">New Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder="Min. 6 characters"
+                        required
+                        minLength={6}
+                        className="pl-10 pr-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                      />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
                   <>
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-foreground">Full Name</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                        className="bg-card border-border text-foreground"
-                      />
-                    </div>
+                    {isSignUp && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="name" className="text-foreground text-sm font-medium">Full Name</Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              id="name"
+                              type="text"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                              placeholder="Enter your full name"
+                              required
+                              className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="role" className="text-foreground text-sm font-medium">I am a</Label>
+                          <Select
+                            value={formData.role}
+                            onValueChange={(value: "agent" | "property_owner") =>
+                              setFormData({ ...formData, role: value })
+                            }
+                          >
+                            <SelectTrigger className="h-12 bg-secondary border-border text-foreground rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="property_owner">Property Owner</SelectItem>
+                              <SelectItem value="agent">Agent</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="phone" className="text-foreground text-sm font-medium">Phone *</Label>
+                            <div className="relative">
+                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                              <Input
+                                id="phone"
+                                type="tel"
+                                value={formData.phone}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                required
+                                maxLength={20}
+                                placeholder="+231..."
+                                className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="phone_2" className="text-foreground text-sm font-medium">
+                              Phone 2 <span className="text-muted-foreground font-normal text-xs">(Optional)</span>
+                            </Label>
+                            <div className="relative">
+                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                              <Input
+                                id="phone_2"
+                                type="tel"
+                                value={formData.phone_2}
+                                onChange={(e) => setFormData({ ...formData, phone_2: e.target.value })}
+                                maxLength={20}
+                                placeholder="+231..."
+                                className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="role" className="text-foreground">I am a</Label>
-                      <Select
-                        value={formData.role}
-                        onValueChange={(value: "agent" | "property_owner") =>
-                          setFormData({ ...formData, role: value })
-                        }
-                      >
-                        <SelectTrigger className="bg-card border-border text-foreground">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="property_owner">Property Owner</SelectItem>
-                          <SelectItem value="agent">Agent</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="email" className="text-foreground text-sm font-medium">Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="you@example.com"
+                          required
+                          className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                        />
+                      </div>
                     </div>
 
-                    {/* Phone Numbers */}
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-foreground">Phone Number 1 *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        required
-                        maxLength={20}
-                        placeholder="+231..."
-                        className="bg-card border-border text-foreground"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone_2" className="text-foreground">Phone Number 2 <span className="text-muted-foreground font-normal">(Optional)</span></Label>
-                      <Input
-                        id="phone_2"
-                        type="tel"
-                        value={formData.phone_2}
-                        onChange={(e) => setFormData({ ...formData, phone_2: e.target.value })}
-                        maxLength={20}
-                        placeholder="+231..."
-                        className="bg-card border-border text-foreground"
-                      />
-                    </div>
+                    {!isForgotPassword && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="password" className="text-foreground text-sm font-medium">Password</Label>
+                          {!isSignUp && (
+                            <button
+                              type="button"
+                              onClick={() => setIsForgotPassword(true)}
+                              className="text-xs text-primary hover:text-primary/80 transition-colors"
+                            >
+                              Forgot password?
+                            </button>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            placeholder="Min. 6 characters"
+                            required
+                            className="pl-10 pr-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                          />
+                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    className="bg-card border-border text-foreground"
-                  />
-                </div>
+                {isSignUp && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    By signing up, you agree to our{" "}
+                    <Link to="/terms" className="text-primary hover:underline">
+                      Terms & Conditions
+                    </Link>
+                  </p>
+                )}
 
-                {!isForgotPassword && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-foreground">Password</Label>
-                      {!isSignUp && (
-                        <button
-                          type="button"
-                          onClick={() => setIsForgotPassword(true)}
-                          className="text-sm text-primary hover:underline"
-                        >
-                          Forgot password?
-                        </button>
-                      )}
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-base font-semibold rounded-xl gap-2"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      Please wait...
+                    </span>
+                  ) : isResettingPassword ? (
+                    "Update Password"
+                  ) : isForgotPassword ? (
+                    <>
+                      <Mail className="w-4 h-4" />
+                      Send Reset Link
+                    </>
+                  ) : isSignUp ? (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      Create Account
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </>
+                  )}
+                </Button>
+
+                {/* Divider */}
+                {!isResettingPassword && (
+                  <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border" />
                     </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      required
-                      className="bg-card border-border text-foreground"
-                    />
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-background px-4 text-muted-foreground">
+                        {isForgotPassword ? "or" : isSignUp ? "Already have an account?" : "New to LibHub?"}
+                      </span>
+                    </div>
                   </div>
                 )}
-              </>
-            )}
 
-            {isSignUp && (
-              <p className="text-sm text-muted-foreground text-center">
-                By signing up to LibHub, you agree to our{" "}
-                <Link to="/terms" className="text-primary hover:underline">
-                  terms and conditions
-                </Link>
-              </p>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading 
-                ? "Loading..." 
-                : isResettingPassword
-                ? "Update Password"
-                : isForgotPassword 
-                ? "Send Reset Link" 
-                : isSignUp 
-                ? "Sign Up" 
-                : "Sign In"}
-            </Button>
-
-            <>
-              {isForgotPassword ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setIsForgotPassword(false)}
-                >
-                  Back to Sign In
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setShowForm(true);
-                  }}
-                >
-                  {isSignUp
-                    ? "Already have an account? Sign In"
-                    : "Don't have an account? Sign Up"}
-                </Button>
-              )}
-            </>
-          </form>
+                {isForgotPassword ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 rounded-xl border-border"
+                    onClick={() => setIsForgotPassword(false)}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Sign In
+                  </Button>
+                ) : !isResettingPassword && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 rounded-xl border-border"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setShowForm(true);
+                    }}
+                  >
+                    {isSignUp ? "Sign In Instead" : "Create an Account"}
+                  </Button>
+                )}
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Main welcome/login screen
+  // Welcome / splash screen
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Hero Section */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+      {/* Hero background */}
+      <div className="flex-1 relative">
+        <div
+          className="absolute inset-0 bg-cover bg-center scale-105"
           style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
-        </div>
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" />
 
-        {/* Content */}
-        <div className="relative flex-1 flex flex-col justify-end p-6 pb-12">
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              Your Trusted Guide<br />in finding properties
-            </h1>
-            <p className="text-base text-foreground/90 max-w-md mx-auto">
-              Navigating the Path to Your Property.
-            </p>
-
-            {/* Pagination dots */}
-            <div className="flex justify-center gap-2 pt-4">
-              <div className="w-8 h-1 bg-primary rounded-full" />
-              <div className="w-1 h-1 bg-muted rounded-full" />
-              <div className="w-1 h-1 bg-muted rounded-full" />
+        {/* Content overlay */}
+        <div className="relative flex-1 flex flex-col justify-between h-full min-h-[60vh]">
+          {/* Top logo */}
+          <div className="p-6 pt-12">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
+                <Building2 className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-xl font-bold text-foreground">LibHub</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="p-6 space-y-3">
-        <Button 
-          onClick={() => navigate("/")}
-          className="w-full h-14 text-base font-semibold rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          Get Started
-        </Button>
-        <Button 
-          onClick={() => {
-            setIsSignUp(false);
-            setShowForm(true);
-          }}
-          variant="secondary"
-          className="w-full h-14 text-base font-semibold rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
-        >
-          Log in
-        </Button>
+      {/* Bottom section */}
+      <div className="relative z-10 px-6 pb-10 pt-4 space-y-6">
+        <div className="space-y-3 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-[1.1] tracking-tight">
+            Your Trusted Guide<br />
+            <span className="text-primary">in Properties</span>
+          </h1>
+          <p className="text-muted-foreground text-base max-w-sm mx-auto">
+            Navigating the Path to Your Property.
+          </p>
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center gap-1.5">
+          <div className="w-7 h-1 bg-primary rounded-full" />
+          <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
+          <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
+        </div>
+
+        {/* Buttons */}
+        <div className="space-y-3 pt-2">
+          <Button
+            onClick={() => navigate("/")}
+            className="w-full h-14 text-base font-semibold rounded-xl"
+          >
+            Get Started
+          </Button>
+          <Button
+            onClick={() => { setIsSignUp(false); setShowForm(true); }}
+            variant="outline"
+            className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary"
+          >
+            Log in
+          </Button>
+        </div>
       </div>
     </div>
   );
