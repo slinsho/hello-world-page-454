@@ -58,7 +58,7 @@ export function AdminContentModeration() {
   const fetchProperties = async () => {
     const { data, error } = await supabase
       .from("properties")
-      .select("id, title, property_type, listing_type, price_usd, county, status, moderation_status, moderation_note, flagged_count, created_at, owner_id")
+      .select("id, title, property_type, listing_type, price_usd, county, address, status, moderation_status, moderation_note, flagged_count, created_at, owner_id, photos, description, bedrooms, bathrooms")
       .order("created_at", { ascending: false });
 
     if (error || !data) { setLoading(false); return; }
