@@ -130,7 +130,7 @@ const Auth = () => {
   // Form view
   if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
     return (
-      <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
         {/* Left - Hero (desktop only) */}
         <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
           <div
@@ -153,7 +153,7 @@ const Auth = () => {
         </div>
 
         {/* Right - Form */}
-        <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Mobile header */}
           <div className="p-4 md:hidden">
             <button
@@ -184,8 +184,8 @@ const Auth = () => {
             </button>
           </div>
 
-          <div className="flex-1 flex items-center justify-center px-6 py-8 md:px-12">
-            <div className="w-full max-w-md space-y-8">
+          <div className="flex-1 overflow-y-auto px-6 py-4 md:px-12 md:py-8">
+            <div className="w-full max-w-md mx-auto space-y-6 md:my-auto md:space-y-8">
               {/* Header */}
               <div className="space-y-2">
                  <div className="flex items-center gap-3 mb-6 md:hidden">
