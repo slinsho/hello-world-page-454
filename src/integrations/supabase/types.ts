@@ -979,6 +979,9 @@ export type Database = {
           created_at: string
           currency_display: string
           default_county: string | null
+          default_listing_type: string | null
+          default_property_type: string | null
+          default_sort_order: string
           id: string
           show_email: boolean
           show_location: boolean
@@ -990,6 +993,9 @@ export type Database = {
           created_at?: string
           currency_display?: string
           default_county?: string | null
+          default_listing_type?: string | null
+          default_property_type?: string | null
+          default_sort_order?: string
           id?: string
           show_email?: boolean
           show_location?: boolean
@@ -1001,6 +1007,9 @@ export type Database = {
           created_at?: string
           currency_display?: string
           default_county?: string | null
+          default_listing_type?: string | null
+          default_property_type?: string | null
+          default_sort_order?: string
           id?: string
           show_email?: boolean
           show_location?: boolean
