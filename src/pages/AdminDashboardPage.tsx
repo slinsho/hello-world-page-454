@@ -228,6 +228,10 @@ export default function AdminDashboardPage() {
         <TabsContent value="about">
           <AdminAboutPage />
         </TabsContent>
+
+        <TabsContent value="contacts">
+          <AdminContactSubmissions />
+        </TabsContent>
       </Tabs>
     </div>
   );
