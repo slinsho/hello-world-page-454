@@ -487,8 +487,8 @@ const Navbar = () => {
         <nav className="md:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur overflow-x-hidden">
           <div className="px-4 flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
-              <Home className="h-6 w-6 text-primary" />
-              <span className="text-2xl font-bold text-primary">LibHub</span>
+              <img src={lpropLogo} alt="L-Prop" className="h-8 w-8 rounded-lg" />
+              <span className="text-2xl font-bold text-primary">L-Prop</span>
             </Link>
           </div>
         </nav>
