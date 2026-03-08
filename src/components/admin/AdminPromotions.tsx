@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Megaphone } from "lucide-react";
+import { Megaphone, DollarSign, CheckCircle2, XCircle } from "lucide-react";
 
 interface PromotionRequest {
   id: string;
@@ -15,6 +17,8 @@ interface PromotionRequest {
   reason: string | null;
   status: string;
   admin_note: string | null;
+  payment_amount: number | null;
+  payment_status: string;
   created_at: string;
   property?: { title: string; county: string; price_usd: number; photos: string[] } | null;
   profile?: { name: string; email: string; role: string } | null;
@@ -23,72 +27,148 @@ interface PromotionRequest {
 export function AdminPromotions() {
   const [requests, setRequests] = useState<PromotionRequest[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [amounts, setAmounts] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
   const fetchRequests = async () => {
     const { data, error } = await supabase
-      .from("promotion_requests" as any)
+      .from("promotion_requests")
       .select("*")
-      .eq("status", "pending")
+      .in("status", ["pending", "approved"])
       .order("created_at", { ascending: false });
 
     if (error || !data) return;
 
-    // Enrich with property and profile data
     const propertyIds = [...new Set(data.map((r: any) => r.property_id))];
     const userIds = [...new Set(data.map((r: any) => r.user_id))];
 
     const [{ data: properties }, { data: profiles }] = await Promise.all([
-      supabase.from("properties").select("id, title, county, price_usd, photos").in("id", propertyIds),
-      supabase.from("profiles").select("id, name, email, role").in("id", userIds),
+      supabase.from("properties").select("id, title, county, price_usd, photos").in("id", propertyIds.length ? propertyIds : ["_"]),
+      supabase.from("profiles").select("id, name, email, role").in("id", userIds.length ? userIds : ["_"]),
     ]);
 
     const propMap = new Map(properties?.map((p) => [p.id, p]));
     const profMap = new Map(profiles?.map((p) => [p.id, p]));
 
-    const enriched = data.map((r: any) => ({
+    setRequests(data.map((r: any) => ({
       ...r,
       property: propMap.get(r.property_id) || null,
       profile: profMap.get(r.user_id) || null,
-    }));
-
-    setRequests(enriched);
+    })));
   };
 
   useEffect(() => { fetchRequests(); }, []);
 
-  const handleAction = async (requestId: string, propertyId: string, action: "approve" | "reject") => {
-    if (action === "reject" && !notes[requestId]) {
-      toast({ title: "Note Required", description: "Please provide a reason for rejection", variant: "destructive" });
+  const handleSendPaymentRequest = async (requestId: string) => {
+    const amount = parseFloat(amounts[requestId] || "0");
+    if (!amount || amount <= 0) {
+      toast({ title: "Invalid Amount", description: "Enter a valid payment amount", variant: "destructive" });
       return;
     }
 
     try {
-      // Update promotion request
-      const { error: reqError } = await supabase
-        .from("promotion_requests" as any)
+      const { error } = await supabase
+        .from("promotion_requests")
         .update({
-          status: action === "approve" ? "approved" : "rejected",
+          status: "approved",
+          payment_amount: amount,
+          payment_status: "requested",
+          payment_requested_at: new Date().toISOString(),
           admin_note: notes[requestId] || null,
-          processed_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", requestId);
 
-      if (reqError) throw reqError;
+      if (error) throw error;
 
-      // If approved, mark property as promoted
-      if (action === "approve") {
-        await supabase
-          .from("properties")
-          .update({ is_promoted: true } as any)
-          .eq("id", propertyId);
+      // Notify user about payment request
+      const req = requests.find(r => r.id === requestId);
+      if (req) {
+        await supabase.from("notifications").insert({
+          user_id: req.user_id,
+          property_id: req.property_id,
+          title: "Promotion Payment Required",
+          message: `Your promotion request for "${req.property?.title}" has been approved. Payment of $${amount.toLocaleString()} is required to feature your listing.`,
+        });
       }
 
-      toast({ title: "Success", description: `Promotion request ${action === "approve" ? "approved" : "rejected"}` });
+      toast({ title: "Payment Request Sent", description: "User has been notified about the payment." });
       fetchRequests();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to process request", variant: "destructive" });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     }
+  };
+
+  const handleConfirmPaymentAndPromote = async (requestId: string, propertyId: string) => {
+    try {
+      const { error: reqErr } = await supabase
+        .from("promotion_requests")
+        .update({
+          payment_status: "confirmed",
+          payment_confirmed_at: new Date().toISOString(),
+          processed_at: new Date().toISOString(),
+        } as any)
+        .eq("id", requestId);
+      if (reqErr) throw reqErr;
+
+      await supabase
+        .from("properties")
+        .update({ is_promoted: true })
+        .eq("id", propertyId);
+
+      const req = requests.find(r => r.id === requestId);
+      if (req) {
+        await supabase.from("notifications").insert({
+          user_id: req.user_id,
+          property_id: req.property_id,
+          title: "Property Promoted! 🎉",
+          message: `Your property "${req.property?.title}" is now featured and will appear at the top of listings.`,
+        });
+      }
+
+      toast({ title: "Property Promoted!", description: "The property is now featured." });
+      fetchRequests();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleReject = async (requestId: string) => {
+    if (!notes[requestId]) {
+      toast({ title: "Note Required", description: "Please provide a reason for rejection", variant: "destructive" });
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from("promotion_requests")
+        .update({
+          status: "rejected",
+          admin_note: notes[requestId],
+          processed_at: new Date().toISOString(),
+        } as any)
+        .eq("id", requestId);
+      if (error) throw error;
+
+      const req = requests.find(r => r.id === requestId);
+      if (req) {
+        await supabase.from("notifications").insert({
+          user_id: req.user_id,
+          property_id: req.property_id,
+          title: "Promotion Request Rejected",
+          message: `Your promotion request for "${req.property?.title}" was rejected. Reason: ${notes[requestId]}`,
+        });
+      }
+
+      toast({ title: "Rejected", description: "Promotion request rejected." });
+      fetchRequests();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const getStatusBadge = (req: PromotionRequest) => {
+    if (req.status === "approved" && req.payment_status === "requested") return <Badge variant="outline" className="text-amber-600 border-amber-300">Awaiting Payment</Badge>;
+    if (req.status === "approved" && req.payment_status === "paid") return <Badge className="bg-green-100 text-green-700 border-green-300">Payment Received</Badge>;
+    return <Badge variant="secondary">Pending Review</Badge>;
   };
 
   return (
@@ -104,14 +184,14 @@ export function AdminPromotions() {
           <Card key={req.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-base">
                   <Megaphone className="h-4 w-4 text-primary" />
                   {req.property?.title || "Unknown Property"}
                 </CardTitle>
-                <Badge variant="secondary">pending</Badge>
+                {getStatusBadge(req)}
               </div>
               <p className="text-sm text-muted-foreground">
-                Requested by: {req.profile?.name || "Unknown"} ({req.profile?.role || "unknown"}) · {format(new Date(req.created_at), "PPp")}
+                By: {req.profile?.name || "Unknown"} ({req.profile?.role}) · {format(new Date(req.created_at), "PPp")}
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -133,23 +213,58 @@ export function AdminPromotions() {
                 </div>
               )}
 
-              <div>
-                <p className="text-sm font-medium mb-2">Admin Note</p>
-                <Textarea
-                  placeholder="Add a note (optional for approval, required for rejection)"
-                  value={notes[req.id] || ""}
-                  onChange={(e) => setNotes({ ...notes, [req.id]: e.target.value })}
-                />
-              </div>
+              {/* Admin actions based on state */}
+              {req.status === "pending" && (
+                <>
+                  <div>
+                    <Label className="text-sm">Admin Note</Label>
+                    <Textarea
+                      placeholder="Add a note (optional for payment request, required for rejection)"
+                      value={notes[req.id] || ""}
+                      onChange={(e) => setNotes({ ...notes, [req.id]: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm">Payment Amount (USD)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 25"
+                      value={amounts[req.id] || ""}
+                      onChange={(e) => setAmounts({ ...amounts, [req.id]: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <Button onClick={() => handleSendPaymentRequest(req.id)} className="flex-1 gap-1.5">
+                      <DollarSign className="h-4 w-4" /> Send Payment Request
+                    </Button>
+                    <Button onClick={() => handleReject(req.id)} variant="destructive" className="flex-1 gap-1.5">
+                      <XCircle className="h-4 w-4" /> Reject
+                    </Button>
+                  </div>
+                </>
+              )}
 
-              <div className="flex gap-4">
-                <Button onClick={() => handleAction(req.id, req.property_id, "approve")} className="flex-1">
-                  Approve & Feature
-                </Button>
-                <Button onClick={() => handleAction(req.id, req.property_id, "reject")} variant="destructive" className="flex-1">
-                  Reject
-                </Button>
-              </div>
+              {req.status === "approved" && req.payment_status === "paid" && (
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-700 font-medium">User confirmed payment of ${(req.payment_amount || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button onClick={() => handleConfirmPaymentAndPromote(req.id, req.property_id)} className="flex-1 gap-1.5">
+                      <CheckCircle2 className="h-4 w-4" /> Confirm & Promote
+                    </Button>
+                    <Button onClick={() => handleReject(req.id)} variant="destructive" className="flex-1 gap-1.5">
+                      <XCircle className="h-4 w-4" /> Reject
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {req.status === "approved" && req.payment_status === "requested" && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-sm text-amber-700">Waiting for user to pay ${(req.payment_amount || 0).toLocaleString()}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))

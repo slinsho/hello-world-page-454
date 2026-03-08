@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 
 // Social icons
 const FacebookIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -469,6 +470,11 @@ export default function Blog() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Featured Properties Banner */}
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <FeaturedPropertiesBanner />
           </div>
         </section>
       </main>

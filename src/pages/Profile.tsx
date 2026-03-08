@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageCropper } from "@/components/profile/ImageCropper";
 import { SocialLinksEditor } from "@/components/profile/SocialLinksEditor";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -831,6 +832,11 @@ const Profile = () => {
         </div>
 
         {isAgent ? <AgentLayout /> : <OwnerLayout />}
+
+        {/* Featured Properties Banner */}
+        <div className="px-4 md:px-6 max-w-7xl mx-auto">
+          <FeaturedPropertiesBanner />
+        </div>
       </main>
 
       <ImageCropper open={cropperOpen} onClose={() => setCropperOpen(false)} imageSrc={cropImageSrc} aspectRatio={cropType === "cover" ? 16 / 9 : 1} onCropComplete={handleCropComplete} title={cropType === "cover" ? "Crop Cover Photo" : "Crop Profile Photo"} />
