@@ -4,62 +4,55 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
 import { EmptyState } from "@/components/EmptyState";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search, Users, CheckCircle2, MapPin, Phone, ArrowLeft,
-  Building2, Star
+  Building2,
 } from "lucide-react";
 
-interface Agent {
+interface ProfileItem {
   id: string;
   name: string;
   email: string;
   phone: string | null;
   bio: string | null;
   profile_photo_url: string | null;
-  cover_photo_url: string | null;
   county: string | null;
   verification_status: string;
   role: string;
-  social_facebook: string | null;
-  social_instagram: string | null;
-  social_twitter: string | null;
-  social_linkedin: string | null;
   property_count?: number;
 }
 
 export default function Agents() {
   const navigate = useNavigate();
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [profiles, setProfiles] = useState<ProfileItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"agent" | "property_owner">("agent");
 
   useEffect(() => {
-    const fetchAgents = async () => {
+    const fetchAll = async () => {
       setLoading(true);
 
-      // Fetch agents (role = 'agent') with verified status preferred
-      const { data: profiles, error } = await supabase
+      const { data: allProfiles, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("role", "agent")
-        .order("verification_status", { ascending: true })
+        .in("role", ["agent", "property_owner"])
         .order("name", { ascending: true });
 
-      if (error || !profiles) {
+      if (error || !allProfiles) {
         setLoading(false);
         return;
       }
 
-      // Fetch property counts per agent
-      const agentIds = profiles.map((p) => p.id);
+      const ids = allProfiles.map((p) => p.id);
       const { data: properties } = await supabase
         .from("properties")
         .select("owner_id")
-        .in("owner_id", agentIds)
+        .in("owner_id", ids)
         .eq("status", "active");
 
       const countMap: Record<string, number> = {};
@@ -67,7 +60,7 @@ export default function Agents() {
         countMap[p.owner_id] = (countMap[p.owner_id] || 0) + 1;
       });
 
-      const enriched = profiles.map((p) => ({
+      const enriched = allProfiles.map((p) => ({
         ...p,
         property_count: countMap[p.id] || 0,
       }));
@@ -79,26 +72,31 @@ export default function Agents() {
         return (b.property_count || 0) - (a.property_count || 0);
       });
 
-      setAgents(enriched);
+      setProfiles(enriched);
       setLoading(false);
     };
 
-    fetchAgents();
+    fetchAll();
   }, []);
 
-  const filtered = agents.filter(
-    (a) =>
-      a.name.toLowerCase().includes(search.toLowerCase()) ||
-      (a.county && a.county.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = profiles
+    .filter((p) => p.role === tab)
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.county && p.county.toLowerCase().includes(search.toLowerCase()))
+    );
+
+  const agentCount = profiles.filter((p) => p.role === "agent").length;
+  const ownerCount = profiles.filter((p) => p.role === "property_owner").length;
 
   return (
     <>
       <SEOHead
-        title="Our Agents | LibHub"
-        description="Browse verified real estate agents on LibHub. Find trusted professionals to help you buy, sell, or rent properties in Liberia."
+        title="Agents & Property Owners | LibHub"
+        description="Browse verified real estate agents and property owners on LibHub. Find trusted professionals in Liberia."
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
         <Navbar />
 
         {/* Hero */}
@@ -121,15 +119,12 @@ export default function Agents() {
                   <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
                     <Users className="h-5 w-5 text-primary" />
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {agents.length} Agent{agents.length !== 1 ? "s" : ""}
-                  </Badge>
                 </div>
                 <h1 className="text-2xl md:text-4xl font-bold text-foreground tracking-tight">
-                  Our Real Estate Agents
+                  Agents & Property Owners
                 </h1>
                 <p className="text-muted-foreground text-sm md:text-base mt-1 max-w-lg">
-                  Connect with trusted, verified professionals ready to help you find your perfect property.
+                  Connect with trusted, verified professionals and property owners across Liberia.
                 </p>
               </div>
 
@@ -143,10 +138,30 @@ export default function Agents() {
                 />
               </div>
             </div>
+
+            {/* Tabs */}
+            <div className="mt-6">
+              <Tabs value={tab} onValueChange={(v) => setTab(v as "agent" | "property_owner")}>
+                <TabsList className="bg-card border border-border">
+                  <TabsTrigger value="agent" className="gap-1.5 text-xs md:text-sm">
+                    Agents
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      {agentCount}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="property_owner" className="gap-1.5 text-xs md:text-sm">
+                    Property Owners
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      {ownerCount}
+                    </Badge>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         </div>
 
-        {/* Agent Grid */}
+        {/* Grid */}
         <div className="max-w-6xl mx-auto px-4 pb-16 md:pb-24">
           {loading ? (
             <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6 mt-6">
@@ -157,23 +172,23 @@ export default function Agents() {
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={Users}
-              title="No agents found"
-              description={search ? "Try adjusting your search terms." : "No agents have registered yet."}
+              title={`No ${tab === "agent" ? "agents" : "property owners"} found`}
+              description={search ? "Try adjusting your search terms." : `No ${tab === "agent" ? "agents" : "property owners"} have registered yet.`}
             />
           ) : (
             <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6 mt-6">
-              {filtered.map((agent) => (
+              {filtered.map((person) => (
                 <div
-                  key={agent.id}
-                  onClick={() => navigate(`/profile/${agent.id}`)}
+                  key={person.id}
+                  onClick={() => navigate(`/profile/${person.id}`)}
                   className="group cursor-pointer rounded-2xl bg-card border border-border overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
                 >
-                  {/* Cover / Photo area */}
+                  {/* Photo area */}
                   <div className="relative aspect-square overflow-hidden bg-muted">
-                    {agent.profile_photo_url ? (
+                    {person.profile_photo_url ? (
                       <img
-                        src={agent.profile_photo_url}
-                        alt={agent.name}
+                        src={person.profile_photo_url}
+                        alt={person.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
@@ -183,25 +198,23 @@ export default function Agents() {
                       </div>
                     )}
 
-                    {/* Verified badge overlay */}
-                    {agent.verification_status === "approved" && (
+                    {/* Verified badge */}
+                    {person.verification_status === "approved" && (
                       <div className="absolute top-2 right-2 md:top-3 md:right-3">
-                        <div className="bg-primary text-primary-foreground rounded-full p-1 md:p-1.5 shadow-lg">
+                        <div className={`${person.role === "agent" ? "bg-blue-500" : "bg-green-500"} text-white rounded-full p-1 md:p-1.5 shadow-lg`}>
                           <CheckCircle2 className="h-3 w-3 md:h-4 md:w-4" />
                         </div>
                       </div>
                     )}
 
-                    {/* Gradient overlay at bottom */}
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
 
-                    {/* Property count on image */}
-                    {(agent.property_count ?? 0) > 0 && (
+                    {(person.property_count ?? 0) > 0 && (
                       <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3">
                         <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5 md:px-2.5 md:py-1">
                           <Building2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-primary" />
                           <span className="text-[10px] md:text-xs font-medium text-white">
-                            {agent.property_count}
+                            {person.property_count}
                           </span>
                         </div>
                       </div>
@@ -211,31 +224,36 @@ export default function Agents() {
                   {/* Info */}
                   <div className="p-2.5 md:p-4">
                     <h3 className="font-semibold text-xs md:text-base text-foreground truncate leading-tight">
-                      {agent.name}
+                      {person.name}
                     </h3>
 
-                    {agent.county && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Badge variant="outline" className="text-[9px] md:text-[10px] px-1.5 py-0 h-4 md:h-5">
+                        {person.role === "agent" ? "Agent" : "Owner"}
+                      </Badge>
+                    </div>
+
+                    {person.county && (
                       <div className="flex items-center gap-1 mt-0.5 md:mt-1">
                         <MapPin className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-[10px] md:text-xs text-muted-foreground truncate">
-                          {agent.county}
+                          {person.county}
                         </span>
                       </div>
                     )}
 
-                    {agent.phone && (
+                    {person.phone && (
                       <div className="hidden md:flex items-center gap-1 mt-1">
                         <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs text-muted-foreground truncate">
-                          {agent.phone}
+                          {person.phone}
                         </span>
                       </div>
                     )}
 
-                    {/* Desktop-only bio preview */}
-                    {agent.bio && (
+                    {person.bio && (
                       <p className="hidden md:block text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                        {agent.bio}
+                        {person.bio}
                       </p>
                     )}
                   </div>
