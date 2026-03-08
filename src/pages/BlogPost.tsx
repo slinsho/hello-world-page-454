@@ -152,7 +152,6 @@ export default function BlogPost() {
     enabled: !!post?.category_id,
   });
 
-  // Increment view count using RPC
   const viewMutation = useMutation({
     mutationFn: async (postId: string) => {
       const { error } = await supabase.rpc("increment_views", { post_id: postId });
@@ -222,7 +221,7 @@ export default function BlogPost() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <main className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
           <Skeleton className="h-8 w-32 mb-6" />
@@ -241,15 +240,15 @@ export default function BlogPost() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <main className="container mx-auto px-4 py-8 pt-24 max-w-4xl text-center">
           <div className="py-16">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-            <p className="text-gray-500 mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-4">Post Not Found</h1>
+            <p className="text-muted-foreground mb-8">
               The blog post you're looking for doesn't exist or has been removed.
             </p>
-            <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+            <Button asChild className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
               <Link to="/blog">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Blog
@@ -265,20 +264,16 @@ export default function BlogPost() {
   const processedContent = post.content
     .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
     .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>')
-    // Add !important to inline color styles to override prose
     .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
-    // Add !important to inline font-size styles
     .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"')
-    // Add !important to inline font-family styles
     .replace(/style="([^"]*)font-family:\s*([^;"]+)([^"]*)"/g, 'style="$1font-family: $2 !important$3"')
-    // Add !important to text-align styles
     .replace(/style="([^"]*)text-align:\s*([^;"]+)([^"]*)"/g, 'style="$1text-align: $2 !important$3"');
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main>
+      <main className="pb-20 md:pb-0">
         {/* Cover Image Banner */}
         {post.cover_image && (
           <div className="w-full relative">
@@ -287,14 +282,13 @@ export default function BlogPost() {
               alt={post.title}
               className="w-full h-[250px] md:h-[350px] lg:h-[400px] object-cover"
             />
-            {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           </div>
         )}
 
-        {/* Title, Author, Date - Under Banner */}
-        <div className="container mx-auto px-4 py-4 max-w-4xl">
-          <Button variant="ghost" asChild className="mb-4 -ml-3 text-gray-600 hover:text-red-600">
+        {/* Title, Author, Date */}
+        <div className="container mx-auto px-4 py-5 max-w-4xl">
+          <Button variant="ghost" asChild className="mb-4 -ml-3 text-muted-foreground hover:text-destructive">
             <Link to="/blog">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blog
@@ -302,54 +296,53 @@ export default function BlogPost() {
           </Button>
 
           {post.category && (
-            <span className="inline-block bg-red-100 text-red-600 px-4 py-1.5 text-sm font-semibold rounded-full mb-3">
+            <span className="inline-block bg-destructive/10 text-destructive px-3 py-1 text-xs font-bold rounded-full mb-3 uppercase tracking-wide">
               {post.category.name}
             </span>
           )}
 
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-tight mb-4">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground leading-tight mb-4">
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-gray-600 text-sm pb-4 border-b border-gray-200">
+          <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm pb-4 border-b border-border">
             {post.author_name && (
               <span className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                  <User className="h-4 w-4 text-red-600" />
+                <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-destructive" />
                 </div>
-                <span className="font-medium text-black">{post.author_name}</span>
+                <span className="font-medium text-foreground">{post.author_name}</span>
               </span>
             )}
             {post.published_at && (
-              <span className="flex items-center gap-1.5 text-black">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 {format(new Date(post.published_at), "MMMM dd, yyyy")}
               </span>
             )}
-            <span className="flex items-center gap-1.5 text-black">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
               <Eye className="h-4 w-4" />
               {post.views_count || 0} views
             </span>
           </div>
         </div>
 
-
         {/* Article Content */}
-        <article className="container mx-auto px-4 py-10 max-w-4xl">
+        <article className="container mx-auto px-4 py-8 max-w-4xl">
           <div 
             className="prose prose-lg max-w-none blog-content
               prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-8
               prose-p:leading-[1.8] prose-p:text-base prose-p:mb-6
-              prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline
+              prose-a:text-destructive prose-a:no-underline hover:prose-a:underline
               prose-strong:font-semibold
               prose-ul:leading-[1.8] prose-ol:leading-[1.8]
-              prose-li:marker:text-red-600 prose-li:mb-2
-              prose-blockquote:border-l-red-600 prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic
+              prose-li:marker:text-destructive prose-li:mb-2
+              prose-blockquote:border-l-destructive prose-blockquote:bg-muted prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic
               [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-8 [&_.blog-full-image]:h-auto
-              [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_table]:border [&_table]:border-gray-300
-              [&_th]:border [&_th]:border-gray-300 [&_th]:bg-gray-100 [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold
-              [&_td]:border [&_td]:border-gray-300 [&_td]:p-2
-              [&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-4
+              [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_table]:border [&_table]:border-border
+              [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold
+              [&_td]:border [&_td]:border-border [&_td]:p-2
+              [&_pre]:bg-muted [&_pre]:text-foreground [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-4
               [&_code]:font-mono [&_code]:text-sm
               [&_pre_code]:bg-transparent [&_pre_code]:p-0"
             dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -358,44 +351,44 @@ export default function BlogPost() {
 
         {/* Share Section */}
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="bg-gray-50 rounded-2xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Share2 className="h-5 w-5 text-gray-600" />
-                <span className="font-semibold text-gray-900">Share this article</span>
+          <div className="bg-muted rounded-2xl p-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <Share2 className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold text-foreground text-sm">Share this article</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleShare("facebook")}
-                  className="w-10 h-10 bg-[#1877f2] hover:bg-[#1877f2]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  className="w-9 h-9 bg-[#1877f2] hover:bg-[#1877f2]/90 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105"
                   title="Share on Facebook"
                 >
                   <FacebookIcon />
                 </button>
                 <button
                   onClick={() => handleShare("twitter")}
-                  className="w-10 h-10 bg-black hover:bg-black/80 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  className="w-9 h-9 bg-foreground hover:bg-foreground/80 rounded-lg flex items-center justify-center text-background transition-all hover:scale-105"
                   title="Share on Twitter"
                 >
                   <TwitterIcon />
                 </button>
                 <button
                   onClick={() => handleShare("whatsapp")}
-                  className="w-10 h-10 bg-[#25d366] hover:bg-[#25d366]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  className="w-9 h-9 bg-[#25d366] hover:bg-[#25d366]/90 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105"
                   title="Share on WhatsApp"
                 >
                   <WhatsAppIcon />
                 </button>
                 <button
                   onClick={() => handleShare("linkedin")}
-                  className="w-10 h-10 bg-[#0a66c2] hover:bg-[#0a66c2]/90 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                  className="w-9 h-9 bg-[#0a66c2] hover:bg-[#0a66c2]/90 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105"
                   title="Share on LinkedIn"
                 >
                   <LinkedInIcon />
                 </button>
                 <button
                   onClick={() => handleShare("copy")}
-                  className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center text-gray-700 transition-all hover:scale-105"
+                  className="w-9 h-9 bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded-lg flex items-center justify-center text-foreground transition-all hover:scale-105"
                   title="Copy link"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -405,23 +398,23 @@ export default function BlogPost() {
           </div>
         </div>
 
-        {/* Follow Us Section */}
+        {/* Follow Us */}
         {activeSocialLinks.length > 0 && (
-          <div className="container mx-auto px-4 max-w-4xl mt-8">
-            <div className="bg-red-600 rounded-2xl p-6 md:p-8 text-white">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="container mx-auto px-4 max-w-4xl mt-6">
+            <div className="bg-destructive rounded-2xl p-5 text-destructive-foreground">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-bold mb-1">Follow Us</h3>
-                  <p className="text-red-100">Stay connected for more updates</p>
+                  <h3 className="text-base font-bold mb-0.5">Follow Us</h3>
+                  <p className="text-sm opacity-80">Stay connected for more updates</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {activeSocialLinks.map((link) => (
                     <a
                       key={link.id}
                       href={link.url!}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-11 h-11 bg-white/20 hover:bg-white hover:text-red-600 rounded-xl flex items-center justify-center transition-all hover:scale-105"
+                      className="w-10 h-10 bg-white/20 hover:bg-white hover:text-destructive rounded-lg flex items-center justify-center transition-all hover:scale-105"
                     >
                       {getSocialIcon(link.platform)}
                     </a>
@@ -434,32 +427,34 @@ export default function BlogPost() {
 
         {/* Related Posts */}
         {relatedPosts && relatedPosts.length > 0 && (
-          <section className="container mx-auto px-4 py-12 max-w-4xl">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <section className="container mx-auto px-4 py-10 max-w-4xl">
+            <h2 className="text-xl font-bold text-foreground mb-5">Related Articles</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {relatedPosts.map((relatedPost) => (
                 <Link
                   key={relatedPost.id}
                   to={`/blog/${relatedPost.slug}`}
                   className="group"
                 >
-                  <article className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300">
+                  <article className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300">
                     {relatedPost.cover_image && (
                       <div className="aspect-video overflow-hidden">
                         <img
                           src={relatedPost.cover_image}
                           alt={relatedPost.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors">
+                    <div className="p-3.5">
+                      <h3 className="font-semibold text-foreground text-sm line-clamp-2 group-hover:text-destructive transition-colors">
                         {relatedPost.title}
                       </h3>
                       {relatedPost.published_at && (
-                        <p className="text-sm text-gray-500 mt-2 flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
+                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
                           {format(new Date(relatedPost.published_at), "MMM dd, yyyy")}
                         </p>
                       )}
@@ -472,15 +467,15 @@ export default function BlogPost() {
         )}
 
         {/* Footer CTA */}
-        <section className="bg-gray-900 py-12 mt-8">
+        <section className="bg-muted py-10 mt-6">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">
               Want to read more?
             </h2>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+            <p className="text-muted-foreground text-sm mb-5 max-w-md mx-auto">
               Explore our blog for more insightful articles and updates.
             </p>
-            <Button asChild className="bg-red-600 hover:bg-red-700 text-white px-8">
+            <Button asChild className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8">
               <Link to="/blog">
                 View All Articles
               </Link>
