@@ -8,20 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { UserReviews } from "@/components/UserReviews";
-import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { UserReviews } from "@/components/UserReviews";
+import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,7 +34,6 @@ const Profile = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, taken: 0 });
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState<{ name: string; county: string; address: string; bio: string }>({ name: "", county: "", address: "", bio: "" });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -86,7 +79,7 @@ const Profile = () => {
     if (!user) return;
     const { error } = await supabase.from("profiles").update({ name: editForm.name, county: editForm.county || null, address: editForm.address || null, bio: editForm.bio || null } as any).eq("id", user.id);
     if (error) { toast({ title: "Error", description: "Failed to update profile", variant: "destructive" }); }
-    else { toast({ title: "Success", description: "Profile updated successfully" }); setIsEditingProfile(false); fetchProfile(); }
+    else { toast({ title: "Success", description: "Profile updated successfully" }); fetchProfile(); }
   };
 
   const handleSocialLinksUpdate = async (links: { social_facebook?: string | null; social_instagram?: string | null; social_twitter?: string | null; social_linkedin?: string | null; social_whatsapp?: string | null }) => {
@@ -156,18 +149,12 @@ const Profile = () => {
 
   // Three-dot menu component
   const SettingsMenu = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors">
-          <MoreVertical className="h-5 w-5" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 rounded-xl">
-        <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
-          <Settings className="h-4 w-4" />Settings
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button 
+      onClick={() => navigate("/settings")}
+      className="h-9 w-9 rounded-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
+    >
+      <MoreVertical className="h-5 w-5" />
+    </button>
   );
 
   const updatePropertyStatus = async (propertyId: string, newStatus: "active" | "inactive" | "sold" | "rented") => {
@@ -217,42 +204,6 @@ const Profile = () => {
       ? `Experienced real estate agent helping clients buy, sell, and rent properties across Liberia. ${profile.county ? `Based in ${profile.county}.` : ""} Specialized in residential and commercial properties.`
       : `Property owner ${profile.county ? `based in ${profile.county}, Liberia` : "in Liberia"}. Browse listings below to find the perfect property.`;
 
-  // Edit Profile Dialog
-  const EditProfileDialog = ({ triggerId }: { triggerId: string }) => (
-    <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-full gap-2 border-border">
-          <Pencil className="h-3.5 w-3.5" />Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-[95vw] sm:max-w-md rounded-3xl">
-        <DialogHeader><DialogTitle>Edit Profile</DialogTitle></DialogHeader>
-        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
-          <div className="space-y-2"><Label htmlFor={`name-${triggerId}`}>Name</Label><Input id={`name-${triggerId}`} value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="rounded-xl" /></div>
-          <div className="space-y-2"><Label>Email (non-editable)</Label><Input value={profile.email} disabled className="opacity-60 rounded-xl" /></div>
-          <div className="space-y-2"><Label>Phone (non-editable)</Label><Input value={profile.phone || ""} disabled className="opacity-60 rounded-xl" /></div>
-          {profile.contact_phone_2 && (<div className="space-y-2"><Label>Phone 2</Label><Input value={profile.contact_phone_2} disabled className="opacity-60 rounded-xl" /></div>)}
-          <div className="space-y-2"><Label>Role</Label><Input value={isAgent ? "Agent" : "Property Owner"} disabled className="opacity-60 rounded-xl" /></div>
-          <div className="space-y-2">
-            <Label>County</Label>
-            <Select value={editForm.county} onValueChange={(value) => setEditForm({ ...editForm, county: value })}>
-              <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select your county" /></SelectTrigger>
-              <SelectContent>{LIBERIA_COUNTIES.map((county) => (<SelectItem key={county} value={county}>{county}</SelectItem>))}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2"><Label htmlFor={`addr-${triggerId}`}>Address</Label><Input id={`addr-${triggerId}`} value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} placeholder="Enter your address" className="rounded-xl" /></div>
-          <div className="space-y-2">
-            <Label htmlFor={`bio-${triggerId}`}>Bio / About</Label>
-            <Textarea id={`bio-${triggerId}`} value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} placeholder="Write about yourself..." rows={3} className="rounded-xl resize-none" />
-          </div>
-          {profile.role === "property_owner" && (profile.verification_status === "none" || profile.verification_status === "rejected") && (
-            <Button variant="outline" onClick={() => { setIsEditingProfile(false); navigate("/verification?upgrade=agent"); }} className="w-full rounded-xl gap-2 border-blue-500 text-blue-500 hover:bg-blue-500/10"><Building2 className="h-4 w-4" />Upgrade to Agent</Button>
-          )}
-          <Button onClick={handleProfileUpdate} className="w-full rounded-xl">Save Changes</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 
   // Compact Property Card for profile
   const MiniPropertyCard = ({ property }: { property: any }) => {
@@ -365,7 +316,6 @@ const Profile = () => {
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                {isOwnProfile && <EditProfileDialog triggerId="owner-mobile" />}
                 {isOwnProfile && <SettingsMenu />}
               </div>
             </div>
@@ -470,7 +420,6 @@ const Profile = () => {
             <div className="flex items-center gap-2">
               {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
               {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
-              {isOwnProfile && <EditProfileDialog triggerId="owner-desktop" />}
               {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
@@ -583,7 +532,6 @@ const Profile = () => {
           <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-bold">About</h2>
-              {isOwnProfile && <EditProfileDialog triggerId="agent-mobile" />}
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{aboutText}</p>
           </div>
@@ -690,7 +638,6 @@ const Profile = () => {
 
             {isOwnProfile && (
               <div className="px-5 pb-4 flex items-center gap-2">
-                <EditProfileDialog triggerId="agent-desktop" />
                 <SettingsMenu />
               </div>
             )}
