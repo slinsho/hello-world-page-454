@@ -339,13 +339,13 @@ const Settings = () => {
         <div className="max-w-lg mx-auto px-4 py-6">
           <SectionHeader title="Notification Setting" />
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
-            <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => setNotifPrefs({ ...notifPrefs, inquiries: v })} />
-            <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => setNotifPrefs({ ...notifPrefs, messages: v })} />
-            <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => setNotifPrefs({ ...notifPrefs, offers: v })} />
-            <ToggleRow label="Status Updates" description="Property status change alerts" checked={notifPrefs.statusUpdates} onChange={(v) => setNotifPrefs({ ...notifPrefs, statusUpdates: v })} />
-            <ToggleRow label="Marketing & Tips" description="Receive tips and promotional content" checked={notifPrefs.marketing} onChange={(v) => setNotifPrefs({ ...notifPrefs, marketing: v })} />
+            <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => updateNotifPref("inquiries", "inquiries", v)} />
+            <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => updateNotifPref("messages", "messages", v)} />
+            <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => updateNotifPref("offers", "offers", v)} />
+            <ToggleRow label="Status Updates" description="Property status change alerts" checked={notifPrefs.statusUpdates} onChange={(v) => updateNotifPref("statusUpdates", "status_updates", v)} />
+            <ToggleRow label="Marketing & Tips" description="Receive tips and promotional content" checked={notifPrefs.marketing} onChange={(v) => updateNotifPref("marketing", "marketing", v)} />
           </div>
-          <p className="text-xs text-muted-foreground mt-3 px-2">Notification preferences are saved locally. Push notifications require PWA installation.</p>
+          <p className="text-xs text-muted-foreground mt-3 px-2">Your notification preferences are saved automatically and applied server-side.</p>
         </div>
       </div>
     );
