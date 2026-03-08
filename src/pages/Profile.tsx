@@ -469,7 +469,6 @@ const Profile = () => {
             <div className="flex items-center gap-2">
               {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
               {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
-              {isOwnProfile && <EditProfileDialog triggerId="owner-desktop" />}
               {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
