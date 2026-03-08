@@ -17,6 +17,7 @@ interface PromotionWithProperty {
   payment_amount: number | null;
   created_at: string;
   processed_at: string | null;
+  payment_confirmed_at: string | null;
   admin_note: string | null;
   property_title: string;
   property_photo: string;
@@ -63,15 +64,17 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
       .select("id, title, photos, is_promoted, promotion_impression_count")
       .in("id", propertyIds);
 
-    // Fetch view counts
+    // Fetch view events (we'll count only after each request is approved/confirmed)
     const { data: viewData } = await supabase
       .from("property_views")
-      .select("property_id")
+      .select("property_id, viewed_at")
       .in("property_id", propertyIds);
 
-    const viewCounts = new Map<string, number>();
+    const viewsByProperty = new Map<string, string[]>();
     (viewData || []).forEach((v) => {
-      viewCounts.set(v.property_id, (viewCounts.get(v.property_id) || 0) + 1);
+      const existing = viewsByProperty.get(v.property_id) || [];
+      existing.push(v.viewed_at);
+      viewsByProperty.set(v.property_id, existing);
     });
 
     const propsMap = new Map((props || []).map((p) => [p.id, p]));
@@ -79,6 +82,12 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
     setPromotions(
       requests.map((r) => {
         const prop = propsMap.get(r.property_id);
+        const approvedAt = r.payment_confirmed_at || r.processed_at;
+        const propertyViewDates = viewsByProperty.get(r.property_id) || [];
+        const viewCountSinceApproval = approvedAt
+          ? propertyViewDates.filter((viewedAt) => new Date(viewedAt) >= new Date(approvedAt)).length
+          : 0;
+
         return {
           id: r.id,
           property_id: r.property_id,
@@ -88,12 +97,16 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
           payment_amount: r.payment_amount,
           created_at: r.created_at,
           processed_at: r.processed_at,
+          payment_confirmed_at: r.payment_confirmed_at,
           admin_note: r.admin_note,
           property_title: prop?.title || "Unknown Property",
           property_photo: prop?.photos?.[0] || "/placeholder.svg",
           is_promoted: prop?.is_promoted || false,
-          impression_count: (prop as any)?.promotion_impression_count || 0,
-          view_count: viewCounts.get(r.property_id) || 0,
+          impression_count:
+            r.status === "approved" && r.payment_status === "confirmed"
+              ? (prop as any)?.promotion_impression_count || 0
+              : 0,
+          view_count: viewCountSinceApproval,
         };
       })
     );
@@ -125,6 +138,10 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
       </span>
     );
   };
+
+  const activePromotions = promotions.filter(
+    (p) => p.status === "approved" && p.payment_status === "confirmed" && p.is_promoted
+  );
 
   // Properties eligible for promotion (active, not already promoted)
   const eligibleProperties = properties.filter(
@@ -177,14 +194,12 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
             <p className="text-[10px] text-muted-foreground">Total Requests</p>
           </div>
           <div className="bg-primary/10 rounded-xl p-3 border border-primary/20 text-center">
-            <p className="text-lg font-bold text-primary">
-              {promotions.filter((p) => p.is_promoted).length}
-            </p>
+            <p className="text-lg font-bold text-primary">{activePromotions.length}</p>
             <p className="text-[10px] text-muted-foreground">Active Promos</p>
           </div>
           <div className="bg-card rounded-xl p-3 border border-border/50 text-center">
             <p className="text-lg font-bold">
-              {promotions.reduce((sum, p) => sum + p.impression_count, 0)}
+              {activePromotions.reduce((sum, p) => sum + p.impression_count, 0)}
             </p>
             <p className="text-[10px] text-muted-foreground">Impressions</p>
           </div>
@@ -238,7 +253,7 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
               </div>
 
               {/* Stats row for active promotions */}
-              {promo.is_promoted && (
+              {(promo.status === "approved" && promo.payment_status === "confirmed" && promo.is_promoted) && (
                 <div className="flex items-center justify-between border-t border-border/50 px-3 py-2 bg-muted/30">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">

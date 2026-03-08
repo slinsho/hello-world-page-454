@@ -20,6 +20,7 @@ interface PromotionStats {
   duration_months: number;
   payment_amount: number | null;
   created_at: string;
+  payment_confirmed_at: string | null;
   views_count: number;
   is_promoted: boolean;
 }
@@ -64,21 +65,28 @@ export default function OwnerPromotionDashboard() {
       .select("id, title, photos, is_promoted")
       .in("id", propertyIds);
 
-    const viewsCounts = await Promise.all(
-      propertyIds.map(async (pid) => {
-        const { count } = await supabase
-          .from("property_views")
-          .select("*", { count: "exact", head: true })
-          .eq("property_id", pid);
-        return { id: pid, count: count || 0 };
-      })
-    );
+    const { data: viewData } = await supabase
+      .from("property_views")
+      .select("property_id, viewed_at")
+      .in("property_id", propertyIds);
+
+    const viewsByProperty = new Map<string, string[]>();
+    (viewData || []).forEach((v) => {
+      const existing = viewsByProperty.get(v.property_id) || [];
+      existing.push(v.viewed_at);
+      viewsByProperty.set(v.property_id, existing);
+    });
 
     const propsMap = new Map(propsData?.map(p => [p.id, p]) || []);
-    const viewsMap = new Map(viewsCounts.map(v => [v.id, v.count]));
 
     const enriched: PromotionStats[] = requests.map(req => {
       const prop = propsMap.get(req.property_id);
+      const approvedAt = req.payment_confirmed_at || req.processed_at;
+      const propertyViewDates = viewsByProperty.get(req.property_id) || [];
+      const viewsSinceApproval = approvedAt
+        ? propertyViewDates.filter((viewedAt) => new Date(viewedAt) >= new Date(approvedAt)).length
+        : 0;
+
       return {
         id: req.id,
         property_id: req.property_id,
@@ -89,15 +97,20 @@ export default function OwnerPromotionDashboard() {
         duration_months: req.duration_months || 1,
         payment_amount: req.payment_amount,
         created_at: req.created_at,
-        views_count: viewsMap.get(req.property_id) || 0,
+        payment_confirmed_at: req.payment_confirmed_at,
+        views_count: viewsSinceApproval,
         is_promoted: prop?.is_promoted || false,
       };
     });
 
     setPromotions(enriched);
 
-    const activeCount = enriched.filter(p => p.status === "approved" && p.is_promoted).length;
-    const totalViews = enriched.reduce((sum, p) => sum + p.views_count, 0);
+    const activeCount = enriched.filter(
+      (p) => p.status === "approved" && p.payment_status === "confirmed" && p.is_promoted
+    ).length;
+    const totalViews = enriched
+      .filter((p) => p.status === "approved" && p.payment_status === "confirmed")
+      .reduce((sum, p) => sum + p.views_count, 0);
     const totalSpent = enriched
       .filter(p => p.payment_status === "paid" || p.payment_status === "confirmed")
       .reduce((sum, p) => sum + (p.payment_amount || 0), 0);

@@ -113,7 +113,7 @@ export function AdminPromotions() {
 
       await supabase
         .from("properties")
-        .update({ is_promoted: true })
+        .update({ is_promoted: true, promotion_impression_count: 0 })
         .eq("id", propertyId);
 
       const req = requests.find(r => r.id === requestId);
