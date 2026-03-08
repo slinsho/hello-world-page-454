@@ -86,8 +86,8 @@ export function AdminPromotions() {
         await supabase.from("notifications").insert({
           user_id: req.user_id,
           property_id: req.property_id,
-          title: "Promotion Payment Required",
-          message: `Your promotion request for "${req.property?.title}" has been approved. Payment of $${amount.toLocaleString()} is required to feature your listing.`,
+          title: "🎉 Promotion Qualified — Payment Required",
+          message: `Your promotion request for "${req.property?.title}" has been qualified! Please pay $${amount.toLocaleString()} to activate your featured listing. Go to the property page and click "Promote" to submit your payment reference.`,
         });
       }
 
