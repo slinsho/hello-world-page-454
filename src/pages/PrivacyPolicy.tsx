@@ -24,7 +24,7 @@ const defaultSections: Section[] = [
   {
     icon: "ShieldCheck",
     title: "1. Introduction",
-    content: "LibHub (\"we\", \"our\", \"us\") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.\n\nBy using LibHub, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our service.",
+    content: "L-Prop (\"we\", \"our\", \"us\") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.\n\nBy using L-Prop, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our service.",
   },
   {
     icon: "Database",
