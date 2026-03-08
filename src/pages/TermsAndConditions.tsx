@@ -32,7 +32,7 @@ const defaultSections: Section[] = [
   {
     icon: "Home",
     title: "2. Use of Service",
-    content: "LibHub provides a platform for property owners and agents to list, browse, and connect regarding real estate properties in Liberia. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
+    content: "L-Prop provides a platform for property owners and agents to list, browse, and connect regarding real estate properties in Liberia. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
   },
   {
     icon: "Users",
