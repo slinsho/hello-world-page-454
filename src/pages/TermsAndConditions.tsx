@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Users, Home, Shield, Ban, BookOpen, AlertTriangle, RefreshCw, Mail, Scale } from "lucide-react";
+import { FileText, Users, Home, Shield, Ban, BookOpen, AlertTriangle, RefreshCw, Mail, Scale, CreditCard, Eye, Star, MessageSquare, Bell, Flag, Camera, Clock } from "lucide-react";
 
 const sections = [
   {
@@ -12,54 +12,92 @@ const sections = [
   {
     icon: Home,
     title: "2. Use of Service",
-    content: "LibHub provides a platform for property owners and agents to list, browse, and connect regarding real estate properties. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
+    content: "LibHub provides a platform for property owners and agents to list, browse, and connect regarding real estate properties in Liberia. You agree to use the service only for lawful purposes and in accordance with these Terms and Conditions.",
   },
   {
     icon: Users,
-    title: "3. User Accounts",
-    content: "When you create an account with us, you must provide accurate, complete, and current information. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account.\n\nYou are responsible for safeguarding the password and for all activities that occur under your account. You agree not to disclose your password to any third party.",
-  },
-  {
-    icon: FileText,
-    title: "4. Property Listings",
-    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. LibHub reserves the right to remove any listing that violates these terms or is deemed inappropriate.",
+    title: "3. User Accounts & Roles",
+    content: "When you create an account, you must select a role — either Property Owner or Agent. Each role has specific permissions and limitations:\n\nProperty Owners may list up to 2 properties. Exceeding this limit requires upgrading to an Agent account. Owners are restricted from making offers, submitting inquiries, or leaving reviews.\n\nAgents have full platform access including unlimited listings, messaging, offers, inquiries, and reviews.\n\nYou are responsible for safeguarding your password and for all activities under your account. Phone numbers provided during registration cannot be changed after account creation.",
   },
   {
     icon: Shield,
-    title: "5. Verification",
-    content: "To list properties, users must complete our verification process. We reserve the right to approve or reject verification requests at our discretion. Verified status may be revoked if fraudulent information is discovered.",
+    title: "4. Verification & Payment",
+    content: "To list properties, users must complete identity verification. This process requires a live camera selfie (file uploads are not permitted for security reasons), a valid government-issued ID, and date of birth.\n\nAgent verification additionally requires business phone, National ID, and agency credentials (name, location, logo).\n\nUpon qualification, a verification fee is required before approval. Owner verification costs 500 LRD (or USD equivalent), and Agent verification costs $20 USD (or LRD equivalent). These fees are configurable by the platform administrator.\n\nPayment must be made via mobile money. Users must include their full name as payment reference and submit their payment reference number through the platform. Verification is approved only after admin confirmation of payment.",
+  },
+  {
+    icon: Clock,
+    title: "5. Verification Duration & Renewal",
+    content: "Verification is valid for a limited period (default 5 days, configurable by admin). Upon expiration:\n\nAll user properties are automatically hidden from the homepage and explore pages. Properties appear disabled on the user's profile page. The user's verification status is set to 'expired.'\n\nUsers may submit a renewal request, which follows the same payment and approval process as initial verification. Once renewal is confirmed, all properties are restored and made visible again.",
+  },
+  {
+    icon: FileText,
+    title: "6. Property Listings",
+    content: "Users who create property listings warrant that all information provided is accurate and that they have the legal right to list the property. LibHub reserves the right to remove any listing that violates these terms or is deemed inappropriate.\n\nListings may be categorized as For Sale, For Rent, or For Lease. Property types include Houses, Apartments, and Shops. All listings are subject to content moderation by platform administrators.",
+  },
+  {
+    icon: Star,
+    title: "7. Property Promotions",
+    content: "Users may request to promote their listings for increased visibility. Promotion requests are subject to admin approval and require payment of a promotion fee.\n\nPromoted properties receive priority placement on the homepage and explore pages through a fair round-robin display system. LibHub does not guarantee any specific results from property promotions.",
+  },
+  {
+    icon: MessageSquare,
+    title: "8. Messaging & Inquiries",
+    content: "The platform provides direct messaging between agents and other users, property inquiry forms, and an offer system for negotiations. All communications must be respectful and related to legitimate property transactions.\n\nLibHub is not responsible for the content of messages exchanged between users or the outcome of any negotiations conducted through the platform.",
+  },
+  {
+    icon: Flag,
+    title: "9. Reporting & Moderation",
+    content: "Users may report property listings they believe are fraudulent, misleading, or inappropriate. All reports are reviewed by platform administrators.\n\nLibHub reserves the right to flag, hide, or remove any listing and to suspend or terminate accounts that repeatedly violate platform policies. Users who submit false reports may also face account restrictions.",
+  },
+  {
+    icon: Eye,
+    title: "10. Privacy & Data",
+    content: "LibHub collects and stores user information necessary for platform operation, including profile details, verification documents, property data, and communication records.\n\nUsers can control the visibility of their phone number, email, and location through privacy settings. Verification documents (IDs, selfies) are stored securely and accessible only to platform administrators for verification purposes.\n\nWe use cookies and similar technologies for session management and platform functionality.",
+  },
+  {
+    icon: Bell,
+    title: "11. Notifications",
+    content: "LibHub sends notifications for property matches, inquiries, offers, verification status updates, and other platform activities. Users may customize their notification preferences through account settings.\n\nCritical notifications related to account security and verification status cannot be disabled.",
+  },
+  {
+    icon: CreditCard,
+    title: "12. Fees & Payments",
+    content: "All fees on the platform (verification fees, promotion fees) are set by the platform administrator and are subject to change. Current rates and exchange rates (USD to LRD) are displayed in the platform settings.\n\nPayments are processed via mobile money services. LibHub does not store payment credentials. All payment confirmations are verified manually by platform administrators.\n\nFees paid are non-refundable unless otherwise determined by the platform administrator.",
   },
   {
     icon: Ban,
-    title: "6. Prohibited Activities",
+    title: "13. Prohibited Activities",
     content: "You agree not to:",
     list: [
       "Use the service for any illegal purpose",
       "Post false, misleading, or fraudulent property listings",
-      "Harass, abuse, or harm other users",
-      "Attempt to gain unauthorized access to the service",
-      "Use automated systems to access the service without permission",
+      "Submit forged or manipulated identity documents for verification",
+      "Create multiple accounts to circumvent listing limits or bans",
+      "Harass, abuse, or harm other users through messaging or reviews",
+      "Attempt to gain unauthorized access to the service or admin features",
+      "Use automated systems or bots to access the service without permission",
+      "Manipulate the promotion or review system",
     ],
   },
   {
     icon: BookOpen,
-    title: "7. Intellectual Property",
-    content: "The service and its original content, features, and functionality are owned by LibHub and are protected by international copyright, trademark, and other intellectual property laws.",
+    title: "14. Intellectual Property",
+    content: "The service and its original content, features, and functionality are owned by LibHub and are protected by international copyright, trademark, and other intellectual property laws.\n\nUser-uploaded content (photos, descriptions) remains the property of the respective users but LibHub is granted a non-exclusive license to display such content on the platform.",
   },
   {
     icon: AlertTriangle,
-    title: "8. Limitation of Liability",
-    content: "LibHub shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service. We do not guarantee the accuracy of property listings or the conduct of users.",
+    title: "15. Limitation of Liability",
+    content: "LibHub shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the service.\n\nWe do not guarantee the accuracy of property listings, the identity of users (beyond our verification process), or the outcome of any property transactions. LibHub acts solely as a platform connecting property owners, agents, and prospective buyers or renters.",
   },
   {
     icon: RefreshCw,
-    title: "9. Changes to Terms",
-    content: "We reserve the right to modify or replace these Terms at any time. Continued use of the service after changes constitutes acceptance of the new Terms.",
+    title: "16. Changes to Terms",
+    content: "We reserve the right to modify or replace these Terms at any time. Changes to verification fees, promotion pricing, verification duration, and other platform settings may be made by the administrator without prior notice.\n\nContinued use of the service after changes constitutes acceptance of the new Terms. Users will be notified of significant policy changes through the platform's notification system.",
   },
   {
     icon: Mail,
-    title: "10. Contact Information",
-    content: "If you have any questions about these Terms and Conditions, please contact us through the platform.",
+    title: "17. Contact Information",
+    content: "If you have any questions about these Terms and Conditions, please contact us through the platform's feedback system or via the contact information provided in the application.",
   },
 ];
 
