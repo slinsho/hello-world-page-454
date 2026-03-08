@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
+import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
