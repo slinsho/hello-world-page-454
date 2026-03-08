@@ -152,6 +152,53 @@ export function AdminRateSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Number Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Phone className="h-4 w-4 text-primary" />
+            Payment Number / Account
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            This payment number will be shown to users when they need to make a payment for promotions. Users will see it automatically in their payment notification.
+          </p>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Account / Business Name</Label>
+            <Input
+              value={paymentName}
+              onChange={(e) => setPaymentName(e.target.value)}
+              placeholder="e.g. LibbProperty Mobile Money"
+              maxLength={100}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Payment Number</Label>
+            <Input
+              value={paymentNumber}
+              onChange={(e) => setPaymentNumber(e.target.value)}
+              placeholder="e.g. 0770000000"
+              maxLength={50}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Payment Instructions (optional)</Label>
+            <Textarea
+              value={paymentInstructions}
+              onChange={(e) => setPaymentInstructions(e.target.value)}
+              placeholder="e.g. Send payment via Orange Money to the number above. Include your property title as reference."
+              maxLength={300}
+              rows={3}
+            />
+          </div>
+          <Button onClick={handleSavePaymentInfo} disabled={savingPayment} className="w-full gap-1.5">
+            <CreditCard className="h-4 w-4" />
+            {savingPayment ? "Saving..." : "Save Payment Info"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
