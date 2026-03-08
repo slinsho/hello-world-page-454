@@ -184,8 +184,8 @@ const Auth = () => {
             </button>
           </div>
 
-          <div className="flex-1 flex items-center justify-center px-6 py-8 md:px-12">
-            <div className="w-full max-w-md space-y-8">
+          <div className="flex-1 overflow-y-auto px-6 py-4 md:px-12 md:py-8">
+            <div className="w-full max-w-md mx-auto space-y-6 md:my-auto md:space-y-8">
               {/* Header */}
               <div className="space-y-2">
                  <div className="flex items-center gap-3 mb-6 md:hidden">
