@@ -40,7 +40,6 @@ const Profile = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, taken: 0 });
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState<{ name: string; county: string; address: string; bio: string }>({ name: "", county: "", address: "", bio: "" });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
