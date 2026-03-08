@@ -188,10 +188,8 @@ const Auth = () => {
             <div className="w-full max-w-md space-y-8">
               {/* Header */}
               <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-6 md:hidden">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-primary" />
-                  </div>
+                 <div className="flex items-center gap-3 mb-6 md:hidden">
+                  <img src={lpropLogo} alt="L-Prop" className="w-10 h-10 rounded-xl" />
                   <span className="text-xl font-bold text-foreground">L-Prop</span>
                 </div>
                 <h1 className="text-3xl font-bold text-foreground">{formTitle}</h1>
