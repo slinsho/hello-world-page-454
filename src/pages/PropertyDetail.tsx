@@ -304,10 +304,10 @@ const PropertyDetail = () => {
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-card border border-border overflow-hidden">
-              {property.profiles?.profile_photo_url ? (<img src={property.profiles.profile_photo_url} alt={property.profiles?.name} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">{property.profiles?.name?.charAt(0) || 'U'}</div>)}
+              {displayPhoto ? (<img src={displayPhoto} alt={displayName} className="w-full h-full object-cover" />) : (<div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">{displayName?.charAt(0) || 'U'}</div>)}
             </div>
             <div>
-              <p className="font-medium text-sm">{property.profiles?.name || 'Unknown'}</p>
+              <p className="font-medium text-sm">{displayName}</p>
               <p className="text-primary text-xs">{property.contact_phone}</p>
               {property.contact_phone_2 && <p className="text-primary text-xs">{property.contact_phone_2}</p>}
             </div>
