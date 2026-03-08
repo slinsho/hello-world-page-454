@@ -62,7 +62,7 @@ const DEFAULT_CONTENT: AboutContent = {
   dreams_description: "We help you find the 5-star property — this isn't just a listing site, it's a platform to discover your ideal living space.",
   dreams_image: "",
   dreams_checklist: ["Expert Local Knowledge", "Hassle-Free Transactions", "Comprehensive Support"],
-  email: "support@libhub.com",
+  email: "support@lprop.com",
   phone: "",
   address: "Monrovia, Liberia",
   whatsapp: "",
