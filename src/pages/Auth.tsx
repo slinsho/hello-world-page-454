@@ -123,7 +123,7 @@ const Auth = () => {
     : isForgotPassword
     ? "We'll send you a reset link"
     : isSignUp
-    ? "Join LibHub and start exploring"
+    ? "Join L-Prop and start exploring"
     : "Sign in to continue";
 
   // Form view

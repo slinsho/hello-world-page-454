@@ -66,7 +66,7 @@ const PWAInstallPrompt = () => {
           <Download className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-foreground">Install LibHub</p>
+          <p className="font-semibold text-sm text-foreground">Install L-Prop</p>
           {isIOS ? (
             <p className="text-xs text-muted-foreground mt-0.5">
               Tap <span className="font-medium">Share</span> then{" "}
