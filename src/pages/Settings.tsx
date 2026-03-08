@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   ChevronLeft, ChevronRight, User, Bell, Shield, SlidersHorizontal, 
   LayoutList, HelpCircle, FileText, LogOut, Mail, Phone, MapPin,
-  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon
+  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 
@@ -28,6 +28,7 @@ const Settings = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState({ name: "", county: "", address: "", bio: "" });
+  const [agencyForm, setAgencyForm] = useState({ agency_name: "", office_location: "" });
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +56,22 @@ const Settings = () => {
       if (data) {
         setProfile(data);
         setEditForm({ name: data.name || "", county: data.county || "", address: data.address || "", bio: (data as any).bio || "" });
+        // Fetch agency info for agents
+        if (data.role === "agent") {
+          supabase.from("verification_requests")
+            .select("agency_name, office_location")
+            .eq("user_id", user.id)
+            .eq("verification_type", "agent")
+            .eq("status", "approved")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+            .then(({ data: agencyData }) => {
+              if (agencyData) {
+                setAgencyForm({ agency_name: agencyData.agency_name || "", office_location: agencyData.office_location || "" });
+              }
+            });
+        }
       }
       setLoading(false);
     });
@@ -75,10 +92,28 @@ const Settings = () => {
     } as any).eq("id", user.id);
     if (error) {
       toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });
-    } else {
-      toast({ title: "Success", description: "Account settings saved" });
-      setProfile({ ...profile, ...editForm });
+      return;
     }
+
+    // Save agency info for agents
+    if (profile?.role === "agent" && (agencyForm.agency_name || agencyForm.office_location)) {
+      const { error: agencyError } = await supabase
+        .from("verification_requests")
+        .update({
+          agency_name: agencyForm.agency_name || null,
+          office_location: agencyForm.office_location || null,
+        })
+        .eq("user_id", user.id)
+        .eq("verification_type", "agent")
+        .eq("status", "approved");
+      if (agencyError) {
+        toast({ title: "Warning", description: "Profile saved but agency info update failed", variant: "destructive" });
+        return;
+      }
+    }
+
+    toast({ title: "Success", description: "Account settings saved" });
+    setProfile({ ...profile, ...editForm });
   };
 
   const handleChangePassword = async () => {
@@ -224,6 +259,22 @@ const Settings = () => {
                 <Label>Bio / About</Label>
                 <Textarea value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} placeholder="Write about yourself..." rows={3} className="rounded-xl resize-none" />
               </div>
+              {isAgent && (
+                <div className="border-t border-border/50 pt-4 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">Agency Information</Label>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Agency Name</Label>
+                    <Input value={agencyForm.agency_name} onChange={(e) => setAgencyForm({ ...agencyForm, agency_name: e.target.value })} placeholder="Your agency or company name" className="rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Office Location</Label>
+                    <Input value={agencyForm.office_location} onChange={(e) => setAgencyForm({ ...agencyForm, office_location: e.target.value })} placeholder="e.g., Congo Town, Monrovia" className="rounded-xl" />
+                  </div>
+                </div>
+              )}
               <Button onClick={handleSaveAccount} className="w-full rounded-xl">Save Changes</Button>
             </div>
           </div>
