@@ -299,7 +299,7 @@ const About = () => {
                   ))}
                 </div>
                 <Button className="rounded-xl gap-2" asChild>
-                  <a href="/explore">Get started <ArrowRight className="h-4 w-4" /></a>
+                  <Link to="/explore">Get started <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
               </div>
               {content.dreams_image ? (
