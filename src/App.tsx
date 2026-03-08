@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,30 +8,32 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
-import Index from "./pages/Index";
-import NearMe from "./pages/NearMe";
-import Auth from "./pages/Auth";
-import Explore from "./pages/Explore";
-import Upload from "./pages/Upload";
-import Profile from "./pages/Profile";
-import PropertyDetail from "./pages/PropertyDetail";
-import Verification from "./pages/Verification";
-import Admin from "./pages/Admin";
-import Feedback from "./pages/Feedback";
-import Notifications from "./pages/Notifications";
-import Favorites from "./pages/Favorites";
-import NotFound from "./pages/NotFound";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Messages from "./pages/Messages";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import PopularAreasPage from "./pages/PopularAreasPage";
-import EditProperty from "./pages/EditProperty";
-import Settings from "./pages/Settings";
+
+// Lazy-loaded route components
+const Index = lazy(() => import("./pages/Index"));
+const NearMe = lazy(() => import("./pages/NearMe"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Explore = lazy(() => import("./pages/Explore"));
+const Upload = lazy(() => import("./pages/Upload"));
+const Profile = lazy(() => import("./pages/Profile"));
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const Verification = lazy(() => import("./pages/Verification"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Feedback = lazy(() => import("./pages/Feedback"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const AdminProtectedRoute = lazy(() => import("./components/admin/AdminProtectedRoute"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Messages = lazy(() => import("./pages/Messages"));
+const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const PopularAreasPage = lazy(() => import("./pages/PopularAreasPage"));
+const EditProperty = lazy(() => import("./pages/EditProperty"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 const queryClient = new QueryClient();
 
@@ -44,47 +47,36 @@ const App = () => (
           <ScrollToTop />
           <FeedbackButton />
           <PWAInstallPrompt />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/near-me" element={<NearMe />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/property/:id" element={<PropertyDetail />} />
-            <Route path="/verification" element={<Verification />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/dashboard" element={<OwnerDashboard />} />
-            <Route path="/popular-areas" element={<PopularAreasPage />} />
-            <Route path="/edit-property/:id" element={<EditProperty />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* Hidden Admin Routes */}
-            <Route path="/winner-54/login" element={<AdminLogin />} />
-            <Route path="/winner-54/dashboard" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/winner-54/listings" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/winner-54/users" element={
-              <AdminProtectedRoute>
-                <AdminDashboardPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/near-me" element={<NearMe />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/verification" element={<Verification />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/dashboard" element={<OwnerDashboard />} />
+              <Route path="/popular-areas" element={<PopularAreasPage />} />
+              <Route path="/edit-property/:id" element={<EditProperty />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/winner-54/login" element={<AdminLogin />} />
+              <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="/winner-54/users" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
