@@ -81,7 +81,7 @@ const defaultSections: Section[] = [
   {
     icon: "Baby",
     title: "9. Children's Privacy",
-    content: "LibHub is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us to have it removed.",
+    content: "L-Prop is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us to have it removed.",
   },
   {
     icon: "FileText",
