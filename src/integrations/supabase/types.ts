@@ -500,6 +500,7 @@ export type Database = {
           id: string
           payment_amount: number | null
           payment_confirmed_at: string | null
+          payment_reference: string | null
           payment_requested_at: string | null
           payment_status: string
           processed_at: string | null
@@ -515,6 +516,7 @@ export type Database = {
           id?: string
           payment_amount?: number | null
           payment_confirmed_at?: string | null
+          payment_reference?: string | null
           payment_requested_at?: string | null
           payment_status?: string
           processed_at?: string | null
@@ -530,6 +532,7 @@ export type Database = {
           id?: string
           payment_amount?: number | null
           payment_confirmed_at?: string | null
+          payment_reference?: string | null
           payment_requested_at?: string | null
           payment_status?: string
           processed_at?: string | null

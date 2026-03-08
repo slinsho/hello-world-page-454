@@ -246,8 +246,11 @@ export function AdminPromotions() {
 
               {req.status === "approved" && req.payment_status === "paid" && (
                 <div className="space-y-3">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-1">
                     <p className="text-sm text-green-700 font-medium">User confirmed payment of ${(req.payment_amount || 0).toLocaleString()}</p>
+                    {(req as any).payment_reference && (
+                      <p className="text-xs text-green-600">Transaction Ref: <span className="font-mono font-bold">{(req as any).payment_reference}</span></p>
+                    )}
                   </div>
                   <div className="flex gap-3">
                     <Button onClick={() => handleConfirmPaymentAndPromote(req.id, req.property_id)} className="flex-1 gap-1.5">

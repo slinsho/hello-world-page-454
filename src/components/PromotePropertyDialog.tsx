@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -29,6 +30,7 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [existingRequest, setExistingRequest] = useState<any>(null);
   const [loadingRequest, setLoadingRequest] = useState(false);
+  const [paymentRef, setPaymentRef] = useState("");
 
   const fetchExistingRequest = async () => {
     if (!user) return;
@@ -74,14 +76,24 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
 
   const handleConfirmPayment = async () => {
     if (!existingRequest) return;
+    const trimmedRef = paymentRef.trim();
+    if (!trimmedRef) {
+      toast({ title: "Reference Required", description: "Please enter your transaction reference number.", variant: "destructive" });
+      return;
+    }
+    if (trimmedRef.length < 4 || trimmedRef.length > 100) {
+      toast({ title: "Invalid Reference", description: "Reference must be between 4 and 100 characters.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase
         .from("promotion_requests")
-        .update({ payment_status: "paid" } as any)
+        .update({ payment_status: "paid", payment_reference: trimmedRef } as any)
         .eq("id", existingRequest.id);
       if (error) throw error;
       toast({ title: "Payment Confirmed", description: "Admin will review and activate your promotion shortly." });
+      setPaymentRef("");
       fetchExistingRequest();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -111,10 +123,20 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
               <p className="text-xs text-amber-600 italic">Admin note: {existingRequest.admin_note}</p>
             )}
           </div>
-          <Button onClick={handleConfirmPayment} disabled={submitting} className="w-full rounded-xl gap-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Transaction Reference Number</Label>
+            <Input
+              value={paymentRef}
+              onChange={(e) => setPaymentRef(e.target.value)}
+              placeholder="e.g. TXN-20260308-12345"
+              maxLength={100}
+              className="rounded-xl"
+            />
+          </div>
+          <Button onClick={handleConfirmPayment} disabled={submitting || !paymentRef.trim()} className="w-full rounded-xl gap-2">
             {submitting ? "Confirming..." : <><CheckCircle2 className="h-4 w-4" /> I've Made the Payment</>}
           </Button>
-          <p className="text-[10px] text-muted-foreground text-center">After confirming, admin will verify and promote your listing.</p>
+          <p className="text-[10px] text-muted-foreground text-center">After confirming, admin will verify your payment reference and promote your listing.</p>
         </div>
       );
     }

@@ -1,0 +1,1 @@
+ALTER TABLE public.promotion_requests ADD COLUMN IF NOT EXISTS payment_reference text DEFAULT NULL;
