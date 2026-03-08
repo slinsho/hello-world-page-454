@@ -119,7 +119,6 @@ const About = () => {
       (savedContent.stats || []).forEach((s: any) => {
         if (s.label && s.sublabel) descMap[s.label] = s.sublabel;
       });
-      setAdminStatDescriptions(descMap);
 
       const totalProperties = propsRes.count || 0;
       const activeProperties = propsRes.data?.filter(p => p.status === "active").length || 0;
