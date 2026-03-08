@@ -581,7 +581,6 @@ const Profile = () => {
           <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-bold">About</h2>
-              {isOwnProfile && <EditProfileDialog triggerId="agent-mobile" />}
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{aboutText}</p>
           </div>
