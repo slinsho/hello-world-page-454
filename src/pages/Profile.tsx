@@ -51,6 +51,7 @@ const Profile = () => {
     if (!user && !profileId) { navigate("/auth"); return; }
     fetchProfile();
     fetchProperties();
+    fetchAgencyInfo();
     if (user) checkAdminStatus();
   }, [user, navigate, profileId]);
 
