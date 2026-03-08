@@ -36,7 +36,13 @@ const Notifications = () => {
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     fetchNotifications();
+    fetchPaymentInfo();
   }, [user]);
+
+  const fetchPaymentInfo = async () => {
+    const { data } = await supabase.from("platform_settings" as any).select("value").eq("key", "payment_info").single();
+    if (data) setPaymentInfo((data as any).value);
+  };
 
   const fetchNotifications = async () => {
     try {
