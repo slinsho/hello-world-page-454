@@ -92,9 +92,28 @@ const Settings = () => {
     } as any).eq("id", user.id);
     if (error) {
       toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });
-    } else {
-      toast({ title: "Success", description: "Account settings saved" });
-      setProfile({ ...profile, ...editForm });
+      return;
+    }
+
+    // Save agency info for agents
+    if (isAgent && (agencyForm.agency_name || agencyForm.office_location)) {
+      const { error: agencyError } = await supabase
+        .from("verification_requests")
+        .update({
+          agency_name: agencyForm.agency_name || null,
+          office_location: agencyForm.office_location || null,
+        })
+        .eq("user_id", user.id)
+        .eq("verification_type", "agent")
+        .eq("status", "approved");
+      if (agencyError) {
+        toast({ title: "Warning", description: "Profile saved but agency info update failed", variant: "destructive" });
+        return;
+      }
+    }
+
+    toast({ title: "Success", description: "Account settings saved" });
+    setProfile({ ...profile, ...editForm });
     }
   };
 
