@@ -225,9 +225,9 @@ const About = () => {
         {content.banner_image ? (
           <img src={content.banner_image} alt="About Us" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-900 via-stone-800 to-stone-900" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/80 via-primary/60 to-primary/40" />
         )}
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-foreground/50" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block border-b-2 border-amber-400 pb-2 mb-2">
