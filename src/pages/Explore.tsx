@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import PropertyCard from "@/components/PropertyCard";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
@@ -13,11 +14,23 @@ import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Explore = () => {
+  const { preferences } = useUserPreferences();
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
+
+  // Apply default county from preferences on first load
+  useEffect(() => {
+    if (!initialized && preferences.default_county) {
+      const updated = { ...filters, county: preferences.default_county };
+      setFilters(updated);
+      setTempFilters(updated);
+    }
+    setInitialized(true);
+  }, [preferences.default_county]);
 
   useEffect(() => { fetchProperties(); }, [filters, searchQuery]);
 

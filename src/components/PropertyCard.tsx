@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 interface PropertyCardProps {
   property: {
@@ -41,6 +42,8 @@ interface PropertyCardProps {
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
+  const { preferences } = useUserPreferences();
+  const showLRD = preferences.currency_display === "lrd";
   const favorited = isFavorite(property.id);
   
   const TypeIcon = {
@@ -117,10 +120,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
                 </h3>
                 <div className="text-right">
                   <span className="font-bold text-lg text-primary whitespace-nowrap">
-                    ${property.price_usd.toLocaleString()}
+                    {showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {formatLRD(property.price_usd)}
+                    {showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)}
                   </span>
                 </div>
               </div>

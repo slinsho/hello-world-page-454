@@ -974,6 +974,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          currency_display: string
+          default_county: string | null
+          id: string
+          show_email: boolean
+          show_location: boolean
+          show_phone: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency_display?: string
+          default_county?: string | null
+          id?: string
+          show_email?: boolean
+          show_location?: boolean
+          show_phone?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency_display?: string
+          default_county?: string | null
+          id?: string
+          show_email?: boolean
+          show_location?: boolean
+          show_phone?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

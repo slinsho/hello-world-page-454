@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -90,12 +91,7 @@ const Settings = () => {
     toast({ title: "Preference Updated", description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${value ? "enabled" : "disabled"}.` });
   };
 
-  // Privacy preferences
-  const [privacyPrefs, setPrivacyPrefs] = useState({
-    showPhone: true,
-    showEmail: true,
-    showLocation: true,
-  });
+  const { preferences: userPrefs, updatePreference } = useUserPreferences();
 
   // Load profile
   useState(() => {
@@ -365,9 +361,9 @@ const Settings = () => {
                 <h3 className="text-sm font-semibold">Profile Visibility</h3>
               </div>
               <div className="divide-y divide-border/50">
-                <ToggleRow label="Show Phone Number" description="Allow others to see your phone" checked={privacyPrefs.showPhone} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showPhone: v })} />
-                <ToggleRow label="Show Email" description="Allow others to see your email" checked={privacyPrefs.showEmail} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showEmail: v })} />
-                <ToggleRow label="Show Location" description="Display your county on profile" checked={privacyPrefs.showLocation} onChange={(v) => setPrivacyPrefs({ ...privacyPrefs, showLocation: v })} />
+                <ToggleRow label="Show Phone Number" description="Allow others to see your phone" checked={userPrefs.show_phone} onChange={(v) => { updatePreference("show_phone", v); toast({ title: "Updated", description: `Phone visibility ${v ? "enabled" : "disabled"}` }); }} />
+                <ToggleRow label="Show Email" description="Allow others to see your email" checked={userPrefs.show_email} onChange={(v) => { updatePreference("show_email", v); toast({ title: "Updated", description: `Email visibility ${v ? "enabled" : "disabled"}` }); }} />
+                <ToggleRow label="Show Location" description="Display your county on profile" checked={userPrefs.show_location} onChange={(v) => { updatePreference("show_location", v); toast({ title: "Updated", description: `Location visibility ${v ? "enabled" : "disabled"}` }); }} />
               </div>
             </div>
 
@@ -414,7 +410,7 @@ const Settings = () => {
             <div className="bg-card rounded-2xl border border-border/50 p-4 space-y-4">
               <div className="space-y-2">
                 <Label>Default County Filter</Label>
-                <Select>
+                <Select value={userPrefs.default_county || "all"} onValueChange={(v) => { updatePreference("default_county", v === "all" ? null : v); toast({ title: "Updated", description: v === "all" ? "Showing all counties" : `Default county set to ${v}` }); }}>
                   <SelectTrigger className="rounded-xl"><SelectValue placeholder="All Counties" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Counties</SelectItem>
@@ -425,13 +421,14 @@ const Settings = () => {
               </div>
               <div className="space-y-2">
                 <Label>Currency Display</Label>
-                <Select defaultValue="usd">
+                <Select value={userPrefs.currency_display} onValueChange={(v) => { updatePreference("currency_display", v); toast({ title: "Updated", description: `Currency set to ${v === "usd" ? "USD ($)" : "LRD (L$)"}` }); }}>
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="usd">USD ($)</SelectItem>
                     <SelectItem value="lrd">LRD (L$)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">Choose how property prices are displayed</p>
               </div>
             </div>
           </div>

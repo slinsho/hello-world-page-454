@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PlatformSettingsProvider } from "@/hooks/usePlatformSettings";
+import { UserPreferencesProvider } from "@/hooks/useUserPreferences";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
@@ -44,6 +45,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
     <PlatformSettingsProvider>
+    <UserPreferencesProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -85,6 +87,7 @@ const App = () => (
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
+    </UserPreferencesProvider>
     </PlatformSettingsProvider>
     </AuthProvider>
   </QueryClientProvider>

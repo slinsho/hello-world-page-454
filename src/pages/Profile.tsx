@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { fetchUserPrivacySettings } from "@/hooks/useUserPreferences";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -46,9 +47,15 @@ const Profile = () => {
   const [cropType, setCropType] = useState<"profile" | "cover">("profile");
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
   const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
+  const [privacySettings, setPrivacySettings] = useState({ show_phone: true, show_email: true, show_location: true });
 
   const isOwnProfile = !profileId || profileId === user?.id;
   const isAgent = profile?.role === "agent";
+
+  // For other users' profiles, check their privacy settings
+  const canShowPhone = isOwnProfile || privacySettings.show_phone;
+  const canShowEmail = isOwnProfile || privacySettings.show_email;
+  const canShowLocation = isOwnProfile || privacySettings.show_location;
 
   useEffect(() => {
     if (!user && !profileId) { navigate("/auth"); return; }
@@ -56,6 +63,10 @@ const Profile = () => {
     fetchProperties();
     fetchAgencyInfo();
     if (user) checkAdminStatus();
+    // Fetch privacy settings for other users
+    if (profileId && profileId !== user?.id) {
+      fetchUserPrivacySettings(profileId).then(setPrivacySettings);
+    }
   }, [user, navigate, profileId]);
 
   const checkAdminStatus = async () => {
@@ -356,14 +367,14 @@ const Profile = () => {
 
             {/* Quick info */}
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {profile.county && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}</span>}
-              {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
+              {canShowLocation && profile.county && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}</span>}
+              {canShowPhone && profile.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
             </div>
 
             {/* Action row */}
             <div className="mt-3 flex gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
             </div>
           </div>
         </div>
@@ -473,13 +484,13 @@ const Profile = () => {
               </div>
               <p className="text-sm text-muted-foreground">Property Owner</p>
               <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                {profile.county && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{profile.county}, Liberia</span>}
-                {profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
+                {canShowLocation && profile.county && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{profile.county}, Liberia</span>}
+                {canShowPhone && profile.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{profile.phone}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center gap-2"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="h-9 px-4 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center gap-2 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
               {isOwnProfile && <SettingsMenu />}
             </div>
           </div>
@@ -587,15 +598,15 @@ const Profile = () => {
         <div className="px-4 mt-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${verificationStatusColor}`}><Shield className="h-3.5 w-3.5" />{verifiedLabel}</span>
-            {profile.county && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}, Liberia</span>}
+            {canShowLocation && profile.county && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.county}, Liberia</span>}
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="px-4 mt-3 flex gap-2">
-          {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center justify-center gap-2"><Phone className="h-4 w-4" />Call</a>}
+          {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm flex items-center justify-center gap-2"><Phone className="h-4 w-4" />Call</a>}
           {!isOwnProfile && <button onClick={() => navigate("/messages")} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><MessageSquare className="h-4 w-4" />Message</button>}
-          {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><Mail className="h-4 w-4" />Email</a>}
+          {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-10 rounded-full bg-secondary text-foreground font-medium text-sm flex items-center justify-center gap-2 border border-border"><Mail className="h-4 w-4" />Email</a>}
         </div>
 
         {/* Tagline */}
@@ -726,14 +737,14 @@ const Profile = () => {
             </div>
 
             <div className="px-5 pb-3 space-y-1.5 text-sm text-muted-foreground">
-              {profile.county && <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" />{profile.county}, Liberia</div>}
-              {profile.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 flex-shrink-0" /><span className="truncate">{profile.email}</span></div>}
-              {profile.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 flex-shrink-0" />{profile.phone}</div>}
+              {canShowLocation && profile.county && <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" />{profile.county}, Liberia</div>}
+              {canShowEmail && profile.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 flex-shrink-0" /><span className="truncate">{profile.email}</span></div>}
+              {canShowPhone && profile.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 flex-shrink-0" />{profile.phone}</div>}
             </div>
 
             <div className="px-5 pb-3 flex gap-2">
-              {profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
-              {profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
+              {canShowPhone && profile.phone && <a href={`tel:${profile.phone}`} className="flex-1 h-9 rounded-full bg-primary text-primary-foreground font-medium text-xs flex items-center justify-center gap-1.5"><Phone className="h-3.5 w-3.5" />Call</a>}
+              {canShowEmail && profile.email && <a href={`mailto:${profile.email}`} className="flex-1 h-9 rounded-full bg-secondary text-foreground font-medium text-xs flex items-center justify-center gap-1.5 border border-border"><Mail className="h-3.5 w-3.5" />Email</a>}
             </div>
 
             <div className="px-5 pb-3">
