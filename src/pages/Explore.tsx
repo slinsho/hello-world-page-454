@@ -50,7 +50,7 @@ const Explore = () => {
       query = query.order("price_usd", { ascending: true });
     } else if (sortOrder === "price_high") {
       query = query.order("price_usd", { ascending: false });
-    } else {
+    } else if (sortOrder !== "random") {
       query = query.order("created_at", { ascending: false });
     }
     if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
