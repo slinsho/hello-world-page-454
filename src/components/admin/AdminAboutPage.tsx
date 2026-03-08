@@ -314,7 +314,7 @@ export function AdminAboutPage() {
                     <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { const u = [...content.team_members]; u[i] = { ...u[i], photo: "" }; setContent({ ...content, team_members: u }); }}>Remove</Button>
                   </div>
                 ) : (
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.onchange = (ev: any) => handleTeamPhotoUpload(i, ev.target.files[0]); input.click(); }}><ImageIcon className="h-3 w-3" /> Upload</Button>
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => handleTeamPhotoUpload(i)}><ImageIcon className="h-3 w-3" /> Upload</Button>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-2">
