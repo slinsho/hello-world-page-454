@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Megaphone, DollarSign, CheckCircle2, XCircle } from "lucide-react";
+import { Megaphone, DollarSign, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 
 interface PromotionRequest {
   id: string;
