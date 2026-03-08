@@ -202,24 +202,30 @@ export function AdminPromotions() {
 
   const handleDelete = async (requestId: string) => {
     try {
-      // Find the promotion request to get the property_id
+      // Find the promotion request to get the property_id BEFORE deleting
       const request = requests.find(r => r.id === requestId);
-      
+      const propertyId = request?.property_id;
+
+      // First, demote the property
+      if (propertyId) {
+        const { error: updateError } = await supabase
+          .from("properties")
+          .update({ is_promoted: false, promotion_impression_count: 0 })
+          .eq("id", propertyId);
+        if (updateError) {
+          console.error("Failed to demote property:", updateError);
+          toast({ title: "Warning", description: "Could not demote property: " + updateError.message, variant: "destructive" });
+        }
+      }
+
+      // Then delete the promotion request
       const { error } = await supabase
         .from("promotion_requests")
         .delete()
         .eq("id", requestId);
       if (error) throw error;
 
-      // Also remove is_promoted flag from the property
-      if (request?.property_id) {
-        await supabase
-          .from("properties")
-          .update({ is_promoted: false, promotion_impression_count: 0 })
-          .eq("id", request.property_id);
-      }
-
-      toast({ title: "Deleted", description: "Promotion request deleted and property demoted." });
+      toast({ title: "Deleted", description: "Promotion deleted and property demoted successfully." });
       fetchRequests();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
