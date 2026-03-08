@@ -91,12 +91,7 @@ const Settings = () => {
     toast({ title: "Preference Updated", description: `${key.charAt(0).toUpperCase() + key.slice(1)} notifications ${value ? "enabled" : "disabled"}.` });
   };
 
-  // Privacy preferences
-  const [privacyPrefs, setPrivacyPrefs] = useState({
-    showPhone: true,
-    showEmail: true,
-    showLocation: true,
-  });
+  const { preferences: userPrefs, updatePreference } = useUserPreferences();
 
   // Load profile
   useState(() => {
