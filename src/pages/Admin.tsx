@@ -8,6 +8,8 @@ import { AdminVerifications } from "@/components/admin/AdminVerifications";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminProperties } from "@/components/admin/AdminProperties";
 import AdminFeedback from "@/components/admin/AdminFeedback";
+import { AdminPromotions } from "@/components/admin/AdminPromotions";
+import { AdminReports } from "@/components/admin/AdminReports";
 import { Shield } from "lucide-react";
 
 export default function Admin() {
