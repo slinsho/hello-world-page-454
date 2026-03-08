@@ -41,6 +41,7 @@ const Notifications = () => {
 
   const markAsRead = async (id: string) => { await supabase.from("notifications").update({ is_read: true }).eq("id", id); setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n)); };
   const deleteNotification = async (id: string) => { await supabase.from("notifications").delete().eq("id", id); setNotifications(prev => prev.filter(n => n.id !== id)); };
+  const handlePropertyClick = (notification: Notification) => { if (notification.property_id) { markAsRead(notification.id); navigate(`/property/${notification.property_id}`); } };
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-8">
