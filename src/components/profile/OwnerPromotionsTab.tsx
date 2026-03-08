@@ -253,7 +253,7 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
               </div>
 
               {/* Stats row for active promotions */}
-              {promo.is_promoted && (
+              {(promo.status === "approved" && promo.payment_status === "confirmed" && promo.is_promoted) && (
                 <div className="flex items-center justify-between border-t border-border/50 px-3 py-2 bg-muted/30">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
