@@ -82,13 +82,26 @@ const Index = () => {
       ]);
       
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-      const agentMap = new Map((agentData || []).map(a => [a.user_id, a]));
+      
+      // Build agent map with signed URLs for logos in private bucket
+      const agentMap = new Map<string, { agency_name: string | null; agency_logo: string | null }>();
+      for (const a of (agentData || [])) {
+        let logoUrl: string | null = null;
+        if (a.agency_logo) {
+          const { data: signedData } = await supabase.storage
+            .from("verification-docs")
+            .createSignedUrl(a.agency_logo, 3600);
+          logoUrl = signedData?.signedUrl || null;
+        }
+        agentMap.set(a.user_id, { agency_name: a.agency_name, agency_logo: logoUrl });
+      }
+
       const propertiesWithProfiles = propertiesData.map(p => {
         const agent = agentMap.get(p.owner_id);
         return {
           ...p,
           profiles: profilesMap.get(p.owner_id) || null,
-          agent_info: agent ? { agency_name: agent.agency_name, agency_logo: agent.agency_logo } : null,
+          agent_info: agent || null,
         };
       });
 
