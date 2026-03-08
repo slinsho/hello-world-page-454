@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Megaphone, Sparkles, DollarSign, CheckCircle2, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { usePlatformSettings, formatLRDDynamic } from "@/hooks/usePlatformSettings";
 
 interface PromotePropertyDialogProps {
   propertyId: string;
@@ -22,15 +23,28 @@ interface PromotePropertyDialogProps {
   isOwner: boolean;
 }
 
+const DURATION_OPTIONS = [
+  { value: "1", label: "1 Month" },
+  { value: "2", label: "2 Months" },
+  { value: "3", label: "3 Months" },
+  { value: "6", label: "6 Months" },
+  { value: "12", label: "12 Months" },
+];
+
 export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: PromotePropertyDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { settings } = usePlatformSettings();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
+  const [durationMonths, setDurationMonths] = useState("1");
   const [submitting, setSubmitting] = useState(false);
   const [existingRequest, setExistingRequest] = useState<any>(null);
   const [loadingRequest, setLoadingRequest] = useState(false);
   const [paymentRef, setPaymentRef] = useState("");
+
+  const totalUsd = settings.promotion_price_per_month * parseInt(durationMonths);
+  const totalLrd = formatLRDDynamic(totalUsd, settings.usd_to_lrd_rate);
 
   const fetchExistingRequest = async () => {
     if (!user) return;
@@ -61,11 +75,14 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
         property_id: propertyId,
         user_id: user.id,
         reason: reason.trim() || null,
-      }]);
+        duration_months: parseInt(durationMonths),
+        payment_amount: totalUsd,
+      } as any]);
       if (error) throw error;
       toast({ title: "Request Submitted", description: "Your promotion request has been sent to admin for review." });
       setOpen(false);
       setReason("");
+      setDurationMonths("1");
       setExistingRequest(null);
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to submit request", variant: "destructive" });
@@ -107,8 +124,9 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
       return <div className="py-6 text-center text-sm text-muted-foreground">Loading...</div>;
     }
 
-    // Has existing request with payment requested
+    // Payment requested
     if (existingRequest && existingRequest.status === "approved" && existingRequest.payment_status === "requested") {
+      const reqAmount = existingRequest.payment_amount || 0;
       return (
         <div className="space-y-4 py-2">
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
@@ -117,8 +135,13 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
               <p className="font-semibold text-amber-800">Payment Required</p>
             </div>
             <p className="text-sm text-amber-700">
-              Your promotion request has been approved! Please pay <span className="font-bold">${(existingRequest.payment_amount || 0).toLocaleString()}</span> to activate your featured listing.
+              Your promotion request has been approved! Please pay:
             </p>
+            <div className="bg-white/60 rounded-lg p-2 text-center">
+              <p className="text-lg font-bold text-amber-900">${reqAmount.toLocaleString()}</p>
+              <p className="text-xs text-amber-600">{formatLRDDynamic(reqAmount, settings.usd_to_lrd_rate)}</p>
+              <p className="text-[10px] text-amber-500">{existingRequest.duration_months || 1} month(s)</p>
+            </div>
             {existingRequest.admin_note && (
               <p className="text-xs text-amber-600 italic">Admin note: {existingRequest.admin_note}</p>
             )}
@@ -141,7 +164,7 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
       );
     }
 
-    // Has existing pending request
+    // Pending
     if (existingRequest && existingRequest.status === "pending") {
       return (
         <div className="space-y-4 py-2">
@@ -156,7 +179,7 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
       );
     }
 
-    // Already paid, waiting for admin confirmation
+    // Paid, waiting confirmation
     if (existingRequest && existingRequest.payment_status === "paid") {
       return (
         <div className="space-y-4 py-2">
@@ -171,11 +194,11 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
       );
     }
 
-    // New request form
+    // New request form with duration picker
     return (
       <div className="space-y-4 py-2">
         <p className="text-xs text-muted-foreground">
-          Request to feature <span className="font-medium text-foreground">"{propertyTitle}"</span> at the top of listings. Our admin team will review and send you a payment request.
+          Request to feature <span className="font-medium text-foreground">"{propertyTitle}"</span> at the top of listings.
         </p>
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 space-y-1">
           <p className="text-xs font-semibold text-primary">What you get:</p>
@@ -186,6 +209,29 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
             <li>✦ Higher visibility to buyers</li>
           </ul>
         </div>
+
+        {/* Duration picker */}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">Promotion Duration</Label>
+          <Select value={durationMonths} onValueChange={setDurationMonths}>
+            <SelectTrigger className="rounded-xl">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DURATION_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Price display */}
+        <div className="bg-secondary/50 rounded-xl p-3 text-center space-y-0.5">
+          <p className="text-xs text-muted-foreground">${settings.promotion_price_per_month}/month × {durationMonths} month(s)</p>
+          <p className="text-xl font-bold text-foreground">${totalUsd.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">{totalLrd}</p>
+        </div>
+
         <div className="space-y-1.5">
           <Label className="text-xs">Why should this property be featured? (optional)</Label>
           <Textarea
@@ -198,7 +244,7 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
           />
         </div>
         <Button onClick={handleSubmit} disabled={submitting} className="w-full rounded-xl gap-2">
-          {submitting ? "Submitting..." : <><Megaphone className="h-4 w-4" />Submit Promotion Request</>}
+          {submitting ? "Submitting..." : <><Megaphone className="h-4 w-4" />Submit Promotion Request — ${totalUsd}</>}
         </Button>
       </div>
     );

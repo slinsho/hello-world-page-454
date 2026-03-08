@@ -426,6 +426,27 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -497,6 +518,7 @@ export type Database = {
           admin_id: string | null
           admin_note: string | null
           created_at: string
+          duration_months: number | null
           id: string
           payment_amount: number | null
           payment_confirmed_at: string | null
@@ -513,6 +535,7 @@ export type Database = {
           admin_id?: string | null
           admin_note?: string | null
           created_at?: string
+          duration_months?: number | null
           id?: string
           payment_amount?: number | null
           payment_confirmed_at?: string | null
@@ -529,6 +552,7 @@ export type Database = {
           admin_id?: string | null
           admin_note?: string | null
           created_at?: string
+          duration_months?: number | null
           id?: string
           payment_amount?: number | null
           payment_confirmed_at?: string | null
