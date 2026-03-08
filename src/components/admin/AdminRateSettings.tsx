@@ -190,7 +190,7 @@ export function AdminRateSettings() {
           <p className="text-xs text-muted-foreground">
             This payment number will be shown to users when they need to make a payment for promotions. Users will see it automatically in their payment notification.
           </p>
-          <div className="space-y-2">
+           <div className="space-y-2">
             <Label className="text-sm font-medium">Account / Business Name</Label>
             <Input
               value={paymentName}
@@ -200,10 +200,19 @@ export function AdminRateSettings() {
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Payment Number</Label>
+            <Label className="text-sm font-medium">Lonestar (MTN) Number</Label>
             <Input
-              value={paymentNumber}
-              onChange={(e) => setPaymentNumber(e.target.value)}
+              value={lonestarNumber}
+              onChange={(e) => setLonestarNumber(e.target.value)}
+              placeholder="e.g. 0886000000"
+              maxLength={50}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Orange Number</Label>
+            <Input
+              value={orangeNumber}
+              onChange={(e) => setOrangeNumber(e.target.value)}
               placeholder="e.g. 0770000000"
               maxLength={50}
             />
