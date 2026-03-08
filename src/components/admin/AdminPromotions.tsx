@@ -165,6 +165,20 @@ export function AdminPromotions() {
     }
   };
 
+  const handleDelete = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from("promotion_requests")
+        .delete()
+        .eq("id", requestId);
+      if (error) throw error;
+      toast({ title: "Deleted", description: "Promotion request deleted." });
+      fetchRequests();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const getStatusBadge = (req: PromotionRequest) => {
     if (req.status === "approved" && req.payment_status === "requested") return <Badge variant="outline" className="text-amber-600 border-amber-300">Awaiting Payment</Badge>;
     if (req.status === "approved" && req.payment_status === "paid") return <Badge className="bg-green-100 text-green-700 border-green-300">Payment Received</Badge>;
