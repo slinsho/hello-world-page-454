@@ -335,7 +335,7 @@ const About = () => {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                Start Your Journey With Our<br className="hidden md:block" /> Amazing Agents
+                Start Your Journey With Our<br className="hidden md:block" /> Amazing Team
               </h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -368,14 +368,22 @@ const About = () => {
                 </div>
               ))}
             </div>
-            <div className="text-center mt-8">
-              <Button className="rounded-xl gap-2" variant="outline" asChild>
-                <a href="/agents">View all agents</a>
-              </Button>
-            </div>
           </div>
         </section>
       )}
+
+      {/* ===== 7b. VIEW ALL AGENTS — separate section ===== */}
+      <section className="bg-background">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Meet Our Agents</h2>
+          <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
+            Browse our verified real estate professionals ready to help you find your perfect property.
+          </p>
+          <Button className="rounded-xl gap-2" asChild>
+            <a href="/agents">View All Agents <ArrowRight className="h-4 w-4" /></a>
+          </Button>
+        </div>
+      </section>
 
       {/* ===== 8. CONTACT FORM ===== */}
       <section className="bg-secondary">
