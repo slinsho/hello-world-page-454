@@ -194,14 +194,12 @@ export function OwnerPromotionsTab({ properties }: OwnerPromotionsTabProps) {
             <p className="text-[10px] text-muted-foreground">Total Requests</p>
           </div>
           <div className="bg-primary/10 rounded-xl p-3 border border-primary/20 text-center">
-            <p className="text-lg font-bold text-primary">
-              {promotions.filter((p) => p.is_promoted).length}
-            </p>
+            <p className="text-lg font-bold text-primary">{activePromotions.length}</p>
             <p className="text-[10px] text-muted-foreground">Active Promos</p>
           </div>
           <div className="bg-card rounded-xl p-3 border border-border/50 text-center">
             <p className="text-lg font-bold">
-              {promotions.reduce((sum, p) => sum + p.impression_count, 0)}
+              {activePromotions.reduce((sum, p) => sum + p.impression_count, 0)}
             </p>
             <p className="text-[10px] text-muted-foreground">Impressions</p>
           </div>
