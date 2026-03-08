@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Bell, Check, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
-import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 
 interface Notification {
   id: string;
@@ -25,16 +24,10 @@ const Notifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
-    const checkRole = async () => {
-      const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-      if (data?.role === "property_owner") { setShowUpgrade(true); setLoading(false); return; }
-      fetchNotifications();
-    };
-    checkRole();
+    fetchNotifications();
   }, [user]);
 
   const fetchNotifications = async () => {
@@ -49,8 +42,6 @@ const Notifications = () => {
   const markAsRead = async (id: string) => { await supabase.from("notifications").update({ is_read: true }).eq("id", id); setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n)); };
   const deleteNotification = async (id: string) => { await supabase.from("notifications").delete().eq("id", id); setNotifications(prev => prev.filter(n => n.id !== id)); };
   const handlePropertyClick = (notification: Notification) => { if (notification.property_id) { markAsRead(notification.id); navigate(`/property/${notification.property_id}`); } };
-
-  if (showUpgrade) return <div className="min-h-screen bg-background pb-20"><Navbar /><UpgradeToAgentDialog open={true} onOpenChange={(open) => { if (!open) navigate(-1); }} featureName="Notifications" /></div>;
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-8">
