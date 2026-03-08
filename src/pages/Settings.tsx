@@ -114,7 +114,6 @@ const Settings = () => {
 
     toast({ title: "Success", description: "Account settings saved" });
     setProfile({ ...profile, ...editForm });
-    }
   };
 
   const handleChangePassword = async () => {
