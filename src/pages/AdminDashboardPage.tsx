@@ -32,6 +32,16 @@ export default function AdminDashboardPage() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  // Determine default tab based on route
+  const getDefaultTab = () => {
+    if (location.pathname.includes("/listings")) return "properties";
+    if (location.pathname.includes("/users")) return "users";
+    return "dashboard";
+  };
+
+  const [activeTab, setActiveTab] = useState(getDefaultTab());
 
   useEffect(() => {
     fetchNotifications();
@@ -62,11 +72,32 @@ export default function AdminDashboardPage() {
     setUnreadCount(0);
   };
 
-  // Determine default tab based on route
-  const getDefaultTab = () => {
-    if (location.pathname.includes("/listings")) return "properties";
-    if (location.pathname.includes("/users")) return "users";
+  const markAsRead = async (id: string) => {
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const getTabForNotification = (notification: any): string => {
+    const title = (notification.title || "").toLowerCase();
+    const type = (notification.type || "").toLowerCase();
+
+    if (title.includes("contact form")) return "contacts";
+    if (title.includes("verification") || title.includes("verified")) return "verifications";
+    if (title.includes("promotion") || title.includes("promoted") || title.includes("payment")) return "promotions";
+    if (title.includes("report") || title.includes("flagged")) return "reports";
+    if (title.includes("feedback")) return "feedback";
+    if (title.includes("inquiry") || type === "inquiries") return "contacts";
+    if (title.includes("offer") || type === "offers") return "feedback";
+    if (title.includes("moderation")) return "moderation";
     return "dashboard";
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.is_read) markAsRead(notification.id);
+    const tab = getTabForNotification(notification);
+    setActiveTab(tab);
+    setPopoverOpen(false);
   };
 
   const handleLogout = async () => {
@@ -79,6 +110,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleTabChange = (value: string) => {
+    setActiveTab(value);
     switch (value) {
       case "dashboard":
         navigate("/winner-54/dashboard");
