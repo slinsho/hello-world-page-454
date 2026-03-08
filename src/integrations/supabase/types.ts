@@ -388,6 +388,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          inquiries: boolean
+          marketing: boolean
+          messages: boolean
+          offers: boolean
+          status_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inquiries?: boolean
+          marketing?: boolean
+          messages?: boolean
+          offers?: boolean
+          status_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inquiries?: boolean
+          marketing?: boolean
+          messages?: boolean
+          offers?: boolean
+          status_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1057,6 +1093,10 @@ export type Database = {
       }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      user_wants_notification: {
+        Args: { p_type: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
