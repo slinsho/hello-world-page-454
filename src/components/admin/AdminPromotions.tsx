@@ -193,6 +193,7 @@ export function AdminPromotions() {
           property_id: req.property_id,
           title: "Promotion Request Rejected",
           message: `Your promotion request for "${req.property?.title}" was rejected. Reason: ${notes[requestId]}`,
+          type: "status_updates",
         });
       }
 

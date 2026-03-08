@@ -175,6 +175,7 @@ export function AdminActivePromotions() {
         property_id: promo.property_id,
         title: "Promotion Revoked",
         message: `Your promotion for "${promo.property?.title}" has been revoked. Reason: ${revokeNote}`,
+        type: "status_updates",
       });
       toast({ title: "Promotion Revoked" });
       setSelectedPromo(null);
