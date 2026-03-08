@@ -192,6 +192,16 @@ const PropertyDetail = () => {
 
           {property.description && (<div className="mb-6"><h3 className="font-semibold mb-2 hidden md:block">Description</h3><p className="text-sm text-muted-foreground">{property.description}</p></div>)}
 
+          {/* Promote & Report Actions */}
+          <div className="flex items-center gap-2 mb-6">
+            {user && property.owner_id === user.id && (
+              <PromotePropertyDialog propertyId={property.id} propertyTitle={property.title} isOwner={true} />
+            )}
+            {user && property.owner_id !== user.id && (
+              <ReportPropertyDialog propertyId={property.id} propertyTitle={property.title} />
+            )}
+          </div>
+
           {/* Photo Gallery */}
           {allPhotos.length > 1 && (
             <div className="mb-6">
