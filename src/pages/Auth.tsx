@@ -140,9 +140,7 @@ const Auth = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
           <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-primary" />
-              </div>
+             <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
               <span className="text-2xl font-bold text-foreground">L-Prop</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
