@@ -43,14 +43,18 @@ const Index = () => {
         query = query.eq("status", "active");
       }
 
-      if (typeFilter && typeFilter !== "all") {
-        query = query.eq("property_type", typeFilter as "house" | "apartment" | "shop");
+      // Apply URL filters first, fall back to user preferences
+      const effectiveType = typeFilter || preferences.default_property_type || null;
+      if (effectiveType && effectiveType !== "all") {
+        query = query.eq("property_type", effectiveType as "house" | "apartment" | "shop");
       }
-      if (listingFilter && listingFilter !== "all") {
-        query = query.eq("listing_type", listingFilter as "for_sale" | "for_rent" | "for_lease");
+      const effectiveListing = listingFilter || preferences.default_listing_type || null;
+      if (effectiveListing && effectiveListing !== "all") {
+        query = query.eq("listing_type", effectiveListing as "for_sale" | "for_rent" | "for_lease");
       }
-      if (countyFilter && countyFilter !== "all") {
-        query = query.eq("county", countyFilter);
+      const effectiveCounty = countyFilter || preferences.default_county || null;
+      if (effectiveCounty && effectiveCounty !== "all") {
+        query = query.eq("county", effectiveCounty);
       }
       if (minPrice) {
         query = query.gte("price_usd", parseFloat(minPrice));
@@ -145,7 +149,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order]);
+  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order, preferences.default_county, preferences.default_listing_type, preferences.default_property_type]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
