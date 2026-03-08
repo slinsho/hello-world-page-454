@@ -8,11 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { UserReviews } from "@/components/UserReviews";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES, formatLRD } from "@/lib/constants";
 import {
