@@ -46,8 +46,10 @@ export function PromotePropertyDialog({ propertyId, propertyTitle, isOwner }: Pr
   };
 
   useEffect(() => {
-    if (open) fetchExistingRequest();
-  }, [open]);
+    if (open && isOwner) fetchExistingRequest();
+  }, [open, isOwner]);
+
+  if (!isOwner) return null;
 
   const handleSubmit = async () => {
     if (!user) return;

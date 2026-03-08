@@ -71,6 +71,7 @@ const App = () => (
               <Route path="/popular-areas" element={<PopularAreasPage />} />
               <Route path="/edit-property/:id" element={<EditProperty />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/featured" element={<FeaturedListings />} />
               <Route path="/winner-54/login" element={<AdminLogin />} />
               <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
               <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />

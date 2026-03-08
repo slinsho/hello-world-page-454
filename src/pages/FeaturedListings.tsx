@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
-import { PropertyCard } from "@/components/PropertyCard";
+import PropertyCard from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
