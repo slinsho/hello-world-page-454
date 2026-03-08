@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
-import { Building2, Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
 import heroImage from "@/assets/auth-hero.jpg";
+import lpropLogo from "@/assets/lprop-logo.png";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -139,9 +140,7 @@ const Auth = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
           <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-primary" />
-              </div>
+             <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
               <span className="text-2xl font-bold text-foreground">L-Prop</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
@@ -189,10 +188,8 @@ const Auth = () => {
             <div className="w-full max-w-md space-y-8">
               {/* Header */}
               <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-6 md:hidden">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-primary" />
-                  </div>
+                 <div className="flex items-center gap-3 mb-6 md:hidden">
+                  <img src={lpropLogo} alt="L-Prop" className="w-10 h-10 rounded-xl" />
                   <span className="text-xl font-bold text-foreground">L-Prop</span>
                 </div>
                 <h1 className="text-3xl font-bold text-foreground">{formTitle}</h1>
@@ -447,10 +444,8 @@ const Auth = () => {
         
         {/* Desktop hero content */}
         <div className="hidden md:flex relative z-10 h-full flex-col justify-between p-10 lg:p-14">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
+           <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-14 h-14 rounded-xl" />
             <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
           </div>
           
@@ -488,11 +483,9 @@ const Auth = () => {
         </div>
 
         {/* Mobile logo */}
-        <div className="md:hidden relative z-10 p-6 pt-12">
+         <div className="md:hidden relative z-10 p-6 pt-12">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/30">
-              <Building2 className="w-5 h-5 text-primary" />
-            </div>
+            <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
             <span className="text-xl font-bold text-foreground">L-Prop</span>
           </div>
         </div>
