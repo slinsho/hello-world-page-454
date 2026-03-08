@@ -47,7 +47,7 @@ interface AboutContent {
 }
 
 const DEFAULT_CONTENT: AboutContent = {
-  company_name: "LibHub",
+  company_name: "L-Prop",
   tagline: "About Us",
   description: "Explore your real estate dream into reality. Sharing home since 2024.",
   hero_subtitle: "At LibHub, we're redefining how property is found by delivering end-to-end property services. From search to close, we provide real estate services, strategies, and resources for the entire Liberian market.",
