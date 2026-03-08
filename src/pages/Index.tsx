@@ -120,6 +120,9 @@ const Index = () => {
         };
       });
 
+      if (preferences.default_sort_order === "random") {
+        propertiesWithProfiles.sort(() => Math.random() - 0.5);
+      }
       setProperties(propertiesWithProfiles);
 
       let county = "";
