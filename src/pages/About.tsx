@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
@@ -96,6 +96,17 @@ const About = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeWorkPhoto, setActiveWorkPhoto] = useState(0);
+  const workScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleWorkScroll = useCallback(() => {
+    const el = workScrollRef.current;
+    if (!el) return;
+    const scrollLeft = el.scrollLeft;
+    const childWidth = el.children[0]?.clientWidth || 1;
+    const gap = 12;
+    setActiveWorkPhoto(Math.round(scrollLeft / (childWidth + gap)));
+  }, []);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -519,10 +530,48 @@ const About = () => {
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">Our Work</h2>
               <div className="w-16 h-0.5 bg-primary mx-auto mt-4" />
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+
+            {/* Mobile: horizontal scroll with indicators */}
+            <div className="md:hidden">
+              <div
+                ref={workScrollRef}
+                onScroll={handleWorkScroll}
+                className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide"
+              >
+                {content.work_photos.map((photo, i) => (
+                  <div key={i} className="relative rounded-xl overflow-hidden shadow-md border border-border flex-shrink-0 w-[75vw] snap-center">
+                    <img src={photo.url} alt={photo.caption} className="w-full h-44 object-cover" loading="lazy" />
+                    {photo.caption && (
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                        <p className="text-xs font-medium text-primary">{photo.caption}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* Slide indicators */}
+              <div className="flex justify-center gap-1.5 mt-3">
+                {content.work_photos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      const el = workScrollRef.current;
+                      if (!el || !el.children[i]) return;
+                      (el.children[i] as HTMLElement).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                    }}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      activeWorkPhoto === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop: grid */}
+            <div className="hidden md:grid lg:grid-cols-3 md:grid-cols-2 gap-4">
               {content.work_photos.map((photo, i) => (
-                <div key={i} className="relative rounded-xl md:rounded-2xl overflow-hidden group shadow-md border border-border">
-                  <img src={photo.url} alt={photo.caption} className="w-full h-32 md:h-52 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <div key={i} className="relative rounded-2xl overflow-hidden group shadow-md border border-border">
+                  <img src={photo.url} alt={photo.caption} className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   {photo.caption && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                       <p className="text-sm font-medium text-primary">{photo.caption}</p>
