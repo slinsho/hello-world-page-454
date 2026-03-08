@@ -576,6 +576,27 @@ const Profile = () => {
           <SocialLinksEditor socialLinks={{ social_facebook: profile.social_facebook, social_instagram: profile.social_instagram, social_twitter: profile.social_twitter, social_linkedin: profile.social_linkedin, social_whatsapp: profile.social_whatsapp }} onSave={handleSocialLinksUpdate} isOwnProfile={isOwnProfile} />
         </div>
 
+        {/* Agency Info */}
+        {agencyInfo && (agencyInfo.agency_name || agencyInfo.office_location) && (
+          <div className="px-4 mt-4">
+            <div className="bg-card rounded-xl p-4 border border-border/50 space-y-3">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold">Agency</h2>
+              </div>
+              <div className="flex items-center gap-3">
+                {agencyInfo.agency_logo && (
+                  <img src={agencyInfo.agency_logo} alt="Agency Logo" className="h-12 w-12 rounded-lg object-contain border border-border bg-background" />
+                )}
+                <div className="min-w-0">
+                  {agencyInfo.agency_name && <p className="text-sm font-semibold truncate">{agencyInfo.agency_name}</p>}
+                  {agencyInfo.office_location && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{agencyInfo.office_location}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* About */}
         <div className="px-4 mt-5">
           <div className="border-t border-border pt-4">
