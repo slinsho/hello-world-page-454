@@ -236,10 +236,14 @@ const Notifications = () => {
                           className="rounded-xl text-sm h-9"
                         />
                         <Button
+                          type="button"
                           size="sm"
                           className="gap-1.5 rounded-xl h-9 px-3"
-                          disabled={submittingRef === notification.id || !paymentRefs[notification.id]?.trim() || !senderNames[notification.id]?.trim()}
-                          onClick={(e) => { e.stopPropagation(); handleSubmitPaymentRef(notification); }}
+                          disabled={submittingRef === notification.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSubmitPaymentRef(notification);
+                          }}
                         >
                           <Send className="h-3.5 w-3.5" />
                           {submittingRef === notification.id ? "Sending..." : "Send"}
