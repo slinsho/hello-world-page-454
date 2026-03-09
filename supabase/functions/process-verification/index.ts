@@ -8,7 +8,7 @@ const corsHeaders = {
 interface RequestBody {
   requestId: string;
   userId: string;
-  action: 'approve' | 'reject' | 'request_payment' | 'confirm_payment' | 'request_renewal_payment' | 'confirm_renewal_payment';
+  action: 'approve' | 'reject' | 'request_payment' | 'confirm_payment' | 'request_renewal_payment' | 'confirm_renewal_payment' | 'request_resend';
   adminNote?: string | null;
   paymentAmount?: number | null;
 }
