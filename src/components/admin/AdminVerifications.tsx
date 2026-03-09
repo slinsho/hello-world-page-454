@@ -201,10 +201,12 @@ export function AdminVerifications() {
               </div>
 
               {/* Payment reference if submitted */}
-              {request.payment_reference && (
+              {request.payment_status === "submitted" && (
                 <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
                   <p className="text-xs font-medium text-blue-500 mb-1">Payment Reference</p>
-                  <p className="text-sm font-mono">{request.payment_reference}</p>
+                  <p className="text-sm font-mono">
+                    {request.payment_reference || "(Missing payment reference — ask user to resend)"}
+                  </p>
                 </div>
               )}
 

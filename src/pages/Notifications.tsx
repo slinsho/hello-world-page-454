@@ -88,7 +88,9 @@ const Notifications = () => {
           .from("verification_requests")
           .select("id")
           .eq("user_id", user.id)
+          .eq("status", "pending")
           .eq("payment_status", "payment_requested")
+          .order("created_at", { ascending: false })
           .limit(1);
 
         if (!verificationRequests || verificationRequests.length === 0) {
@@ -96,10 +98,14 @@ const Notifications = () => {
           return;
         }
 
-        const { error } = await supabase
-          .from("verification_requests")
-          .update({ payment_status: "submitted", payment_reference: `${name} - ${ref}` } as any)
-          .eq("id", verificationRequests[0].id);
+        const { error } = await (supabase as any).rpc(
+          "submit_verification_payment_reference",
+          {
+            p_request_id: verificationRequests[0].id,
+            p_sender_name: name,
+            p_ref: ref,
+          }
+        );
 
         if (error) throw error;
 

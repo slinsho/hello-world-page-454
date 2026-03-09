@@ -1171,6 +1171,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_verification_payment_reference: {
+        Args: { p_ref: string; p_request_id: string; p_sender_name: string }
+        Returns: undefined
+      }
       user_wants_notification: {
         Args: { p_type: string; p_user_id: string }
         Returns: boolean
