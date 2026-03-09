@@ -88,7 +88,7 @@ const Notifications = () => {
           .from("verification_requests")
           .select("id")
           .eq("user_id", user.id)
-          .eq("payment_status", "requested")
+          .eq("payment_status", "payment_requested")
           .limit(1);
 
         if (!verificationRequests || verificationRequests.length === 0) {
@@ -98,7 +98,7 @@ const Notifications = () => {
 
         const { error } = await supabase
           .from("verification_requests")
-          .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
+          .update({ payment_status: "submitted", payment_reference: `${name} - ${ref}` } as any)
           .eq("id", verificationRequests[0].id);
 
         if (error) throw error;
