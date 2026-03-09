@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
     // Delete auth.users first (will cascade to profiles and other tables)
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
-    if (deleteError && deleteError.message !== 'User not found') {
+    if (deleteError) {
       console.error('Delete error:', deleteError);
       return new Response(
         JSON.stringify({ error: `Failed to delete user: ${deleteError.message}` }),
