@@ -65,7 +65,7 @@ const Notifications = () => {
   };
 
   const handleSubmitPaymentRef = async (notification: Notification) => {
-    if (!user || !notification.property_id) return;
+    if (!user) return;
     const ref = paymentRefs[notification.id]?.trim();
     const name = senderNames[notification.id]?.trim();
     if (!name || name.length < 2) {
@@ -79,37 +79,74 @@ const Notifications = () => {
 
     setSubmittingRef(notification.id);
     try {
-      const { data: promoRequests } = await supabase
-        .from("promotion_requests")
-        .select("id")
-        .eq("property_id", notification.property_id)
-        .eq("user_id", user.id)
-        .eq("status", "approved")
-        .eq("payment_status", "requested")
-        .limit(1);
+      // Check if this is a verification payment or promotion payment
+      const isVerificationPayment = notification.title.includes("Verification");
+      
+      if (isVerificationPayment) {
+        // Handle verification payment
+        const { data: verificationRequests } = await supabase
+          .from("verification_requests")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("payment_status", "requested")
+          .limit(1);
 
-      if (!promoRequests || promoRequests.length === 0) {
-        toast({ title: "No Pending Request", description: "Could not find a pending promotion request for this property.", variant: "destructive" });
-        return;
+        if (!verificationRequests || verificationRequests.length === 0) {
+          toast({ title: "No Pending Request", description: "Could not find a pending verification request.", variant: "destructive" });
+          return;
+        }
+
+        const { error } = await supabase
+          .from("verification_requests")
+          .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
+          .eq("id", verificationRequests[0].id);
+
+        if (error) throw error;
+
+        await notifyAdmins({
+          title: "Verification Payment Reference Submitted",
+          message: `${name} submitted payment ref "${ref}" for verification.`,
+          type: "status_updates",
+        });
+        toast({ title: "Payment Reference Sent!", description: "Admin will verify your payment and process your verification shortly." });
+      } else {
+        // Handle promotion payment
+        if (!notification.property_id) return;
+        
+        const { data: promoRequests } = await supabase
+          .from("promotion_requests")
+          .select("id")
+          .eq("property_id", notification.property_id)
+          .eq("user_id", user.id)
+          .eq("status", "approved")
+          .eq("payment_status", "requested")
+          .limit(1);
+
+        if (!promoRequests || promoRequests.length === 0) {
+          toast({ title: "No Pending Request", description: "Could not find a pending promotion request.", variant: "destructive" });
+          return;
+        }
+
+        const { error } = await supabase
+          .from("promotion_requests")
+          .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
+          .eq("id", promoRequests[0].id);
+
+        if (error) throw error;
+
+        await notifyAdmins({
+          title: "Promotion Payment Reference Submitted",
+          message: `${name} submitted payment ref "${ref}" for a promotion request.`,
+          type: "status_updates",
+          propertyId: notification.property_id,
+        });
+        toast({ title: "Payment Reference Sent!", description: "Admin will verify and activate your promotion shortly." });
       }
-
-      const { error } = await supabase
-        .from("promotion_requests")
-        .update({ payment_status: "paid", payment_reference: `${name} - ${ref}` } as any)
-        .eq("id", promoRequests[0].id);
-
-      if (error) throw error;
-
-      await notifyAdmins({
-        title: "Payment Reference Submitted",
-        message: `${name} submitted payment ref "${ref}" for a promotion request.`,
-        type: "status_updates",
-        propertyId: notification.property_id,
-      });
-      toast({ title: "Payment Reference Sent!", description: "Admin will verify and activate your promotion shortly." });
+      
       markAsRead(notification.id);
       setSubmittedNotifications(prev => new Set(prev).add(notification.id));
       setPaymentRefs(prev => ({ ...prev, [notification.id]: "" }));
+      setSenderNames(prev => ({ ...prev, [notification.id]: "" }));
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
