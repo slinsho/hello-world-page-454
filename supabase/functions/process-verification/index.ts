@@ -8,7 +8,7 @@ const corsHeaders = {
 interface RequestBody {
   requestId: string;
   userId: string;
-  action: 'approve' | 'reject' | 'request_payment' | 'confirm_payment' | 'request_renewal_payment' | 'confirm_renewal_payment';
+  action: 'approve' | 'reject' | 'request_payment' | 'confirm_payment' | 'request_renewal_payment' | 'confirm_renewal_payment' | 'request_resend';
   adminNote?: string | null;
   paymentAmount?: number | null;
 }
@@ -185,6 +185,28 @@ Deno.serve(async (req: Request) => {
 
       return new Response(
         JSON.stringify({ success: true, status: 'approved', expires_at: expiresAt.toISOString() }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'request_resend') {
+      // Admin requests the user to resubmit their payment reference
+      await adminClient.from('verification_requests').update({
+        payment_status: 'payment_requested',
+        payment_reference: null,
+        admin_id: adminId,
+        admin_note: adminNote ?? null,
+      }).eq('id', requestId);
+
+      await adminClient.from('notifications').insert({
+        user_id: userId,
+        title: 'Payment Reference Required',
+        message: `The admin has requested that you resubmit your payment reference. Please ensure you include your FULL NAME and the correct payment reference number.${adminNote ? `\n\nAdmin note: ${adminNote}` : ''}`,
+        type: 'status_updates',
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, status: 'resend_requested' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
