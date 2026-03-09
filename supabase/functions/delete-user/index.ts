@@ -111,20 +111,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Delete from profiles first (auth.users cascade might have already happened)
-    const { error: profileDeleteError } = await supabaseAdmin
-      .from('profiles')
-      .delete()
-      .eq('id', userId)
-
-    if (profileDeleteError) {
-      console.error('Profile delete error:', profileDeleteError);
-    }
-
-    // Try to delete from auth.users (might already be gone)
+    // Delete auth.users first (will cascade to profiles and other tables)
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
-    if (deleteError && deleteError.message !== 'User not found') {
+    if (deleteError) {
       console.error('Delete error:', deleteError);
       return new Response(
         JSON.stringify({ error: `Failed to delete user: ${deleteError.message}` }),
