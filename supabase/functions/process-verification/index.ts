@@ -189,6 +189,28 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    if (action === 'request_resend') {
+      // Admin requests the user to resubmit their payment reference
+      await adminClient.from('verification_requests').update({
+        payment_status: 'payment_requested',
+        payment_reference: null,
+        admin_id: adminId,
+        admin_note: adminNote ?? null,
+      }).eq('id', requestId);
+
+      await adminClient.from('notifications').insert({
+        user_id: userId,
+        title: 'Payment Reference Required',
+        message: `The admin has requested that you resubmit your payment reference. Please ensure you include your FULL NAME and the correct payment reference number.${adminNote ? `\n\nAdmin note: ${adminNote}` : ''}`,
+        type: 'status_updates',
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, status: 'resend_requested' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (action === 'approve') {
       // Direct approve (legacy, shouldn't normally be used now but kept for compatibility)
       const expiresAt = new Date();
