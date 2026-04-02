@@ -266,10 +266,10 @@ const Profile = () => {
   };
 
   const deleteProperty = async (propertyId: string) => {
-    if (!confirm("Are you sure you want to delete this property?")) return;
     const { error } = await supabase.from("properties").delete().eq("id", propertyId);
     if (error) { toast({ title: "Error", description: "Failed to delete property", variant: "destructive" }); }
     else { toast({ title: "Success", description: "Property deleted" }); fetchProperties(); }
+    setDeletePropertyId(null);
   };
 
   if (loading || !profile) {
