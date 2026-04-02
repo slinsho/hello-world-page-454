@@ -58,6 +58,7 @@ const Profile = () => {
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
   const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
   const [privacySettings, setPrivacySettings] = useState({ show_phone: true, show_email: true, show_location: true });
+  const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
   const isOwnProfile = !profileId || profileId === user?.id;
   const isAgent = profile?.role === "agent";
