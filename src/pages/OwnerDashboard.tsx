@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, MessageSquare, Home, Star, ArrowUpRight, Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { VerificationRenewalBanner } from "@/components/VerificationRenewalBanner";
 
 import { DashboardInquiries } from "@/components/dashboard/DashboardInquiries";
 import { DashboardPromotions } from "@/components/dashboard/DashboardPromotions";
@@ -108,6 +109,9 @@ export default function OwnerDashboard() {
           <div><h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1><p className="text-sm text-muted-foreground">Your property analytics</p></div>
           <Button onClick={() => navigate("/upload")} size="icon" className="h-11 w-11 rounded-full"><Plus className="h-5 w-5" /></Button>
         </div>
+
+        {/* Verification Renewal Banner */}
+        <VerificationRenewalBanner />
 
         {/* Stats Grid - 2 cols mobile, 4 cols desktop */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">

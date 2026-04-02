@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings, Sparkles } from "lucide-react";
+import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings, Sparkles, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { UserReviews } from "@/components/UserReviews";
 import { VERIFICATION_STATUS_LABELS, LISTING_TYPE_LABELS, STATUS_LABELS, LIBERIA_COUNTIES } from "@/lib/constants";
 import { Label } from "@/components/ui/label";
@@ -48,6 +58,7 @@ const Profile = () => {
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
   const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
   const [privacySettings, setPrivacySettings] = useState({ show_phone: true, show_email: true, show_location: true });
+  const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
   const isOwnProfile = !profileId || profileId === user?.id;
   const isAgent = profile?.role === "agent";
@@ -255,10 +266,10 @@ const Profile = () => {
   };
 
   const deleteProperty = async (propertyId: string) => {
-    if (!confirm("Are you sure you want to delete this property?")) return;
     const { error } = await supabase.from("properties").delete().eq("id", propertyId);
     if (error) { toast({ title: "Error", description: "Failed to delete property", variant: "destructive" }); }
     else { toast({ title: "Success", description: "Property deleted" }); fetchProperties(); }
+    setDeletePropertyId(null);
   };
 
   if (loading || !profile) {
@@ -349,7 +360,7 @@ const Profile = () => {
                   </div>
                 </DialogContent>
               </Dialog>
-              <button onClick={() => deleteProperty(property.id)} className="flex-1 py-2 font-medium text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1 border-l border-border/50">
+              <button onClick={() => setDeletePropertyId(property.id)} className="flex-1 py-2 font-medium text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1 border-l border-border/50">
                 <Trash2 className="h-3 w-3" />
               </button>
             </>
@@ -961,6 +972,31 @@ const Profile = () => {
       </main>
 
       <ImageCropper open={cropperOpen} onClose={() => setCropperOpen(false)} imageSrc={cropImageSrc} aspectRatio={cropType === "cover" ? 16 / 9 : 1} onCropComplete={handleCropComplete} title={cropType === "cover" ? "Crop Cover Photo" : "Crop Profile Photo"} />
+
+      {/* Delete Property Confirmation */}
+      <AlertDialog open={deletePropertyId !== null} onOpenChange={(open) => !open && setDeletePropertyId(null)}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-3xl">
+          <AlertDialogHeader>
+            <div className="mx-auto h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+              <AlertTriangle className="h-7 w-7 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center">Delete Property</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Are you sure you want to delete this property? This action cannot be undone and all associated data (inquiries, views, offers) will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => deletePropertyId && deleteProperty(deletePropertyId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl w-full"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Yes, Delete Property
+            </AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl w-full mt-0">Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

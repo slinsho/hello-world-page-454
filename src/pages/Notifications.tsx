@@ -80,7 +80,7 @@ const Notifications = () => {
     setSubmittingRef(notification.id);
     try {
       // Check if this is a verification payment or promotion payment
-      const isVerificationPayment = notification.title.includes("Verification");
+      const isVerificationPayment = notification.title.includes("Verification") || notification.title.includes("Renewal");
       
       if (isVerificationPayment) {
         // Handle verification payment

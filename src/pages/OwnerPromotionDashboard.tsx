@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Megaphone, Clock, CheckCircle2, XCircle, DollarSign, Home, Plus, ArrowUpRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
+import { VerificationRenewalBanner } from "@/components/VerificationRenewalBanner";
 
 interface PromotionStats {
   id: string;
@@ -166,6 +167,9 @@ export default function OwnerPromotionDashboard() {
             <Plus className="h-5 w-5" />
           </Button>
         </div>
+
+        {/* Verification Renewal Banner */}
+        <VerificationRenewalBanner />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
