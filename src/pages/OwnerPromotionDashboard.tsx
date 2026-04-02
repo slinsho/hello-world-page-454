@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Megaphone, Clock, CheckCircle2, XCircle, DollarSign, Home, Plus, ArrowUpRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
+import { VerificationRenewalBanner } from "@/components/VerificationRenewalBanner";
 
 interface PromotionStats {
   id: string;
