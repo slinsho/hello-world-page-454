@@ -168,6 +168,9 @@ export default function OwnerPromotionDashboard() {
           </Button>
         </div>
 
+        {/* Verification Renewal Banner */}
+        <VerificationRenewalBanner />
+
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-card rounded-2xl p-4 border border-border">
