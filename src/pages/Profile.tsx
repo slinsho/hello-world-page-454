@@ -972,6 +972,31 @@ const Profile = () => {
       </main>
 
       <ImageCropper open={cropperOpen} onClose={() => setCropperOpen(false)} imageSrc={cropImageSrc} aspectRatio={cropType === "cover" ? 16 / 9 : 1} onCropComplete={handleCropComplete} title={cropType === "cover" ? "Crop Cover Photo" : "Crop Profile Photo"} />
+
+      {/* Delete Property Confirmation */}
+      <AlertDialog open={deletePropertyId !== null} onOpenChange={(open) => !open && setDeletePropertyId(null)}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-3xl">
+          <AlertDialogHeader>
+            <div className="mx-auto h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+              <AlertTriangle className="h-7 w-7 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center">Delete Property</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Are you sure you want to delete this property? This action cannot be undone and all associated data (inquiries, views, offers) will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => deletePropertyId && deleteProperty(deletePropertyId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl w-full"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Yes, Delete Property
+            </AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl w-full mt-0">Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
