@@ -39,7 +39,41 @@ Deno.serve(async (req: Request) => {
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const now = new Date().toISOString();
 
-    // Find approved verification requests that have expired
+    // 1. Send warning notifications for verifications expiring within 2 days
+    const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: soonExpiring } = await adminClient
+      .from('verification_requests')
+      .select('id, user_id, verification_type, expires_at')
+      .eq('status', 'approved')
+      .not('expires_at', 'is', null)
+      .gt('expires_at', now)
+      .lte('expires_at', twoDaysFromNow);
+
+    if (soonExpiring && soonExpiring.length > 0) {
+      for (const req of soonExpiring) {
+        const daysLeft = Math.max(1, Math.ceil((new Date(req.expires_at!).getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+        // Check if we already sent a warning for this request (avoid duplicates)
+        const { data: existing } = await adminClient
+          .from('notifications')
+          .select('id')
+          .eq('user_id', req.user_id)
+          .like('title', '%Verification Expiring%')
+          .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+          .limit(1);
+
+        if (!existing || existing.length === 0) {
+          await adminClient.from('notifications').insert({
+            user_id: req.user_id,
+            title: 'Verification Expiring Soon',
+            message: `Your ${req.verification_type === 'agent' ? 'agent' : 'owner'} verification expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Please renew to keep your properties visible.`,
+            type: 'status_updates',
+          });
+        }
+      }
+      console.log(`Sent ${soonExpiring.length} expiry warning notifications`);
+    }
+
+    // 2. Find approved verification requests that have expired
     const { data: expiredRequests, error } = await adminClient
       .from('verification_requests')
       .select('id, user_id, verification_type')
@@ -55,7 +89,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!expiredRequests || expiredRequests.length === 0) {
-      return new Response(JSON.stringify({ message: 'No expired verifications found', processed: 0 }), {
+      return new Response(JSON.stringify({ message: 'No expired verifications found', processed: 0, warnings: soonExpiring?.length || 0 }), {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
