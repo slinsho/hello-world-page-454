@@ -110,6 +110,9 @@ export default function OwnerDashboard() {
           <Button onClick={() => navigate("/upload")} size="icon" className="h-11 w-11 rounded-full"><Plus className="h-5 w-5" /></Button>
         </div>
 
+        {/* Verification Renewal Banner */}
+        <VerificationRenewalBanner />
+
         {/* Stats Grid - 2 cols mobile, 4 cols desktop */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
           <div className="bg-card rounded-2xl p-4 border border-border">
