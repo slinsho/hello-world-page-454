@@ -11,16 +11,18 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Authenticate: require a shared secret or valid service-role JWT
+    // Authenticate: require a shared secret, valid service-role JWT, or anon key (for pg_cron)
     const cronSecret = Deno.env.get('CRON_SECRET');
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
     const authHeader = req.headers.get('authorization');
     const providedSecret = req.headers.get('x-cron-secret');
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-    const isServiceRole = authHeader?.startsWith('Bearer ') && 
-      authHeader.split(' ')[1] === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const isServiceRole = bearerToken === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const isAnonKey = anonKey && bearerToken === anonKey;
     const isCronAuth = cronSecret && providedSecret === cronSecret;
 
-    if (!isServiceRole && !isCronAuth) {
+    if (!isServiceRole && !isCronAuth && !isAnonKey) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
