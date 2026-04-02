@@ -360,7 +360,7 @@ const Profile = () => {
                   </div>
                 </DialogContent>
               </Dialog>
-              <button onClick={() => deleteProperty(property.id)} className="flex-1 py-2 font-medium text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1 border-l border-border/50">
+              <button onClick={() => setDeletePropertyId(property.id)} className="flex-1 py-2 font-medium text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1 border-l border-border/50">
                 <Trash2 className="h-3 w-3" />
               </button>
             </>
