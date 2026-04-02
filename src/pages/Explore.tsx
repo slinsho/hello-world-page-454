@@ -55,7 +55,6 @@ const Explore = () => {
     }
     if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
     if (filters.listing !== "all") query = query.eq("listing_type", filters.listing as any);
-    if (filters.status !== "all") query = query.eq("status", filters.status as any);
     if (filters.county !== "all") query = query.eq("county", filters.county);
     if (filters.minPrice) query = query.gte("price_usd", parseFloat(filters.minPrice));
     if (filters.maxPrice) query = query.lte("price_usd", parseFloat(filters.maxPrice));
