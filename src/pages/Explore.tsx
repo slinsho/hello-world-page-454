@@ -43,7 +43,7 @@ const Explore = () => {
 
   const fetchProperties = async () => {
     setLoading(true);
-    let query = supabase.from("properties").select("*").order("is_promoted", { ascending: false });
+    let query = supabase.from("properties").select("*").eq("status", "active").order("is_promoted", { ascending: false });
     
     // Apply sort order
     if (sortOrder === "price_low") {
