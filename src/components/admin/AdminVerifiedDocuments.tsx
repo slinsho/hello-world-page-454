@@ -157,6 +157,14 @@ export function AdminVerifiedDocuments() {
               )}
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Payment Reference */}
+              {v.payment_reference && (
+                <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-3">
+                  <p className="text-xs font-medium text-green-600 mb-1">Payment Reference</p>
+                  <p className="text-sm font-mono font-medium">{v.payment_reference}</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">ID Type</p>
