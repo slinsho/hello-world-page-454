@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 import { Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
-import heroImage from "@/assets/auth-hero.jpg";
+import heroImage from "@/assets/splash-hero.png";
 import lpropLogo from "@/assets/lprop-logo.png";
 
 const signUpSchema = z.object({
@@ -132,12 +132,12 @@ const Auth = () => {
     return (
       <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
         {/* Left - Hero (desktop only) */}
-        <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
           <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
             <div className="flex items-center gap-3 mb-6">
              <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
@@ -438,9 +438,9 @@ const Auth = () => {
           style={{ backgroundImage: `url(${heroImage})` }}
         />
         {/* Mobile gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/50 to-background md:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background md:hidden" />
         {/* Desktop gradient */}
-        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/80" />
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-background/90" />
         
         {/* Desktop hero content */}
         <div className="hidden md:flex relative z-10 h-full flex-col justify-between p-10 lg:p-14">

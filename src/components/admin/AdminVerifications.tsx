@@ -385,7 +385,7 @@ export function AdminVerifications() {
                 )}
 
                 {/* Expired: Request Renewal Payment */}
-                {request.status === 'expired' && request.payment_status !== 'payment_requested' && (
+                {request.status === 'expired' && request.payment_status !== 'payment_requested' && request.payment_status !== 'submitted' && (
                   <div className="flex gap-3">
                     <Button
                       onClick={() => handleAction(request.id, request.user_id, 'request_renewal_payment')}
@@ -398,9 +398,9 @@ export function AdminVerifications() {
                   </div>
                 )}
 
-                {/* Renewal Payment Requested: Confirm */}
-                {request.status === 'expired' && request.payment_status === 'payment_requested' && (
-                  <div className="flex gap-3">
+                {/* Renewal Payment Submitted: Confirm, Request Resend */}
+                {request.status === 'expired' && request.payment_status === 'submitted' && (
+                  <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={() => handleAction(request.id, request.user_id, 'confirm_renewal_payment')}
                       disabled={processing[request.id]}
@@ -408,6 +408,25 @@ export function AdminVerifications() {
                     >
                       <CheckCircle className="h-4 w-4" />
                       Confirm Renewal Payment & Approve
+                    </Button>
+                    <Button
+                      onClick={() => handleAction(request.id, request.user_id, 'request_resend')}
+                      disabled={processing[request.id]}
+                      variant="outline"
+                      className="flex-1 gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Request Resend
+                    </Button>
+                  </div>
+                )}
+
+                {/* Renewal Payment Requested: Waiting */}
+                {request.status === 'expired' && request.payment_status === 'payment_requested' && (
+                  <div className="flex gap-3">
+                    <Button disabled className="flex-1 gap-2" variant="outline">
+                      <Clock className="h-4 w-4" />
+                      Waiting for Renewal Payment...
                     </Button>
                   </div>
                 )}
