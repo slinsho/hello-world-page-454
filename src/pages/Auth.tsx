@@ -132,12 +132,12 @@ const Auth = () => {
     return (
       <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
         {/* Left - Hero (desktop only) */}
-        <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
           <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
             <div className="flex items-center gap-3 mb-6">
              <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
