@@ -21,6 +21,8 @@ interface ApprovedVerification {
   business_phone: string | null;
   processed_at: string | null;
   created_at: string;
+  payment_reference: string | null;
+  payment_amount: number | null;
   profiles: {
     name: string;
     email: string;

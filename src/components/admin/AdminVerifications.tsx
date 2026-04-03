@@ -124,6 +124,7 @@ export function AdminVerifications() {
         confirm_payment: 'Payment confirmed & verification approved',
         request_renewal_payment: 'Renewal payment requested from user',
         confirm_renewal_payment: 'Renewal payment confirmed & verification renewed',
+        request_resend: 'Resend requested — user notified to resubmit payment reference',
       };
 
       toast({ title: 'Success', description: actionLabels[action] || 'Action completed' });
