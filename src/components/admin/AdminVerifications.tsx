@@ -332,9 +332,9 @@ export function AdminVerifications() {
                   </div>
                 )}
 
-                {/* Payment Requested: Confirm Payment or Reject */}
-                {(request.payment_status === 'payment_requested' || request.payment_status === 'submitted') && request.status === 'pending' && (
-                  <div className="flex gap-3">
+                {/* Payment Submitted: Confirm, Request Resend, or Reject */}
+                {request.payment_status === 'submitted' && request.status === 'pending' && (
+                  <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={() => handleAction(request.id, request.user_id, 'confirm_payment')}
                       disabled={processing[request.id]}
@@ -342,6 +342,34 @@ export function AdminVerifications() {
                     >
                       <CheckCircle className="h-4 w-4" />
                       Confirm Payment & Approve
+                    </Button>
+                    <Button
+                      onClick={() => handleAction(request.id, request.user_id, 'request_resend')}
+                      disabled={processing[request.id]}
+                      variant="outline"
+                      className="flex-1 gap-2 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/10"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Request Resend
+                    </Button>
+                    <Button
+                      onClick={() => handleAction(request.id, request.user_id, 'reject')}
+                      disabled={processing[request.id]}
+                      variant="destructive"
+                      className="flex-1 gap-2"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Reject
+                    </Button>
+                  </div>
+                )}
+
+                {/* Payment Requested (waiting for user): just show waiting state + reject */}
+                {request.payment_status === 'payment_requested' && request.status === 'pending' && (
+                  <div className="flex gap-3">
+                    <Button disabled className="flex-1 gap-2" variant="outline">
+                      <Clock className="h-4 w-4" />
+                      Waiting for Payment...
                     </Button>
                     <Button
                       onClick={() => handleAction(request.id, request.user_id, 'reject')}
