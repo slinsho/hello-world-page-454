@@ -13,6 +13,7 @@ import { SkipToContent } from "@/components/SkipToContent";
 import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 
 // Lazy-loaded route components
 const Index = lazy(() => import("./pages/Index"));
