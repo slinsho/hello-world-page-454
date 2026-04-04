@@ -130,30 +130,34 @@ const Auth = () => {
   // Form view
   if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
     return (
-      <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
-        {/* Left - Hero (desktop only) */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroImage})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+      <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row overflow-hidden relative">
+        {/* Full background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: 'center 20%' }}
+        />
+        {/* Subtle overlay for form readability */}
+        <div className="absolute inset-0 bg-black/50 md:bg-black/40" />
+
+        {/* Left - Hero content (desktop only) */}
+        <div className="hidden md:flex md:w-1/2 relative z-10 overflow-hidden">
           <div className="relative z-10 flex flex-col justify-end p-12 pb-16">
             <div className="flex items-center gap-3 mb-6">
-             <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
-              <span className="text-2xl font-bold text-foreground">L-Prop</span>
+              <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
+              <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
             </div>
-            <h2 className="text-3xl font-bold text-foreground leading-tight mb-3">
-              Your Trusted Guide<br />in finding properties
+            <h2 className="text-3xl font-bold text-white leading-tight mb-3 drop-shadow-lg">
+              Your Trusted Guide<br />
+              <span className="text-primary">in Properties</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-white/80 text-lg drop-shadow">
               Navigating the Path to Your Property.
             </p>
           </div>
         </div>
 
         {/* Right - Form */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 relative z-10">
           {/* Mobile header */}
           <div className="p-4 md:hidden">
             <button
@@ -162,7 +166,7 @@ const Auth = () => {
                 else if (isResettingPassword) setIsResettingPassword(false);
                 else { setShowForm(false); setIsSignUp(false); }
               }}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm">Back</span>
@@ -177,18 +181,18 @@ const Auth = () => {
                 else if (isResettingPassword) setIsResettingPassword(false);
                 else { setShowForm(false); setIsSignUp(false); }
               }}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm">Back</span>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4 md:px-12 md:py-8">
-            <div className="w-full max-w-md mx-auto space-y-6 md:my-auto md:space-y-8">
+          <div className="flex-1 overflow-y-auto px-6 py-4 md:px-12 md:py-8 md:flex md:items-center md:justify-center">
+            <div className="w-full max-w-md mx-auto space-y-6 md:space-y-8 bg-background/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-border/50 shadow-2xl">
               {/* Header */}
               <div className="space-y-2">
-                 <div className="flex items-center gap-3 mb-6 md:hidden">
+                <div className="flex items-center gap-3 mb-6 md:hidden">
                   <img src={lpropLogo} alt="L-Prop" className="w-10 h-10 rounded-xl" />
                   <span className="text-xl font-bold text-foreground">L-Prop</span>
                 </div>
@@ -401,7 +405,7 @@ const Auth = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12 rounded-xl border-border"
+                    className="w-full h-12 rounded-xl border-white/20 text-foreground hover:bg-white/10"
                     onClick={() => setIsForgotPassword(false)}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -428,52 +432,103 @@ const Auth = () => {
     );
   }
 
-  // Welcome / splash screen - Desktop & Mobile
+  // Welcome / splash screen - Cinematic immersive
   return (
-    <div className="min-h-screen md:min-h-screen flex flex-col md:flex-row bg-background h-[100dvh] md:h-auto overflow-hidden">
-      {/* Left side - Hero image (desktop) / Full background (mobile) */}
-      <div className="relative flex-1 md:w-1/2 md:min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-        {/* Mobile gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background md:hidden" />
-        {/* Desktop gradient */}
-        <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-background/90" />
-        
-        {/* Desktop hero content */}
-        <div className="hidden md:flex relative z-10 h-full flex-col justify-between p-10 lg:p-14">
-           <div className="flex items-center gap-3">
-            <img src={lpropLogo} alt="L-Prop" className="w-14 h-14 rounded-xl" />
+    <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row overflow-hidden relative">
+      {/* Full-screen background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: 'center 15%' }}
+      />
+      {/* Bottom-only gradient for mobile — keeps face clean */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent md:hidden" />
+      {/* Desktop gradient */}
+      <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-black/60" />
+
+      {/* Mobile: everything floats on the image */}
+      <div className="md:hidden relative z-10 flex flex-col h-full">
+        {/* Top logo */}
+        <div className="p-6 pt-12">
+          <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-11 h-11 rounded-xl shadow-lg" />
+            <span className="text-lg font-bold text-white drop-shadow-lg">L-Prop</span>
+          </div>
+        </div>
+
+        {/* Spacer pushes content to bottom */}
+        <div className="flex-1" />
+
+        {/* Bottom floating content */}
+        <div className="px-6 pb-10 space-y-5">
+          <div className="space-y-2">
+            <h1 className="text-[2.2rem] font-bold text-white leading-[1.1] tracking-tight drop-shadow-lg">
+              Your Trusted Guide<br />
+              <span className="text-primary drop-shadow-lg">in Properties</span>
+            </h1>
+            <p className="text-white/70 text-sm">
+              Navigating the Path to Your Property.
+            </p>
+          </div>
+
+          {/* Dots */}
+          <div className="flex gap-1.5">
+            <div className="w-7 h-1 bg-primary rounded-full" />
+            <div className="w-1.5 h-1 bg-white/30 rounded-full" />
+            <div className="w-1.5 h-1 bg-white/30 rounded-full" />
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-3 pt-2">
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full h-14 text-base font-semibold rounded-2xl shadow-lg shadow-primary/30"
+            >
+              Get Started
+            </Button>
+            <Button
+              onClick={() => { setIsSignUp(false); setShowForm(true); }}
+              variant="outline"
+              className="w-full h-14 text-base font-semibold rounded-2xl border-white/25 text-white bg-white/5 backdrop-blur-sm hover:bg-white/15"
+            >
+              Log in
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:flex relative z-10 w-full">
+        {/* Left hero content */}
+        <div className="w-1/2 flex flex-col justify-between p-10 lg:p-14">
+          <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-14 h-14 rounded-xl shadow-lg" />
             <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
           </div>
-          
+
           <div className="max-w-md">
             <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
               Your Trusted Guide<br />
               <span className="text-primary">in Properties</span>
             </h1>
-            <p className="text-lg text-white/90 drop-shadow mb-8">
+            <p className="text-lg text-white/80 drop-shadow mb-8">
               Navigating the Path to Your Property in Liberia.
             </p>
-            
-            {/* Feature highlights */}
+
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-white/90">
-                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
                   <Home className="w-4 h-4" />
                 </div>
                 <span className="text-sm">Browse verified property listings</span>
               </div>
               <div className="flex items-center gap-3 text-white/90">
-                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
                   <Shield className="w-4 h-4" />
                 </div>
                 <span className="text-sm">Trusted agents and property owners</span>
               </div>
               <div className="flex items-center gap-3 text-white/90">
-                <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
                   <Star className="w-4 h-4" />
                 </div>
                 <span className="text-sm">Premium listings for better visibility</span>
@@ -482,57 +537,9 @@ const Auth = () => {
           </div>
         </div>
 
-        {/* Mobile logo */}
-         <div className="md:hidden relative z-10 p-6 pt-12">
-          <div className="flex items-center gap-3">
-            <img src={lpropLogo} alt="L-Prop" className="w-12 h-12 rounded-xl" />
-            <span className="text-xl font-bold text-foreground">L-Prop</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side - CTA (desktop) / Bottom section (mobile) */}
-      <div className="relative z-10 md:w-1/2 md:flex md:items-center md:justify-center">
-        {/* Mobile bottom section */}
-        <div className="md:hidden px-6 pb-8 pt-2 space-y-4">
-          <div className="space-y-3 text-center">
-            <h1 className="text-4xl font-bold text-foreground leading-[1.1] tracking-tight">
-              Your Trusted Guide<br />
-              <span className="text-primary">in Properties</span>
-            </h1>
-            <p className="text-muted-foreground text-base max-w-sm mx-auto">
-              Navigating the Path to Your Property.
-            </p>
-          </div>
-
-          {/* Dots */}
-          <div className="flex justify-center gap-1.5">
-            <div className="w-7 h-1 bg-primary rounded-full" />
-            <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
-            <div className="w-1.5 h-1 bg-muted-foreground/40 rounded-full" />
-          </div>
-
-          {/* Buttons */}
-          <div className="space-y-3">
-            <Button
-              onClick={() => navigate("/")}
-              className="w-full h-14 text-base font-semibold rounded-xl"
-            >
-              Get Started
-            </Button>
-            <Button
-              onClick={() => { setIsSignUp(false); setShowForm(true); }}
-              variant="outline"
-              className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary"
-            >
-              Log in
-            </Button>
-          </div>
-        </div>
-
-        {/* Desktop CTA section */}
-        <div className="hidden md:block w-full max-w-md px-10 lg:px-14">
-          <div className="bg-card border border-border rounded-2xl p-8 lg:p-10 shadow-xl">
+        {/* Right CTA */}
+        <div className="w-1/2 flex items-center justify-center p-10 lg:p-14">
+          <div className="w-full max-w-md bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl p-8 lg:p-10 shadow-2xl">
             <div className="text-center mb-8">
               <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
                 Welcome to L-Prop
@@ -567,7 +574,7 @@ const Auth = () => {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-4 text-muted-foreground">New to L-Prop?</span>
+                <span className="bg-background/80 px-4 text-muted-foreground">New to L-Prop?</span>
               </div>
             </div>
 
