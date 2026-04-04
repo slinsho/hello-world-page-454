@@ -601,8 +601,6 @@ const Auth = () => {
 };
 
 export default Auth;
-        {/* Mobile gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background md:hidden" />
         {/* Desktop gradient */}
         <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-background/90" />
         
