@@ -432,15 +432,175 @@ const Auth = () => {
     );
   }
 
-  // Welcome / splash screen - Desktop & Mobile
+  // Welcome / splash screen - Cinematic immersive
   return (
-    <div className="min-h-screen md:min-h-screen flex flex-col md:flex-row bg-background h-[100dvh] md:h-auto overflow-hidden">
-      {/* Left side - Hero image (desktop) / Full background (mobile) */}
-      <div className="relative flex-1 md:w-1/2 md:min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
+    <div className="h-[100dvh] md:min-h-screen flex flex-col md:flex-row overflow-hidden relative">
+      {/* Full-screen background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: 'center 15%' }}
+      />
+      {/* Bottom-only gradient for mobile — keeps face clean */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent md:hidden" />
+      {/* Desktop gradient */}
+      <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-black/60" />
+
+      {/* Mobile: everything floats on the image */}
+      <div className="md:hidden relative z-10 flex flex-col h-full">
+        {/* Top logo */}
+        <div className="p-6 pt-12">
+          <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-11 h-11 rounded-xl shadow-lg" />
+            <span className="text-lg font-bold text-white drop-shadow-lg">L-Prop</span>
+          </div>
+        </div>
+
+        {/* Spacer pushes content to bottom */}
+        <div className="flex-1" />
+
+        {/* Bottom floating content */}
+        <div className="px-6 pb-10 space-y-5">
+          <div className="space-y-2">
+            <h1 className="text-[2.2rem] font-bold text-white leading-[1.1] tracking-tight drop-shadow-lg">
+              Your Trusted Guide<br />
+              <span className="text-primary drop-shadow-lg">in Properties</span>
+            </h1>
+            <p className="text-white/70 text-sm">
+              Navigating the Path to Your Property.
+            </p>
+          </div>
+
+          {/* Dots */}
+          <div className="flex gap-1.5">
+            <div className="w-7 h-1 bg-primary rounded-full" />
+            <div className="w-1.5 h-1 bg-white/30 rounded-full" />
+            <div className="w-1.5 h-1 bg-white/30 rounded-full" />
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-3 pt-2">
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full h-14 text-base font-semibold rounded-2xl shadow-lg shadow-primary/30"
+            >
+              Get Started
+            </Button>
+            <Button
+              onClick={() => { setIsSignUp(false); setShowForm(true); }}
+              variant="outline"
+              className="w-full h-14 text-base font-semibold rounded-2xl border-white/25 text-white bg-white/5 backdrop-blur-sm hover:bg-white/15"
+            >
+              Log in
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:flex relative z-10 w-full">
+        {/* Left hero content */}
+        <div className="w-1/2 flex flex-col justify-between p-10 lg:p-14">
+          <div className="flex items-center gap-3">
+            <img src={lpropLogo} alt="L-Prop" className="w-14 h-14 rounded-xl shadow-lg" />
+            <span className="text-2xl font-bold text-white drop-shadow-lg">L-Prop</span>
+          </div>
+
+          <div className="max-w-md">
+            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
+              Your Trusted Guide<br />
+              <span className="text-primary">in Properties</span>
+            </h1>
+            <p className="text-lg text-white/80 drop-shadow mb-8">
+              Navigating the Path to Your Property in Liberia.
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
+                  <Home className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Browse verified property listings</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Trusted agents and property owners</span>
+              </div>
+              <div className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
+                  <Star className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Premium listings for better visibility</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right CTA */}
+        <div className="w-1/2 flex items-center justify-center p-10 lg:p-14">
+          <div className="w-full max-w-md bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl p-8 lg:p-10 shadow-2xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                Welcome to L-Prop
+              </h2>
+              <p className="text-muted-foreground">
+                Find your dream property in Liberia
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Button
+                onClick={() => navigate("/")}
+                className="w-full h-14 text-base font-semibold rounded-xl gap-2"
+                size="lg"
+              >
+                <Home className="w-5 h-5" />
+                Get Started
+              </Button>
+              <Button
+                onClick={() => { setIsSignUp(false); setShowForm(true); }}
+                variant="outline"
+                className="w-full h-14 text-base font-semibold rounded-xl border-border hover:bg-secondary gap-2"
+                size="lg"
+              >
+                <LogIn className="w-5 h-5" />
+                Log in
+              </Button>
+            </div>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-background/80 px-4 text-muted-foreground">New to L-Prop?</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => { setIsSignUp(true); setShowForm(true); }}
+              variant="secondary"
+              className="w-full h-12 text-sm font-medium rounded-xl gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Create an Account
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center mt-6">
+              By continuing, you agree to our{" "}
+              <Link to="/terms" className="text-primary hover:underline">
+                Terms & Conditions
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Auth;
         {/* Mobile gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-background md:hidden" />
         {/* Desktop gradient */}
