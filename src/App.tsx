@@ -13,6 +13,7 @@ import { SkipToContent } from "@/components/SkipToContent";
 import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 
 // Lazy-loaded route components
 const Index = lazy(() => import("./pages/Index"));
@@ -61,6 +62,7 @@ const App = () => (
             <ScrollToTop />
             <FeedbackButton />
             <PWAInstallPrompt />
+            <PWAUpdatePrompt />
             <OnboardingGuide />
             <div id="main-content">
               <Suspense fallback={<div className="min-h-screen flex items-center justify-center" role="status" aria-label="Loading"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
