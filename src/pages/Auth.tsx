@@ -405,7 +405,7 @@ const Auth = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12 rounded-xl border-border"
+                    className="w-full h-12 rounded-xl border-white/20 text-foreground hover:bg-white/10"
                     onClick={() => setIsForgotPassword(false)}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
