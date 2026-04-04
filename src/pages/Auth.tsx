@@ -645,12 +645,12 @@ export default Auth;
             </div>
           </div>
         </div>
-
-          </div>
-        </div>
       </div>
+    </div>
+  );
+};
 
-      {/* Right side - CTA (desktop) / Bottom section (mobile) */}
+export default Auth;
       <div className="relative z-10 md:w-1/2 md:flex md:items-center md:justify-center">
         {/* Mobile bottom section */}
         <div className="md:hidden px-6 pb-8 pt-2 space-y-4">
