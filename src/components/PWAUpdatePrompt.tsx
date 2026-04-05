@@ -1,67 +1,102 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { registerSW } from "virtual:pwa-register";
 
+const CHECK_INTERVAL_MS = 30 * 1000; // Check every 30 seconds
+
 const PWAUpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [updateSW, setUpdateSW] = useState<((reloadPage?: boolean) => Promise<void>) | null>(null);
+  const updateSWRef = useRef<((reloadPage?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
-    // registerSW with prompt mode — it returns a function to call when the user accepts
     const update = registerSW({
       onNeedRefresh() {
         setShowPrompt(true);
       },
-      onOfflineReady() {
-        // App is ready for offline use — no action needed
-      },
+      onOfflineReady() {},
     });
 
-    setUpdateSW(() => update);
+    updateSWRef.current = update;
+
+    // Aggressive polling: check for SW updates periodically
+    const interval = setInterval(() => {
+      navigator.serviceWorker?.getRegistration().then((reg) => {
+        reg?.update().catch(() => {});
+      });
+    }, CHECK_INTERVAL_MS);
+
+    // Check on visibility change (app brought to foreground)
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        navigator.serviceWorker?.getRegistration().then((reg) => {
+          reg?.update().catch(() => {});
+        });
+      }
+    };
+
+    // Check on focus (tab/app gains focus)
+    const handleFocus = () => {
+      navigator.serviceWorker?.getRegistration().then((reg) => {
+        reg?.update().catch(() => {});
+      });
+    };
+
+    // Check on online (device reconnects)
+    const handleOnline = () => {
+      navigator.serviceWorker?.getRegistration().then((reg) => {
+        reg?.update().catch(() => {});
+      });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("online", handleOnline);
+    };
   }, []);
 
   const handleUpdate = useCallback(() => {
+    const updateSW = updateSWRef.current;
     if (!updateSW) return;
     setUpdating(true);
     setProgress(0);
 
-    // Animate progress bar, then trigger the actual update
     let current = 0;
     const interval = setInterval(() => {
       current += Math.random() * 15 + 5;
       if (current >= 95) {
         current = 95;
         clearInterval(interval);
-        // Trigger the service worker update + reload
         updateSW(true).catch(() => {
-          // Fallback: force reload
           setTimeout(() => window.location.reload(), 500);
         });
         setTimeout(() => {
           setProgress(100);
-          // Fallback reload if SW update didn't trigger page reload
           setTimeout(() => window.location.reload(), 400);
         }, 3000);
       }
       setProgress(Math.min(current, 100));
     }, 120);
-  }, [updateSW]);
+  }, []);
 
   if (!showPrompt) return null;
 
   return (
     <>
-      {/* Blur overlay */}
       <div
         className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm transition-all duration-300"
         aria-hidden="true"
       />
 
-      {/* Bottom update panel */}
       <div className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom duration-500">
         <div className="mx-auto max-w-lg px-4 pb-6">
           <div className="rounded-2xl border border-border bg-card p-5 shadow-2xl">
