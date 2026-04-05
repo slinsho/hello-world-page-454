@@ -70,15 +70,49 @@ export function AdminRateSettings() {
         supabase.from("platform_settings" as any).upsert({ key: "verification_duration_days", value: parseInt(verifDuration) || 5, updated_at: new Date().toISOString() } as any),
       ]);
 
+      // If verification duration changed, recalculate expires_at for approved verifications
+      const newDuration = parseInt(verifDuration) || 5;
+      const { data: approvedReqs } = await supabase
+        .from("verification_requests")
+        .select("id, created_at, processed_at, expires_at")
+        .eq("status", "approved");
+
+      if (approvedReqs && approvedReqs.length > 0) {
+        for (const req of approvedReqs) {
+          const approvedDate = new Date(req.processed_at || req.created_at);
+          const newExpiry = new Date(approvedDate.getTime() + newDuration * 24 * 60 * 60 * 1000);
+          // Only update if new expiry is different (earlier or later)
+          if (!req.expires_at || new Date(req.expires_at).getTime() !== newExpiry.getTime()) {
+            await supabase
+              .from("verification_requests")
+              .update({ expires_at: newExpiry.toISOString() } as any)
+              .eq("id", req.id);
+          }
+        }
+        // Trigger the expiry check edge function to process any newly-expired verifications
+        try {
+          await supabase.functions.invoke("check-verification-expiry");
+        } catch (e) {
+          console.warn("Could not trigger expiry check:", e);
+        }
+      }
+
       if (notifyUsers) {
         // Fetch all user IDs to notify
         const { data: profiles } = await supabase.from("profiles").select("id");
         if (profiles && profiles.length > 0) {
+          const messages: string[] = [];
+          messages.push(`Exchange rate: $1 = L$${newRate.toLocaleString()}`);
+          messages.push(`Verification duration: ${newDuration} day${newDuration !== 1 ? 's' : ''}`);
+          messages.push(`Owner verification fee: L$${(parseFloat(ownerVerifFee) || 500).toLocaleString()}`);
+          messages.push(`Agent verification fee: $${parseFloat(agentVerifFee) || 20}`);
+          messages.push(`Promotion price: $${newPromo}/month`);
+
           const notifications = profiles.map((p) => ({
             user_id: p.id,
-            title: "Exchange Rate Updated",
-            message: `The USD to LRD exchange rate has been updated to L$${newRate.toLocaleString()}. All property prices now reflect the new rate.`,
-            type: "marketing",
+            title: "Platform Settings Updated",
+            message: `The admin has updated platform settings:\n${messages.join('\n')}\nPlease review if this affects your account.`,
+            type: "status_updates",
           }));
           // Insert in batches of 100
           for (let i = 0; i < notifications.length; i += 100) {
@@ -87,7 +121,7 @@ export function AdminRateSettings() {
         }
       }
 
-      toast({ title: "Settings Saved", description: notifyUsers ? "Rate updated and all users notified." : "Rate updated successfully." });
+      toast({ title: "Settings Saved", description: notifyUsers ? "Settings updated and all users notified." : "Settings updated successfully." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
