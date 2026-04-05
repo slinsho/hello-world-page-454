@@ -2,79 +2,54 @@ import { useState, useEffect, useCallback } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { registerSW } from "virtual:pwa-register";
 
 const PWAUpdatePrompt = () => {
-  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [updateSW, setUpdateSW] = useState<((reloadPage?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
-    if (!("serviceWorker" in navigator)) return;
-
-    const handleControllerChange = () => {
-      // New SW activated — reload
-      window.location.reload();
-    };
-
-    navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
-
-    navigator.serviceWorker.ready.then((registration) => {
-      // Check if a waiting worker already exists
-      if (registration.waiting) {
-        setWaitingWorker(registration.waiting);
+    // registerSW with prompt mode — it returns a function to call when the user accepts
+    const update = registerSW({
+      onNeedRefresh() {
         setShowPrompt(true);
-      }
-
-      // Listen for new service workers
-      registration.addEventListener("updatefound", () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-
-        newWorker.addEventListener("statechange", () => {
-          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-            setWaitingWorker(newWorker);
-            setShowPrompt(true);
-          }
-        });
-      });
+      },
+      onOfflineReady() {
+        // App is ready for offline use — no action needed
+      },
     });
 
-    // Periodically check for updates (every 60s)
-    const interval = setInterval(() => {
-      navigator.serviceWorker.ready.then((reg) => reg.update().catch(() => {}));
-    }, 60000);
-
-    return () => {
-      clearInterval(interval);
-      navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
-    };
+    setUpdateSW(() => update);
   }, []);
 
   const handleUpdate = useCallback(() => {
-    if (!waitingWorker) return;
+    if (!updateSW) return;
     setUpdating(true);
     setProgress(0);
 
-    // Animate progress bar over ~2s, then tell SW to skip waiting
+    // Animate progress bar, then trigger the actual update
     let current = 0;
     const interval = setInterval(() => {
       current += Math.random() * 15 + 5;
       if (current >= 95) {
         current = 95;
         clearInterval(interval);
-        // Tell the waiting SW to activate
-        waitingWorker.postMessage({ type: "SKIP_WAITING" });
-        // controllerchange listener will trigger reload
-        // Fallback: force reload after 3s if controllerchange doesn't fire
+        // Trigger the service worker update + reload
+        updateSW(true).catch(() => {
+          // Fallback: force reload
+          setTimeout(() => window.location.reload(), 500);
+        });
         setTimeout(() => {
           setProgress(100);
+          // Fallback reload if SW update didn't trigger page reload
           setTimeout(() => window.location.reload(), 400);
         }, 3000);
       }
       setProgress(Math.min(current, 100));
     }, 120);
-  }, [waitingWorker]);
+  }, [updateSW]);
 
   if (!showPrompt) return null;
 
