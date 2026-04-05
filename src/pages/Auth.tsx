@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 import { Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
-import heroImage from "@/assets/splash-hero.png";
+import heroImage from "@/assets/splash-hero.jpg";
 import lpropLogo from "@/assets/lprop-logo.png";
 
 const signUpSchema = z.object({
