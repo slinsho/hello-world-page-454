@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { isInstalledMobilePwa as checkInstalledMobilePwa } from "@/lib/pwa";
 import { z } from "zod";
 import { Eye, EyeOff, ArrowLeft, UserPlus, LogIn, Mail, Lock, Phone, User, Home, Shield, Star } from "lucide-react";
-import heroImage from "@/assets/splash-hero.jpg";
+import heroImage from "@/assets/auth-pwa-hero.jpg";
 import lpropLogo from "@/assets/lprop-logo.png";
 
 const signUpSchema = z.object({
@@ -44,6 +45,8 @@ const Auth = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [isInstalledPwaMobile, setIsInstalledPwaMobile] = useState(false);
+  const [showIntroSplash, setShowIntroSplash] = useState(false);
 
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -54,6 +57,40 @@ const Auth = () => {
       navigate("/");
     }
   }, [user, navigate, isResettingPassword]);
+
+  useEffect(() => {
+    const syncInstalledPwaState = () => {
+      const installedMobilePwa = checkInstalledMobilePwa();
+      setIsInstalledPwaMobile(installedMobilePwa);
+
+      if (installedMobilePwa && !isResettingPassword && !isForgotPassword && !isSignUp && !showForm) {
+        setShowIntroSplash(true);
+        return;
+      }
+
+      setShowIntroSplash(false);
+    };
+
+    syncInstalledPwaState();
+
+    const displayModeQuery = window.matchMedia("(display-mode: standalone)");
+    const handleDisplayModeChange = () => syncInstalledPwaState();
+
+    displayModeQuery.addEventListener?.("change", handleDisplayModeChange);
+    window.addEventListener("resize", handleDisplayModeChange);
+
+    return () => {
+      displayModeQuery.removeEventListener?.("change", handleDisplayModeChange);
+      window.removeEventListener("resize", handleDisplayModeChange);
+    };
+  }, [isForgotPassword, isResettingPassword, isSignUp, showForm]);
+
+  useEffect(() => {
+    if (!showIntroSplash) return;
+
+    const timer = window.setTimeout(() => setShowIntroSplash(false), 2200);
+    return () => window.clearTimeout(timer);
+  }, [showIntroSplash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +163,56 @@ const Auth = () => {
     : isSignUp
     ? "Join L-Prop and start exploring"
     : "Sign in to continue";
+
+  if (showIntroSplash) {
+    return (
+      <div className="relative h-[100dvh] overflow-hidden bg-background md:hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: "center 18%" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background/95" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-background/40 to-transparent" />
+
+        <div className="relative z-10 flex h-full flex-col justify-between px-6 pb-10 pt-12">
+          <div className="flex w-fit items-center gap-3 rounded-2xl border border-border/40 bg-card/45 px-4 py-3 shadow-2xl backdrop-blur-xl">
+            <img src={lpropLogo} alt="L-Prop" className="h-11 w-11 rounded-2xl" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">L-Prop</p>
+              <p className="text-xs text-foreground/70">Installed mobile experience</p>
+            </div>
+          </div>
+
+          <div className="space-y-6 text-center">
+            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-[2rem] border border-border/40 bg-card/25 p-2 shadow-2xl backdrop-blur-xl">
+              <img
+                src={heroImage}
+                alt="L-Prop welcome splash"
+                className="h-full w-full rounded-[1.5rem] object-cover"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Liberia Property</p>
+              <h1 className="text-4xl font-bold leading-tight text-foreground">
+                Find the next place to call home.
+              </h1>
+              <p className="mx-auto max-w-xs text-sm text-foreground/75">
+                Fast updates, verified listings, and a polished mobile-first experience every time you open L-Prop.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="h-1.5 w-28 overflow-hidden rounded-full bg-secondary/80">
+              <div className="h-full w-full origin-left rounded-full bg-primary animate-intro-progress" />
+            </div>
+            <p className="text-xs text-foreground/60">Launching your installed app…</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Form view
   if (isResettingPassword || isForgotPassword || isSignUp || showForm) {
@@ -460,6 +547,12 @@ const Auth = () => {
 
         {/* Bottom floating content */}
         <div className="px-6 pb-10 space-y-5">
+            {isInstalledPwaMobile && (
+              <div className="inline-flex items-center rounded-full border border-border/40 bg-card/35 px-3 py-1 text-[11px] font-medium text-foreground/80 backdrop-blur-md">
+                Installed app mode
+              </div>
+            )}
+
           <div className="space-y-2">
             <h1 className="text-[2.2rem] font-bold text-white leading-[1.1] tracking-tight drop-shadow-lg">
               Your Trusted Guide<br />
