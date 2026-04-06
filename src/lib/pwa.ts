@@ -3,7 +3,7 @@ type NavigatorWithStandalone = Navigator & {
 };
 
 export const isPreviewHost = (hostname = window.location.hostname) =>
-  hostname.includes("id-preview--") || hostname.includes("lovable.app") || hostname.includes("lovableproject.com");
+  hostname.includes("id-preview--") || hostname.includes("lovableproject.com");
 
 export const isInIframe = () => {
   try {
