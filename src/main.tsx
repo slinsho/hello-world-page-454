@@ -2,7 +2,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// vite-plugin-pwa handles SW registration automatically — no manual registration needed.
-// The PWAUpdatePrompt component manages the update UX.
+// PWA registration and update handling are managed inside the runtime update prompt.
 
 createRoot(document.getElementById("root")!).render(<App />);

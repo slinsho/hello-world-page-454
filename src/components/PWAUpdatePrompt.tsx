@@ -2,98 +2,308 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { registerSW } from "virtual:pwa-register";
+import { canUseServiceWorkerRuntime } from "@/lib/pwa";
 
-const CHECK_INTERVAL_MS = 30 * 1000; // Check every 30 seconds
+const CHECK_INTERVAL_MS = 15 * 1000;
+const UPDATE_ANIMATION_MS = 2200;
+const CONTROLLER_CHANGE_TIMEOUT_MS = 3000;
+
+const extractBuildFingerprint = (html: string) => {
+  const scriptMatch = html.match(/<script[^>]+type=["']module["'][^>]+src=["']([^"']*\/assets\/index-[^"']+\.js)["']/i);
+  return scriptMatch?.[1] ?? null;
+};
+
+const normalizeFingerprint = (value: string | null) => {
+  if (!value) return null;
+
+  try {
+    return new URL(value, window.location.origin).pathname;
+  } catch {
+    return value;
+  }
+};
+
+const getCurrentBuildFingerprint = () => {
+  const scriptSource = document.querySelector<HTMLScriptElement>('script[type="module"][src*="/assets/index-"]')?.src;
+  return normalizeFingerprint(scriptSource ?? null);
+};
 
 const PWAUpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [progress, setProgress] = useState(0);
-  const updateSWRef = useRef<((reloadPage?: boolean) => Promise<void>) | null>(null);
+
+  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
+  const waitingWorkerRef = useRef<ServiceWorker | null>(null);
+  const latestBuildFingerprintRef = useRef<string | null>(null);
+  const currentBuildFingerprintRef = useRef<string | null>(null);
+  const progressFrameRef = useRef<number | null>(null);
+  const updatingRef = useRef(false);
+  const controllerChangedRef = useRef(false);
+
+  const syncWaitingWorker = useCallback((registration?: ServiceWorkerRegistration | null, candidate?: ServiceWorker | null) => {
+    const waitingWorker = candidate ?? registration?.waiting ?? null;
+    waitingWorkerRef.current = waitingWorker;
+
+    if (waitingWorker) {
+      setShowPrompt(true);
+    }
+  }, []);
+
+  const checkPublishedBuild = useCallback(async () => {
+    if (!canUseServiceWorkerRuntime()) return false;
+
+    currentBuildFingerprintRef.current ??= getCurrentBuildFingerprint();
+
+    try {
+      const response = await fetch(`/index.html?__pwa_update_check=${Date.now()}`, {
+        cache: "no-store",
+        headers: {
+          "cache-control": "no-cache",
+          pragma: "no-cache",
+        },
+      });
+
+      if (!response.ok) return false;
+
+      const latestFingerprint = normalizeFingerprint(extractBuildFingerprint(await response.text()));
+      latestBuildFingerprintRef.current = latestFingerprint;
+
+      if (
+        latestFingerprint &&
+        currentBuildFingerprintRef.current &&
+        latestFingerprint !== currentBuildFingerprintRef.current
+      ) {
+        setShowPrompt(true);
+        return true;
+      }
+    } catch {
+      return false;
+    }
+
+    return false;
+  }, []);
+
+  const forceRefreshToLatestBuild = useCallback(async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.allSettled(registrations.map((registration) => registration.unregister()));
+    } catch {
+      // Ignore unregister failures and continue with the hard refresh.
+    }
+
+    if ("caches" in window) {
+      try {
+        const cacheKeys = await caches.keys();
+        await Promise.allSettled(cacheKeys.map((cacheKey) => caches.delete(cacheKey)));
+      } catch {
+        // Ignore cache deletion failures and continue with the reload.
+      }
+    }
+
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("pwa-updated", Date.now().toString());
+    window.location.replace(nextUrl.toString());
+  }, []);
+
+  const animateProgressToCompletion = useCallback(() => {
+    if (progressFrameRef.current) {
+      window.cancelAnimationFrame(progressFrameRef.current);
+    }
+
+    return new Promise<void>((resolve) => {
+      const startTime = performance.now();
+
+      const step = (timestamp: number) => {
+        const nextProgress = Math.min(((timestamp - startTime) / UPDATE_ANIMATION_MS) * 100, 100);
+        setProgress(nextProgress);
+
+        if (nextProgress < 100) {
+          progressFrameRef.current = window.requestAnimationFrame(step);
+          return;
+        }
+
+        progressFrameRef.current = null;
+        resolve();
+      };
+
+      progressFrameRef.current = window.requestAnimationFrame(step);
+    });
+  }, []);
+
+  const runUpdateCheck = useCallback(async () => {
+    if (!canUseServiceWorkerRuntime()) return;
+
+    const registration = registrationRef.current ?? (await navigator.serviceWorker.getRegistration());
+    if (registration) {
+      registrationRef.current = registration;
+      syncWaitingWorker(registration);
+      await registration.update().catch(() => undefined);
+      syncWaitingWorker(registration);
+    }
+
+    await checkPublishedBuild();
+  }, [checkPublishedBuild, syncWaitingWorker]);
 
   useEffect(() => {
-    const update = registerSW({
-      onNeedRefresh() {
-        setShowPrompt(true);
-      },
-      onOfflineReady() {},
-    });
+    if (!canUseServiceWorkerRuntime()) return;
 
-    updateSWRef.current = update;
+    currentBuildFingerprintRef.current = getCurrentBuildFingerprint();
 
-    // Aggressive polling: check for SW updates periodically
-    const interval = setInterval(() => {
-      navigator.serviceWorker?.getRegistration().then((reg) => {
-        reg?.update().catch(() => {});
+    let isActive = true;
+    let intervalId: number | null = null;
+    let activeRegistration: ServiceWorkerRegistration | null = null;
+
+    const handleInstallingWorker = (
+      worker: ServiceWorker,
+      registration: ServiceWorkerRegistration,
+    ) => {
+      worker.addEventListener("statechange", () => {
+        if (worker.state === "installed" && navigator.serviceWorker.controller) {
+          syncWaitingWorker(registration, registration.waiting ?? worker);
+        }
       });
-    }, CHECK_INTERVAL_MS);
+    };
 
-    // Check on visibility change (app brought to foreground)
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        navigator.serviceWorker?.getRegistration().then((reg) => {
-          reg?.update().catch(() => {});
-        });
+    const handleUpdateFound = () => {
+      const installingWorker = activeRegistration?.installing;
+      if (activeRegistration && installingWorker) {
+        handleInstallingWorker(installingWorker, activeRegistration);
       }
     };
 
-    // Check on focus (tab/app gains focus)
-    const handleFocus = () => {
-      navigator.serviceWorker?.getRegistration().then((reg) => {
-        reg?.update().catch(() => {});
-      });
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void runUpdateCheck();
+      }
     };
 
-    // Check on online (device reconnects)
+    const handleFocus = () => {
+      void runUpdateCheck();
+    };
+
     const handleOnline = () => {
-      navigator.serviceWorker?.getRegistration().then((reg) => {
-        reg?.update().catch(() => {});
-      });
+      void runUpdateCheck();
+    };
+
+    const handleControllerChange = () => {
+      if (updatingRef.current && !controllerChangedRef.current) {
+        controllerChangedRef.current = true;
+        window.location.reload();
+      }
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("focus", handleFocus);
     window.addEventListener("online", handleOnline);
+    navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
+
+    void navigator.serviceWorker
+      .register("/sw.js", {
+        scope: "/",
+        updateViaCache: "none",
+      })
+      .then(async (registration) => {
+        if (!isActive) return;
+
+        activeRegistration = registration;
+        registrationRef.current = registration;
+        syncWaitingWorker(registration);
+
+        if (registration.installing) {
+          handleInstallingWorker(registration.installing, registration);
+        }
+
+        registration.addEventListener("updatefound", handleUpdateFound);
+        await runUpdateCheck();
+        intervalId = window.setInterval(() => void runUpdateCheck(), CHECK_INTERVAL_MS);
+      })
+      .catch(() => undefined);
 
     return () => {
-      clearInterval(interval);
+      isActive = false;
+      if (progressFrameRef.current) {
+        window.cancelAnimationFrame(progressFrameRef.current);
+      }
+      if (intervalId) {
+        window.clearInterval(intervalId);
+      }
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("online", handleOnline);
+      navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
+      activeRegistration?.removeEventListener("updatefound", handleUpdateFound);
     };
-  }, []);
+  }, [runUpdateCheck, syncWaitingWorker]);
 
-  const handleUpdate = useCallback(() => {
-    const updateSW = updateSWRef.current;
-    if (!updateSW) return;
+  const applyAvailableUpdate = useCallback(async () => {
+    const registration = registrationRef.current ?? (await navigator.serviceWorker.getRegistration());
+
+    if (!registration) {
+      await forceRefreshToLatestBuild();
+      return;
+    }
+
+    registrationRef.current = registration;
+    await registration.update().catch(() => undefined);
+
+    const waitingWorker = registration.waiting ?? waitingWorkerRef.current;
+    if (waitingWorker) {
+      waitingWorkerRef.current = waitingWorker;
+
+      await new Promise<void>((resolve) => {
+        const timeoutId = window.setTimeout(resolve, CONTROLLER_CHANGE_TIMEOUT_MS);
+
+        const handleControllerChange = () => {
+          window.clearTimeout(timeoutId);
+          navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
+          resolve();
+        };
+
+        navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange, { once: true });
+        waitingWorker.postMessage({ type: "SKIP_WAITING" });
+      });
+
+      if (!controllerChangedRef.current) {
+        window.location.reload();
+      }
+      return;
+    }
+
+    if (
+      latestBuildFingerprintRef.current &&
+      currentBuildFingerprintRef.current &&
+      latestBuildFingerprintRef.current !== currentBuildFingerprintRef.current
+    ) {
+      await forceRefreshToLatestBuild();
+      return;
+    }
+
+    window.location.reload();
+  }, [forceRefreshToLatestBuild]);
+
+  const handleUpdate = useCallback(async () => {
+    if (updatingRef.current) return;
+
+    updatingRef.current = true;
+    controllerChangedRef.current = false;
     setUpdating(true);
     setProgress(0);
 
-    let current = 0;
-    const interval = setInterval(() => {
-      current += Math.random() * 15 + 5;
-      if (current >= 95) {
-        current = 95;
-        clearInterval(interval);
-        updateSW(true).catch(() => {
-          setTimeout(() => window.location.reload(), 500);
-        });
-        setTimeout(() => {
-          setProgress(100);
-          setTimeout(() => window.location.reload(), 400);
-        }, 3000);
-      }
-      setProgress(Math.min(current, 100));
-    }, 120);
-  }, []);
+    try {
+      await Promise.all([runUpdateCheck(), animateProgressToCompletion()]);
+      await applyAvailableUpdate();
+    } catch {
+      await forceRefreshToLatestBuild();
+    }
+  }, [animateProgressToCompletion, applyAvailableUpdate, forceRefreshToLatestBuild, runUpdateCheck]);
 
   if (!showPrompt) return null;
 
   return (
     <>
       <div
-        className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm transition-all duration-300"
+        className="fixed inset-0 z-[9998] bg-background/60 backdrop-blur-sm transition-all duration-300"
         aria-hidden="true"
       />
 
@@ -116,7 +326,7 @@ const PWAUpdatePrompt = () => {
               <div className="space-y-2">
                 <Progress value={progress} className="h-2" />
                 <p className="text-xs text-muted-foreground text-center">
-                  {progress < 95 ? "Updating…" : "Almost done…"}
+                  {progress < 100 ? "Updating…" : "Opening the latest version…"}
                 </p>
               </div>
             ) : (

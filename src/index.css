@@ -168,3 +168,25 @@ All colors MUST be HSL.
   margin-top: 8px !important;
   margin-bottom: 1.5rem !important;
 }
+
+@layer utilities {
+  @keyframes intro-progress {
+    from {
+      transform: scaleX(0);
+    }
+
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .animate-intro-progress {
+    animation: intro-progress 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-intro-progress {
+      animation-duration: 1ms;
+    }
+  }
+}
