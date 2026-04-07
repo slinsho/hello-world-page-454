@@ -46,7 +46,16 @@ const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 const About = lazy(() => import("./pages/About"));
 const Agents = lazy(() => import("./pages/Agents"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>

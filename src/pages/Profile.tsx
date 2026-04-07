@@ -241,6 +241,12 @@ const Profile = () => {
 
   const handleSubmitPaymentReference = async (reference: string) => {
     if (!user || !reference.trim()) return;
+
+    // Parse "Name - Reference" format or use raw input
+    const parts = reference.includes(" - ") ? reference.split(" - ") : null;
+    const senderName = parts ? parts[0].trim() : user.user_metadata?.name || profile?.name || "User";
+    const refCode = parts ? parts.slice(1).join(" - ").trim() : reference.trim();
+
     const { data: verReq } = await supabase
       .from("verification_requests")
       .select("id")
@@ -250,13 +256,24 @@ const Profile = () => {
       .limit(1)
       .maybeSingle();
     
-    if (verReq) {
-      await supabase.from("verification_requests").update({ 
-        payment_reference: reference.trim(),
-        payment_status: 'submitted',
-      } as any).eq("id", verReq.id);
-      toast({ title: "Payment Reference Submitted", description: "Your payment reference has been sent. Admin will verify and approve." });
+    if (!verReq) {
+      toast({ title: "No Pending Request", description: "No verification request with pending payment was found.", variant: "destructive" });
+      return;
     }
+
+    // Use the RPC to bypass RLS
+    const { error } = await supabase.rpc("submit_verification_payment_reference" as any, {
+      p_request_id: verReq.id,
+      p_sender_name: senderName,
+      p_ref: refCode,
+    });
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    
+    toast({ title: "Payment Reference Submitted", description: "Your payment reference has been sent. Admin will verify and approve." });
   };
 
   // Three-dot menu component
