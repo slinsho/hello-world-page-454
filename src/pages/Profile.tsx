@@ -216,11 +216,21 @@ const Profile = () => {
       .maybeSingle();
     
     if (verReq) {
-      // Mark as renewal
+      // Mark as renewal AND set status back to pending so payment RPC works
       await supabase.from("verification_requests").update({ 
         is_renewal: true,
+        status: 'pending',
         payment_status: 'none',
+        payment_reference: null,
       } as any).eq("id", verReq.id);
+
+      // Notify admins about the renewal request
+      const { notifyAdmins } = await import("@/lib/notifyAdmins");
+      await notifyAdmins({
+        title: "Verification Renewal Request",
+        message: `User ${profile?.name || "Unknown"} has requested a verification renewal.`,
+        type: "status_updates",
+      });
       
       toast({ title: "Renewal Requested", description: "Your renewal request has been sent to the admin for review." });
     } else {
