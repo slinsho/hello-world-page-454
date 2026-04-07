@@ -106,16 +106,16 @@ const Explore = () => {
         <div className="mb-6 md:mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Explore Properties</h1>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search by title, address, or county..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
+              <Input placeholder="Search properties..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
             </div>
             
             {/* Mobile filter trigger */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="gap-2 md:hidden"><Filter className="h-4 w-4" />Filter</Button>
+                <Button variant="outline" size="icon" className="md:hidden flex-shrink-0 h-10 w-10"><Filter className="h-4 w-4" /></Button>
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader><SheetTitle>Filter Properties</SheetTitle></SheetHeader>
