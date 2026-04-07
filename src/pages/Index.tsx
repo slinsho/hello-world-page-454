@@ -98,17 +98,23 @@ const Index = () => {
       
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
       
-      // Build agent map with signed URLs for logos in private bucket
+      // Build agent map with signed URLs in parallel
       const agentMap = new Map<string, { agency_name: string | null; agency_logo: string | null }>();
-      for (const a of (agentData || [])) {
-        let logoUrl: string | null = null;
-        if (a.agency_logo) {
-          const { data: signedData } = await supabase.storage
-            .from("verification-docs")
-            .createSignedUrl(a.agency_logo, 3600);
-          logoUrl = signedData?.signedUrl || null;
-        }
-        agentMap.set(a.user_id, { agency_name: a.agency_name, agency_logo: logoUrl });
+      const agentEntries = agentData || [];
+      const logoResults = await Promise.all(
+        agentEntries.map(async (a) => {
+          let logoUrl: string | null = null;
+          if (a.agency_logo) {
+            const { data: signedData } = await supabase.storage
+              .from("verification-docs")
+              .createSignedUrl(a.agency_logo, 3600);
+            logoUrl = signedData?.signedUrl || null;
+          }
+          return { userId: a.user_id, agency_name: a.agency_name, agency_logo: logoUrl };
+        })
+      );
+      for (const entry of logoResults) {
+        agentMap.set(entry.userId, { agency_name: entry.agency_name, agency_logo: entry.agency_logo });
       }
 
       const propertiesWithProfiles = propertiesData.map(p => {
