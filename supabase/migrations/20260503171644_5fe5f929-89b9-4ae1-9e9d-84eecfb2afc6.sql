@@ -1,0 +1,1 @@
+UPDATE public.verification_requests SET status='pending', is_renewal=true WHERE id='0db20a4e-ee37-4c08-aef6-3cec9da9c158' AND payment_status='payment_requested';
