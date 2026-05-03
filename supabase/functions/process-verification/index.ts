@@ -136,6 +136,8 @@ Deno.serve(async (req: Request) => {
         payment_requested_at: new Date().toISOString(),
         admin_id: adminId,
         admin_note: adminNote ?? null,
+        // For renewal: flip status back to 'pending' so the user can submit payment reference via the RPC
+        ...(isRenewal ? { status: 'pending', is_renewal: true } : {}),
       }).eq('id', requestId);
 
       const feeDisplay = isAgentVerification
