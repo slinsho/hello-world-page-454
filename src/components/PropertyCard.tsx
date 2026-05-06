@@ -50,6 +50,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     house: Home,
     apartment: Building2,
     shop: Store,
+    land: Trees,
   }[property.property_type];
 
   return (
