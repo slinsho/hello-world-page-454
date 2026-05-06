@@ -19,8 +19,48 @@ export const LIBERIA_COUNTIES = [
 export const PROPERTY_TYPE_ICONS = {
   house: "Home",
   apartment: "Building2",
-  shop: "Store"
+  shop: "Store",
+  land: "Trees"
 } as const;
+
+export const LAND_USE_OPTIONS = [
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "agricultural", label: "Agricultural" },
+  { value: "industrial", label: "Industrial" },
+  { value: "mixed", label: "Mixed Use" },
+] as const;
+
+export const LAND_SIZE_UNITS = [
+  { value: "lots", label: "Lots" },
+  { value: "acres", label: "Acres" },
+  { value: "sqm", label: "Sq Meters" },
+  { value: "hectares", label: "Hectares" },
+] as const;
+
+export const TITLE_DEED_STATUSES = [
+  { value: "deeded", label: "Deeded (Title Deed)" },
+  { value: "tribal", label: "Tribal Land" },
+  { value: "public", label: "Public Land" },
+  { value: "disputed", label: "Disputed" },
+  { value: "unknown", label: "Unknown" },
+] as const;
+
+export const TOPOGRAPHY_OPTIONS = [
+  { value: "flat", label: "Flat" },
+  { value: "sloped", label: "Sloped" },
+  { value: "hilly", label: "Hilly" },
+  { value: "swampy", label: "Swampy" },
+  { value: "mixed", label: "Mixed" },
+] as const;
+
+export const UTILITIES_OPTIONS = [
+  { value: "water", label: "Water" },
+  { value: "electricity", label: "Electricity" },
+  { value: "internet", label: "Internet" },
+  { value: "sewage", label: "Sewage" },
+  { value: "road", label: "Paved Road" },
+] as const;
 
 export const LISTING_TYPE_LABELS = {
   for_sale: "For Sale",
