@@ -60,6 +60,20 @@ const EditProperty = () => {
       bedrooms: data.bedrooms ? String(data.bedrooms) : "", bathrooms: data.bathrooms ? String(data.bathrooms) : "",
       square_yards: data.square_yards ? String(data.square_yards) : "", description: data.description || "",
     });
+    if (data.property_type === "land") {
+      setLand({
+        land_size: data.land_size != null ? String(data.land_size) : "",
+        land_size_unit: data.land_size_unit || "lots",
+        land_use: data.land_use || "",
+        road_access: data.road_access ?? null,
+        title_deed_status: data.title_deed_status || "",
+        utilities_nearby: data.utilities_nearby || [],
+        zoning: data.zoning || "",
+        topography: data.topography || "",
+        boundary_marked: data.boundary_marked ?? null,
+        nearest_landmark: data.nearest_landmark || "",
+      });
+    }
     setExistingPhotos(data.photos || []);
     setFetching(false);
   };
