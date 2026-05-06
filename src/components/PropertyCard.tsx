@@ -13,7 +13,7 @@ interface PropertyCardProps {
   property: {
     id: string;
     title: string;
-    property_type: "house" | "apartment" | "shop";
+    property_type: "house" | "apartment" | "shop" | "land";
     listing_type: "for_sale" | "for_rent" | "for_lease";
     price_usd: number;
     address: string;
