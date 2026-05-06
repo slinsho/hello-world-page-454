@@ -172,10 +172,10 @@ const EditProperty = () => {
           <div className="space-y-5">
             <div>
               <Label className="text-sm font-semibold mb-3 block">Property Type</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {propertyTypes.map(({ value, label, icon: Icon }) => (
-                  <button key={value} type="button" onClick={() => setFormData({ ...formData, property_type: value })} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${formData.property_type === value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-muted-foreground/30"}`}>
-                    <Icon className={`h-6 w-6 ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`} />
+                  <button key={value} type="button" onClick={() => setFormData({ ...formData, property_type: value })} className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${formData.property_type === value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-muted-foreground/30"}`}>
+                    <Icon className={`h-5 w-5 ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-xs font-medium ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
                   </button>
                 ))}
