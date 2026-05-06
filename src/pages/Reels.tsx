@@ -14,7 +14,7 @@ import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { formatWhatsAppLink } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
-import SEOHead from "@/components/SEOHead";
+import { SEOHead } from "@/components/SEOHead";
 
 type Reel = {
   id: string;
