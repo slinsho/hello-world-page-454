@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, X, ArrowLeft, Camera, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
+import { Home, Building2, Store, Trees, X, ArrowLeft, Camera, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { z } from "zod";
+import LandFields, { emptyLandFields, type LandFieldsState } from "@/components/LandFields";
 
 const editSchema = z.object({
   title: z.string().min(3).max(200),
