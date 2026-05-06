@@ -104,15 +104,39 @@ const EditProperty = () => {
         return supabase.storage.from("property-photos").getPublicUrl(fileName).data.publicUrl;
       }));
       const allPhotos = [...existingPhotos, ...newPhotoUrls];
-      const { error } = await supabase.from("properties").update({
+      const updatePayload: any = {
         title: validated.title, property_type: validated.property_type, listing_type: validated.listing_type,
         price_usd: validated.price_usd, address: validated.address, county: validated.county,
         contact_phone: validated.contact_phone, contact_phone_2: validated.contact_phone_2 || null,
         photos: allPhotos, description: validated.description || null,
-        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
-        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+        bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null),
+        bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null),
         square_yards: formData.square_yards ? parseInt(formData.square_yards) : null,
-      }).eq("id", id);
+      };
+      if (isLand) {
+        if (!land.land_size || parseFloat(land.land_size) <= 0) throw new z.ZodError([{ code: "custom", message: "Land size is required", path: ["land_size"] }] as any);
+        if (!land.land_use) throw new z.ZodError([{ code: "custom", message: "Land use is required", path: ["land_use"] }] as any);
+        if (!land.title_deed_status) throw new z.ZodError([{ code: "custom", message: "Title status is required", path: ["title_deed_status"] }] as any);
+        Object.assign(updatePayload, {
+          land_size: parseFloat(land.land_size),
+          land_size_unit: land.land_size_unit,
+          land_use: land.land_use,
+          road_access: land.road_access,
+          title_deed_status: land.title_deed_status,
+          utilities_nearby: land.utilities_nearby,
+          zoning: land.zoning || null,
+          topography: land.topography || null,
+          boundary_marked: land.boundary_marked,
+          nearest_landmark: land.nearest_landmark || null,
+        });
+      } else {
+        Object.assign(updatePayload, {
+          land_size: null, land_use: null, title_deed_status: null,
+          road_access: null, utilities_nearby: [], zoning: null,
+          topography: null, boundary_marked: null, nearest_landmark: null,
+        });
+      }
+      const { error } = await supabase.from("properties").update(updatePayload).eq("id", id);
       if (error) throw error;
       toast({ title: "Success!", description: "Property updated." }); navigate("/profile");
     } catch (error: any) {
