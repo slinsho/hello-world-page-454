@@ -292,6 +292,7 @@ const Navbar = () => {
                           <SelectItem value="house">House</SelectItem>
                           <SelectItem value="apartment">Apartment</SelectItem>
                           <SelectItem value="shop">Shop</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -413,6 +414,7 @@ const Navbar = () => {
                           <SelectItem value="house">House</SelectItem>
                           <SelectItem value="apartment">Apartment</SelectItem>
                           <SelectItem value="shop">Shop</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
