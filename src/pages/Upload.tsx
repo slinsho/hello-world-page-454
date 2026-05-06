@@ -202,14 +202,17 @@ const Upload = () => {
                 <Input type="tel" value={formData.contact_phone_2} onChange={(e) => !isOwner && setFormData({ ...formData, contact_phone_2: e.target.value })} maxLength={20} placeholder="Phone 2" className="rounded-xl h-12" readOnly={isOwner} disabled={isOwner} />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Property Details</Label>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="relative"><BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bedrooms} onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })} placeholder="Beds" className="rounded-xl h-12 pl-10" /></div>
-                <div className="relative"><Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bathrooms} onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })} placeholder="Baths" className="rounded-xl h-12 pl-10" /></div>
-                <div className="relative"><Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.square_yards} onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })} placeholder="Sq yd" className="rounded-xl h-12 pl-10" /></div>
+            {!isLand && (
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Property Details</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="relative"><BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bedrooms} onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })} placeholder="Beds" className="rounded-xl h-12 pl-10" /></div>
+                  <div className="relative"><Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bathrooms} onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })} placeholder="Baths" className="rounded-xl h-12 pl-10" /></div>
+                  <div className="relative"><Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.square_yards} onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })} placeholder="Sq yd" className="rounded-xl h-12 pl-10" /></div>
+                </div>
               </div>
-            </div>
+            )}
+            {isLand && <LandFields value={land} onChange={setLand} />}
           </div>
 
           {/* Right Column - Media */}
