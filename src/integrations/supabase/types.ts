@@ -619,6 +619,7 @@ export type Database = {
           address: string
           bathrooms: number | null
           bedrooms: number | null
+          boundary_marked: boolean | null
           contact_phone: string
           contact_phone_2: string | null
           county: string
@@ -628,25 +629,35 @@ export type Database = {
           id: string
           is_flagged: boolean
           is_promoted: boolean
+          land_size: number | null
+          land_size_unit: string | null
+          land_use: string | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           moderation_note: string | null
           moderation_status: string | null
+          nearest_landmark: string | null
           owner_id: string
           photos: string[]
           price_usd: number
           promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
+          road_access: boolean | null
           search_vector: unknown
           square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
           title: string
+          title_deed_status: string | null
+          topography: string | null
           updated_at: string
+          utilities_nearby: string[] | null
           videos: string[] | null
+          zoning: string | null
         }
         Insert: {
           address: string
           bathrooms?: number | null
           bedrooms?: number | null
+          boundary_marked?: boolean | null
           contact_phone: string
           contact_phone_2?: string | null
           county: string
@@ -656,25 +667,35 @@ export type Database = {
           id?: string
           is_flagged?: boolean
           is_promoted?: boolean
+          land_size?: number | null
+          land_size_unit?: string | null
+          land_use?: string | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           moderation_note?: string | null
           moderation_status?: string | null
+          nearest_landmark?: string | null
           owner_id: string
           photos: string[]
           price_usd: number
           promotion_impression_count?: number
           property_type: Database["public"]["Enums"]["property_type"]
+          road_access?: boolean | null
           search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title: string
+          title_deed_status?: string | null
+          topography?: string | null
           updated_at?: string
+          utilities_nearby?: string[] | null
           videos?: string[] | null
+          zoning?: string | null
         }
         Update: {
           address?: string
           bathrooms?: number | null
           bedrooms?: number | null
+          boundary_marked?: boolean | null
           contact_phone?: string
           contact_phone_2?: string | null
           county?: string
@@ -684,20 +705,29 @@ export type Database = {
           id?: string
           is_flagged?: boolean
           is_promoted?: boolean
+          land_size?: number | null
+          land_size_unit?: string | null
+          land_use?: string | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
           moderation_note?: string | null
           moderation_status?: string | null
+          nearest_landmark?: string | null
           owner_id?: string
           photos?: string[]
           price_usd?: number
           promotion_impression_count?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          road_access?: boolean | null
           search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
+          title_deed_status?: string | null
+          topography?: string | null
           updated_at?: string
+          utilities_nearby?: string[] | null
           videos?: string[] | null
+          zoning?: string | null
         }
         Relationships: []
       }
@@ -1185,6 +1215,7 @@ export type Database = {
           address: string
           bathrooms: number | null
           bedrooms: number | null
+          boundary_marked: boolean | null
           contact_phone: string
           contact_phone_2: string | null
           county: string
@@ -1194,20 +1225,29 @@ export type Database = {
           id: string
           is_flagged: boolean
           is_promoted: boolean
+          land_size: number | null
+          land_size_unit: string | null
+          land_use: string | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           moderation_note: string | null
           moderation_status: string | null
+          nearest_landmark: string | null
           owner_id: string
           photos: string[]
           price_usd: number
           promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
+          road_access: boolean | null
           search_vector: unknown
           square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
           title: string
+          title_deed_status: string | null
+          topography: string | null
           updated_at: string
+          utilities_nearby: string[] | null
           videos: string[] | null
+          zoning: string | null
         }[]
         SetofOptions: {
           from: "*"
@@ -1241,7 +1281,7 @@ export type Database = {
       id_type: "citizen_card" | "voter_card" | "passport" | "drivers_license"
       listing_type: "for_sale" | "for_rent" | "for_lease"
       property_status: "active" | "inactive" | "sold" | "rented"
-      property_type: "house" | "apartment" | "shop"
+      property_type: "house" | "apartment" | "shop" | "land"
       user_role: "property_owner" | "agent"
       verification_status:
         | "none"
@@ -1380,7 +1420,7 @@ export const Constants = {
       id_type: ["citizen_card", "voter_card", "passport", "drivers_license"],
       listing_type: ["for_sale", "for_rent", "for_lease"],
       property_status: ["active", "inactive", "sold", "rented"],
-      property_type: ["house", "apartment", "shop"],
+      property_type: ["house", "apartment", "shop", "land"],
       user_role: ["property_owner", "agent"],
       verification_status: [
         "none",
