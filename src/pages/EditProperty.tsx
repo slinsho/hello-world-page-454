@@ -151,6 +151,7 @@ const EditProperty = () => {
     { value: "house", label: "House", icon: Home },
     { value: "apartment", label: "Apartment", icon: Building2 },
     { value: "shop", label: "Shop", icon: Store },
+    { value: "land", label: "Land", icon: Trees },
   ];
   const listingTypes = [
     { value: "for_sale", label: "For Sale" },
