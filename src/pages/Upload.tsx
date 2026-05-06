@@ -106,9 +106,29 @@ const Upload = () => {
     setLoading(true);
     try {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
+      if (isLand) {
+        if (!land.land_size || parseFloat(land.land_size) <= 0) throw new z.ZodError([{ code: "custom", message: "Land size is required", path: ["land_size"] }] as any);
+        if (!land.land_use) throw new z.ZodError([{ code: "custom", message: "Land use is required", path: ["land_use"] }] as any);
+        if (!land.title_deed_status) throw new z.ZodError([{ code: "custom", message: "Title status is required", path: ["title_deed_status"] }] as any);
+      }
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
-      const { error } = await supabase.from("properties").insert([{ owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null, bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null, square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null }]);
+      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
+      if (isLand) {
+        Object.assign(insertPayload, {
+          land_size: parseFloat(land.land_size),
+          land_size_unit: land.land_size_unit,
+          land_use: land.land_use,
+          road_access: land.road_access,
+          title_deed_status: land.title_deed_status,
+          utilities_nearby: land.utilities_nearby,
+          zoning: land.zoning || null,
+          topography: land.topography || null,
+          boundary_marked: land.boundary_marked,
+          nearest_landmark: land.nearest_landmark || null,
+        });
+      }
+      const { error } = await supabase.from("properties").insert([insertPayload]);
       if (error) throw error;
       toast({ title: "Success!", description: "Your property has been listed." }); navigate("/profile");
     } catch (error: any) {
