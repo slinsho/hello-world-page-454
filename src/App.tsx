@@ -103,6 +103,7 @@ const App = () => (
                   <Route path="/featured" element={<FeaturedListings />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/agents" element={<Agents />} />
+                  <Route path="/reels" element={<Reels />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />
                   <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
                   <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
