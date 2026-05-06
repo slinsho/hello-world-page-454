@@ -16,7 +16,7 @@ import LandFields, { emptyLandFields, type LandFieldsState } from "@/components/
 
 const editSchema = z.object({
   title: z.string().min(3).max(200),
-  property_type: z.enum(["house", "apartment", "shop"]),
+  property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive(),
   address: z.string().min(5).max(500),
