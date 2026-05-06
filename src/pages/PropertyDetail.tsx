@@ -312,6 +312,69 @@ const PropertyDetail = () => {
             </div>
           </div>
 
+          {/* ===== Land Details ===== */}
+          {property.property_type === "land" && (
+            <div className="px-4 md:px-0 mb-5">
+              <h3 className="font-semibold mb-3 text-base">Land Details</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {property.land_size != null && (
+                  <div className="rounded-xl border border-border bg-card p-3">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Size</div>
+                    <div className="font-medium">{property.land_size} {property.land_size_unit || ""}</div>
+                  </div>
+                )}
+                {property.land_use && (
+                  <div className="rounded-xl border border-border bg-card p-3">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Use</div>
+                    <div className="font-medium capitalize">{property.land_use}</div>
+                  </div>
+                )}
+                {property.title_deed_status && (
+                  <div className="rounded-xl border border-border bg-card p-3">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Title Status</div>
+                    <div className="font-medium capitalize">{property.title_deed_status}</div>
+                  </div>
+                )}
+                {property.topography && (
+                  <div className="rounded-xl border border-border bg-card p-3">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Topography</div>
+                    <div className="font-medium capitalize">{property.topography}</div>
+                  </div>
+                )}
+                {property.zoning && (
+                  <div className="rounded-xl border border-border bg-card p-3">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Zoning</div>
+                    <div className="font-medium">{property.zoning}</div>
+                  </div>
+                )}
+                {property.nearest_landmark && (
+                  <div className="rounded-xl border border-border bg-card p-3 col-span-2">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Nearest Landmark</div>
+                    <div className="font-medium">{property.nearest_landmark}</div>
+                  </div>
+                )}
+                <div className="rounded-xl border border-border bg-card p-3">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Road Access</div>
+                  <div className="font-medium">{property.road_access ? "Yes" : property.road_access === false ? "No" : "—"}</div>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-3">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Boundary Marked</div>
+                  <div className="font-medium">{property.boundary_marked ? "Yes" : property.boundary_marked === false ? "No" : "—"}</div>
+                </div>
+                {Array.isArray(property.utilities_nearby) && property.utilities_nearby.length > 0 && (
+                  <div className="rounded-xl border border-border bg-card p-3 col-span-2">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Utilities Nearby</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {property.utilities_nearby.map((u: string) => (
+                        <Badge key={u} variant="secondary" className="capitalize">{u}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ===== Description ===== */}
           {property.description && (
             <div className="px-4 md:px-0 mb-5">

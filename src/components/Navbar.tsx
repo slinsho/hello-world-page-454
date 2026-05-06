@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info, Play } from "lucide-react";
 import lpropLogo from "@/assets/lprop-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
+    { path: "/reels", label: "Reels", icon: Play },
     { path: "/blog", label: "News", icon: Newspaper },
     { path: "/about", label: "About", icon: Info, guestOnly: true },
     { path: "/upload", label: "Add", icon: Upload, requiresAuth: true },
@@ -260,7 +261,7 @@ const Navbar = () => {
               </div>
               <div className="h-4 w-px bg-border" />
               <div className="flex gap-2">
-                {["all", "house", "shop", "apartment"].map((filter) => (
+                {["all", "house", "shop", "apartment", "land"].map((filter) => (
                   <Badge
                     key={filter}
                     variant={selectedFilter === filter ? "default" : "secondary"}
@@ -292,6 +293,7 @@ const Navbar = () => {
                           <SelectItem value="house">House</SelectItem>
                           <SelectItem value="apartment">Apartment</SelectItem>
                           <SelectItem value="shop">Shop</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -413,6 +415,7 @@ const Navbar = () => {
                           <SelectItem value="house">House</SelectItem>
                           <SelectItem value="apartment">Apartment</SelectItem>
                           <SelectItem value="shop">Shop</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -467,7 +470,7 @@ const Navbar = () => {
             </form>
 
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {["all", "house", "shop", "apartment"].map((filter) => (
+              {["all", "house", "shop", "apartment", "land"].map((filter) => (
                 <Badge
                   key={filter}
                   variant={selectedFilter === filter ? "default" : "secondary"}

@@ -10,14 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
+import { Home, Building2, Store, Trees, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { z } from "zod";
 import { resizeImage } from "@/lib/imageResize";
+import LandFields, { emptyLandFields, type LandFieldsState } from "@/components/LandFields";
 
 const uploadSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
-  property_type: z.enum(["house", "apartment", "shop"]),
+  property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive("Price must be greater than 0"),
   address: z.string().min(5, "Address must be at least 5 characters").max(500),
@@ -38,9 +39,11 @@ const Upload = () => {
   const [photos, setPhotos] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
   const [agreed, setAgreed] = useState(false);
+  const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
+  const isLand = formData.property_type === "land";
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -103,9 +106,29 @@ const Upload = () => {
     setLoading(true);
     try {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
+      if (isLand) {
+        if (!land.land_size || parseFloat(land.land_size) <= 0) throw new z.ZodError([{ code: "custom", message: "Land size is required", path: ["land_size"] }] as any);
+        if (!land.land_use) throw new z.ZodError([{ code: "custom", message: "Land use is required", path: ["land_use"] }] as any);
+        if (!land.title_deed_status) throw new z.ZodError([{ code: "custom", message: "Title status is required", path: ["title_deed_status"] }] as any);
+      }
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
-      const { error } = await supabase.from("properties").insert([{ owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null, bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null, square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null }]);
+      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
+      if (isLand) {
+        Object.assign(insertPayload, {
+          land_size: parseFloat(land.land_size),
+          land_size_unit: land.land_size_unit,
+          land_use: land.land_use,
+          road_access: land.road_access,
+          title_deed_status: land.title_deed_status,
+          utilities_nearby: land.utilities_nearby,
+          zoning: land.zoning || null,
+          topography: land.topography || null,
+          boundary_marked: land.boundary_marked,
+          nearest_landmark: land.nearest_landmark || null,
+        });
+      }
+      const { error } = await supabase.from("properties").insert([insertPayload]);
       if (error) throw error;
       toast({ title: "Success!", description: "Your property has been listed." }); navigate("/profile");
     } catch (error: any) {
@@ -131,6 +154,7 @@ const Upload = () => {
     { value: "house", label: "House", icon: Home },
     { value: "apartment", label: "Apartment", icon: Building2 },
     { value: "shop", label: "Shop", icon: Store },
+    { value: "land", label: "Land", icon: Trees },
   ];
   const listingTypes = [
     { value: "for_sale", label: "For Sale" },
@@ -153,10 +177,10 @@ const Upload = () => {
           <div className="space-y-5">
             <div>
               <Label className="text-sm font-semibold mb-3 block">Property Type</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {propertyTypes.map(({ value, label, icon: Icon }) => (
-                  <button key={value} type="button" onClick={() => setFormData({ ...formData, property_type: value })} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${formData.property_type === value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-muted-foreground/30"}`}>
-                    <Icon className={`h-6 w-6 ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`} />
+                  <button key={value} type="button" onClick={() => setFormData({ ...formData, property_type: value })} className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${formData.property_type === value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-muted-foreground/30"}`}>
+                    <Icon className={`h-5 w-5 ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-xs font-medium ${formData.property_type === value ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
                   </button>
                 ))}
@@ -178,14 +202,17 @@ const Upload = () => {
                 <Input type="tel" value={formData.contact_phone_2} onChange={(e) => !isOwner && setFormData({ ...formData, contact_phone_2: e.target.value })} maxLength={20} placeholder="Phone 2" className="rounded-xl h-12" readOnly={isOwner} disabled={isOwner} />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Property Details</Label>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="relative"><BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bedrooms} onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })} placeholder="Beds" className="rounded-xl h-12 pl-10" /></div>
-                <div className="relative"><Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bathrooms} onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })} placeholder="Baths" className="rounded-xl h-12 pl-10" /></div>
-                <div className="relative"><Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.square_yards} onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })} placeholder="Sq yd" className="rounded-xl h-12 pl-10" /></div>
+            {!isLand && (
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Property Details</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="relative"><BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bedrooms} onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })} placeholder="Beds" className="rounded-xl h-12 pl-10" /></div>
+                  <div className="relative"><Bath className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.bathrooms} onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })} placeholder="Baths" className="rounded-xl h-12 pl-10" /></div>
+                  <div className="relative"><Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input type="number" min="0" value={formData.square_yards} onChange={(e) => setFormData({ ...formData, square_yards: e.target.value })} placeholder="Sq yd" className="rounded-xl h-12 pl-10" /></div>
+                </div>
               </div>
-            </div>
+            )}
+            {isLand && <LandFields value={land} onChange={setLand} />}
           </div>
 
           {/* Right Column - Media */}

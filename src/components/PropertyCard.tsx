@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, Building2, Store, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
+import { Home, Building2, Store, Trees, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ interface PropertyCardProps {
   property: {
     id: string;
     title: string;
-    property_type: "house" | "apartment" | "shop";
+    property_type: "house" | "apartment" | "shop" | "land";
     listing_type: "for_sale" | "for_rent" | "for_lease";
     price_usd: number;
     address: string;
@@ -50,6 +50,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     house: Home,
     apartment: Building2,
     shop: Store,
+    land: Trees,
   }[property.property_type];
 
   return (
