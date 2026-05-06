@@ -10,10 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
+import { Home, Building2, Store, Trees, Upload as UploadIcon, X, ArrowLeft, Camera, Video, FileText, MapPin, Phone, DollarSign, BedDouble, Bath, Ruler } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { z } from "zod";
 import { resizeImage } from "@/lib/imageResize";
+import LandFields, { emptyLandFields, type LandFieldsState } from "@/components/LandFields";
 
 const uploadSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
