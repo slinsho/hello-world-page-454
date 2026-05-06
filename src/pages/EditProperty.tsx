@@ -35,11 +35,13 @@ const EditProperty = () => {
   const [fetching, setFetching] = useState(true);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
+  const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "",
     address: "", county: "", contact_phone: "", contact_phone_2: "",
     bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
+  const isLand = formData.property_type === "land";
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
