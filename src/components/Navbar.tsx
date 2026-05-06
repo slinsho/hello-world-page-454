@@ -260,7 +260,7 @@ const Navbar = () => {
               </div>
               <div className="h-4 w-px bg-border" />
               <div className="flex gap-2">
-                {["all", "house", "shop", "apartment"].map((filter) => (
+                {["all", "house", "shop", "apartment", "land"].map((filter) => (
                   <Badge
                     key={filter}
                     variant={selectedFilter === filter ? "default" : "secondary"}
@@ -467,7 +467,7 @@ const Navbar = () => {
             </form>
 
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {["all", "house", "shop", "apartment"].map((filter) => (
+              {["all", "house", "shop", "apartment", "land"].map((filter) => (
                 <Badge
                   key={filter}
                   variant={selectedFilter === filter ? "default" : "secondary"}
