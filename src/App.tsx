@@ -45,6 +45,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 const About = lazy(() => import("./pages/About"));
 const Agents = lazy(() => import("./pages/Agents"));
+const Reels = lazy(() => import("./pages/Reels"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
