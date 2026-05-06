@@ -18,7 +18,7 @@ import LandFields, { emptyLandFields, type LandFieldsState } from "@/components/
 
 const uploadSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
-  property_type: z.enum(["house", "apartment", "shop"]),
+  property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive("Price must be greater than 0"),
   address: z.string().min(5, "Address must be at least 5 characters").max(500),
