@@ -106,19 +106,21 @@ const LandFields = ({ value, onChange, errors }: Props) => {
             ))}
           </SelectContent>
         </Select>
+        <Err k="land_use" />
       </div>
 
       {/* Title deed */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Title / Ownership Status</Label>
+        <Label className="text-sm font-semibold">Title / Ownership Status <span className="text-destructive">*</span></Label>
         <Select value={value.title_deed_status} onValueChange={(v) => set("title_deed_status", v)}>
-          <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select status" /></SelectTrigger>
+          <SelectTrigger className={`rounded-xl h-12 ${errClass("title_deed_status")}`}><SelectValue placeholder="Select status" /></SelectTrigger>
           <SelectContent>
             {TITLE_DEED_STATUSES.map((u) => (
               <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <Err k="title_deed_status" />
       </div>
 
       {/* Topography */}
