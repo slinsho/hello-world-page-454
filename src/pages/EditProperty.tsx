@@ -36,6 +36,7 @@ const EditProperty = () => {
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
+  const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "",
     address: "", county: "", contact_phone: "", contact_phone_2: "",
@@ -114,9 +115,16 @@ const EditProperty = () => {
         square_yards: formData.square_yards ? parseInt(formData.square_yards) : null,
       };
       if (isLand) {
-        if (!land.land_size || parseFloat(land.land_size) <= 0) throw new z.ZodError([{ code: "custom", message: "Land size is required", path: ["land_size"] }] as any);
-        if (!land.land_use) throw new z.ZodError([{ code: "custom", message: "Land use is required", path: ["land_use"] }] as any);
-        if (!land.title_deed_status) throw new z.ZodError([{ code: "custom", message: "Title status is required", path: ["title_deed_status"] }] as any);
+        const errs: Partial<Record<keyof LandFieldsState, string>> = {};
+        if (!land.land_size || parseFloat(land.land_size) <= 0) errs.land_size = "Land size is required";
+        if (!land.land_use) errs.land_use = "Land use is required";
+        if (!land.title_deed_status) errs.title_deed_status = "Title status is required";
+        setLandErrors(errs);
+        if (Object.keys(errs).length > 0) {
+          toast({ title: "Land details incomplete", description: "Please fill the highlighted fields.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
         Object.assign(updatePayload, {
           land_size: parseFloat(land.land_size),
           land_size_unit: land.land_size_unit,
@@ -207,7 +215,7 @@ const EditProperty = () => {
                 </div>
               </div>
             )}
-            {isLand && <LandFields value={land} onChange={setLand} />}
+            {isLand && <LandFields value={land} onChange={setLand} errors={landErrors} />}
           </div>
 
           <div className="space-y-5">

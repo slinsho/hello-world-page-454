@@ -40,9 +40,14 @@ export const emptyLandFields = (): LandFieldsState => ({
 interface Props {
   value: LandFieldsState;
   onChange: (next: LandFieldsState) => void;
+  errors?: Partial<Record<keyof LandFieldsState, string>>;
 }
 
-const LandFields = ({ value, onChange }: Props) => {
+const LandFields = ({ value, onChange, errors }: Props) => {
+  const errClass = (k: keyof LandFieldsState) =>
+    errors?.[k] ? "border-destructive focus-visible:ring-destructive" : "";
+  const Err = ({ k }: { k: keyof LandFieldsState }) =>
+    errors?.[k] ? <p className="text-xs text-destructive mt-1">{errors[k]}</p> : null;
   const set = <K extends keyof LandFieldsState>(k: K, v: LandFieldsState[K]) =>
     onChange({ ...value, [k]: v });
 
@@ -66,7 +71,7 @@ const LandFields = ({ value, onChange }: Props) => {
       <div className="space-y-2">
         <Label className="text-sm font-semibold flex items-center gap-2">
           <Ruler className="h-4 w-4 text-muted-foreground" />
-          Land Size
+          Land Size <span className="text-destructive">*</span>
         </Label>
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -76,7 +81,7 @@ const LandFields = ({ value, onChange }: Props) => {
             value={value.land_size}
             onChange={(e) => set("land_size", e.target.value)}
             placeholder="Size"
-            className="rounded-xl h-12"
+            className={`rounded-xl h-12 ${errClass("land_size")}`}
           />
           <Select value={value.land_size_unit} onValueChange={(v) => set("land_size_unit", v)}>
             <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Unit" /></SelectTrigger>
@@ -87,32 +92,35 @@ const LandFields = ({ value, onChange }: Props) => {
             </SelectContent>
           </Select>
         </div>
+        <Err k="land_size" />
       </div>
 
       {/* Land use */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Land Use</Label>
+        <Label className="text-sm font-semibold">Land Use <span className="text-destructive">*</span></Label>
         <Select value={value.land_use} onValueChange={(v) => set("land_use", v)}>
-          <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select use" /></SelectTrigger>
+          <SelectTrigger className={`rounded-xl h-12 ${errClass("land_use")}`}><SelectValue placeholder="Select use" /></SelectTrigger>
           <SelectContent>
             {LAND_USE_OPTIONS.map((u) => (
               <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <Err k="land_use" />
       </div>
 
       {/* Title deed */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Title / Ownership Status</Label>
+        <Label className="text-sm font-semibold">Title / Ownership Status <span className="text-destructive">*</span></Label>
         <Select value={value.title_deed_status} onValueChange={(v) => set("title_deed_status", v)}>
-          <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select status" /></SelectTrigger>
+          <SelectTrigger className={`rounded-xl h-12 ${errClass("title_deed_status")}`}><SelectValue placeholder="Select status" /></SelectTrigger>
           <SelectContent>
             {TITLE_DEED_STATUSES.map((u) => (
               <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <Err k="title_deed_status" />
       </div>
 
       {/* Topography */}

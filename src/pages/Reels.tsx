@@ -78,8 +78,25 @@ const Reels = () => {
         return;
       }
 
+      const isSafeVideoUrl = (u: unknown): u is string => {
+        if (typeof u !== "string" || u.length === 0 || u.length > 2048) return false;
+        try {
+          const parsed = new URL(u);
+          if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+          // Only allow Supabase Storage public URLs to prevent SSRF / arbitrary embeds
+          return /\.supabase\.(co|in)$/i.test(parsed.hostname) && parsed.pathname.includes("/storage/v1/object/public/");
+        } catch {
+          return false;
+        }
+      };
+
       const filtered = (data as any[])
-        .filter((r) => Array.isArray(r.videos) && r.videos.length > 0)
+        .map((r) => ({
+          ...r,
+          videos: Array.isArray(r.videos) ? r.videos.filter(isSafeVideoUrl) : [],
+          photos: Array.isArray(r.photos) ? r.photos.filter((p: unknown) => typeof p === "string") : [],
+        }))
+        .filter((r) => r.videos.length > 0)
         .filter((r) => r.is_promoted || r.profiles?.verification_status === "approved");
 
       const promoted = filtered.filter((r) => r.is_promoted);

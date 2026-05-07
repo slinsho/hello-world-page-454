@@ -498,36 +498,36 @@ const Navbar = () => {
       )}
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background">
-        <div className="flex items-center justify-around h-16 px-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background pb-[env(safe-area-inset-bottom,0)]">
+        <div className="grid grid-flow-col auto-cols-fr items-center h-14">
           {navItems.map((item) => {
             if (item.requiresAuth && !user) return null;
             if ((item as any).guestOnly && user) return null;
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
-              <Button
+              <button
                 key={item.path}
-                variant="ghost"
-                size="sm"
-                className={`flex flex-col items-center gap-1 h-14 px-3 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                type="button"
+                aria-label={item.label}
+                className={`flex flex-col items-center justify-center gap-0.5 h-full min-w-0 px-1 ${isActive ? "text-primary" : "text-muted-foreground"}`}
                 onClick={() => navigate(item.path)}
               >
-                <Icon className="h-5 w-5" />
-                <span className="text-[10px]">{item.label}</span>
-              </Button>
+                <Icon className="h-[18px] w-[18px] shrink-0" />
+                <span className="text-[10px] leading-none truncate max-w-full">{item.label}</span>
+              </button>
             );
           })}
           {!user && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex flex-col items-center gap-1 h-14 px-3 text-muted-foreground"
+            <button
+              type="button"
+              aria-label="Sign In"
+              className="flex flex-col items-center justify-center gap-0.5 h-full min-w-0 px-1 text-muted-foreground"
               onClick={() => navigate("/auth")}
             >
-              <User className="h-5 w-5" />
-              <span className="text-[10px]">Sign In</span>
-            </Button>
+              <User className="h-[18px] w-[18px] shrink-0" />
+              <span className="text-[10px] leading-none truncate max-w-full">Sign In</span>
+            </button>
           )}
         </div>
       </nav>
