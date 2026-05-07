@@ -104,14 +104,24 @@ const Upload = () => {
     if (!agreed) { toast({ title: "Agreement Required", description: "Please agree to the terms.", variant: "destructive" }); return; }
     if (verificationStatus !== "approved") { toast({ title: "Verification Required", description: "You must be verified to upload.", variant: "destructive" }); navigate("/profile"); return; }
     if (photos.length === 0) { toast({ title: "Photos Required", description: "Please upload at least one photo.", variant: "destructive" }); return; }
+
+    if (isLand) {
+      const errs: Partial<Record<keyof LandFieldsState, string>> = {};
+      if (!land.land_size || parseFloat(land.land_size) <= 0) errs.land_size = "Land size is required";
+      if (!land.land_use) errs.land_use = "Land use is required";
+      if (!land.title_deed_status) errs.title_deed_status = "Title status is required";
+      setLandErrors(errs);
+      if (Object.keys(errs).length > 0) {
+        toast({ title: "Land details incomplete", description: "Please fill the highlighted fields.", variant: "destructive" });
+        return;
+      }
+    } else {
+      setLandErrors({});
+    }
+
     setLoading(true);
     try {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
-      if (isLand) {
-        if (!land.land_size || parseFloat(land.land_size) <= 0) throw new z.ZodError([{ code: "custom", message: "Land size is required", path: ["land_size"] }] as any);
-        if (!land.land_use) throw new z.ZodError([{ code: "custom", message: "Land use is required", path: ["land_use"] }] as any);
-        if (!land.title_deed_status) throw new z.ZodError([{ code: "custom", message: "Title status is required", path: ["title_deed_status"] }] as any);
-      }
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
