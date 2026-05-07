@@ -215,7 +215,7 @@ const EditProperty = () => {
                 </div>
               </div>
             )}
-            {isLand && <LandFields value={land} onChange={setLand} />}
+            {isLand && <LandFields value={land} onChange={setLand} errors={landErrors} />}
           </div>
 
           <div className="space-y-5">
