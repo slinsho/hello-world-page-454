@@ -36,6 +36,7 @@ const EditProperty = () => {
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
+  const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "",
     address: "", county: "", contact_phone: "", contact_phone_2: "",
