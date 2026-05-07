@@ -71,7 +71,7 @@ const LandFields = ({ value, onChange, errors }: Props) => {
       <div className="space-y-2">
         <Label className="text-sm font-semibold flex items-center gap-2">
           <Ruler className="h-4 w-4 text-muted-foreground" />
-          Land Size
+          Land Size <span className="text-destructive">*</span>
         </Label>
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -81,7 +81,7 @@ const LandFields = ({ value, onChange, errors }: Props) => {
             value={value.land_size}
             onChange={(e) => set("land_size", e.target.value)}
             placeholder="Size"
-            className="rounded-xl h-12"
+            className={`rounded-xl h-12 ${errClass("land_size")}`}
           />
           <Select value={value.land_size_unit} onValueChange={(v) => set("land_size_unit", v)}>
             <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Unit" /></SelectTrigger>
@@ -92,13 +92,14 @@ const LandFields = ({ value, onChange, errors }: Props) => {
             </SelectContent>
           </Select>
         </div>
+        <Err k="land_size" />
       </div>
 
       {/* Land use */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Land Use</Label>
+        <Label className="text-sm font-semibold">Land Use <span className="text-destructive">*</span></Label>
         <Select value={value.land_use} onValueChange={(v) => set("land_use", v)}>
-          <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select use" /></SelectTrigger>
+          <SelectTrigger className={`rounded-xl h-12 ${errClass("land_use")}`}><SelectValue placeholder="Select use" /></SelectTrigger>
           <SelectContent>
             {LAND_USE_OPTIONS.map((u) => (
               <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
