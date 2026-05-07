@@ -252,6 +252,9 @@ const Upload = () => {
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><Video className="h-4 w-4 text-muted-foreground" />Video <span className="text-muted-foreground font-normal">(Optional, Max 1)</span></Label>
               <p className="text-xs text-muted-foreground">Max 20 seconds · MP4 or MOV · 10MB max</p>
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
+                <strong className="font-semibold">Note:</strong> Your video will only appear in the public Reels feed if your listing is <strong>promoted</strong> or your account is a <strong>verified agent</strong>. Otherwise it will only show on the property detail page.
+              </div>
               <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center bg-card">
                 <input type="file" accept="video/mp4,video/quicktime" onChange={handleVideoChange} className="hidden" id="video-upload" disabled={videos.length >= 1} />
                 <label htmlFor="video-upload" className="cursor-pointer flex flex-col items-center gap-2"><div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center"><Video className="h-6 w-6 text-primary" /></div><span className="text-sm text-muted-foreground">Tap to add video</span></label>
