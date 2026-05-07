@@ -40,9 +40,14 @@ export const emptyLandFields = (): LandFieldsState => ({
 interface Props {
   value: LandFieldsState;
   onChange: (next: LandFieldsState) => void;
+  errors?: Partial<Record<keyof LandFieldsState, string>>;
 }
 
-const LandFields = ({ value, onChange }: Props) => {
+const LandFields = ({ value, onChange, errors }: Props) => {
+  const errClass = (k: keyof LandFieldsState) =>
+    errors?.[k] ? "border-destructive focus-visible:ring-destructive" : "";
+  const Err = ({ k }: { k: keyof LandFieldsState }) =>
+    errors?.[k] ? <p className="text-xs text-destructive mt-1">{errors[k]}</p> : null;
   const set = <K extends keyof LandFieldsState>(k: K, v: LandFieldsState[K]) =>
     onChange({ ...value, [k]: v });
 
