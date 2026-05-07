@@ -223,7 +223,7 @@ const Upload = () => {
                 </div>
               </div>
             )}
-            {isLand && <LandFields value={land} onChange={setLand} />}
+            {isLand && <LandFields value={land} onChange={setLand} errors={landErrors} />}
           </div>
 
           {/* Right Column - Media */}
