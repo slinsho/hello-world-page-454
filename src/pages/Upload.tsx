@@ -40,6 +40,7 @@ const Upload = () => {
   const [videos, setVideos] = useState<File[]>([]);
   const [agreed, setAgreed] = useState(false);
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
+  const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
