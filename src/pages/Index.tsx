@@ -11,6 +11,7 @@ import { HomepageBanners } from "@/components/HomepageBanners";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import MarketTrends from "@/components/MarketTrends";
 import PopularAreas from "@/components/PopularAreas";
+import LazyOnVisible from "@/components/LazyOnVisible";
 import { SEOHead } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -243,11 +244,13 @@ const Index = () => {
                   ))}
                 </div>
 
-                {/* Market Analytics Section */}
-                <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <MarketTrends />
-                  <PopularAreas />
-                </div>
+                {/* Market Analytics Section (deferred until visible) */}
+                <LazyOnVisible minHeight={320} className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <MarketTrends />
+                    <PopularAreas />
+                  </div>
+                </LazyOnVisible>
 
                 {/* Remaining after analytics */}
                 {remainingProperties.length > 6 && (

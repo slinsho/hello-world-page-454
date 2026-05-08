@@ -13,6 +13,7 @@ import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import RecommendedProperties from "@/components/RecommendedProperties";
+import LazyOnVisible from "@/components/LazyOnVisible";
 import { PropertyInquiryForm } from "@/components/PropertyInquiryForm";
 import { MakeOfferForm } from "@/components/MakeOfferForm";
 import { UserReviews } from "@/components/UserReviews";
@@ -484,7 +485,9 @@ const PropertyDetail = () => {
           )}
 
           <div className="px-4 md:px-0">
-            <RecommendedProperties currentPropertyId={property.id} county={property.county} propertyType={property.property_type} />
+            <LazyOnVisible minHeight={400} rootMargin="400px">
+              <RecommendedProperties currentPropertyId={property.id} county={property.county} propertyType={property.property_type} />
+            </LazyOnVisible>
           </div>
         </div>
 
