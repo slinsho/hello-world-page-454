@@ -148,7 +148,7 @@ const Explore = () => {
               <div className="text-center py-12"><p className="text-muted-foreground">No properties match your criteria.</p></div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {properties.map((property) => (<PropertyCard key={property.id} property={property} />))}
+                {properties.map((property, i) => (<PropertyCard key={property.id} property={property} priority={i < 2} />))}
               </div>
             )}
           </div>
