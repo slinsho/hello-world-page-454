@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Home, Building2, Store, Trees, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -204,4 +205,10 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
   );
 };
 
-export default PropertyCard;
+export default memo(PropertyCard, (prev, next) =>
+  prev.property.id === next.property.id &&
+  prev.property.status === next.property.status &&
+  prev.property.price_usd === next.property.price_usd &&
+  prev.property.photos[0] === next.property.photos[0] &&
+  prev.priority === next.priority
+);
