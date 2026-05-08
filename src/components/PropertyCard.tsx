@@ -37,9 +37,11 @@ interface PropertyCardProps {
         agency_logo?: string | null;
       } | null;
     };
+  /** When true, this card is above-the-fold and should load eagerly. */
+  priority?: boolean;
 }
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
   const { preferences } = useUserPreferences();
@@ -60,8 +62,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <img
             src={property.photos[0]}
             alt={property.title}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
             decoding="async"
+            // @ts-expect-error - fetchpriority is a valid HTML attr not yet in React types
+            fetchpriority={priority ? "high" : "low"}
+            width={640}
+            height={420}
             className="w-full h-full object-cover"
           />
         ) : (
