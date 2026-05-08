@@ -197,8 +197,8 @@ const Index = () => {
           <>
             {/* First batch of properties */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {firstTwoProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+              {firstTwoProperties.map((property, i) => (
+                <PropertyCard key={property.id} property={property} priority={i < 2} />
               ))}
             </div>
 

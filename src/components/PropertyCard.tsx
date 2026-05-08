@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Home, Building2, Store, Trees, MapPin, Bed, Bath, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -37,9 +38,11 @@ interface PropertyCardProps {
         agency_logo?: string | null;
       } | null;
     };
+  /** When true, this card is above-the-fold and should load eagerly. */
+  priority?: boolean;
 }
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
   const { preferences } = useUserPreferences();
@@ -60,8 +63,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <img
             src={property.photos[0]}
             alt={property.title}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
             decoding="async"
+            // @ts-expect-error - fetchpriority is a valid HTML attr not yet in React types
+            fetchpriority={priority ? "high" : "low"}
+            width={640}
+            height={420}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -198,4 +205,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   );
 };
 
-export default PropertyCard;
+export default memo(PropertyCard, (prev, next) =>
+  prev.property.id === next.property.id &&
+  prev.property.status === next.property.status &&
+  prev.property.price_usd === next.property.price_usd &&
+  prev.property.photos[0] === next.property.photos[0] &&
+  prev.priority === next.priority
+);
