@@ -475,14 +475,61 @@ const Navbar = () => {
             </div>
 
             <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1" ref={mobileSearchRef}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search properties..."
-                  className="pl-10 bg-card border-border rounded-xl h-11"
+                  className="pl-10 pr-9 bg-card border-border rounded-xl h-11"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                {searchFocused && recents.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-popover border border-border rounded-xl shadow-lg overflow-hidden z-50">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                      <span className="text-xs font-medium text-muted-foreground">Recent searches</span>
+                      <button
+                        type="button"
+                        onClick={clearRecents}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                    <ul className="max-h-64 overflow-y-auto">
+                      {recents.map((term) => (
+                        <li key={term} className="flex items-center justify-between px-3 py-2 hover:bg-accent/10">
+                          <button
+                            type="button"
+                            onClick={() => runSearch(term)}
+                            className="flex items-center gap-2 flex-1 text-left text-sm text-foreground"
+                          >
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="truncate">{term}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeRecent(term)}
+                            aria-label={`Remove ${term}`}
+                            className="text-muted-foreground hover:text-foreground p-1"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
                 <SheetTrigger asChild>
