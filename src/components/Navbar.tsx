@@ -46,6 +46,27 @@ const Navbar = () => {
   const [countyFilter, setCountyFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+
+  const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingQuery, setLoadingQuery] = useState("");
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (
+        !desktopSearchRef.current?.contains(t) &&
+        !mobileSearchRef.current?.contains(t)
+      ) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
