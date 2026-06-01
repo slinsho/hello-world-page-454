@@ -218,7 +218,7 @@ const Navbar = () => {
   return (
     <>
       <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
-      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} />
+      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} />}
 
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
