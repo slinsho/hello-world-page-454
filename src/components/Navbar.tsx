@@ -155,19 +155,38 @@ const Navbar = () => {
     }
   };
 
+  const runSearch = (term: string) => {
+    const q = term.trim();
+    setSearchQuery(q);
+    setSearchFocused(false);
+    if (q) addRecent(q);
+
+    const target = (() => {
+      if (location.pathname === "/") {
+        const params = new URLSearchParams(window.location.search);
+        if (q) params.set("search", q);
+        else params.delete("search");
+        return `/?${params.toString()}`;
+      }
+      return q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
+    })();
+
+    if (!q) {
+      navigate(target);
+      return;
+    }
+
+    setLoadingQuery(q);
+    setLoadingSearch(true);
+    window.setTimeout(() => {
+      navigate(target);
+      setLoadingSearch(false);
+    }, 4000);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (location.pathname === "/") {
-      const params = new URLSearchParams(window.location.search);
-      if (searchQuery) {
-        params.set("search", searchQuery);
-      } else {
-        params.delete("search");
-      }
-      navigate(`/?${params.toString()}`);
-    } else {
-      navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
-    }
+    runSearch(searchQuery);
   };
 
   const handleFilterChange = (filter: string) => {
