@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useRecentSearches } from "@/hooks/useRecentSearches";
 import PropertyCard from "@/components/PropertyCard";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, Clock, X } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 
