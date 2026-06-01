@@ -1,12 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info, Play } from "lucide-react";
+import { Home, Search, Upload, User, Bell, MapPin, SlidersHorizontal, Navigation, Heart, Newspaper, MessageCircle, BarChart3, Info, Play, Clock, X } from "lucide-react";
 import lpropLogo from "@/assets/lprop-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecentSearches } from "@/hooks/useRecentSearches";
+import SearchLoadingOverlay from "@/components/SearchLoadingOverlay";
 import {
   Sheet,
   SheetContent,
@@ -44,6 +46,27 @@ const Navbar = () => {
   const [countyFilter, setCountyFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+
+  const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingQuery, setLoadingQuery] = useState("");
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (
+        !desktopSearchRef.current?.contains(t) &&
+        !mobileSearchRef.current?.contains(t)
+      ) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -132,19 +155,38 @@ const Navbar = () => {
     }
   };
 
+  const runSearch = (term: string) => {
+    const q = term.trim();
+    setSearchQuery(q);
+    setSearchFocused(false);
+    if (q) addRecent(q);
+
+    const target = (() => {
+      if (location.pathname === "/") {
+        const params = new URLSearchParams(window.location.search);
+        if (q) params.set("search", q);
+        else params.delete("search");
+        return `/?${params.toString()}`;
+      }
+      return q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
+    })();
+
+    if (!q) {
+      navigate(target);
+      return;
+    }
+
+    setLoadingQuery(q);
+    setLoadingSearch(true);
+    window.setTimeout(() => {
+      navigate(target);
+      setLoadingSearch(false);
+    }, 4000);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (location.pathname === "/") {
-      const params = new URLSearchParams(window.location.search);
-      if (searchQuery) {
-        params.set("search", searchQuery);
-      } else {
-        params.delete("search");
-      }
-      navigate(`/?${params.toString()}`);
-    } else {
-      navigate(`/explore?search=${encodeURIComponent(searchQuery)}`);
-    }
+    runSearch(searchQuery);
   };
 
   const handleFilterChange = (filter: string) => {
@@ -176,6 +218,7 @@ const Navbar = () => {
   return (
     <>
       <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
+      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} />}
 
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -188,14 +231,61 @@ const Navbar = () => {
 
           {/* Desktop Search */}
           <form onSubmit={handleSearch} className="flex-1 max-w-xl">
-            <div className="relative">
+            <div className="relative" ref={desktopSearchRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search properties..."
-                className="pl-10 bg-card border-border rounded-full h-10"
+                className="pl-10 pr-9 bg-card border-border rounded-full h-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              {searchFocused && recents.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-2 bg-popover border border-border rounded-xl shadow-lg overflow-hidden z-50">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                    <span className="text-xs font-medium text-muted-foreground">Recent searches</span>
+                    <button
+                      type="button"
+                      onClick={clearRecents}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <ul className="max-h-64 overflow-y-auto">
+                    {recents.map((term) => (
+                      <li key={term} className="flex items-center justify-between px-3 py-2 hover:bg-accent/10">
+                        <button
+                          type="button"
+                          onClick={() => runSearch(term)}
+                          className="flex items-center gap-2 flex-1 text-left text-sm text-foreground"
+                        >
+                          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="truncate">{term}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeRecent(term)}
+                          aria-label={`Remove ${term}`}
+                          className="text-muted-foreground hover:text-foreground p-1"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </form>
 
@@ -386,14 +476,61 @@ const Navbar = () => {
             </div>
 
             <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1" ref={mobileSearchRef}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search properties..."
-                  className="pl-10 bg-card border-border rounded-xl h-11"
+                  className="pl-10 pr-9 bg-card border-border rounded-xl h-11"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                {searchFocused && recents.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-popover border border-border rounded-xl shadow-lg overflow-hidden z-50">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                      <span className="text-xs font-medium text-muted-foreground">Recent searches</span>
+                      <button
+                        type="button"
+                        onClick={clearRecents}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                    <ul className="max-h-64 overflow-y-auto">
+                      {recents.map((term) => (
+                        <li key={term} className="flex items-center justify-between px-3 py-2 hover:bg-accent/10">
+                          <button
+                            type="button"
+                            onClick={() => runSearch(term)}
+                            className="flex items-center gap-2 flex-1 text-left text-sm text-foreground"
+                          >
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="truncate">{term}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeRecent(term)}
+                            aria-label={`Remove ${term}`}
+                            className="text-muted-foreground hover:text-foreground p-1"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
                 <SheetTrigger asChild>
