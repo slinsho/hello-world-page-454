@@ -61,11 +61,7 @@ const Reels = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("properties")
-        .select(`
-          id, title, property_type, listing_type, price_usd, address, county,
-          videos, photos, bedrooms, bathrooms, contact_phone, is_promoted, owner_id,
-          profiles:owner_id ( name, role, profile_photo_url, verification_status )
-        `)
+        .select(`id, title, property_type, listing_type, price_usd, address, county, videos, photos, bedrooms, bathrooms, contact_phone, is_promoted, owner_id`)
         .eq("status", "active")
         .not("videos", "is", null)
         .order("is_promoted", { ascending: false })
@@ -82,21 +78,34 @@ const Reels = () => {
         if (typeof u !== "string" || u.length === 0 || u.length > 2048) return false;
         try {
           const parsed = new URL(u);
-          if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
-          // Only allow Supabase Storage public URLs to prevent SSRF / arbitrary embeds
+          if (parsed.protocol !== "https:") return false;
           return /\.supabase\.(co|in)$/i.test(parsed.hostname) && parsed.pathname.includes("/storage/v1/object/public/");
         } catch {
           return false;
         }
       };
 
-      const filtered = (data as any[])
+      const withSafeMedia = (data as any[])
         .map((r) => ({
           ...r,
           videos: Array.isArray(r.videos) ? r.videos.filter(isSafeVideoUrl) : [],
           photos: Array.isArray(r.photos) ? r.photos.filter((p: unknown) => typeof p === "string") : [],
         }))
-        .filter((r) => r.videos.length > 0)
+        .filter((r) => r.videos.length > 0);
+
+      // Fetch profiles separately (no embedded FK relationship configured)
+      const ownerIds = [...new Set(withSafeMedia.map((r) => r.owner_id))];
+      let profilesMap = new Map<string, any>();
+      if (ownerIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, name, role, profile_photo_url, verification_status")
+          .in("id", ownerIds);
+        profilesMap = new Map((profilesData || []).map((p: any) => [p.id, p]));
+      }
+
+      const filtered = withSafeMedia
+        .map((r) => ({ ...r, profiles: profilesMap.get(r.owner_id) || null }))
         .filter((r) => r.is_promoted || r.profiles?.verification_status === "approved");
 
       const promoted = filtered.filter((r) => r.is_promoted);

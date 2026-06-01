@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useRecentSearches } from "@/hooks/useRecentSearches";
 import PropertyCard from "@/components/PropertyCard";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
@@ -9,15 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, Clock, X } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
+  const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [showRecents, setShowRecents] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
@@ -40,6 +45,18 @@ const Explore = () => {
   }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
 
   useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
+
+  // Close recent searches dropdown when clicking outside
+  useEffect(() => {
+    if (!showRecents) return;
+    const onDown = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setShowRecents(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [showRecents]);
 
   const fetchProperties = async () => {
     setLoading(true);
@@ -107,9 +124,78 @@ const Explore = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Explore Properties</h1>
           
           <div className="flex gap-2 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search properties..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
+            <div className="relative flex-1" ref={searchWrapRef}>
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10" />
+              <Input
+                placeholder="Search properties..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onFocus={() => setShowRecents(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const v = searchInput.trim();
+                    setSearchQuery(v);
+                    if (v) addRecent(v);
+                    setShowRecents(false);
+                  } else if (e.key === "Escape") {
+                    setShowRecents(false);
+                  }
+                }}
+                className="pl-9 pr-9"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() => { setSearchInput(""); setSearchQuery(""); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              {showRecents && recents.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-2 z-30 bg-popover border border-border rounded-xl shadow-lg overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                    <span className="text-xs font-medium text-muted-foreground">Recent searches</span>
+                    <button
+                      type="button"
+                      onClick={clearRecents}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <ul className="max-h-64 overflow-y-auto">
+                    {recents
+                      .filter((r) => !searchInput || r.toLowerCase().includes(searchInput.toLowerCase()))
+                      .map((r) => (
+                        <li key={r} className="flex items-center group hover:bg-muted">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSearchInput(r);
+                              setSearchQuery(r);
+                              addRecent(r);
+                              setShowRecents(false);
+                            }}
+                            className="flex-1 flex items-center gap-2 px-3 py-2 text-sm text-left"
+                          >
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="truncate">{r}</span>
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${r}`}
+                            onClick={(e) => { e.stopPropagation(); removeRecent(r); }}
+                            className="px-2 py-2 text-muted-foreground opacity-60 hover:opacity-100"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
             </div>
             
             {/* Mobile filter trigger */}
