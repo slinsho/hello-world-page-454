@@ -16,9 +16,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
+  const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [showRecents, setShowRecents] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
