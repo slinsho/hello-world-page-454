@@ -46,6 +46,18 @@ const Explore = () => {
 
   useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
 
+  // Close recent searches dropdown when clicking outside
+  useEffect(() => {
+    if (!showRecents) return;
+    const onDown = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setShowRecents(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [showRecents]);
+
   const fetchProperties = async () => {
     setLoading(true);
     let query = supabase.from("properties").select("*").eq("status", "active").order("is_promoted", { ascending: false });
