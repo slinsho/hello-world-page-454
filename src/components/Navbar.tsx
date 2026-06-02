@@ -53,6 +53,14 @@ const Navbar = () => {
   const [loadingQuery, setLoadingQuery] = useState("");
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const searchTimerRef = useRef<number | null>(null);
+
+  const clearSearchTimer = () => {
+    if (searchTimerRef.current !== null) {
+      window.clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = null;
+    }
+  };
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -67,6 +75,13 @@ const Navbar = () => {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+
+  // Cancel pending search overlay on unmount / route change
+  useEffect(() => () => clearSearchTimer(), []);
+  useEffect(() => {
+    clearSearchTimer();
+    setLoadingSearch(false);
+  }, [location.pathname]);
   
   const navItems = [
     { path: "/", label: "Home", icon: Home },
