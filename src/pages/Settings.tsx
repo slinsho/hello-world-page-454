@@ -12,10 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ChevronLeft, ChevronRight, User, Bell, Shield, SlidersHorizontal, 
   LayoutList, HelpCircle, FileText, LogOut, Mail, Phone, MapPin,
-  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2
+  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2, ShieldCheck
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 
@@ -33,6 +35,9 @@ const Settings = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
@@ -187,29 +192,30 @@ const Settings = () => {
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    const confirmed = confirm("Are you sure? This will PERMANENTLY delete your account, all properties, and data. This cannot be undone.");
-    if (!confirmed) return;
-    const doubleConfirm = confirm("This is your last chance. Type YES in the next prompt to confirm deletion.");
-    if (!doubleConfirm) return;
-
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") {
+      toast({ title: "Confirmation required", description: "Type DELETE to confirm.", variant: "destructive" });
+      return;
+    }
+    setDeletingAccount(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({ title: "Error", description: "Please sign in again to delete your account", variant: "destructive" });
+        setDeletingAccount(false);
         return;
       }
 
-      // First delete user's properties
       await supabase.from("properties").delete().eq("owner_id", user.id);
-      
-      // Delete profile and sign out
       await supabase.from("profiles").delete().eq("id", user.id);
       await supabase.auth.signOut();
-      
+
       toast({ title: "Account Deleted", description: "Your account has been permanently deleted." });
+      setDeleteOpen(false);
       navigate("/");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to delete account", variant: "destructive" });
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
