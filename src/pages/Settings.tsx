@@ -268,12 +268,39 @@ const Settings = () => {
 
   // Main menu
   if (section === "main") {
+    const verified = profile.verification_status === "approved";
     return (
       <div className="min-h-screen bg-background pb-24 md:pb-8">
         <Navbar />
         <div className="max-w-lg mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold mb-6">Settings</h1>
-          
+          <h1 className="text-2xl font-bold mb-4">Settings</h1>
+
+          {/* Profile header card */}
+          <button
+            onClick={() => navigate(`/profile/${user?.id}`)}
+            className="w-full mb-5 bg-gradient-to-br from-primary/15 to-card border border-border/50 rounded-2xl p-4 flex items-center gap-4 hover:from-primary/20 transition-colors text-left"
+          >
+            <Avatar className="h-14 w-14 border-2 border-primary/30">
+              <AvatarImage src={profile.profile_photo_url || undefined} />
+              <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                {profile.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="font-semibold truncate">{profile.name || "User"}</p>
+                {verified && (
+                  <ShieldCheck className={`h-4 w-4 shrink-0 ${isAgent ? "text-blue-500" : "text-green-500"}`} />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+              <p className="text-[11px] text-primary mt-0.5 font-medium">
+                {isAgent ? "Verified Agent" : verified ? "Verified Owner" : "View profile"}
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+          </button>
+
           <div className="bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
             <MenuItem icon={User} label="Account Setting" onClick={() => setSection("account")} />
             <MenuItem icon={Bell} label="Notification Setting" onClick={() => setSection("notifications")} />
@@ -296,6 +323,7 @@ const Settings = () => {
       </div>
     );
   }
+
 
   // Account Setting
   if (section === "account") {
