@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft, Heart, MessageCircle, Share2, MapPin, Bed, Bath,
-  Volume2, VolumeX, Play, ShieldCheck, Sparkles, Trees,
+  Volume2, VolumeX, Play, ShieldCheck, Sparkles, Trees, Eye,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -49,11 +49,14 @@ const Reels = () => {
   const showLRD = preferences.currency_display === "lrd";
 
   const [reels, setReels] = useState<Reel[]>([]);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [activeIdx, setActiveIdx] = useState(0);
   const [muted, setMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const viewTimerRef = useRef<number | null>(null);
+  const viewedIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
