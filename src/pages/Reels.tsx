@@ -299,6 +299,16 @@ const Reels = () => {
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
 
                 <div className="absolute right-3 bottom-28 flex flex-col items-center gap-5 z-20">
+                  <div className="flex flex-col items-center gap-1 text-white">
+                    <div className="h-11 w-11 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+                      <Eye className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] tabular-nums">
+                      {(viewCounts[reel.id] || 0) >= 1000
+                        ? `${((viewCounts[reel.id] || 0) / 1000).toFixed(1)}k`
+                        : viewCounts[reel.id] || 0}
+                    </span>
+                  </div>
                   <button
                     onClick={() => handleFavorite(reel.id)}
                     className="flex flex-col items-center gap-1 text-white"
