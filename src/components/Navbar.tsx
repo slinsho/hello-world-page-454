@@ -147,10 +147,12 @@ const Navbar = () => {
   };
 
   const fetchUnreadCount = async () => {
+    if (!user) return;
     try {
       const { count } = await supabase
         .from("notifications")
         .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
         .eq("is_read", false);
       setUnreadCount(count || 0);
     } catch (error) {
@@ -191,12 +193,20 @@ const Navbar = () => {
       return;
     }
 
+    clearSearchTimer();
     setLoadingQuery(q);
     setLoadingSearch(true);
-    window.setTimeout(() => {
+    // Brief branded splash, then navigate. Page-level fetch handles its own loading.
+    searchTimerRef.current = window.setTimeout(() => {
       navigate(target);
       setLoadingSearch(false);
-    }, 4000);
+      searchTimerRef.current = null;
+    }, 800);
+  };
+
+  const cancelSearch = () => {
+    clearSearchTimer();
+    setLoadingSearch(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -233,7 +243,7 @@ const Navbar = () => {
   return (
     <>
       <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
-      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} />}
+      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} onCancel={cancelSearch} />}
 
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
