@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft, Heart, MessageCircle, Share2, MapPin, Bed, Bath,
-  Volume2, VolumeX, Play, ShieldCheck, Sparkles, Trees,
+  Volume2, VolumeX, Play, ShieldCheck, Sparkles, Trees, Eye,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -49,11 +49,14 @@ const Reels = () => {
   const showLRD = preferences.currency_display === "lrd";
 
   const [reels, setReels] = useState<Reel[]>([]);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [activeIdx, setActiveIdx] = useState(0);
   const [muted, setMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const viewTimerRef = useRef<number | null>(null);
+  const viewedIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -115,11 +118,53 @@ const Reels = () => {
       if (!cancelled) {
         setReels(finalList);
         setLoading(false);
+
+        // Fetch view counts for all reels in one batch
+        if (finalList.length > 0) {
+          const ids = finalList.map((r) => r.id);
+          const { data: viewData } = await supabase
+            .from("property_views")
+            .select("property_id")
+            .in("property_id", ids);
+          if (!cancelled && viewData) {
+            const counts: Record<string, number> = {};
+            viewData.forEach((v: any) => {
+              counts[v.property_id] = (counts[v.property_id] || 0) + 1;
+            });
+            setViewCounts(counts);
+          }
+        }
       }
     };
     load();
     return () => { cancelled = true; };
   }, []);
+
+  // Log a view once per reel after 2s of active playback
+  useEffect(() => {
+    if (viewTimerRef.current) {
+      window.clearTimeout(viewTimerRef.current);
+      viewTimerRef.current = null;
+    }
+    const reel = reels[activeIdx];
+    if (!reel || viewedIdsRef.current.has(reel.id)) return;
+    viewTimerRef.current = window.setTimeout(async () => {
+      viewedIdsRef.current.add(reel.id);
+      try {
+        await supabase.from("property_views").insert({
+          property_id: reel.id,
+          viewer_id: user?.id ?? null,
+        });
+        setViewCounts((prev) => ({ ...prev, [reel.id]: (prev[reel.id] || 0) + 1 }));
+      } catch {/* ignore */}
+    }, 2000);
+    return () => {
+      if (viewTimerRef.current) {
+        window.clearTimeout(viewTimerRef.current);
+        viewTimerRef.current = null;
+      }
+    };
+  }, [activeIdx, reels, user?.id]);
 
   useEffect(() => {
     if (!containerRef.current || reels.length === 0) return;
@@ -254,6 +299,16 @@ const Reels = () => {
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
 
                 <div className="absolute right-3 bottom-28 flex flex-col items-center gap-5 z-20">
+                  <div className="flex flex-col items-center gap-1 text-white">
+                    <div className="h-11 w-11 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+                      <Eye className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] tabular-nums">
+                      {(viewCounts[reel.id] || 0) >= 1000
+                        ? `${((viewCounts[reel.id] || 0) / 1000).toFixed(1)}k`
+                        : viewCounts[reel.id] || 0}
+                    </span>
+                  </div>
                   <button
                     onClick={() => handleFavorite(reel.id)}
                     className="flex flex-col items-center gap-1 text-white"

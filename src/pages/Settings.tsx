@@ -12,10 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ChevronLeft, ChevronRight, User, Bell, Shield, SlidersHorizontal, 
   LayoutList, HelpCircle, FileText, LogOut, Mail, Phone, MapPin,
-  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2
+  Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2, ShieldCheck
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 
@@ -33,6 +35,9 @@ const Settings = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
@@ -187,29 +192,30 @@ const Settings = () => {
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    const confirmed = confirm("Are you sure? This will PERMANENTLY delete your account, all properties, and data. This cannot be undone.");
-    if (!confirmed) return;
-    const doubleConfirm = confirm("This is your last chance. Type YES in the next prompt to confirm deletion.");
-    if (!doubleConfirm) return;
-
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") {
+      toast({ title: "Confirmation required", description: "Type DELETE to confirm.", variant: "destructive" });
+      return;
+    }
+    setDeletingAccount(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({ title: "Error", description: "Please sign in again to delete your account", variant: "destructive" });
+        setDeletingAccount(false);
         return;
       }
 
-      // First delete user's properties
       await supabase.from("properties").delete().eq("owner_id", user.id);
-      
-      // Delete profile and sign out
       await supabase.from("profiles").delete().eq("id", user.id);
       await supabase.auth.signOut();
-      
+
       toast({ title: "Account Deleted", description: "Your account has been permanently deleted." });
+      setDeleteOpen(false);
       navigate("/");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to delete account", variant: "destructive" });
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -262,12 +268,39 @@ const Settings = () => {
 
   // Main menu
   if (section === "main") {
+    const verified = profile.verification_status === "approved";
     return (
       <div className="min-h-screen bg-background pb-24 md:pb-8">
         <Navbar />
         <div className="max-w-lg mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold mb-6">Settings</h1>
-          
+          <h1 className="text-2xl font-bold mb-4">Settings</h1>
+
+          {/* Profile header card */}
+          <button
+            onClick={() => navigate(`/profile/${user?.id}`)}
+            className="w-full mb-5 bg-gradient-to-br from-primary/15 to-card border border-border/50 rounded-2xl p-4 flex items-center gap-4 hover:from-primary/20 transition-colors text-left"
+          >
+            <Avatar className="h-14 w-14 border-2 border-primary/30">
+              <AvatarImage src={profile.profile_photo_url || undefined} />
+              <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                {profile.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="font-semibold truncate">{profile.name || "User"}</p>
+                {verified && (
+                  <ShieldCheck className={`h-4 w-4 shrink-0 ${isAgent ? "text-blue-500" : "text-green-500"}`} />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+              <p className="text-[11px] text-primary mt-0.5 font-medium">
+                {isAgent ? "Verified Agent" : verified ? "Verified Owner" : "View profile"}
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+          </button>
+
           <div className="bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
             <MenuItem icon={User} label="Account Setting" onClick={() => setSection("account")} />
             <MenuItem icon={Bell} label="Notification Setting" onClick={() => setSection("notifications")} />
@@ -290,6 +323,7 @@ const Settings = () => {
       </div>
     );
   }
+
 
   // Account Setting
   if (section === "account") {
@@ -425,10 +459,40 @@ const Settings = () => {
             <div className="bg-card rounded-2xl border border-destructive/30 p-4 space-y-2">
               <h3 className="text-sm font-semibold text-destructive">Danger Zone</h3>
               <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data.</p>
-              <Button variant="destructive" onClick={handleDeleteAccount} className="w-full rounded-xl" size="sm">
+              <Button variant="destructive" onClick={() => { setDeleteConfirmText(""); setDeleteOpen(true); }} className="w-full rounded-xl" size="sm">
                 <Trash2 className="h-4 w-4 mr-2" />Delete Account
               </Button>
             </div>
+
+            <AlertDialog open={deleteOpen} onOpenChange={(o) => { if (!deletingAccount) setDeleteOpen(o); }}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-destructive">Delete account permanently?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action <strong>cannot be undone</strong>. All your properties, profile, messages, and data will be permanently deleted.
+                    <br /><br />
+                    Type <strong>DELETE</strong> below to confirm.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE"
+                  className="rounded-xl"
+                  autoFocus
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deletingAccount}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+                    disabled={deletingAccount || deleteConfirmText.trim().toUpperCase() !== "DELETE"}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deletingAccount ? "Deleting..." : "Delete forever"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
