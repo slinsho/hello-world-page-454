@@ -118,11 +118,53 @@ const Reels = () => {
       if (!cancelled) {
         setReels(finalList);
         setLoading(false);
+
+        // Fetch view counts for all reels in one batch
+        if (finalList.length > 0) {
+          const ids = finalList.map((r) => r.id);
+          const { data: viewData } = await supabase
+            .from("property_views")
+            .select("property_id")
+            .in("property_id", ids);
+          if (!cancelled && viewData) {
+            const counts: Record<string, number> = {};
+            viewData.forEach((v: any) => {
+              counts[v.property_id] = (counts[v.property_id] || 0) + 1;
+            });
+            setViewCounts(counts);
+          }
+        }
       }
     };
     load();
     return () => { cancelled = true; };
   }, []);
+
+  // Log a view once per reel after 2s of active playback
+  useEffect(() => {
+    if (viewTimerRef.current) {
+      window.clearTimeout(viewTimerRef.current);
+      viewTimerRef.current = null;
+    }
+    const reel = reels[activeIdx];
+    if (!reel || viewedIdsRef.current.has(reel.id)) return;
+    viewTimerRef.current = window.setTimeout(async () => {
+      viewedIdsRef.current.add(reel.id);
+      try {
+        await supabase.from("property_views").insert({
+          property_id: reel.id,
+          viewer_id: user?.id ?? null,
+        });
+        setViewCounts((prev) => ({ ...prev, [reel.id]: (prev[reel.id] || 0) + 1 }));
+      } catch {/* ignore */}
+    }, 2000);
+    return () => {
+      if (viewTimerRef.current) {
+        window.clearTimeout(viewTimerRef.current);
+        viewTimerRef.current = null;
+      }
+    };
+  }, [activeIdx, reels, user?.id]);
 
   useEffect(() => {
     if (!containerRef.current || reels.length === 0) return;
