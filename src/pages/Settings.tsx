@@ -459,10 +459,40 @@ const Settings = () => {
             <div className="bg-card rounded-2xl border border-destructive/30 p-4 space-y-2">
               <h3 className="text-sm font-semibold text-destructive">Danger Zone</h3>
               <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data.</p>
-              <Button variant="destructive" onClick={handleDeleteAccount} className="w-full rounded-xl" size="sm">
+              <Button variant="destructive" onClick={() => { setDeleteConfirmText(""); setDeleteOpen(true); }} className="w-full rounded-xl" size="sm">
                 <Trash2 className="h-4 w-4 mr-2" />Delete Account
               </Button>
             </div>
+
+            <AlertDialog open={deleteOpen} onOpenChange={(o) => { if (!deletingAccount) setDeleteOpen(o); }}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-destructive">Delete account permanently?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action <strong>cannot be undone</strong>. All your properties, profile, messages, and data will be permanently deleted.
+                    <br /><br />
+                    Type <strong>DELETE</strong> below to confirm.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE"
+                  className="rounded-xl"
+                  autoFocus
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deletingAccount}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+                    disabled={deletingAccount || deleteConfirmText.trim().toUpperCase() !== "DELETE"}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deletingAccount ? "Deleting..." : "Delete forever"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
