@@ -1238,7 +1238,6 @@ export type Database = {
       }
       public_profiles: {
         Row: {
-          address: string | null
           bio: string | null
           county: string | null
           cover_photo_url: string | null
@@ -1252,12 +1251,12 @@ export type Database = {
           social_linkedin: string | null
           social_twitter: string | null
           social_whatsapp: string | null
+          updated_at: string | null
           verification_status:
             | Database["public"]["Enums"]["verification_status"]
             | null
         }
         Insert: {
-          address?: string | null
           bio?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -1271,12 +1270,12 @@ export type Database = {
           social_linkedin?: string | null
           social_twitter?: string | null
           social_whatsapp?: string | null
+          updated_at?: string | null
           verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
         }
         Update: {
-          address?: string | null
           bio?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -1290,6 +1289,7 @@ export type Database = {
           social_linkedin?: string | null
           social_twitter?: string | null
           social_whatsapp?: string | null
+          updated_at?: string | null
           verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
