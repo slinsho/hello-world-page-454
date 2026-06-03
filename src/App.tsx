@@ -1,3 +1,23 @@
+/**
+ * ============================================================
+ *  APP.TSX  —  the "front door" of the whole app
+ * ============================================================
+ *  Plain-English summary:
+ *
+ *  1. Wraps the app in "providers" (shared boxes of data):
+ *       - QueryClient    → caches database results
+ *       - AuthProvider   → knows who is logged in
+ *       - PlatformSettings / UserPreferences → site-wide config
+ *  2. Sets up the URL router (which page shows for which URL).
+ *  3. Mounts site-wide widgets that appear on every page:
+ *       - Toaster / Sonner → little popup notifications
+ *       - FeedbackButton, PWA prompts, OnboardingGuide
+ *       - DebugPanel       → press Ctrl+Shift+D to open
+ *
+ *  If a whole-app feature breaks, it's usually one of these
+ *  providers or the route definitions further down.
+ * ============================================================
+ */
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,6 +34,7 @@ import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
+import DebugPanel from "@/components/DebugPanel";
 
 // Lazy-loaded route components
 const Index = lazy(() => import("./pages/Index"));
