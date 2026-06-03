@@ -64,7 +64,10 @@ export const DebugPanel = () => {
   const [copied, setCopied] = useState(false);
 
   // Subscribe to the log store so the panel updates in real time.
-  useEffect(() => subscribe(() => setItems(getEntries())), []);
+  useEffect(() => {
+    const unsub = subscribe(() => setItems(getEntries()));
+    return () => { unsub; };
+  }, []);
 
   // Keyboard shortcut: Ctrl + Shift + D toggles the panel.
   useEffect(() => {
