@@ -1150,6 +1150,35 @@ export type Database = {
       }
     }
     Views: {
+      property_views_safe: {
+        Row: {
+          id: string | null
+          property_id: string | null
+          viewed_at: string | null
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          property_id?: string | null
+          viewed_at?: string | null
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          property_id?: string | null
+          viewed_at?: string | null
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_views_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_owner_profiles: {
         Row: {
           bio: string | null
@@ -1188,6 +1217,66 @@ export type Database = {
             | null
         }
         Update: {
+          bio?: string | null
+          county?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          profile_photo_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Relationships: []
+      }
+      public_profiles: {
+        Row: {
+          address: string | null
+          bio: string | null
+          county: string | null
+          cover_photo_url: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          profile_photo_url: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
+          social_whatsapp: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Insert: {
+          address?: string | null
+          bio?: string | null
+          county?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          profile_photo_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Update: {
+          address?: string | null
           bio?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -1258,6 +1347,10 @@ export type Database = {
       }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      mark_messages_read: {
+        Args: { _conversation_id: string }
+        Returns: undefined
+      }
       notify_all_admins: {
         Args: {
           p_message: string
