@@ -95,6 +95,8 @@ const App = () => (
             <PWAInstallPrompt />
             <PWAUpdatePrompt />
             <OnboardingGuide />
+            {/* Floating debug panel — press Ctrl+Shift+D to open. See src/lib/debug.ts */}
+            <DebugPanel />
             <div id="main-content">
               <Suspense fallback={<div className="min-h-screen flex items-center justify-center" role="status" aria-label="Loading"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
                 <Routes>
