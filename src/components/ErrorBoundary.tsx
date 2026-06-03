@@ -1,6 +1,24 @@
+/**
+ * ============================================================
+ *  ErrorBoundary  —  the safety net for crashes
+ * ============================================================
+ *  React's rule: if ANY component throws an error during render,
+ *  the whole app turns into a blank white screen — unless an
+ *  ErrorBoundary above it catches the error.
+ *
+ *  This component wraps the entire app (see App.tsx) so the
+ *  user always sees a friendly "Something went wrong" page with
+ *  a "Refresh" / "Go Home" button instead of a blank screen.
+ *
+ *  DEBUG TIP: every caught error is also written to the
+ *  Debug Panel (open with Ctrl+Shift+D) so you can copy the
+ *  full stack trace for a developer.
+ * ============================================================
+ */
 import { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { log } from "@/lib/debug";
 
 interface Props {
   children: ReactNode;
@@ -14,12 +32,20 @@ interface State {
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = { hasError: false, error: null };
 
+  // Called by React when a child component throws.
+  // We use it to update the UI to the fallback below.
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
+  // Also called by React — gives us the error + component stack.
+  // We forward it to console AND the Debug Panel.
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+    log.error(`Render crash: ${error.message}`, {
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   public render() {
