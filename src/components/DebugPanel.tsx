@@ -65,8 +65,12 @@ export const DebugPanel = () => {
 
   // Subscribe to the log store so the panel updates in real time.
   useEffect(() => {
+    // subscribe() returns an unsubscribe function — call it on cleanup
+    // (the wrapper ensures we return void, which useEffect requires).
     const unsub = subscribe(() => setItems(getEntries()));
-    return () => { unsub; };
+    return () => {
+      unsub();
+    };
   }, []);
 
   // Keyboard shortcut: Ctrl + Shift + D toggles the panel.
