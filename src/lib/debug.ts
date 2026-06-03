@@ -104,9 +104,11 @@ export const log = {
 export const getEntries = () => entries.slice();
 
 // Used by the Debug Panel to subscribe / unsubscribe.
-export const subscribe = (fn: () => void) => {
+export const subscribe = (fn: () => void): (() => void) => {
   listeners.add(fn);
-  return () => listeners.delete(fn);
+  return () => {
+    listeners.delete(fn);
+  };
 };
 
 // Used by the "Clear" button in the panel.
