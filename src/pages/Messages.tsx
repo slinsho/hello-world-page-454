@@ -97,7 +97,7 @@ export default function Messages() {
   };
 
   const fetchMessages = async (conversationId: string) => { const { data, error } = await supabase.from("messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: true }); if (!error && data) setMessages(data); };
-  const markMessagesAsRead = async (conversationId: string) => { if (!user) return; await supabase.from("messages").update({ is_read: true }).eq("conversation_id", conversationId).neq("sender_id", user.id).eq("is_read", false); };
+  const markMessagesAsRead = async (conversationId: string) => { if (!user) return; await supabase.rpc("mark_messages_read" as any, { _conversation_id: conversationId } as any); };
   const sendMessage = async (e: React.FormEvent) => { e.preventDefault(); if (!newMessage.trim() || !activeConversation || !user) return; setSendingMessage(true); const { error } = await supabase.from("messages").insert({ conversation_id: activeConversation, sender_id: user.id, content: newMessage.trim() }); if (!error) { setNewMessage(""); inputRef.current?.focus(); } setSendingMessage(false); };
   const formatMessageDate = (date: Date) => { if (isToday(date)) return format(date, "h:mm a"); if (isYesterday(date)) return "Yesterday"; return format(date, "MMM d"); };
   const formatMessageTime = (date: Date) => format(date, "h:mm a");
