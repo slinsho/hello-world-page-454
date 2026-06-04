@@ -34,7 +34,7 @@ import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
-import DebugPanel from "@/components/DebugPanel";
+// DebugPanel has been moved into the Admin Portal (Admin → Debug Console).
 
 // Lazy-loaded route components
 const Index = lazy(() => import("./pages/Index"));
@@ -95,8 +95,7 @@ const App = () => (
             <PWAInstallPrompt />
             <PWAUpdatePrompt />
             <OnboardingGuide />
-            {/* Floating debug panel — press Ctrl+Shift+D to open. See src/lib/debug.ts */}
-            <DebugPanel />
+            {/* Debug console now lives at /winner-54/dashboard → Debug tab. */}
             <div id="main-content">
               <Suspense fallback={<div className="min-h-screen flex items-center justify-center" role="status" aria-label="Loading"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>}>
                 <Routes>
