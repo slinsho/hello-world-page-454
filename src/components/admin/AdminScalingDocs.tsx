@@ -113,7 +113,7 @@ export function AdminScalingDocs() {
               <li><strong>Switch email provider</strong> to Resend or a custom SMTP (Supabase default = spam folder + low limits).</li>
               <li><strong>Add a CAPTCHA</strong> (hCaptcha or Turnstile) on signup/contact forms to block bots.</li>
               <li><strong>Pagination everywhere</strong> — never fetch more than 50 properties per page. Already mostly done.</li>
-              <li><strong>Monitor Edge Function logs weekly</strong> — slow functions (>1s) become the bottleneck first.</li>
+              <li><strong>Monitor Edge Function logs weekly</strong> — slow functions (over 1s) become the bottleneck first.</li>
               <li><strong>Schedule a weekly DB backup export</strong> in addition to Supabase's daily auto-backup.</li>
             </ol>
           </div>
