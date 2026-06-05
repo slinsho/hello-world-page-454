@@ -18,6 +18,7 @@ import { AdminAboutPage } from "@/components/admin/AdminAboutPage";
 import { AdminContactSubmissions } from "@/components/admin/AdminContactSubmissions";
 import { AdminDebug } from "@/components/admin/AdminDebug";
 import { AdminSecurityDocs } from "@/components/admin/AdminSecurityDocs";
+import { AdminScalingDocs } from "@/components/admin/AdminScalingDocs";
 import { Shield, LogOut, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -156,6 +157,7 @@ export default function AdminDashboardPage() {
       case "contacts": return <AdminContactSubmissions />;
       case "debug": return <AdminDebug />;
       case "security-docs": return <AdminSecurityDocs />;
+      case "scaling-docs": return <AdminScalingDocs />;
       default: return <AdminDashboard onNavigateTab={handleTabChange} />;
     }
   };
