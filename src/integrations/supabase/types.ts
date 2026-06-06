@@ -1298,6 +1298,13 @@ export type Database = {
       }
     }
     Functions: {
+      get_property_view_counts: {
+        Args: { p_property_ids: string[] }
+        Returns: {
+          property_id: string
+          view_count: number
+        }[]
+      }
       get_round_robin_promoted: {
         Args: { limit_count?: number }
         Returns: {

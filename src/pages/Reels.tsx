@@ -119,17 +119,18 @@ const Reels = () => {
         setReels(finalList);
         setLoading(false);
 
-        // Fetch view counts for all reels in one batch
+        // Fetch view counts via RPC so all users (not just owners) see the same numbers.
+        // Direct SELECT on property_views is restricted by RLS to owners/admins, which
+        // caused different users to see different counts.
         if (finalList.length > 0) {
           const ids = finalList.map((r) => r.id);
-          const { data: viewData } = await supabase
-            .from("property_views")
-            .select("property_id")
-            .in("property_id", ids);
+          const { data: viewData } = await supabase.rpc("get_property_view_counts", {
+            p_property_ids: ids,
+          });
           if (!cancelled && viewData) {
             const counts: Record<string, number> = {};
-            viewData.forEach((v: any) => {
-              counts[v.property_id] = (counts[v.property_id] || 0) + 1;
+            (viewData as any[]).forEach((v) => {
+              counts[v.property_id] = Number(v.view_count) || 0;
             });
             setViewCounts(counts);
           }
