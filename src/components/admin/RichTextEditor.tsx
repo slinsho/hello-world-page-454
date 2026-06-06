@@ -163,7 +163,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
           class: "text-primary underline",
         },
       }),
-      Image.configure({
+      ResizableImage.configure({
         HTMLAttributes: {
           class: "rounded-lg max-w-full h-auto my-4",
         },
