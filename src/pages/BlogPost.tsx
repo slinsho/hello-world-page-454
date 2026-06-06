@@ -377,19 +377,19 @@ export default function BlogPost() {
         <article className="px-4 md:px-6 py-6 max-w-3xl mx-auto">
           <div 
             className="prose prose-lg max-w-none blog-content
-              prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6
-              prose-p:leading-[1.8] prose-p:text-[15px] prose-p:mb-5
+              prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 prose-headings:text-foreground
+              prose-p:leading-[1.8] prose-p:text-[15px] prose-p:mb-5 prose-p:text-foreground
               prose-a:text-destructive prose-a:no-underline hover:prose-a:underline
-              prose-strong:font-semibold
-              prose-ul:leading-[1.8] prose-ol:leading-[1.8]
-              prose-li:marker:text-destructive prose-li:mb-1.5
-              prose-blockquote:border-l-destructive prose-blockquote:bg-muted prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-sm
+              prose-strong:font-semibold prose-strong:text-foreground
+              prose-ul:leading-[1.8] prose-ol:leading-[1.8] prose-ul:text-foreground prose-ol:text-foreground
+              prose-li:marker:text-destructive prose-li:mb-1.5 prose-li:text-foreground
+              prose-blockquote:border-l-destructive prose-blockquote:bg-muted prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-sm prose-blockquote:text-foreground
               [&_.blog-full-image]:w-screen [&_.blog-full-image]:relative [&_.blog-full-image]:left-1/2 [&_.blog-full-image]:right-1/2 [&_.blog-full-image]:-mx-[50vw] [&_.blog-full-image]:max-w-none [&_.blog-full-image]:my-6 [&_.blog-full-image]:h-auto
               [&_table]:border-collapse [&_table]:w-full [&_table]:my-4 [&_table]:border [&_table]:border-border
-              [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-sm
-              [&_td]:border [&_td]:border-border [&_td]:p-2 [&_td]:text-sm
+              [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-sm [&_th]:text-foreground
+              [&_td]:border [&_td]:border-border [&_td]:p-2 [&_td]:text-sm [&_td]:text-foreground
               [&_pre]:bg-muted [&_pre]:text-foreground [&_pre]:rounded-xl [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-4
-              [&_code]:font-mono [&_code]:text-sm
+              [&_code]:font-mono [&_code]:text-sm [&_code]:text-foreground
               [&_pre_code]:bg-transparent [&_pre_code]:p-0"
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />
