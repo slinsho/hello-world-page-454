@@ -697,7 +697,45 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
           </PopoverContent>
         </Popover>
 
-        {/* Image Caption */}
+        {/* Move image left — only visible/active when an image is selected */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => alignSelectedImage("left")}
+          title="Move image left (wrap text)"
+          disabled={!editor.isActive("image")}
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => alignSelectedImage("center")}
+          title="Move image center"
+          disabled={!editor.isActive("image")}
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => alignSelectedImage("right")}
+          title="Move image right (wrap text)"
+          disabled={!editor.isActive("image")}
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+
+        {/* Delete selected image/video/block */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={deleteSelectedNode}
+          title="Delete selected image or video"
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
         <Button
           variant="ghost"
           size="sm"
