@@ -308,6 +308,23 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
     setImageResizeDialogOpen(false);
   }, [editor, imageWidth]);
 
+  // Align (move) the currently selected image left/center/right.
+  const alignSelectedImage = useCallback((align: "left" | "center" | "right") => {
+    if (!editor) return;
+    const styles = {
+      left: "float: left; margin: 0.5rem 1rem 0.5rem 0; max-width: 50%; height: auto;",
+      center: "display: block; margin: 1rem auto; max-width: 100%; height: auto;",
+      right: "float: right; margin: 0.5rem 0 0.5rem 1rem; max-width: 50%; height: auto;",
+    };
+    editor.chain().focus().updateAttributes("image", { style: styles[align] }).run();
+  }, [editor]);
+
+  // Delete the currently selected node (image, video, etc.).
+  const deleteSelectedNode = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().deleteSelection().run();
+  }, [editor]);
+
   const insertHorizontalRule = useCallback(() => {
     if (!editor) return;
     editor.chain().focus().setHorizontalRule().run();
