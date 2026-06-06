@@ -1,7 +1,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
+import { ResizableImage } from "./ResizableImage";
 import Youtube from "@tiptap/extension-youtube";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
@@ -163,7 +163,7 @@ export function RichTextEditor({ content, onChange, onInsertImage }: RichTextEdi
           class: "text-primary underline",
         },
       }),
-      Image.configure({
+      ResizableImage.configure({
         HTMLAttributes: {
           class: "rounded-lg max-w-full h-auto my-4",
         },
