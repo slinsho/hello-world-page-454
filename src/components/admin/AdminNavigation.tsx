@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight,
   LayoutDashboard, BarChart3, Shield, FileCheck, Users, Home, Newspaper,
   Star, Zap, Flag, Megaphone, MessageSquare, FileText, Scale, Info, Mail,
-  Bug, ShieldCheck, Rocket
+  Bug, ShieldCheck, Rocket, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +84,7 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
       label: "Developer",
       items: [
         { value: "debug", label: "Debug Console", icon: Bug },
+        { value: "error-logs", label: "Error Logs", icon: AlertCircle },
         { value: "security-docs", label: "Security Docs", icon: ShieldCheck },
         { value: "scaling-docs", label: "Scaling & Payments", icon: Rocket },
       ],

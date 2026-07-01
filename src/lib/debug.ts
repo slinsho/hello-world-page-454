@@ -72,13 +72,13 @@ async function persistToDb(level: LogLevel, message: string, data?: unknown) {
     }
     const { data: auth } = await supabase.auth.getUser();
     await supabase.from("error_logs").insert({
-      user_id: auth?.user?.id ?? null,
+      user_id: auth?.user?.id ?? undefined,
       level,
       message: message.slice(0, 2000),
-      stack: stack?.slice(0, 4000) ?? null,
+      stack: stack?.slice(0, 4000) ?? undefined,
       route: window.location.pathname,
       user_agent: navigator.userAgent,
-      context,
+      context: context as any,
     });
   } catch {
     // Never let logging break the app
