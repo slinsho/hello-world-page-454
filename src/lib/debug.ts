@@ -31,9 +31,59 @@
  * ============================================================
  */
 
+import { supabase } from "@/integrations/supabase/client";
+
 // The maximum number of notes we keep in memory.
 // Older notes are dropped so we don't slow the phone down.
 const MAX_ENTRIES = 200;
+
+/**
+ * Persist critical errors + warnings to the database so admins can review
+ * production crashes from real users in the Admin → Error Logs tab.
+ * Fire-and-forget; never blocks the UI, never throws.
+ */
+const persistedRecently = new Map<string, number>();
+const PERSIST_DEDUPE_MS = 60_000;
+
+async function persistToDb(level: LogLevel, message: string, data?: unknown) {
+  if (typeof window === "undefined") return;
+  if (level !== "error" && level !== "warn") return;
+  // Skip noisy expected errors
+  if (/AbortError|ResizeObserver|NetworkError when attempting/i.test(message)) return;
+
+  const key = `${level}:${message}`;
+  const now = Date.now();
+  const last = persistedRecently.get(key);
+  if (last && now - last < PERSIST_DEDUPE_MS) return;
+  persistedRecently.set(key, now);
+
+  try {
+    let stack: string | null = null;
+    let context: Record<string, unknown> | null = null;
+    if (data instanceof Error) {
+      stack = data.stack ?? null;
+      context = { name: data.name };
+    } else if (data && typeof data === "object") {
+      try {
+        context = JSON.parse(JSON.stringify(data));
+      } catch {
+        context = { note: "unserialisable" };
+      }
+    }
+    const { data: auth } = await supabase.auth.getUser();
+    await supabase.from("error_logs").insert({
+      user_id: auth?.user?.id ?? null,
+      level,
+      message: message.slice(0, 2000),
+      stack: stack?.slice(0, 4000) ?? null,
+      route: window.location.pathname,
+      user_agent: navigator.userAgent,
+      context,
+    });
+  } catch {
+    // Never let logging break the app
+  }
+}
 
 // The "level" of a log entry. Each level gets its own emoji
 // so you can scan the panel quickly with your eyes.
@@ -86,6 +136,9 @@ function push(level: LogLevel, message: string, data?: unknown) {
 
   // Notify the Debug Panel (if open) to re-render.
   listeners.forEach((l) => l());
+
+  // Best-effort DB persistence for errors/warnings (production monitoring).
+  void persistToDb(level, message, data);
 }
 
 /**
