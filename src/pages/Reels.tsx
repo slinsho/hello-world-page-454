@@ -154,8 +154,18 @@ const Reels = () => {
     }
     const reel = reels[activeIdx];
     if (!reel || viewedIdsRef.current.has(reel.id)) return;
+
+    // Session-level dedupe: prevents the same guest from inflating a view count
+    // by scrolling back to the same reel across page refreshes in one tab.
+    const sessionKey = `reel-viewed:${reel.id}`;
+    if (sessionStorage.getItem(sessionKey)) {
+      viewedIdsRef.current.add(reel.id);
+      return;
+    }
+
     viewTimerRef.current = window.setTimeout(async () => {
       viewedIdsRef.current.add(reel.id);
+      sessionStorage.setItem(sessionKey, "1");
       try {
         await supabase.from("property_views").insert({
           property_id: reel.id,
