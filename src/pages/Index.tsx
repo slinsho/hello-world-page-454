@@ -76,6 +76,9 @@ const Index = () => {
         query = query.order("created_at", { ascending: false });
       }
 
+      // Cap initial home fetch. Explore page handles deep browsing / pagination.
+      query = query.limit(24);
+
       const { data: propertiesData, error } = await query;
 
       if (error || !propertiesData) {
@@ -98,20 +101,19 @@ const Index = () => {
       ]);
       
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-      
-      // Build agent map with signed URLs in parallel
+
+      // Only hit storage for agents that actually uploaded a logo — parallel.
       const agentMap = new Map<string, { agency_name: string | null; agency_logo: string | null }>();
       const agentEntries = agentData || [];
       const logoResults = await Promise.all(
         agentEntries.map(async (a) => {
-          let logoUrl: string | null = null;
-          if (a.agency_logo) {
-            const { data: signedData } = await supabase.storage
-              .from("verification-docs")
-              .createSignedUrl(a.agency_logo, 3600);
-            logoUrl = signedData?.signedUrl || null;
+          if (!a.agency_logo) {
+            return { userId: a.user_id, agency_name: a.agency_name, agency_logo: null };
           }
-          return { userId: a.user_id, agency_name: a.agency_name, agency_logo: logoUrl };
+          const { data: signedData } = await supabase.storage
+            .from("verification-docs")
+            .createSignedUrl(a.agency_logo, 3600);
+          return { userId: a.user_id, agency_name: a.agency_name, agency_logo: signedData?.signedUrl || null };
         })
       );
       for (const entry of logoResults) {

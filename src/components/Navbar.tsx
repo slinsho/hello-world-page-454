@@ -188,20 +188,11 @@ const Navbar = () => {
       return q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
     })();
 
-    if (!q) {
-      navigate(target);
-      return;
-    }
-
+    // Navigate immediately — the destination page shows its own skeleton loader.
+    // (Removed 800 ms artificial delay that made every search feel slow.)
     clearSearchTimer();
     setLoadingQuery(q);
-    setLoadingSearch(true);
-    // Brief branded splash, then navigate. Page-level fetch handles its own loading.
-    searchTimerRef.current = window.setTimeout(() => {
-      navigate(target);
-      setLoadingSearch(false);
-      searchTimerRef.current = null;
-    }, 800);
+    navigate(target);
   };
 
   const cancelSearch = () => {
