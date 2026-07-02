@@ -112,7 +112,12 @@ const Reels = () => {
         .filter((r) => r.is_promoted || r.profiles?.verification_status === "approved");
 
       const promoted = filtered.filter((r) => r.is_promoted);
-      const rest = filtered.filter((r) => !r.is_promoted).sort(() => Math.random() - 0.5);
+      const rest = filtered.filter((r) => !r.is_promoted);
+      // Fisher-Yates shuffle (unbiased, unlike sort(() => Math.random() - 0.5))
+      for (let i = rest.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rest[i], rest[j]] = [rest[j], rest[i]];
+      }
       const finalList = [...promoted, ...rest] as Reel[];
 
       if (!cancelled) {
