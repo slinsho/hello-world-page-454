@@ -287,6 +287,9 @@ export default function BlogPost() {
   const processedContent = sanitizedHtml
     .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
     .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>')
+    // Strip hard-coded black/near-black text colors saved by the editor so they
+    // don't render invisible on the dark theme. Keeps intentional non-black colors.
+    .replace(/color:\s*(#000000|#000|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0[^)]*\))\s*;?/gi, "")
     .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
     .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"')
     .replace(/style="([^"]*)font-family:\s*([^;"]+)([^"]*)"/g, 'style="$1font-family: $2 !important$3"')
