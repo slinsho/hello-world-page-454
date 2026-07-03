@@ -85,6 +85,27 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+function stripHardCodedTextColors(html: string): string {
+  if (typeof window === "undefined") {
+    return html.replace(/\scolor\s*:\s*[^;"]+;?/gi, "");
+  }
+
+  const template = document.createElement("template");
+  template.innerHTML = html;
+
+  template.content.querySelectorAll<HTMLElement>("[style]").forEach((element) => {
+    // Blog posts must inherit the active theme. Removing inline text colors
+    // prevents black/gray text from becoming unreadable on the dark app theme.
+    element.style.removeProperty("color");
+
+    if (!element.getAttribute("style")?.trim()) {
+      element.removeAttribute("style");
+    }
+  });
+
+  return template.innerHTML;
+}
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
@@ -284,19 +305,15 @@ export default function BlogPost() {
   });
 
   // Process content to make images full width and preserve inline styles
-  const processedContent = sanitizedHtml
+  const processedContent = stripHardCodedTextColors(sanitizedHtml)
     .replace(/<img([^>]*)class="[^"]*"([^>]*)>/g, '<img$1class="blog-full-image"$2>')
     .replace(/<img(?![^>]*class=)([^>]*)>/g, '<img class="blog-full-image"$1>')
-    // Strip hard-coded black/near-black text colors saved by the editor so they
-    // don't render invisible on the dark theme. Keeps intentional non-black colors.
-    .replace(/color:\s*(#000000|#000|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0[^)]*\))\s*;?/gi, "")
-    .replace(/style="([^"]*)color:\s*([^;"]+)([^"]*)"/g, 'style="$1color: $2 !important$3"')
     .replace(/style="([^"]*)font-size:\s*([^;"]+)([^"]*)"/g, 'style="$1font-size: $2 !important$3"')
     .replace(/style="([^"]*)font-family:\s*([^;"]+)([^"]*)"/g, 'style="$1font-family: $2 !important$3"')
     .replace(/style="([^"]*)text-align:\s*([^;"]+)([^"]*)"/g, 'style="$1text-align: $2 !important$3"');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       
       <main className="pb-24 md:pb-8">
@@ -377,7 +394,7 @@ export default function BlogPost() {
         </div>
 
         {/* Article Content */}
-        <article className="px-4 md:px-6 py-6 max-w-3xl mx-auto">
+        <article className="px-4 md:px-6 py-6 max-w-3xl mx-auto bg-background text-foreground">
           <div 
             className="prose prose-lg max-w-none blog-content
               prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 prose-headings:text-foreground
