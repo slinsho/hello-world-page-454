@@ -1,123 +1,90 @@
-# Performance Optimization Plan
+# Plan: Features 4, 5, and 9
 
-UI, branding, layouts, and business rules stay exactly as-is. Every change below is purely under the hood. I'll ship in 4 phases so you can review impact between each — say "go phase 1" (or "do all phases") to start.
-
----
-
-## Phase 1 — Biggest wins, lowest risk (~70% of perceived speedup)
-
-**1. Image pipeline (the #1 bottleneck on this app)**
-- Upgrade `src/lib/imageResize.ts` to: resize to **max 1280px**, output **WebP** at q=78 (with JPEG fallback for old iOS), strip EXIF, hard-cap at 250 KB.
-- Reject oversized uploads client-side before they hit Supabase.
-- Generate a **400px thumbnail** alongside the full image; store both URLs in the property `photos` array (or sibling thumbnail column — see tech section).
-- Add `loading="lazy"`, `decoding="async"`, `fetchpriority` (high for first card / hero, low for off-screen) across `PropertyCard`, `PropertyDetail`, `Reels`, banners.
-- Add `width` / `height` attributes to kill CLS.
-
-**2. Route-level code splitting**
-- Convert all routes in `src/App.tsx` to `React.lazy` + `<Suspense>` with a lightweight skeleton.
-- Heavy admin pages, Reels (video), Analytics, Charts, TipTap editor → lazy-only.
-
-**3. Vendor chunk splitting in `vite.config.ts`**
-- Manual chunks: `react`, `supabase`, `radix-ui`, `recharts`, `tiptap`, `embla-carousel`. Cuts initial JS by 40–60%.
-
-**4. Skeleton loaders**
-- Replace empty `null` returns during loading on Index, Explore, Profile, Dashboard with the existing `Skeleton` component — eliminates blank flashes.
+Three focused features. Each ships independently but shares the same profile/verification foundation already in the app.
 
 ---
 
-## Phase 2 — Data layer & query efficiency
+## Feature 4 — Agent Leaderboard & Public Agent Profiles
 
-**5. Eliminate `select('*')`**
-Audit every `supabase.from(...).select(...)` and request only the columns the component actually renders. Property cards need ~12 fields, not 35.
+**Goal:** Rank verified agents by activity/trust, and give each agent a shareable public page.
 
-**6. React Query everywhere**
-- Wrap fetches in `useQuery` with proper `queryKey`s, `staleTime` (60s for listings, 5m for settings, 30m for profile).
-- Eliminates duplicate calls when you navigate back to a page.
-- Adds free stale-while-revalidate.
+**Pages / components**
+- `src/pages/Agents.tsx` — already exists as a list; upgrade to a ranked leaderboard with:
+  - Top 3 podium cards (avatar/logo, agency name, score, badges)
+  - Ranked table below: rank, agent, verified listings count, avg review rating, response time, total views
+  - County + sort filters (top rated / most listings / most viewed)
+- `src/pages/AgentProfile.tsx` (new) at route `/agent/:id` — public profile:
+  - Header: agency logo, name, verified badge, county, join date, social links
+  - Stats strip: listings, avg rating, reviews count, response rate
+  - Tabs: Active Listings, Reviews, About
+  - CTA: WhatsApp + in-app message
 
-**7. DB indexes** (migration)
-Add B-tree indexes on `properties`:
-- `(status, created_at DESC)` — main listing sort
-- `(county)`, `(property_type)`, `(listing_type)`, `(price_usd)`, `(owner_id)`
-- Partial: `(is_promoted) WHERE status='active'`
+**Data**
+- New DB view `public.agent_leaderboard` (SECURITY INVOKER) aggregating:
+  - active listing count from `properties`
+  - avg rating + count from `reviews`
+  - total views from `property_views`
+  - only users with `verification_type='agent'` and status `approved`
+- Add `GRANT SELECT` to `anon, authenticated`.
 
-**8. Pagination / infinite scroll on Explore**
-`.range()` chunks of 20, `useInfiniteQuery`, IntersectionObserver sentinel.
-
-**9. Defer recommendations & "recently viewed"**
-Render only when scrolled near them (IntersectionObserver).
-
----
-
-## Phase 3 — Rendering & runtime
-
-**10. Memoization where it pays**
-- `React.memo(PropertyCard)` with stable props.
-- `useMemo` / `useCallback` on filters, sort comparators, formatters in Explore/NearMe.
-- Stop creating new object literals inside `.map()` keys.
-
-**11. Virtualize long lists**
-Add `@tanstack/react-virtual` to Explore, Favorites, Admin Properties, Admin Users when >50 rows.
-
-**12. Lazy charts**
-Wrap Recharts blocks in `<LazyOnVisible>` (IntersectionObserver) — current Admin Analytics loads them all at once.
-
-**13. Animation cleanup**
-Audit `index.css` / Tailwind classes: replace any `top/left/width` transitions with `transform`/`opacity`. Add `will-change` only where needed.
+**Routing**
+- Add `/agent/:id` route in `App.tsx`.
 
 ---
 
-## Phase 4 — PWA, monitoring, polish
+## Feature 5 — Neighborhood Insights
 
-**14. Service worker tuning** (`vite.config.ts` → VitePWA)
-- Runtime cache for `*.supabase.co/storage/.../property-photos/**`: `CacheFirst`, 30-day expiry, max 200 entries.
-- HTML: `NetworkFirst` (already), 3s timeout.
-- Skip caching reels videos (too big, hurts quota).
+**Goal:** Static, curated county-level context surfaced on property detail and a small standalone card.
 
-**15. Lightweight perf logging** (`src/lib/perfMonitor.ts`)
-- Log queries >800ms, image loads >2s, route transitions >1s to `console.warn` in prod (sampled 5%).
-- Optional: pipe to a `perf_logs` table later — not adding DB writes now to keep bandwidth down.
+**Approach (no external API)**
+- New table `public.county_insights` seeded by admin:
+  - `county` (unique), `overview`, `population`, `schools_count`, `hospitals_count`, `markets_count`, `highlights` (text[]), `image_url`
+- Public read; admin-only write (uses existing `is_admin`).
+- Admin editor: new tab in `AdminNavigation` → `AdminCountyInsights.tsx` (list + edit form).
+- Consumer components:
+  - `NeighborhoodInsights.tsx` — used on `PropertyDetail` under the description, shows county overview + highlight chips.
+  - Card variant on `NearMe` page header.
 
-**16. Compression**
-Lovable's hosting already serves Brotli/gzip. I'll just verify build output and add `vite-plugin-compression` for a precompressed `.br` fallback.
-
-**17. Bundle audit**
-Run `vite build` analysis, drop unused deps, tree-shake icon imports (`lucide-react` already supports per-icon).
-
----
-
-## Out of scope (per your rules)
-- No UI/visual changes
-- No business-logic changes (verification, promotion, offers, roles all untouched)
-- No new third-party services
-
-## Risks / things to watch
-- Adding the `thumbnail_url` column requires a one-time backfill for existing photos (I'll do it lazily — old listings keep using the full image until re-uploaded).
-- WebP-only browsers: targeting Chrome/Edge/Firefox/Safari 14+ — fallback included for older Safari.
-- Service-worker image cache means a freshly re-uploaded photo could appear stale for up to 30 days; cache key includes the storage URL hash so new uploads bust automatically.
-
-## Technical details (for reference)
-
-```text
-Bundle (estimated):
-  before:  ~1.4 MB JS initial
-  after :  ~480 KB initial + lazy chunks
-Image payload per card:
-  before: ~250–800 KB (full-res JPEG)
-  after : ~25–60 KB (WebP thumbnail)
-LCP on 4G mid-range Android:
-  target: <2.5s on Explore, <2.0s on Index
-```
-
-Files most affected:
-- `src/lib/imageResize.ts` (rewrite)
-- `src/App.tsx` (lazy routes)
-- `vite.config.ts` (chunks + PWA cache)
-- `src/components/PropertyCard.tsx`, `RecommendedProperties.tsx`, `RecentlyViewed.tsx`
-- `src/pages/Explore.tsx`, `Index.tsx`, `Profile.tsx`, `OwnerDashboard.tsx`, `Admin*.tsx`
-- New: `src/lib/perfMonitor.ts`, `src/components/LazyOnVisible.tsx`
-- New migration: indexes on `properties`
+**Seed**
+- Insert baseline rows for the 15 Liberian counties with empty placeholders so admin can fill later.
 
 ---
 
-**Reply with:** `go phase 1`, `do all phases`, or tell me to drop / reorder anything.
+## Feature 9 — Verified Buyer/Tenant Badge
+
+**Goal:** Light KYC signal so owners/agents know an inquiry is from a real person.
+
+**Approach**
+- Reuse existing `verification_requests` table by adding a new `verification_type` value `buyer` (already an open text column — confirm and extend as needed).
+- Buyer verification is **free** (no payment step), requires:
+  - Live camera selfie (existing selfie capture flow)
+  - Government ID number (text)
+  - Phone number confirmed
+- Admin reviews in existing `AdminVerifications` list; approval sets a flag readable from `profiles`.
+- New computed on `profiles`: nothing schema-wise needed — we already join verification. Add a helper `useBuyerVerification(userId)` and a `<VerifiedBuyerBadge />` component.
+- Surface the badge:
+  - Next to sender name in `PropertyInquiryForm` submissions / `DashboardInquiries`
+  - On `MakeOfferForm` submissions
+  - In `Messages` thread header
+- Entry point: new "Get Verified as Buyer" card in `Settings` for users whose role is `user` (not owner/agent).
+
+**No payment**, so it avoids the promotion/payment workflow entirely.
+
+---
+
+## Technical notes
+
+- All new tables follow the required CREATE → GRANT → RLS → POLICY order.
+- Leaderboard is a **view**, not a table — always fresh, no cron.
+- `AgentProfile` reuses `PropertyCard` for the listings tab.
+- Buyer verification piggybacks on existing selfie capture + admin review UI to keep scope tight.
+- No new external APIs; no Google Maps required for neighborhood insights.
+
+## Order of implementation
+
+1. Migration: `county_insights` table + seed + `agent_leaderboard` view + buyer verification type support.
+2. Feature 9 (smallest surface): badge component + Settings entry + admin approval hook-in.
+3. Feature 5: admin editor + display components on PropertyDetail and NearMe.
+4. Feature 4: rebuild Agents page as leaderboard + new AgentProfile route.
+
+Approve and I'll start with the migration.
