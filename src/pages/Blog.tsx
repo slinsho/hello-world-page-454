@@ -206,7 +206,8 @@ export default function Blog() {
         {/* ===== FEATURED ===== */}
         {featured && (
           <section className="border-b border-border/60">
-            <div className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-14">
+            <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Featured</span>
                 <div className="flex-1 h-px bg-border/60" />
