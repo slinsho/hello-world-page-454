@@ -177,8 +177,8 @@ export function AdminVerifications() {
                 <div className="flex items-center gap-2">
                   {getStatusBadge(request)}
                   {getPaymentStatusBadge(request)}
-                  <Badge variant={request.verification_type === 'agent' ? 'default' : 'secondary'}>
-                    {request.verification_type === 'agent' ? '🔵 Agent' : '✅ Owner'}
+                  <Badge variant={request.verification_type === 'agent' ? 'default' : request.verification_type === 'buyer' ? 'outline' : 'secondary'}>
+                    {request.verification_type === 'agent' ? '🔵 Agent' : request.verification_type === 'buyer' ? '🛡️ Buyer' : '✅ Owner'}
                   </Badge>
                 </div>
               </div>
