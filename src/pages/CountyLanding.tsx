@@ -21,15 +21,25 @@ export default function CountyLanding() {
     if (!county) return;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data: props } = await supabase
         .from("properties")
-        .select("*, profiles!properties_owner_id_fkey(name, role, verification_status, phone, profile_photo_url)")
+        .select("*")
         .eq("county", county)
         .eq("status", "active")
         .order("is_promoted", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(60);
-      setProperties(data || []);
+      const rows = props || [];
+      const ownerIds = Array.from(new Set(rows.map((p: any) => p.owner_id).filter(Boolean)));
+      let profilesMap = new Map<string, any>();
+      if (ownerIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, name, role, verification_status, phone, profile_photo_url")
+          .in("id", ownerIds);
+        profilesMap = new Map((profs || []).map((p: any) => [p.id, p]));
+      }
+      setProperties(rows.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
       setLoading(false);
     })();
   }, [county]);
@@ -79,7 +89,7 @@ export default function CountyLanding() {
           <div className="absolute inset-0 opacity-20 blur-2xl">
             <img src={flag} alt="" className="w-full h-full object-cover" />
           </div>
-          <div className="relative max-w-6xl mx-auto px-4 py-6 md:py-10">
+          <div className="relative max-w-6xl mx-auto px-4 py-4 md:py-6">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-3 gap-1.5">
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -104,7 +114,7 @@ export default function CountyLanding() {
 
             {/* Stat chips */}
             {stats.total > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                 <StatChip icon={Building2} label="Active" value={stats.total.toString()} />
                 <StatChip icon={HomeIcon} label="For sale" value={stats.forSale.toString()} />
                 <StatChip icon={HomeIcon} label="For rent" value={stats.forRent.toString()} />
@@ -115,7 +125,7 @@ export default function CountyLanding() {
         </div>
 
         {/* Listings */}
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto px-4 py-5 md:py-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg md:text-xl font-bold">Listings in {county}</h2>
             {stats.promoted > 0 && (
@@ -146,7 +156,7 @@ export default function CountyLanding() {
           )}
 
           {/* Other counties */}
-          <div className="mt-12">
+          <div className="mt-8">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Explore other counties
             </h3>

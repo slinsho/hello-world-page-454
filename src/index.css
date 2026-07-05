@@ -125,6 +125,30 @@ All colors MUST be HSL.
   }
 }
 
+/* Hide horizontal scrollbar for scroll rows */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Property card overlay: dark theme uses a strong background fade,
+   light theme (red/white/navy) uses a much lighter fade + text shadow
+   so the photo stays visible while text remains readable. */
+.property-card-overlay {
+  background: linear-gradient(to top,
+    hsl(var(--background)) 0%,
+    hsl(var(--background) / 0.95) 40%,
+    transparent 100%);
+}
+.light .property-card-overlay {
+  background: linear-gradient(to top,
+    hsl(var(--background) / 0.85) 0%,
+    hsl(var(--background) / 0.55) 45%,
+    hsl(var(--background) / 0.1) 80%,
+    transparent 100%);
+}
+.light .property-card-overlay :where(h3, span, .price) {
+  text-shadow: 0 1px 3px hsl(0 0% 100% / 0.7);
+}
+
 /* ===== About Us Page — Warm Professional Theme ===== */
 /* About page styles removed - now uses design system tokens */
 

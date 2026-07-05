@@ -115,7 +115,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
         </Button>
 
         {/* Property Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-transparent p-4">
+        <div className="property-card-overlay absolute bottom-0 left-0 right-0 p-4">
           <Link to={`/property/${property.id}`}>
             <div className="space-y-2">
               {/* Location */}

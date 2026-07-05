@@ -162,7 +162,7 @@ export default function Blog() {
             }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-12 pb-10 md:pt-20 md:pb-14">
+          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-6 md:pt-10 md:pb-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Newsroom
@@ -176,7 +176,7 @@ export default function Blog() {
             </p>
 
             {/* Search + filters */}
-            <div className="mt-8 flex flex-col gap-3">
+            <div className="mt-5 flex flex-col gap-3">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -206,7 +206,8 @@ export default function Blog() {
         {/* ===== FEATURED ===== */}
         {featured && (
           <section className="border-b border-border/60">
-            <div className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-14">
+            <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Featured</span>
                 <div className="flex-1 h-px bg-border/60" />
@@ -258,7 +259,7 @@ export default function Blog() {
 
         {/* ===== ARTICLES GRID ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-14">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 All articles · {rest.length}
@@ -334,7 +335,7 @@ export default function Blog() {
 
         {/* ===== NEWSLETTER + SOCIAL ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-start">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-10 grid md:grid-cols-2 gap-8 items-start">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Newsletter</span>
               <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-3">
