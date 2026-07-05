@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, GraduationCap, HeartPulse, ShoppingBag, Users, Sparkles } from "lucide-react";
+import {
+  MapPin, GraduationCap, HeartPulse, ShoppingBag, Users, Sparkles,
+  Stethoscope, Trees, Store, UtensilsCrossed, Bus, Briefcase, Wallet, Home, Star,
+} from "lucide-react";
 
 interface CountyInsight {
   county: string;
