@@ -307,6 +307,9 @@ const Settings = () => {
             <MenuItem icon={Shield} label="Privacy & Security" onClick={() => setSection("privacy")} />
             <MenuItem icon={SlidersHorizontal} label="Preferences" onClick={() => setSection("preferences")} />
             {isAgent && <MenuItem icon={LayoutList} label="Listing Management" onClick={() => setSection("listings")} />}
+            {!(profile as any)?.buyer_verified && (
+              <MenuItem icon={ShieldCheck} label="Get Verified as Buyer" onClick={() => navigate("/verification?type=buyer")} />
+            )}
             <MenuItem icon={HelpCircle} label="Support & Help" onClick={() => setSection("support")} />
           </div>
 
