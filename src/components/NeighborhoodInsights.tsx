@@ -11,7 +11,16 @@ interface CountyInsight {
   population: string | null;
   schools_count: number | null;
   hospitals_count: number | null;
+  clinics_count: number | null;
   markets_count: number | null;
+  parks_count: number | null;
+  shopping_centers_count: number | null;
+  restaurants_count: number | null;
+  public_transport: string | null;
+  employment_rate: string | null;
+  avg_household_income: string | null;
+  avg_property_price: string | null;
+  livability_score: number | null;
   highlights: string[] | null;
   image_url: string | null;
 }
