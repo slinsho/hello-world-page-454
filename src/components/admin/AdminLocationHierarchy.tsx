@@ -292,7 +292,7 @@ export function AdminLocationHierarchy() {
       ) : currentLevel === "county" ? (
         // County level: rich flag cards
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {cards.map(({ value, count }) => {
+          {cards.map(({ value, count, active, avgPrice }) => {
             const disabled = count === 0;
             const flag = COUNTY_FLAGS[value];
             return (
@@ -308,41 +308,46 @@ export function AdminLocationHierarchy() {
               >
                 <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
                   {flag ? (
-                    <img
-                      src={flag}
-                      alt={`${value} County flag`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+                    <img src={flag} alt={`${value} County flag`} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <MapPin className="h-8 w-8 text-muted-foreground/40" />
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Badge
-                      variant={count > 0 ? "default" : "secondary"}
-                      className="text-[10px] shadow-md"
-                    >
+                    <Badge variant={count > 0 ? "default" : "secondary"} className="text-[10px] shadow-md">
                       {count} {count === 1 ? "property" : "properties"}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-3">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">
-                    County
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-sm truncate">{value}</p>
-                    {!disabled && (
-                      <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                    )}
+                <div className="p-3 space-y-2">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">County</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold text-sm truncate">{value}</p>
+                      {!disabled && (
+                        <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      )}
+                    </div>
                   </div>
+                  {count > 0 && (
+                    <div className="grid grid-cols-2 gap-1 text-center">
+                      <div className="rounded-md bg-muted/60 py-1">
+                        <p className="text-xs font-bold text-primary">{active}</p>
+                        <p className="text-[9px] uppercase text-muted-foreground">Active</p>
+                      </div>
+                      <div className="rounded-md bg-muted/60 py-1">
+                        <p className="text-xs font-bold">${(avgPrice / 1000).toFixed(0)}k</p>
+                        <p className="text-[9px] uppercase text-muted-foreground">Avg</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </button>
             );
           })}
         </div>
+
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {cards.map(({ value, count }) => {
