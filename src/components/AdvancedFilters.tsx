@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Filter, X, Save, Bell } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { useLocationOptions } from "@/hooks/useLocationOptions";
 import { useSavedSearches, SearchFilters } from "@/hooks/useSavedSearches";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
