@@ -88,18 +88,18 @@ const Verification = () => {
       <div className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button variant="ghost" size="icon" className="rounded-full shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="h-5 w-5" /></Button>
-          <h1 className="text-lg font-semibold truncate">{isAgent ? "Agent Verification" : "Owner Verification"}</h1>
+          <h1 className="text-lg font-semibold truncate">{isBuyer ? "Buyer Verification" : isAgent ? "Agent Verification" : "Owner Verification"}</h1>
         </div>
       </div>
 
       <main className="px-4 py-6 max-w-lg mx-auto pb-12 md:max-w-3xl md:py-10">
         {/* Hero */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-4 ${isAgent ? "bg-blue-500/10" : "bg-green-500/10"}`}>
-            {isAgent ? <Building2 className="h-10 w-10 text-blue-500" /> : <User className="h-10 w-10 text-green-500" />}
+          <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-4 ${isBuyer ? "bg-primary/10" : isAgent ? "bg-blue-500/10" : "bg-green-500/10"}`}>
+            {isBuyer ? <ShieldCheck className="h-10 w-10 text-primary" /> : isAgent ? <Building2 className="h-10 w-10 text-blue-500" /> : <User className="h-10 w-10 text-green-500" />}
           </div>
-          <h2 className="text-xl md:text-2xl font-bold mb-1">{isAgent ? "Get Your Blue Badge 🔵" : "Get Your Green Badge ✅"}</h2>
-          <p className="text-sm text-muted-foreground max-w-md">{isAgent ? "Submit your documents and agency details to unlock unlimited listings and all features." : "Verify your identity to start listing properties and earn trust from buyers."}</p>
+          <h2 className="text-xl md:text-2xl font-bold mb-1">{isBuyer ? "Get a Verified Buyer Badge" : isAgent ? "Get Your Blue Badge 🔵" : "Get Your Green Badge ✅"}</h2>
+          <p className="text-sm text-muted-foreground max-w-md">{isBuyer ? "Verify your identity so owners and agents know your inquiries and offers come from a real person. It's free." : isAgent ? "Submit your documents and agency details to unlock unlimited listings and all features." : "Verify your identity to start listing properties and earn trust from buyers."}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
