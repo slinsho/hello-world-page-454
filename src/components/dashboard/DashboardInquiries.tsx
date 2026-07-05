@@ -7,24 +7,28 @@ import { MessageSquare, DollarSign, Mail, Phone, User, Clock, Home, ChevronDown,
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { VerifiedBuyerBadge } from "@/components/VerifiedBuyerBadge";
 
 interface Inquiry {
   id: string;
   sender_name: string;
   sender_email: string | null;
   sender_phone: string | null;
+  sender_id: string | null;
   message: string;
   is_read: boolean;
   created_at: string;
   property_id: string;
   property_title?: string;
   property_photo?: string;
+  sender_verified?: boolean;
 }
 
 interface Offer {
   id: string;
   buyer_name: string;
   buyer_phone: string;
+  buyer_id: string | null;
   offer_amount_usd: number;
   message: string | null;
   status: string;
@@ -32,6 +36,7 @@ interface Offer {
   property_id: string;
   property_title?: string;
   property_photo?: string;
+  buyer_verified?: boolean;
 }
 
 interface DashboardInquiriesProps {
@@ -62,16 +67,36 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
 
     const propsMap = new Map(propsData?.map(p => [p.id, { title: p.title, photo: p.photos?.[0] }]) || []);
 
-    setInquiries((inquiriesData || []).map(inq => ({
+    // Look up which senders/buyers are verified buyers
+    const senderIds = Array.from(new Set([
+      ...(inquiriesData || []).map((i: any) => i.sender_id).filter(Boolean),
+      ...(offersData || []).map((o: any) => o.buyer_id).filter(Boolean),
+    ]));
+    let verifiedSet = new Set<string>();
+    if (senderIds.length > 0) {
+      const { data: verifiedProfiles } = await supabase
+        .from("profiles")
+        .select("id, buyer_verified" as any)
+        .in("id", senderIds);
+      verifiedSet = new Set(
+        ((verifiedProfiles as any[]) || [])
+          .filter((p) => p.buyer_verified)
+          .map((p) => p.id as string)
+      );
+    }
+
+    setInquiries((inquiriesData || []).map((inq: any) => ({
       ...inq,
       property_title: propsMap.get(inq.property_id)?.title || "Unknown",
       property_photo: propsMap.get(inq.property_id)?.photo,
+      sender_verified: !!(inq.sender_id && verifiedSet.has(inq.sender_id)),
     })));
 
-    setOffers((offersData || []).map(off => ({
+    setOffers((offersData || []).map((off: any) => ({
       ...off,
       property_title: propsMap.get(off.property_id)?.title || "Unknown",
       property_photo: propsMap.get(off.property_id)?.photo,
+      buyer_verified: !!(off.buyer_id && verifiedSet.has(off.buyer_id)),
     })));
 
     setLoading(false);
@@ -166,7 +191,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm truncate">{inq.sender_name}</p>
+                          <p className="font-medium text-sm truncate flex items-center gap-1.5">{inq.sender_name}{inq.sender_verified && <VerifiedBuyerBadge />}</p>
                           <div className="flex items-center gap-1.5">
                             {!inq.is_read && <div className="h-2 w-2 rounded-full bg-primary" />}
                             {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -237,7 +262,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm">{off.buyer_name}</p>
+                          <p className="font-medium text-sm flex items-center gap-1.5">{off.buyer_name}{off.buyer_verified && <VerifiedBuyerBadge />}</p>
                           <Badge variant={off.status === "pending" ? "default" : off.status === "accepted" ? "default" : "secondary"} className={`text-[10px] h-5 ${off.status === "accepted" ? "bg-green-500/10 text-green-600 border-green-500/20" : off.status === "rejected" ? "bg-red-500/10 text-red-600 border-red-500/20" : ""}`}>
                             {off.status}
                           </Badge>

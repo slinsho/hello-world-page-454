@@ -24,6 +24,7 @@ import Navbar from "@/components/Navbar";
 import { ReportPropertyDialog } from "@/components/ReportPropertyDialog";
 import { PromotePropertyDialog } from "@/components/PromotePropertyDialog";
 import useEmblaCarousel from "embla-carousel-react";
+import { NeighborhoodInsights } from "@/components/NeighborhoodInsights";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -381,6 +382,13 @@ const PropertyDetail = () => {
             <div className="px-4 md:px-0 mb-5">
               <h3 className="font-semibold mb-2 text-base">About this property</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{property.description}</p>
+            </div>
+          )}
+
+          {/* ===== Neighborhood Insights ===== */}
+          {property.county && (
+            <div className="px-4 md:px-0">
+              <NeighborhoodInsights county={property.county} />
             </div>
           )}
 

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight,
   LayoutDashboard, BarChart3, Shield, FileCheck, Users, Home, Newspaper,
   Star, Zap, Flag, Megaphone, MessageSquare, FileText, Scale, Info, Mail,
-  Bug, ShieldCheck, Rocket, AlertCircle
+  Bug, ShieldCheck, Rocket, AlertCircle, MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +76,7 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
     {
       label: "Settings",
       items: [
+        { value: "county-insights", label: "County Insights", icon: MapPin },
         { value: "legal", label: "Legal Pages", icon: Scale },
         { value: "about", label: "About Page", icon: Info },
       ],

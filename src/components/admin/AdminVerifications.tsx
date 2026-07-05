@@ -153,6 +153,7 @@ export function AdminVerifications() {
   };
 
   const getFeeDisplay = (request: VerificationRequest) => {
+    if (request.verification_type === 'buyer') return 'Free (buyer verification)';
     const isAgent = request.verification_type === 'agent';
     if (isAgent) {
       return `$${settings.agent_verification_fee_usd} (L$${(settings.agent_verification_fee_usd * settings.usd_to_lrd_rate).toLocaleString()})`;
@@ -177,8 +178,8 @@ export function AdminVerifications() {
                 <div className="flex items-center gap-2">
                   {getStatusBadge(request)}
                   {getPaymentStatusBadge(request)}
-                  <Badge variant={request.verification_type === 'agent' ? 'default' : 'secondary'}>
-                    {request.verification_type === 'agent' ? '🔵 Agent' : '✅ Owner'}
+                  <Badge variant={request.verification_type === 'agent' ? 'default' : request.verification_type === 'buyer' ? 'outline' : 'secondary'}>
+                    {request.verification_type === 'agent' ? '🔵 Agent' : request.verification_type === 'buyer' ? '🛡️ Buyer' : '✅ Owner'}
                   </Badge>
                 </div>
               </div>

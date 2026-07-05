@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 
 const ownerVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]) });
 const agentVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]), businessPhone: z.string().min(5, "Business phone is required"), agencyName: z.string().min(2, "Agency name is required"), officeLocation: z.string().min(3, "Office location is required") });
+const buyerVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]) });
 
 const Verification = () => {
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ const Verification = () => {
   const streamRef = useRef<MediaStream | null>(null);
   const [formData, setFormData] = useState({ dateOfBirth: "", idType: "citizen_card" as "citizen_card" | "voter_card" | "passport", businessPhone: "", agencyName: "", officeLocation: "" });
 
-  useEffect(() => { if (!user) { navigate("/auth"); return; } const fetchRole = async () => { const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single(); if (data) { const params = new URLSearchParams(window.location.search); setUserRole(params.get("upgrade") === "agent" ? "agent" : data.role); } }; fetchRole(); }, [user, navigate]);
+  const [isBuyer, setIsBuyer] = useState(false);
+  useEffect(() => { if (!user) { navigate("/auth"); return; } const fetchRole = async () => { const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single(); if (data) { const params = new URLSearchParams(window.location.search); const wantBuyer = params.get("type") === "buyer"; setIsBuyer(wantBuyer); setUserRole(wantBuyer ? "buyer" : params.get("upgrade") === "agent" ? "agent" : data.role); } }; fetchRole(); }, [user, navigate]);
   useEffect(() => { return () => { if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop()); }; }, []);
 
   const handleIdImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => { const files = Array.from(e.target.files || []); setIdImages((prev) => [...prev, ...files].slice(0, 2)); };
@@ -40,13 +42,13 @@ const Verification = () => {
   const handleSelfieChange = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) setSelfieImage(file); };
   const handleAgencyLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) setAgencyLogo(file); };
   const removeIdImage = (index: number) => { setIdImages((prev) => prev.filter((_, i) => i !== index)); };
-  const isAgent = userRole === "agent";
+  const isAgent = userRole === "agent" && !isBuyer;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     try {
-      if (isAgent) agentVerificationSchema.parse(formData); else ownerVerificationSchema.parse(formData);
+      if (isBuyer) buyerVerificationSchema.parse(formData); else if (isAgent) agentVerificationSchema.parse(formData); else ownerVerificationSchema.parse(formData);
       if (idImages.length === 0) { toast({ title: "ID Required", description: "Please upload your ID card", variant: "destructive" }); return; }
       if (!selfieImage) { toast({ title: "Selfie Required", description: "Please upload a selfie holding your ID", variant: "destructive" }); return; }
       setLoading(true);
@@ -55,17 +57,19 @@ const Verification = () => {
       const selfieExt = selfieImage.name.split(".").pop(); const selfieFileName = `${user.id}/selfie-${Date.now()}.${selfieExt}`; const { error: selfieError } = await supabase.storage.from("verification-docs").upload(selfieFileName, selfieImage); if (selfieError) throw selfieError;
       let agencyLogoPath: string | null = null;
       if (isAgent && agencyLogo) { const logoExt = agencyLogo.name.split(".").pop(); const logoFileName = `${user.id}/agency-logo-${Date.now()}.${logoExt}`; const { error: logoError } = await supabase.storage.from("verification-docs").upload(logoFileName, agencyLogo); if (logoError) throw logoError; agencyLogoPath = logoFileName; }
-      const insertData: any = { user_id: user.id, date_of_birth: formData.dateOfBirth, id_type: formData.idType, id_images: idPaths, selfie_image: selfieFileName, verification_type: isAgent ? "agent" : "owner" };
+      const insertData: any = { user_id: user.id, date_of_birth: formData.dateOfBirth, id_type: formData.idType, id_images: idPaths, selfie_image: selfieFileName, verification_type: isBuyer ? "buyer" : isAgent ? "agent" : "owner" };
       if (isAgent) { insertData.business_phone = formData.businessPhone; insertData.agency_name = formData.agencyName; insertData.office_location = formData.officeLocation; if (agencyLogoPath) insertData.agency_logo = agencyLogoPath; }
       const { error } = await supabase.from("verification_requests").insert([insertData]); if (error) throw error;
-      const profileUpdate: any = { verification_status: "pending" }; if (isAgent) profileUpdate.role = "agent";
-      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      if (!isBuyer) {
+        const profileUpdate: any = { verification_status: "pending" }; if (isAgent) profileUpdate.role = "agent";
+        await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      }
       // Notify admins
       const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
       const userName = profile?.name || "A user";
       await notifyAdmins({
         title: "New Verification Request",
-        message: `${userName} submitted a ${isAgent ? "agent" : "owner"} verification request.`,
+        message: `${userName} submitted a ${isBuyer ? "buyer" : isAgent ? "agent" : "owner"} verification request.`,
         type: "status_updates",
       });
       toast({ title: "Success!", description: "Your verification request has been submitted." }); navigate("/profile");
@@ -84,18 +88,18 @@ const Verification = () => {
       <div className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button variant="ghost" size="icon" className="rounded-full shrink-0" onClick={() => navigate(-1)}><ArrowLeft className="h-5 w-5" /></Button>
-          <h1 className="text-lg font-semibold truncate">{isAgent ? "Agent Verification" : "Owner Verification"}</h1>
+          <h1 className="text-lg font-semibold truncate">{isBuyer ? "Buyer Verification" : isAgent ? "Agent Verification" : "Owner Verification"}</h1>
         </div>
       </div>
 
       <main className="px-4 py-6 max-w-lg mx-auto pb-12 md:max-w-3xl md:py-10">
         {/* Hero */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-4 ${isAgent ? "bg-blue-500/10" : "bg-green-500/10"}`}>
-            {isAgent ? <Building2 className="h-10 w-10 text-blue-500" /> : <User className="h-10 w-10 text-green-500" />}
+          <div className={`h-20 w-20 rounded-full flex items-center justify-center mb-4 ${isBuyer ? "bg-primary/10" : isAgent ? "bg-blue-500/10" : "bg-green-500/10"}`}>
+            {isBuyer ? <ShieldCheck className="h-10 w-10 text-primary" /> : isAgent ? <Building2 className="h-10 w-10 text-blue-500" /> : <User className="h-10 w-10 text-green-500" />}
           </div>
-          <h2 className="text-xl md:text-2xl font-bold mb-1">{isAgent ? "Get Your Blue Badge 🔵" : "Get Your Green Badge ✅"}</h2>
-          <p className="text-sm text-muted-foreground max-w-md">{isAgent ? "Submit your documents and agency details to unlock unlimited listings and all features." : "Verify your identity to start listing properties and earn trust from buyers."}</p>
+          <h2 className="text-xl md:text-2xl font-bold mb-1">{isBuyer ? "Get a Verified Buyer Badge" : isAgent ? "Get Your Blue Badge 🔵" : "Get Your Green Badge ✅"}</h2>
+          <p className="text-sm text-muted-foreground max-w-md">{isBuyer ? "Verify your identity so owners and agents know your inquiries and offers come from a real person. It's free." : isAgent ? "Submit your documents and agency details to unlock unlimited listings and all features." : "Verify your identity to start listing properties and earn trust from buyers."}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
