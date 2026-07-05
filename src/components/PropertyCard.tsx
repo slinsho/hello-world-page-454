@@ -238,8 +238,10 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
         </div>
       )}
     </Card>
+    </Link>
   );
 };
+
 
 export default memo(PropertyCard, (prev, next) =>
   prev.property.id === next.property.id &&
