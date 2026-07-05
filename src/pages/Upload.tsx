@@ -214,7 +214,7 @@ const Upload = () => {
                 <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
               </div>
               <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
-              <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
+              
             </div>
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" />Contact</Label>
