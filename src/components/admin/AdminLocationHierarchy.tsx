@@ -154,11 +154,17 @@ export function AdminLocationHierarchy() {
 
   return (
     <div className="space-y-6 mt-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-1">Location Tree</h2>
-        <p className="text-sm text-muted-foreground">
-          Drill down: County → District → City → Community → Properties.
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Location Tree</h2>
+          <p className="text-sm text-muted-foreground">
+            Drill down: County → District → City → Community → Properties.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={exportCsv} disabled={scoped.length === 0} className="gap-1.5">
+          <Download className="h-3.5 w-3.5" />
+          Export CSV ({scoped.length})
+        </Button>
       </div>
 
       {/* Search */}
