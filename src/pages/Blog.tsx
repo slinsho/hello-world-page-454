@@ -176,7 +176,7 @@ export default function Blog() {
             </p>
 
             {/* Search + filters */}
-            <div className="mt-8 flex flex-col gap-3">
+            <div className="mt-5 flex flex-col gap-3">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
