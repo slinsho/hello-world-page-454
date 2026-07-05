@@ -21,7 +21,7 @@ const uploadSchema = z.object({
   property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive("Price must be greater than 0"),
-  address: z.string().min(5, "Address must be at least 5 characters").max(500),
+  
   county: z.string().min(1, "County is required"),
   contact_phone: z.string().min(5, "Phone number is required").max(20),
   contact_phone_2: z.string().max(20).optional(),
