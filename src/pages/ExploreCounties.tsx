@@ -55,13 +55,14 @@ export default function ExploreCounties() {
       />
       <div className="min-h-screen bg-background pb-20 md:pb-0">
         <Navbar />
-        <div className="max-w-6xl mx-auto px-4 pt-6 pb-12">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Explore Liberia by County</h1>
-            <p className="text-muted-foreground text-sm md:text-base mt-1">
+        <div className="max-w-6xl mx-auto px-4 pt-4 pb-8">
+          <div className="mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Explore Liberia by County</h1>
+            <p className="text-muted-foreground text-sm mt-1">
               All 15 counties of Liberia. Tap a flag to see local listings.
             </p>
           </div>
+
 
           <div className="relative mb-6 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
