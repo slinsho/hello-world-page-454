@@ -39,7 +39,8 @@ const EditProperty = () => {
   const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "",
-    address: "", county: "", contact_phone: "", contact_phone_2: "",
+    address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "",
+    contact_phone: "", contact_phone_2: "",
     bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
   const isLand = formData.property_type === "land";
@@ -57,6 +58,8 @@ const EditProperty = () => {
     setFormData({
       title: data.title, property_type: data.property_type, listing_type: data.listing_type,
       price_usd: String(data.price_usd), address: data.address, county: data.county,
+      district: (data as any).district || "", city: (data as any).city || "", community: (data as any).community || "",
+      street: (data as any).street || "", nearest_landmark: (data as any).nearest_landmark || "",
       contact_phone: data.contact_phone, contact_phone_2: data.contact_phone_2 || "",
       bedrooms: data.bedrooms ? String(data.bedrooms) : "", bathrooms: data.bathrooms ? String(data.bathrooms) : "",
       square_yards: data.square_yards ? String(data.square_yards) : "", description: data.description || "",
@@ -108,6 +111,9 @@ const EditProperty = () => {
       const updatePayload: any = {
         title: validated.title, property_type: validated.property_type, listing_type: validated.listing_type,
         price_usd: validated.price_usd, address: validated.address, county: validated.county,
+        district: formData.district.trim() || null, city: formData.city.trim() || null,
+        community: formData.community.trim() || null, street: formData.street.trim() || null,
+        nearest_landmark: formData.nearest_landmark.trim() || null,
         contact_phone: validated.contact_phone, contact_phone_2: validated.contact_phone_2 || null,
         photos: allPhotos, description: validated.description || null,
         bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null),
@@ -141,7 +147,7 @@ const EditProperty = () => {
         Object.assign(updatePayload, {
           land_size: null, land_use: null, title_deed_status: null,
           road_access: null, utilities_nearby: [], zoning: null,
-          topography: null, boundary_marked: null, nearest_landmark: null,
+          topography: null, boundary_marked: null,
         });
       }
       const { error } = await supabase.from("properties").update(updatePayload).eq("id", id);
@@ -196,6 +202,15 @@ const EditProperty = () => {
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" />Location</Label>
               <Select value={formData.county} onValueChange={(value) => setFormData({ ...formData, county: value })}><SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select county" /></SelectTrigger><SelectContent>{LIBERIA_COUNTIES.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent></Select>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} maxLength={100} placeholder="District" className="rounded-xl h-12" />
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} maxLength={100} placeholder="City" className="rounded-xl h-12" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.community} onChange={(e) => setFormData({ ...formData, community: e.target.value })} maxLength={100} placeholder="Community" className="rounded-xl h-12" />
+                <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
+              </div>
+              <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
               <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
             </div>
             <div className="space-y-3">

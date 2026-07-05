@@ -10,6 +10,9 @@ export interface SearchFilters {
   minPrice?: string;
   maxPrice?: string;
   county?: string;
+  district?: string;
+  city?: string;
+  community?: string;
   bedrooms?: string;
   bathrooms?: string;
   searchQuery?: string;

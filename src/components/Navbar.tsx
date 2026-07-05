@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { useLocationOptions } from "@/hooks/useLocationOptions";
 import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 
 const Navbar = () => {
@@ -44,6 +45,9 @@ const Navbar = () => {
   const [listingType, setListingType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [countyFilter, setCountyFilter] = useState("all");
+  const [districtFilter, setDistrictFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [communityFilter, setCommunityFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
@@ -218,12 +222,21 @@ const Navbar = () => {
     }
   };
 
+  const { districts: filterDistricts, cities: filterCities, communities: filterCommunities } = useLocationOptions({
+    county: countyFilter,
+    district: districtFilter,
+    city: cityFilter,
+  });
+
   const applyFilters = () => {
     const params = new URLSearchParams();
     if (selectedFilter !== "all") params.set("type", selectedFilter);
     if (listingType !== "all") params.set("listing", listingType);
     if (statusFilter !== "all") params.set("status", statusFilter);
     if (countyFilter !== "all") params.set("county", countyFilter);
+    if (districtFilter !== "all") params.set("district", districtFilter);
+    if (cityFilter !== "all") params.set("city", cityFilter);
+    if (communityFilter !== "all") params.set("community", communityFilter);
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (searchQuery) params.set("search", searchQuery);
@@ -447,7 +460,38 @@ const Navbar = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">District</Label>
+                      <Select value={districtFilter} onValueChange={(v) => { setDistrictFilter(v); setCityFilter("all"); setCommunityFilter("all"); }} disabled={filterDistricts.length === 0}>
+                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterDistricts.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">City</Label>
+                      <Select value={cityFilter} onValueChange={(v) => { setCityFilter(v); setCommunityFilter("all"); }} disabled={filterCities.length === 0}>
+                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterCities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Community</Label>
+                      <Select value={communityFilter} onValueChange={setCommunityFilter} disabled={filterCommunities.length === 0}>
+                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterCommunities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button onClick={applyFilters} className="w-full">Apply Filters</Button>
+
                   </div>
                 </SheetContent>
               </Sheet>
@@ -616,7 +660,38 @@ const Navbar = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">District</Label>
+                      <Select value={districtFilter} onValueChange={(v) => { setDistrictFilter(v); setCityFilter("all"); setCommunityFilter("all"); }} disabled={filterDistricts.length === 0}>
+                        <SelectTrigger className="w-full h-12 rounded-xl"><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterDistricts.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">City</Label>
+                      <Select value={cityFilter} onValueChange={(v) => { setCityFilter(v); setCommunityFilter("all"); }} disabled={filterCities.length === 0}>
+                        <SelectTrigger className="w-full h-12 rounded-xl"><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterCities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Community</Label>
+                      <Select value={communityFilter} onValueChange={setCommunityFilter} disabled={filterCommunities.length === 0}>
+                        <SelectTrigger className="w-full h-12 rounded-xl"><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          {filterCommunities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button onClick={applyFilters} className="w-full rounded-xl h-12">Apply</Button>
+
                   </div>
                 </SheetContent>
               </Sheet>

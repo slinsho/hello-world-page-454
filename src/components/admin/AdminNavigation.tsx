@@ -44,6 +44,7 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
       label: "Content",
       items: [
         { value: "properties", label: "Properties", icon: Home },
+        { value: "location-hierarchy", label: "Location Tree", icon: MapPin },
         { value: "blog", label: "Blog", icon: Newspaper },
         { value: "moderation", label: "Moderation", icon: Shield },
       ],

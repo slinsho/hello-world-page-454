@@ -21,6 +21,7 @@ import { AdminErrorLogs } from "@/components/admin/AdminErrorLogs";
 import { AdminSecurityDocs } from "@/components/admin/AdminSecurityDocs";
 import { AdminScalingDocs } from "@/components/admin/AdminScalingDocs";
 import { AdminCountyInsights } from "@/components/admin/AdminCountyInsights";
+import { AdminLocationHierarchy } from "@/components/admin/AdminLocationHierarchy";
 import { Shield, LogOut, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,6 +163,7 @@ export default function AdminDashboardPage() {
       case "security-docs": return <AdminSecurityDocs />;
       case "scaling-docs": return <AdminScalingDocs />;
       case "county-insights": return <AdminCountyInsights />;
+      case "location-hierarchy": return <AdminLocationHierarchy />;
       default: return <AdminDashboard onNavigateTab={handleTabChange} />;
     }
   };

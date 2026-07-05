@@ -30,6 +30,9 @@ const Index = () => {
   const listingFilter = searchParams.get("listing");
   const statusFilter = searchParams.get("status");
   const countyFilter = searchParams.get("county");
+  const districtFilter = searchParams.get("district");
+  const cityFilter = searchParams.get("city");
+  const communityFilter = searchParams.get("community");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
   const searchQuery = searchParams.get("search");
@@ -57,6 +60,9 @@ const Index = () => {
       if (effectiveCounty && effectiveCounty !== "all") {
         query = query.eq("county", effectiveCounty);
       }
+      if (districtFilter && districtFilter !== "all") query = query.eq("district", districtFilter);
+      if (cityFilter && cityFilter !== "all") query = query.eq("city", cityFilter);
+      if (communityFilter && communityFilter !== "all") query = query.eq("community", communityFilter);
       if (minPrice) {
         query = query.gte("price_usd", parseFloat(minPrice));
       }
@@ -160,7 +166,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order, preferences.default_county, preferences.default_listing_type, preferences.default_property_type]);
+  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, districtFilter, cityFilter, communityFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order, preferences.default_county, preferences.default_listing_type, preferences.default_property_type]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);

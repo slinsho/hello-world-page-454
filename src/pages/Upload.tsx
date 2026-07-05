@@ -42,7 +42,7 @@ const Upload = () => {
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
   const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
-    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
+    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
   const isLand = formData.property_type === "land";
 
@@ -124,7 +124,7 @@ const Upload = () => {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
-      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
+      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, district: formData.district.trim() || null, city: formData.city.trim() || null, community: formData.community.trim() || null, street: formData.street.trim() || null, nearest_landmark: formData.nearest_landmark.trim() || null, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
       if (isLand) {
         Object.assign(insertPayload, {
           land_size: parseFloat(land.land_size),
@@ -204,6 +204,15 @@ const Upload = () => {
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" />Location</Label>
               <Select value={formData.county} onValueChange={(value) => setFormData({ ...formData, county: value })}><SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select county" /></SelectTrigger><SelectContent>{LIBERIA_COUNTIES.map((county) => (<SelectItem key={county} value={county}>{county}</SelectItem>))}</SelectContent></Select>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} maxLength={100} placeholder="District" className="rounded-xl h-12" />
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} maxLength={100} placeholder="City" className="rounded-xl h-12" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.community} onChange={(e) => setFormData({ ...formData, community: e.target.value })} maxLength={100} placeholder="Community" className="rounded-xl h-12" />
+                <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
+              </div>
+              <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
               <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
             </div>
             <div className="space-y-3">
