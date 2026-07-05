@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { useLocationOptions } from "@/hooks/useLocationOptions";
 import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
 
 const Navbar = () => {
