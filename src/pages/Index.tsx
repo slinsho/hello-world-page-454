@@ -229,8 +229,8 @@ const Index = () => {
               )}
             </div>
 
-            {/* Explore Counties horizontal row */}
-            <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
+            {/* Explore Counties horizontal row (flat, no wrapping card) */}
+            <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-primary" />
@@ -249,9 +249,9 @@ const Index = () => {
                     <Link
                       key={name}
                       to={`/county/${countySlug(name)}`}
-                      className="group flex-shrink-0 w-28 text-left rounded-xl border border-border bg-background overflow-hidden transition-all hover:border-primary/60 hover:shadow-md"
+                      className="group flex-shrink-0 w-28 text-left rounded-xl overflow-hidden transition-all hover:-translate-y-0.5"
                     >
-                      <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
+                      <div className="relative aspect-[5/3] rounded-xl bg-muted overflow-hidden ring-1 ring-border group-hover:ring-primary/60 shadow-sm">
                         <img
                           src={COUNTY_FLAGS[name]}
                           alt={`${name} County flag`}
@@ -264,7 +264,7 @@ const Index = () => {
                           </Badge>
                         )}
                       </div>
-                      <div className="p-2">
+                      <div className="pt-2 px-0.5">
                         <p className="text-[10px] uppercase tracking-wide text-muted-foreground">County</p>
                         <p className="font-semibold text-xs truncate">{name}</p>
                       </div>
