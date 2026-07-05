@@ -173,6 +173,22 @@ const Index = () => {
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
 
+  const countyStats = useMemo(() => {
+    const s: Record<string, { active: number; avg: number; sum: number }> = {};
+    properties.forEach((p) => {
+      if (!p.county) return;
+      const k = p.county.trim();
+      s[k] = s[k] || { active: 0, avg: 0, sum: 0 };
+      s[k].active += 1;
+      s[k].sum += Number(p.price_usd) || 0;
+    });
+    const out: Record<string, { active: number; avg: number }> = {};
+    Object.entries(s).forEach(([k, v]) => {
+      out[k] = { active: v.active, avg: v.active ? Math.round(v.sum / v.active) : 0 };
+    });
+    return out;
+  }, [properties]);
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <SEOHead />
