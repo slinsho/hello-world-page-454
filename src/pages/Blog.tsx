@@ -162,7 +162,7 @@ export default function Blog() {
             }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-12 pb-10 md:pt-20 md:pb-14">
+          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-6 md:pt-10 md:pb-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Newsroom
