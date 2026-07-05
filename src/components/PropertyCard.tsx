@@ -9,6 +9,7 @@ import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { countyFlag } from "@/lib/countyFlags";
 
 interface PropertyCardProps {
   property: {
