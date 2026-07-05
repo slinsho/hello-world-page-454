@@ -125,7 +125,7 @@ export default function CountyLanding() {
         </div>
 
         {/* Listings */}
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto px-4 py-5 md:py-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg md:text-xl font-bold">Listings in {county}</h2>
             {stats.promoted > 0 && (
