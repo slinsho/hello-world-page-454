@@ -222,12 +222,21 @@ const Navbar = () => {
     }
   };
 
+  const { districts: filterDistricts, cities: filterCities, communities: filterCommunities } = useLocationOptions({
+    county: countyFilter,
+    district: districtFilter,
+    city: cityFilter,
+  });
+
   const applyFilters = () => {
     const params = new URLSearchParams();
     if (selectedFilter !== "all") params.set("type", selectedFilter);
     if (listingType !== "all") params.set("listing", listingType);
     if (statusFilter !== "all") params.set("status", statusFilter);
     if (countyFilter !== "all") params.set("county", countyFilter);
+    if (districtFilter !== "all") params.set("district", districtFilter);
+    if (cityFilter !== "all") params.set("city", cityFilter);
+    if (communityFilter !== "all") params.set("community", communityFilter);
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (searchQuery) params.set("search", searchQuery);
