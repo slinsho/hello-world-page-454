@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,8 @@ import { SEOHead } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
+import { COUNTY_FLAGS, LIBERIA_COUNTIES, countySlug } from "@/lib/countyFlags";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { user } = useAuth();
@@ -171,6 +173,22 @@ const Index = () => {
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
 
+  const countyStats = useMemo(() => {
+    const s: Record<string, { active: number; avg: number; sum: number }> = {};
+    properties.forEach((p) => {
+      if (!p.county) return;
+      const k = p.county.trim();
+      s[k] = s[k] || { active: 0, avg: 0, sum: 0 };
+      s[k].active += 1;
+      s[k].sum += Number(p.price_usd) || 0;
+    });
+    const out: Record<string, { active: number; avg: number }> = {};
+    Object.entries(s).forEach(([k, v]) => {
+      out[k] = { active: v.active, avg: v.active ? Math.round(v.sum / v.active) : 0 };
+    });
+    return out;
+  }, [properties]);
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <SEOHead />
@@ -204,16 +222,61 @@ const Index = () => {
           </div>
         ) : (
           <>
-            {/* First batch of properties */}
+            {/* First property card */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {firstTwoProperties.map((property, i) => (
-                <PropertyCard key={property.id} property={property} priority={i < 2} />
-              ))}
+              {firstTwoProperties[0] && (
+                <PropertyCard property={firstTwoProperties[0]} priority />
+              )}
+            </div>
+
+            {/* Explore Counties horizontal row */}
+            <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h2 className="text-lg font-bold text-foreground">Explore by County</h2>
+                </div>
+                <Link to="/explore-counties">
+                  <Button variant="ghost" size="sm" className="text-primary">
+                    View All <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:-mx-5 md:px-5 scrollbar-hide">
+                {LIBERIA_COUNTIES.map((name) => {
+                  const stat = countyStats[name];
+                  return (
+                    <Link
+                      key={name}
+                      to={`/county/${countySlug(name)}`}
+                      className="group flex-shrink-0 w-28 text-left rounded-xl border border-border bg-background overflow-hidden transition-all hover:border-primary/60 hover:shadow-md"
+                    >
+                      <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
+                        <img
+                          src={COUNTY_FLAGS[name]}
+                          alt={`${name} County flag`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        {stat && stat.active > 0 && (
+                          <Badge className="absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0.5 shadow-md">
+                            {stat.active}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="p-2">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">County</p>
+                        <p className="font-semibold text-xs truncate">{name}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Near Me Section */}
             {nearMeProperties.length > 0 && (
-              <div className="mt-8">
+              <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-primary" />
@@ -234,9 +297,12 @@ const Index = () => {
               </div>
             )}
 
-            {/* Remaining properties */}
+            {/* Remaining properties (starting with the second card) */}
             {remainingProperties.length > 0 && remainingProperties.length <= 6 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {firstTwoProperties[1] && (
+                  <PropertyCard property={firstTwoProperties[1]} priority />
+                )}
                 {remainingProperties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
@@ -246,7 +312,10 @@ const Index = () => {
             {/* Insert Market Analytics after first batch */}
             {remainingProperties.length > 6 && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                  {firstTwoProperties[1] && (
+                    <PropertyCard property={firstTwoProperties[1]} priority />
+                  )}
                   {remainingProperties.slice(0, 6).map((property) => (
                     <PropertyCard key={property.id} property={property} />
                   ))}
@@ -262,7 +331,7 @@ const Index = () => {
 
                 {/* Remaining after analytics */}
                 {remainingProperties.length > 6 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                     {remainingProperties.slice(6).map((property) => (
                       <PropertyCard key={property.id} property={property} />
                     ))}
