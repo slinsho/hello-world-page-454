@@ -44,6 +44,9 @@ const Navbar = () => {
   const [listingType, setListingType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [countyFilter, setCountyFilter] = useState("all");
+  const [districtFilter, setDistrictFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [communityFilter, setCommunityFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
