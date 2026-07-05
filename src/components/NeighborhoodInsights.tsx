@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, GraduationCap, HeartPulse, ShoppingBag, Users, Sparkles } from "lucide-react";
+import {
+  MapPin, GraduationCap, HeartPulse, ShoppingBag, Users, Sparkles,
+  Stethoscope, Trees, Store, UtensilsCrossed, Bus, Briefcase, Wallet, Home, Star,
+} from "lucide-react";
 
 interface CountyInsight {
   county: string;
@@ -8,7 +11,16 @@ interface CountyInsight {
   population: string | null;
   schools_count: number | null;
   hospitals_count: number | null;
+  clinics_count: number | null;
   markets_count: number | null;
+  parks_count: number | null;
+  shopping_centers_count: number | null;
+  restaurants_count: number | null;
+  public_transport: string | null;
+  employment_rate: string | null;
+  avg_household_income: string | null;
+  avg_property_price: string | null;
+  livability_score: number | null;
   highlights: string[] | null;
   image_url: string | null;
 }
@@ -48,17 +60,28 @@ export function NeighborhoodInsights({ county, compact = false }: Props) {
 
   if (loading || !data) return null;
 
-  const hasStats =
-    data.population || data.schools_count != null || data.hospitals_count != null || data.markets_count != null;
-  const hasContent = data.overview || hasStats || (data.highlights && data.highlights.length > 0);
-  if (!hasContent) return null;
 
   const stats = [
     { icon: Users, label: "Population", value: data.population },
+    { icon: Briefcase, label: "Employment", value: data.employment_rate },
+    { icon: Wallet, label: "Avg. income", value: data.avg_household_income },
+    { icon: Home, label: "Avg. property", value: data.avg_property_price },
     { icon: GraduationCap, label: "Schools", value: data.schools_count?.toLocaleString() },
     { icon: HeartPulse, label: "Hospitals", value: data.hospitals_count?.toLocaleString() },
+    { icon: Stethoscope, label: "Clinics", value: data.clinics_count?.toLocaleString() },
     { icon: ShoppingBag, label: "Markets", value: data.markets_count?.toLocaleString() },
+    { icon: Store, label: "Shopping", value: data.shopping_centers_count?.toLocaleString() },
+    { icon: UtensilsCrossed, label: "Restaurants", value: data.restaurants_count?.toLocaleString() },
+    { icon: Trees, label: "Parks", value: data.parks_count?.toLocaleString() },
   ].filter((s) => s.value);
+
+  const hasContent =
+    data.overview ||
+    stats.length > 0 ||
+    data.public_transport ||
+    data.livability_score != null ||
+    (data.highlights && data.highlights.length > 0);
+  if (!hasContent) return null;
 
   return (
     <div className={`rounded-2xl border border-border bg-card overflow-hidden ${compact ? "" : "mb-5"}`}>
@@ -68,9 +91,19 @@ export function NeighborhoodInsights({ county, compact = false }: Props) {
         </div>
       )}
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-base">{county} at a glance</h3>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            <h3 className="font-semibold text-base">{county} at a glance</h3>
+          </div>
+          {data.livability_score != null && (
+            <div className="flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5">
+              <Star className="h-3 w-3 text-primary fill-primary" />
+              <span className="text-[11px] font-semibold text-primary">
+                {Number(data.livability_score).toFixed(1)}/10
+              </span>
+            </div>
+          )}
         </div>
 
         {data.overview && (
@@ -88,6 +121,16 @@ export function NeighborhoodInsights({ county, compact = false }: Props) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {data.public_transport && (
+          <div className="flex items-start gap-2 rounded-xl bg-muted/50 px-3 py-2 mb-3">
+            <Bus className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Public transport</p>
+              <p className="text-sm">{data.public_transport}</p>
+            </div>
           </div>
         )}
 

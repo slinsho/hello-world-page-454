@@ -200,42 +200,69 @@ export type Database = {
       }
       county_insights: {
         Row: {
+          avg_household_income: string | null
+          avg_property_price: string | null
+          clinics_count: number | null
           county: string
           created_at: string
+          employment_rate: string | null
           highlights: string[]
           hospitals_count: number | null
           id: string
           image_url: string | null
+          livability_score: number | null
           markets_count: number | null
           overview: string | null
+          parks_count: number | null
           population: string | null
+          public_transport: string | null
+          restaurants_count: number | null
           schools_count: number | null
+          shopping_centers_count: number | null
           updated_at: string
         }
         Insert: {
+          avg_household_income?: string | null
+          avg_property_price?: string | null
+          clinics_count?: number | null
           county: string
           created_at?: string
+          employment_rate?: string | null
           highlights?: string[]
           hospitals_count?: number | null
           id?: string
           image_url?: string | null
+          livability_score?: number | null
           markets_count?: number | null
           overview?: string | null
+          parks_count?: number | null
           population?: string | null
+          public_transport?: string | null
+          restaurants_count?: number | null
           schools_count?: number | null
+          shopping_centers_count?: number | null
           updated_at?: string
         }
         Update: {
+          avg_household_income?: string | null
+          avg_property_price?: string | null
+          clinics_count?: number | null
           county?: string
           created_at?: string
+          employment_rate?: string | null
           highlights?: string[]
           hospitals_count?: number | null
           id?: string
           image_url?: string | null
+          livability_score?: number | null
           markets_count?: number | null
           overview?: string | null
+          parks_count?: number | null
           population?: string | null
+          public_transport?: string | null
+          restaurants_count?: number | null
           schools_count?: number | null
+          shopping_centers_count?: number | null
           updated_at?: string
         }
         Relationships: []
