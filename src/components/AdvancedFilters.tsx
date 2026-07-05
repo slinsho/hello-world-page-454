@@ -189,6 +189,55 @@ export function AdvancedFilters({ filters, onFiltersChange, onApply, onReset }: 
               </Select>
             </div>
 
+            {/* District */}
+            <div className="space-y-2">
+              <Label>District</Label>
+              <Select
+                value={filters.district || "all"}
+                onValueChange={(value) => onFiltersChange({ ...filters, district: value, city: "", community: "" })}
+                disabled={districts.length === 0}
+              >
+                <SelectTrigger><SelectValue placeholder={districts.length === 0 ? "No districts available" : "All Districts"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Districts</SelectItem>
+                  {districts.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* City */}
+            <div className="space-y-2">
+              <Label>City</Label>
+              <Select
+                value={filters.city || "all"}
+                onValueChange={(value) => onFiltersChange({ ...filters, city: value, community: "" })}
+                disabled={cities.length === 0}
+              >
+                <SelectTrigger><SelectValue placeholder={cities.length === 0 ? "No cities available" : "All Cities"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {cities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Community */}
+            <div className="space-y-2">
+              <Label>Community</Label>
+              <Select
+                value={filters.community || "all"}
+                onValueChange={(value) => onFiltersChange({ ...filters, community: value })}
+                disabled={communities.length === 0}
+              >
+                <SelectTrigger><SelectValue placeholder={communities.length === 0 ? "No communities available" : "All Communities"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Communities</SelectItem>
+                  {communities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+
+
             {/* Price Range Slider */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
