@@ -64,7 +64,7 @@ export default function ExploreCounties() {
           </div>
 
 
-          <div className="relative mb-6 max-w-md">
+          <div className="relative mb-4 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search counties..."
