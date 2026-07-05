@@ -21,15 +21,25 @@ export default function CountyLanding() {
     if (!county) return;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data: props } = await supabase
         .from("properties")
-        .select("*, profiles!properties_owner_id_fkey(name, role, verification_status, phone, profile_photo_url)")
+        .select("*")
         .eq("county", county)
         .eq("status", "active")
         .order("is_promoted", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(60);
-      setProperties(data || []);
+      const rows = props || [];
+      const ownerIds = Array.from(new Set(rows.map((p: any) => p.owner_id).filter(Boolean)));
+      let profilesMap = new Map<string, any>();
+      if (ownerIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, name, role, verification_status, phone, profile_photo_url")
+          .in("id", ownerIds);
+        profilesMap = new Map((profs || []).map((p: any) => [p.id, p]));
+      }
+      setProperties(rows.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
       setLoading(false);
     })();
   }, [county]);
