@@ -9,6 +9,7 @@ import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { countyFlag } from "@/lib/countyFlags";
 
 interface PropertyCardProps {
   property: {
@@ -119,7 +120,16 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
             <div className="space-y-2">
               {/* Location */}
               <div className="flex items-center gap-1.5 text-xs text-foreground/80">
-                <MapPin className="h-3 w-3" />
+                {countyFlag(property.county) ? (
+                  <img
+                    src={countyFlag(property.county)}
+                    alt={property.county}
+                    className="h-3 w-4 object-cover rounded-[2px] shrink-0 ring-1 ring-black/10"
+                    loading="lazy"
+                  />
+                ) : (
+                  <MapPin className="h-3 w-3" />
+                )}
                 <span className="line-clamp-1">{property.address}</span>
               </div>
               

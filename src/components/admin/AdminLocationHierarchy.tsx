@@ -5,22 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, MapPin, Search, ArrowLeft, Building2, Home } from "lucide-react";
-import flagBomi from "@/assets/county-flags/Bomi.svg";
-import flagBong from "@/assets/county-flags/Bong.svg";
-import flagGbarpolu from "@/assets/county-flags/Gbarpolu.svg";
-import flagGrandBassa from "@/assets/county-flags/Grand_Bassa.svg";
-import flagGrandCapeMount from "@/assets/county-flags/Grand_Cape_Mount.svg";
-import flagGrandGedeh from "@/assets/county-flags/Grand_Gedeh.svg";
-import flagGrandKru from "@/assets/county-flags/Grand_Kru.svg";
-import flagLofa from "@/assets/county-flags/Lofa.svg";
-import flagMargibi from "@/assets/county-flags/Margibi.svg";
-import flagMaryland from "@/assets/county-flags/Maryland.svg";
-import flagMontserrado from "@/assets/county-flags/Montserrado.png";
-import flagNimba from "@/assets/county-flags/Nimba.png";
-import flagRiverCess from "@/assets/county-flags/River_Cess.png";
-import flagRiverGee from "@/assets/county-flags/River_Gee.svg";
-import flagSinoe from "@/assets/county-flags/Sinoe.png";
+import { ChevronRight, MapPin, Search, ArrowLeft, Building2, Home, Download } from "lucide-react";
+import { COUNTY_FLAGS, LIBERIA_COUNTIES } from "@/lib/countyFlags";
 
 interface Property {
   id: string;
@@ -38,25 +24,14 @@ interface Property {
   nearest_landmark: string | null;
 }
 
-const COUNTY_FLAGS: Record<string, string> = {
-  "Bomi": flagBomi,
-  "Bong": flagBong,
-  "Gbarpolu": flagGbarpolu,
-  "Grand Bassa": flagGrandBassa,
-  "Grand Cape Mount": flagGrandCapeMount,
-  "Grand Gedeh": flagGrandGedeh,
-  "Grand Kru": flagGrandKru,
-  "Lofa": flagLofa,
-  "Margibi": flagMargibi,
-  "Maryland": flagMaryland,
-  "Montserrado": flagMontserrado,
-  "Nimba": flagNimba,
-  "River Cess": flagRiverCess,
-  "River Gee": flagRiverGee,
-  "Sinoe": flagSinoe,
+// Sanitize CSV cells against formula injection (project convention).
+const csvCell = (v: any): string => {
+  const s = v == null ? "" : String(v);
+  const dangerous = /^[=+\-@\t\r]/.test(s);
+  const escaped = s.replace(/"/g, '""');
+  return `"${dangerous ? "'" + escaped : escaped}"`;
 };
 
-const LIBERIA_COUNTIES = Object.keys(COUNTY_FLAGS);
 
 
 const UNSET = "— Unspecified —";
@@ -113,17 +88,20 @@ export function AdminLocationHierarchy() {
     : path.length === 3 ? "community"
     : "properties";
 
-  // Build cards for current level
+  // Build cards for current level with stats (count, active, avg price)
   const cards = useMemo(() => {
-    if (currentLevel === "properties") return [];
-    const groups = new Map<string, number>();
+    if (currentLevel === "properties") return [] as { value: string; count: number; active: number; avgPrice: number }[];
+    const groups = new Map<string, { count: number; active: number; sum: number }>();
     for (const p of scoped) {
       const key = norm((p as any)[currentLevel]);
-      groups.set(key, (groups.get(key) || 0) + 1);
+      const g = groups.get(key) || { count: 0, active: 0, sum: 0 };
+      g.count += 1;
+      if (p.status === "active") g.active += 1;
+      g.sum += Number(p.price_usd) || 0;
+      groups.set(key, g);
     }
-    // For county level, always include all 15 Liberian counties (even with 0)
     if (currentLevel === "county" && !search.trim()) {
-      for (const c of LIBERIA_COUNTIES) if (!groups.has(c)) groups.set(c, 0);
+      for (const c of LIBERIA_COUNTIES) if (!groups.has(c)) groups.set(c, { count: 0, active: 0, sum: 0 });
     }
     return Array.from(groups.entries())
       .sort((a, b) => {
@@ -131,8 +109,14 @@ export function AdminLocationHierarchy() {
         if (b[0] === UNSET) return -1;
         return a[0].localeCompare(b[0]);
       })
-      .map(([value, count]) => ({ value, count }));
+      .map(([value, g]) => ({
+        value,
+        count: g.count,
+        active: g.active,
+        avgPrice: g.count > 0 ? Math.round(g.sum / g.count) : 0,
+      }));
   }, [scoped, currentLevel, search]);
+
 
   const levelLabels: Record<Level, string> = {
     county: "County",
@@ -148,13 +132,39 @@ export function AdminLocationHierarchy() {
 
   const goToCrumb = (idx: number) => setPath(path.slice(0, idx));
 
+  const exportCsv = () => {
+    if (scoped.length === 0) return;
+    const headers = ["title", "status", "property_type", "listing_type", "price_usd", "county", "district", "city", "community", "street", "nearest_landmark"];
+    const rows = [headers.join(",")];
+    for (const p of scoped) {
+      rows.push(headers.map((h) => csvCell((p as any)[h])).join(","));
+    }
+    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const slug = path.length ? path.map((c) => c.value).join("_").replace(/[^\w-]+/g, "-") : "all";
+    a.href = url;
+    a.download = `properties_${slug}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+
   return (
     <div className="space-y-6 mt-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-1">Location Tree</h2>
-        <p className="text-sm text-muted-foreground">
-          Drill down: County → District → City → Community → Properties.
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Location Tree</h2>
+          <p className="text-sm text-muted-foreground">
+            Drill down: County → District → City → Community → Properties.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={exportCsv} disabled={scoped.length === 0} className="gap-1.5">
+          <Download className="h-3.5 w-3.5" />
+          Export CSV ({scoped.length})
+        </Button>
       </div>
 
       {/* Search */}
@@ -282,7 +292,7 @@ export function AdminLocationHierarchy() {
       ) : currentLevel === "county" ? (
         // County level: rich flag cards
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {cards.map(({ value, count }) => {
+          {cards.map(({ value, count, active, avgPrice }) => {
             const disabled = count === 0;
             const flag = COUNTY_FLAGS[value];
             return (
@@ -298,41 +308,46 @@ export function AdminLocationHierarchy() {
               >
                 <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
                   {flag ? (
-                    <img
-                      src={flag}
-                      alt={`${value} County flag`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+                    <img src={flag} alt={`${value} County flag`} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <MapPin className="h-8 w-8 text-muted-foreground/40" />
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Badge
-                      variant={count > 0 ? "default" : "secondary"}
-                      className="text-[10px] shadow-md"
-                    >
+                    <Badge variant={count > 0 ? "default" : "secondary"} className="text-[10px] shadow-md">
                       {count} {count === 1 ? "property" : "properties"}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-3">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">
-                    County
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-sm truncate">{value}</p>
-                    {!disabled && (
-                      <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                    )}
+                <div className="p-3 space-y-2">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">County</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold text-sm truncate">{value}</p>
+                      {!disabled && (
+                        <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      )}
+                    </div>
                   </div>
+                  {count > 0 && (
+                    <div className="grid grid-cols-2 gap-1 text-center">
+                      <div className="rounded-md bg-muted/60 py-1">
+                        <p className="text-xs font-bold text-primary">{active}</p>
+                        <p className="text-[9px] uppercase text-muted-foreground">Active</p>
+                      </div>
+                      <div className="rounded-md bg-muted/60 py-1">
+                        <p className="text-xs font-bold">${(avgPrice / 1000).toFixed(0)}k</p>
+                        <p className="text-[9px] uppercase text-muted-foreground">Avg</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </button>
             );
           })}
         </div>
+
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {cards.map(({ value, count }) => {
