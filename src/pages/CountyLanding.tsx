@@ -89,7 +89,7 @@ export default function CountyLanding() {
           <div className="absolute inset-0 opacity-20 blur-2xl">
             <img src={flag} alt="" className="w-full h-full object-cover" />
           </div>
-          <div className="relative max-w-6xl mx-auto px-4 py-6 md:py-10">
+          <div className="relative max-w-6xl mx-auto px-4 py-4 md:py-6">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-3 gap-1.5">
               <ArrowLeft className="h-4 w-4" />
               Back
