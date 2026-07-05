@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ChevronDown, MapPin, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, MapPin, Search, ArrowLeft, Building2, Home } from "lucide-react";
 
 interface Property {
   id: string;
@@ -13,6 +14,7 @@ interface Property {
   property_type: string;
   listing_type: string;
   price_usd: number;
+  photos: string[] | null;
   county: string | null;
   district: string | null;
   city: string | null;
@@ -21,27 +23,43 @@ interface Property {
   nearest_landmark: string | null;
 }
 
+const LIBERIA_COUNTIES = [
+  "Bomi", "Bong", "Gbarpolu", "Grand Bassa", "Grand Cape Mount",
+  "Grand Gedeh", "Grand Kru", "Lofa", "Margibi", "Maryland",
+  "Montserrado", "Nimba", "River Cess", "River Gee", "Sinoe",
+];
+
 const UNSET = "— Unspecified —";
 const norm = (v: string | null | undefined) => (v && v.trim() ? v.trim() : UNSET);
+
+type Level = "county" | "district" | "city" | "community";
+
+interface Crumb {
+  level: Level;
+  value: string;
+}
 
 export function AdminLocationHierarchy() {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState("");
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [path, setPath] = useState<Crumb[]>([]); // drill-down path
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("properties")
-        .select("id,title,status,property_type,listing_type,price_usd,county,district,city,community,street,nearest_landmark")
+        .select("id,title,status,property_type,listing_type,price_usd,photos,county,district,city,community,street,nearest_landmark")
         .order("county", { ascending: true })
         .limit(2000);
       if (data) setProperties(data as any);
+      setLoading(false);
     })();
   }, []);
 
-  const filtered = useMemo(() => {
+  // Filter by search across all fields
+  const searched = useMemo(() => {
     const s = search.trim().toLowerCase();
     if (!s) return properties;
     return properties.filter((p) =>
@@ -51,105 +69,223 @@ export function AdminLocationHierarchy() {
     );
   }, [properties, search]);
 
-  // Build nested tree: county -> district -> city -> community -> street -> landmark -> [properties]
-  const tree = useMemo(() => {
-    const root: any = {};
-    for (const p of filtered) {
-      const path = [norm(p.county), norm(p.district), norm(p.city), norm(p.community), norm(p.street), norm(p.nearest_landmark)];
-      let node = root;
-      for (const key of path) {
-        node[key] = node[key] || { __children: {}, __items: [] as Property[] };
-        if (key === path[path.length - 1]) node[key].__items.push(p);
-        node = node[key].__children;
-      }
+  // Scope to current path
+  const scoped = useMemo(() => {
+    return searched.filter((p) =>
+      path.every((c) => norm((p as any)[c.level]) === c.value)
+    );
+  }, [searched, path]);
+
+  const currentLevel: Level | "properties" =
+    path.length === 0 ? "county"
+    : path.length === 1 ? "district"
+    : path.length === 2 ? "city"
+    : path.length === 3 ? "community"
+    : "properties";
+
+  // Build cards for current level
+  const cards = useMemo(() => {
+    if (currentLevel === "properties") return [];
+    const groups = new Map<string, number>();
+    for (const p of scoped) {
+      const key = norm((p as any)[currentLevel]);
+      groups.set(key, (groups.get(key) || 0) + 1);
     }
-    return root;
-  }, [filtered]);
+    // For county level, always include all 15 Liberian counties (even with 0)
+    if (currentLevel === "county" && !search.trim()) {
+      for (const c of LIBERIA_COUNTIES) if (!groups.has(c)) groups.set(c, 0);
+    }
+    return Array.from(groups.entries())
+      .sort((a, b) => {
+        if (a[0] === UNSET) return 1;
+        if (b[0] === UNSET) return -1;
+        return a[0].localeCompare(b[0]);
+      })
+      .map(([value, count]) => ({ value, count }));
+  }, [scoped, currentLevel, search]);
 
-  const toggle = (k: string) => setExpanded((prev) => ({ ...prev, [k]: !prev[k] }));
-
-  const renderNode = (node: any, path: string, depth: number, labels: string[]): any => {
-    const keys = Object.keys(node).sort((a, b) => (a === UNSET ? 1 : b === UNSET ? -1 : a.localeCompare(b)));
-    return keys.map((key) => {
-      const fullPath = `${path}/${key}`;
-      const isOpen = expanded[fullPath] ?? depth < 1;
-      const entry = node[key];
-      const items: Property[] = entry.__items || [];
-      const childKeys = Object.keys(entry.__children || {});
-      const level = labels[depth] || "";
-      const count = countAll(entry);
-      return (
-        <div key={fullPath} style={{ marginLeft: depth === 0 ? 0 : 12 }}>
-          <button
-            type="button"
-            onClick={() => toggle(fullPath)}
-            className="w-full flex items-center gap-2 py-2 px-2 hover:bg-muted/50 rounded-md text-left"
-          >
-            {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-            {depth === 0 && <MapPin className="h-4 w-4 text-primary" />}
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">{level}</span>
-            <span className="font-medium">{key}</span>
-            <Badge variant="secondary" className="ml-auto">{count}</Badge>
-          </button>
-          {isOpen && (
-            <div className="pl-4 border-l border-border ml-3">
-              {childKeys.length > 0 && renderNode(entry.__children, fullPath, depth + 1, labels)}
-              {depth === labels.length - 1 && items.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => navigate(`/property/${p.id}`)}
-                  className="cursor-pointer flex items-center gap-3 py-2 px-2 hover:bg-muted/50 rounded-md text-sm"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{p.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {p.property_type} • {p.listing_type} • ${p.price_usd.toLocaleString()}
-                    </div>
-                  </div>
-                  <Badge variant={p.status === "active" ? "default" : "secondary"} className="text-[10px]">{p.status}</Badge>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      );
-    });
+  const levelLabels: Record<Level, string> = {
+    county: "County",
+    district: "District",
+    city: "City",
+    community: "Community",
   };
 
-  const countAll = (entry: any): number => {
-    let n = (entry.__items || []).length;
-    for (const k of Object.keys(entry.__children || {})) n += countAll(entry.__children[k]);
-    return n;
+  const drillInto = (value: string) => {
+    if (currentLevel === "properties") return;
+    setPath([...path, { level: currentLevel, value }]);
   };
 
-  const labels = ["County", "District", "City", "Community", "Street", "Landmark"];
+  const goToCrumb = (idx: number) => setPath(path.slice(0, idx));
 
   return (
     <div className="space-y-6 mt-6">
       <div>
-        <h2 className="text-2xl font-bold mb-1">Location Hierarchy</h2>
-        <p className="text-sm text-muted-foreground">Browse all properties grouped by County → District → City → Community → Street → Landmark.</p>
+        <h2 className="text-2xl font-bold mb-1">Location Tree</h2>
+        <p className="text-sm text-muted-foreground">
+          Drill down: County → District → City → Community → Properties.
+        </p>
       </div>
 
+      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by title or location..."
+          placeholder="Search by title or any location field..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
         />
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No properties found.</p>
-          ) : (
-            <div className="space-y-1">{renderNode(tree, "", 0, labels)}</div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Breadcrumbs */}
+      <div className="flex items-center flex-wrap gap-2 text-sm">
+        <Button
+          variant={path.length === 0 ? "default" : "outline"}
+          size="sm"
+          onClick={() => setPath([])}
+          className="h-8 gap-1.5"
+        >
+          <Home className="h-3.5 w-3.5" />
+          All Counties
+        </Button>
+        {path.map((c, idx) => (
+          <div key={idx} className="flex items-center gap-2">
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant={idx === path.length - 1 ? "default" : "outline"}
+              size="sm"
+              onClick={() => goToCrumb(idx + 1)}
+              className="h-8"
+            >
+              <span className="text-[10px] uppercase tracking-wide mr-1.5 opacity-70">
+                {levelLabels[c.level]}
+              </span>
+              {c.value}
+            </Button>
+          </div>
+        ))}
+        {path.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => goToCrumb(path.length - 1)}
+            className="h-8 gap-1 text-muted-foreground ml-auto"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </Button>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-28 rounded-xl bg-muted animate-pulse" />
+          ))}
+        </div>
+      ) : currentLevel === "properties" ? (
+        // Properties list at deepest level
+        scoped.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              No properties in this community.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {scoped.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => navigate(`/property/${p.id}`)}
+                className="text-left rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all overflow-hidden group"
+              >
+                <div className="aspect-video bg-muted overflow-hidden">
+                  {p.photos?.[0] ? (
+                    <img
+                      src={p.photos[0]}
+                      alt={p.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Building2 className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="font-medium text-sm line-clamp-1 flex-1">{p.title}</p>
+                    <Badge
+                      variant={p.status === "active" ? "default" : "secondary"}
+                      className="text-[10px] shrink-0"
+                    >
+                      {p.status}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {p.property_type} • {p.listing_type.replace("_", " ")}
+                  </p>
+                  <p className="text-sm font-semibold text-primary mt-1">
+                    ${p.price_usd.toLocaleString()}
+                  </p>
+                  {(p.street || p.nearest_landmark) && (
+                    <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span className="truncate">
+                        {[p.street, p.nearest_landmark].filter(Boolean).join(" • ")}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        )
+      ) : cards.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-sm text-muted-foreground">
+            No {levelLabels[currentLevel].toLowerCase()}s found.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {cards.map(({ value, count }) => {
+            const disabled = count === 0;
+            return (
+              <button
+                key={value}
+                onClick={() => !disabled && drillInto(value)}
+                disabled={disabled}
+                className={`group text-left rounded-xl border border-border bg-card p-4 transition-all ${
+                  disabled
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:border-primary/60 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <Badge variant={count > 0 ? "default" : "secondary"} className="text-[10px]">
+                    {count}
+                  </Badge>
+                </div>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                  {levelLabels[currentLevel]}
+                </p>
+                <p className="font-semibold text-sm line-clamp-2">{value}</p>
+                {!disabled && (
+                  <div className="mt-2 flex items-center gap-1 text-[11px] text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    Explore <ChevronRight className="h-3 w-3" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
