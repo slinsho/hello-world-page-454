@@ -19,7 +19,7 @@ const editSchema = z.object({
   property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive(),
-  address: z.string().min(5).max(500),
+  
   county: z.string().min(1),
   contact_phone: z.string().min(5).max(20),
   contact_phone_2: z.string().max(20).optional(),
@@ -108,9 +108,10 @@ const EditProperty = () => {
         return supabase.storage.from("property-photos").getPublicUrl(fileName).data.publicUrl;
       }));
       const allPhotos = [...existingPhotos, ...newPhotoUrls];
+      const composedAddress = [formData.street, formData.community, formData.city, formData.district, validated.county].map(s => (s || "").trim()).filter(Boolean).join(", ") || validated.county;
       const updatePayload: any = {
         title: validated.title, property_type: validated.property_type, listing_type: validated.listing_type,
-        price_usd: validated.price_usd, address: validated.address, county: validated.county,
+        price_usd: validated.price_usd, address: composedAddress, county: validated.county,
         district: formData.district.trim() || null, city: formData.city.trim() || null,
         community: formData.community.trim() || null, street: formData.street.trim() || null,
         nearest_landmark: formData.nearest_landmark.trim() || null,
@@ -211,7 +212,7 @@ const EditProperty = () => {
                 <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
               </div>
               <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
-              <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
+              
             </div>
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" />Contact</Label>

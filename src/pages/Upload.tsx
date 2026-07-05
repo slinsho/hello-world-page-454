@@ -21,7 +21,7 @@ const uploadSchema = z.object({
   property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive("Price must be greater than 0"),
-  address: z.string().min(5, "Address must be at least 5 characters").max(500),
+  
   county: z.string().min(1, "County is required"),
   contact_phone: z.string().min(5, "Phone number is required").max(20),
   contact_phone_2: z.string().max(20).optional(),
@@ -124,7 +124,8 @@ const Upload = () => {
       const validatedData = uploadSchema.parse({ ...formData, price_usd: parseFloat(formData.price_usd), contact_phone_2: formData.contact_phone_2 || undefined });
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
-      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: validatedData.address, county: validatedData.county, district: formData.district.trim() || null, city: formData.city.trim() || null, community: formData.community.trim() || null, street: formData.street.trim() || null, nearest_landmark: formData.nearest_landmark.trim() || null, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
+      const composedAddress = [formData.street, formData.community, formData.city, formData.district, validatedData.county].map(s => (s || "").trim()).filter(Boolean).join(", ") || validatedData.county;
+      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: composedAddress, county: validatedData.county, district: formData.district.trim() || null, city: formData.city.trim() || null, community: formData.community.trim() || null, street: formData.street.trim() || null, nearest_landmark: formData.nearest_landmark.trim() || null, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
       if (isLand) {
         Object.assign(insertPayload, {
           land_size: parseFloat(land.land_size),
@@ -213,7 +214,7 @@ const Upload = () => {
                 <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
               </div>
               <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
-              <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
+              
             </div>
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" />Contact</Label>
