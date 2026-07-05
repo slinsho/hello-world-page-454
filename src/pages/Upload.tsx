@@ -204,6 +204,15 @@ const Upload = () => {
             <div className="space-y-3">
               <Label className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" />Location</Label>
               <Select value={formData.county} onValueChange={(value) => setFormData({ ...formData, county: value })}><SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select county" /></SelectTrigger><SelectContent>{LIBERIA_COUNTIES.map((county) => (<SelectItem key={county} value={county}>{county}</SelectItem>))}</SelectContent></Select>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} maxLength={100} placeholder="District" className="rounded-xl h-12" />
+                <Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} maxLength={100} placeholder="City" className="rounded-xl h-12" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={formData.community} onChange={(e) => setFormData({ ...formData, community: e.target.value })} maxLength={100} placeholder="Community" className="rounded-xl h-12" />
+                <Input value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} maxLength={100} placeholder="Street (optional)" className="rounded-xl h-12" />
+              </div>
+              <Input value={formData.nearest_landmark} onChange={(e) => setFormData({ ...formData, nearest_landmark: e.target.value })} maxLength={150} placeholder="Nearest landmark (optional)" className="rounded-xl h-12" />
               <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required maxLength={500} placeholder="Full address" className="rounded-xl h-12" />
             </div>
             <div className="space-y-3">
