@@ -27,6 +27,7 @@ interface Offer {
   id: string;
   buyer_name: string;
   buyer_phone: string;
+  buyer_id: string | null;
   offer_amount_usd: number;
   message: string | null;
   status: string;
@@ -34,6 +35,7 @@ interface Offer {
   property_id: string;
   property_title?: string;
   property_photo?: string;
+  buyer_verified?: boolean;
 }
 
 interface DashboardInquiriesProps {
@@ -64,16 +66,36 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
 
     const propsMap = new Map(propsData?.map(p => [p.id, { title: p.title, photo: p.photos?.[0] }]) || []);
 
-    setInquiries((inquiriesData || []).map(inq => ({
+    // Look up which senders/buyers are verified buyers
+    const senderIds = Array.from(new Set([
+      ...(inquiriesData || []).map((i: any) => i.sender_id).filter(Boolean),
+      ...(offersData || []).map((o: any) => o.buyer_id).filter(Boolean),
+    ]));
+    let verifiedSet = new Set<string>();
+    if (senderIds.length > 0) {
+      const { data: verifiedProfiles } = await supabase
+        .from("profiles")
+        .select("id, buyer_verified" as any)
+        .in("id", senderIds);
+      verifiedSet = new Set(
+        ((verifiedProfiles as any[]) || [])
+          .filter((p) => p.buyer_verified)
+          .map((p) => p.id as string)
+      );
+    }
+
+    setInquiries((inquiriesData || []).map((inq: any) => ({
       ...inq,
       property_title: propsMap.get(inq.property_id)?.title || "Unknown",
       property_photo: propsMap.get(inq.property_id)?.photo,
+      sender_verified: !!(inq.sender_id && verifiedSet.has(inq.sender_id)),
     })));
 
-    setOffers((offersData || []).map(off => ({
+    setOffers((offersData || []).map((off: any) => ({
       ...off,
       property_title: propsMap.get(off.property_id)?.title || "Unknown",
       property_photo: propsMap.get(off.property_id)?.photo,
+      buyer_verified: !!(off.buyer_id && verifiedSet.has(off.buyer_id)),
     })));
 
     setLoading(false);
