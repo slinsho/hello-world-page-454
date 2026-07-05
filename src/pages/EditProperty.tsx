@@ -19,7 +19,7 @@ const editSchema = z.object({
   property_type: z.enum(["house", "apartment", "shop", "land"]),
   listing_type: z.enum(["for_sale", "for_rent", "for_lease"]),
   price_usd: z.number().positive(),
-  address: z.string().min(5).max(500),
+  
   county: z.string().min(1),
   contact_phone: z.string().min(5).max(20),
   contact_phone_2: z.string().max(20).optional(),
