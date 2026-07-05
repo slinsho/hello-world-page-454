@@ -61,9 +61,9 @@ export function AdminCountyInsights() {
     }
     setUploading(true);
     try {
-      const resized = await resizeImage(file, 1600, 0.75);
-      const ext = (resized.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `county-insights/${form.county || "county"}-${Date.now()}.${ext}`;
+      const resized = await resizeImage(file, 1600, 1600, 0.75);
+      const ext = resized.type.includes("webp") ? "webp" : "jpg";
+      const path = `county-insights/${(form.county || "county").toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("blog-media").upload(path, resized, {
         cacheControl: "3600",
         upsert: true,
