@@ -279,6 +279,60 @@ export function AdminLocationHierarchy() {
             No {levelLabels[currentLevel].toLowerCase()}s found.
           </CardContent>
         </Card>
+      ) : currentLevel === "county" ? (
+        // County level: rich flag cards
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {cards.map(({ value, count }) => {
+            const disabled = count === 0;
+            const flag = COUNTY_FLAGS[value];
+            return (
+              <button
+                key={value}
+                onClick={() => !disabled && drillInto(value)}
+                disabled={disabled}
+                className={`group text-left rounded-2xl border border-border bg-card overflow-hidden transition-all ${
+                  disabled
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:border-primary/60 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                }`}
+              >
+                <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
+                  {flag ? (
+                    <img
+                      src={flag}
+                      alt={`${value} County flag`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <MapPin className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <Badge
+                      variant={count > 0 ? "default" : "secondary"}
+                      className="text-[10px] shadow-md"
+                    >
+                      {count} {count === 1 ? "property" : "properties"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">
+                    County
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-sm truncate">{value}</p>
+                    {!disabled && (
+                      <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {cards.map(({ value, count }) => {
@@ -316,6 +370,7 @@ export function AdminLocationHierarchy() {
           })}
         </div>
       )}
+
     </div>
   );
 }
