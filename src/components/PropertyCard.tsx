@@ -119,7 +119,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
           <Link to={`/property/${property.id}`}>
             <div className="space-y-2">
               {/* Location */}
-              <div className="flex items-center gap-1.5 text-xs text-foreground/80">
+              <div className="card-location flex items-center gap-1.5 text-xs text-foreground/80">
                 {countyFlag(property.county) ? (
                   <img
                     src={countyFlag(property.county)}
@@ -135,14 +135,14 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
               
               {/* Title and Price */}
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-base text-foreground line-clamp-1 flex-1">
+                <h3 className="card-title font-bold text-base text-foreground line-clamp-1 flex-1">
                   {property.title}
                 </h3>
                 <div className="text-right">
                   <span className="font-bold text-lg text-primary whitespace-nowrap">
                     {showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`}
                   </span>
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="card-price-secondary block text-xs text-muted-foreground">
                     {showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)}
                   </span>
                 </div>
