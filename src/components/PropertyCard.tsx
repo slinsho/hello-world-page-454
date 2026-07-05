@@ -70,7 +70,9 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
   const secondaryPrice = showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd);
 
   return (
+    <Link to={`/property/${property.id}`} className="block">
     <Card className="overflow-hidden hover:shadow-xl transition-all cursor-pointer border-0 bg-card rounded-2xl">
+
       <div className={`relative overflow-hidden ${isFeatured ? "h-60 md:h-72" : "h-48"}`}>
         {property.photos[0] ? (
           <img
