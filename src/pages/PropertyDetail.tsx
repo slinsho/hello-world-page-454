@@ -24,6 +24,7 @@ import Navbar from "@/components/Navbar";
 import { ReportPropertyDialog } from "@/components/ReportPropertyDialog";
 import { PromotePropertyDialog } from "@/components/PromotePropertyDialog";
 import useEmblaCarousel from "embla-carousel-react";
+import { NeighborhoodInsights } from "@/components/NeighborhoodInsights";
 
 const PropertyDetail = () => {
   const { id } = useParams();
