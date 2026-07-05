@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,8 @@ import { SEOHead } from "@/components/SEOHead";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
+import { COUNTY_FLAGS, LIBERIA_COUNTIES, countySlug } from "@/lib/countyFlags";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const { user } = useAuth();
