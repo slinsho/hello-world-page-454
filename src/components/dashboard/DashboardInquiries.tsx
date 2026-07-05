@@ -7,6 +7,7 @@ import { MessageSquare, DollarSign, Mail, Phone, User, Clock, Home, ChevronDown,
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { VerifiedBuyerBadge } from "@/components/VerifiedBuyerBadge";
 
 interface Inquiry {
   id: string;
@@ -190,7 +191,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm truncate">{inq.sender_name}</p>
+                          <p className="font-medium text-sm truncate flex items-center gap-1.5">{inq.sender_name}{inq.sender_verified && <VerifiedBuyerBadge />}</p>
                           <div className="flex items-center gap-1.5">
                             {!inq.is_read && <div className="h-2 w-2 rounded-full bg-primary" />}
                             {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -261,7 +262,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm">{off.buyer_name}</p>
+                          <p className="font-medium text-sm flex items-center gap-1.5">{off.buyer_name}{off.buyer_verified && <VerifiedBuyerBadge />}</p>
                           <Badge variant={off.status === "pending" ? "default" : off.status === "accepted" ? "default" : "secondary"} className={`text-[10px] h-5 ${off.status === "accepted" ? "bg-green-500/10 text-green-600 border-green-500/20" : off.status === "rejected" ? "bg-red-500/10 text-red-600 border-red-500/20" : ""}`}>
                             {off.status}
                           </Badge>
