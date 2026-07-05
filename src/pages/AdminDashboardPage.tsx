@@ -21,6 +21,7 @@ import { AdminErrorLogs } from "@/components/admin/AdminErrorLogs";
 import { AdminSecurityDocs } from "@/components/admin/AdminSecurityDocs";
 import { AdminScalingDocs } from "@/components/admin/AdminScalingDocs";
 import { AdminCountyInsights } from "@/components/admin/AdminCountyInsights";
+import { AdminLocationHierarchy } from "@/components/admin/AdminLocationHierarchy";
 import { Shield, LogOut, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
