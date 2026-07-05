@@ -42,7 +42,7 @@ const Upload = () => {
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
   const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
-    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
+    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
   });
   const isLand = formData.property_type === "land";
 
