@@ -172,7 +172,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
                     {property.profiles?.role === "agent" ? "Verified Agent" : "Verified Owner"}
                   </span>
                   {property.profiles?.phone && (
-                    <span className="text-[10px] text-muted-foreground ml-1">· {property.profiles.phone}</span>
+                    <span className="card-owner text-[10px] text-muted-foreground ml-1">· {property.profiles.phone}</span>
                   )}
                 </div>
               )}
