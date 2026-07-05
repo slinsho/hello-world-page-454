@@ -191,7 +191,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
                   {(property.agent_info?.agency_name || property.profiles?.name)?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs text-muted-foreground line-clamp-1">
+              <span className="card-owner text-xs text-muted-foreground line-clamp-1">
                 {property.agent_info?.agency_name || property.profiles?.name || "Owner"}
               </span>
             </div>
