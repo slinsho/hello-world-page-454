@@ -274,6 +274,29 @@ const Index = () => {
               </div>
             </div>
 
+            {/* Near Me Section */}
+            {nearMeProperties.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <h2 className="text-lg font-bold text-foreground">Near Me</h2>
+                    <span className="text-sm text-muted-foreground">({userCounty})</span>
+                  </div>
+                  <Link to={`/near-me?county=${encodeURIComponent(userCounty)}`}>
+                    <Button variant="ghost" size="sm" className="text-primary">
+                      View All <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+                <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
+                  {nearMeProperties.map((property) => (
+                    <NearMePropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Remaining properties (starting with the second card) */}
             {remainingProperties.length > 0 && remainingProperties.length <= 6 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
