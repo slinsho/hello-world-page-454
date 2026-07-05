@@ -58,6 +58,8 @@ const EditProperty = () => {
     setFormData({
       title: data.title, property_type: data.property_type, listing_type: data.listing_type,
       price_usd: String(data.price_usd), address: data.address, county: data.county,
+      district: (data as any).district || "", city: (data as any).city || "", community: (data as any).community || "",
+      street: (data as any).street || "", nearest_landmark: (data as any).nearest_landmark || "",
       contact_phone: data.contact_phone, contact_phone_2: data.contact_phone_2 || "",
       bedrooms: data.bedrooms ? String(data.bedrooms) : "", bathrooms: data.bathrooms ? String(data.bathrooms) : "",
       square_yards: data.square_yards ? String(data.square_yards) : "", description: data.description || "",
