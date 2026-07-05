@@ -149,16 +149,16 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
               </div>
               
               {/* Property Details */}
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="card-details flex items-center gap-3 text-sm text-muted-foreground">
                 {property.bedrooms && (
                   <div className="flex items-center gap-1">
-                    <Bed className="h-3 w-3" />
+                    <Bed className="h-3.5 w-3.5" />
                     <span>{property.bedrooms} Bed</span>
                   </div>
                 )}
                 {property.bathrooms && (
                   <div className="flex items-center gap-1">
-                    <Bath className="h-3 w-3" />
+                    <Bath className="h-3.5 w-3.5" />
                     <span>{property.bathrooms} Bath</span>
                   </div>
                 )}
@@ -167,8 +167,8 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
               {/* Verified Badge */}
               {property.profiles?.verification_status === "approved" && (
                 <div className="flex items-center gap-1 mt-1">
-                  <ShieldCheck className={`h-3.5 w-3.5 ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`} />
-                  <span className={`text-[10px] font-semibold ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`}>
+                  <ShieldCheck className={`h-3.5 w-3.5 ${property.profiles?.role === "agent" ? "verified-agent-text text-blue-400" : "verified-owner-text text-green-400"}`} />
+                  <span className={`text-[10px] font-semibold ${property.profiles?.role === "agent" ? "verified-agent-text text-blue-400" : "verified-owner-text text-green-400"}`}>
                     {property.profiles?.role === "agent" ? "Verified Agent" : "Verified Owner"}
                   </span>
                   {property.profiles?.phone && (
