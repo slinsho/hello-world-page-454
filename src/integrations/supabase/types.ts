@@ -728,11 +728,14 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           boundary_marked: boolean | null
+          city: string | null
+          community: string | null
           contact_phone: string
           contact_phone_2: string | null
           county: string
           created_at: string
           description: string | null
+          district: string | null
           flagged_count: number | null
           id: string
           is_flagged: boolean
@@ -753,6 +756,7 @@ export type Database = {
           search_vector: unknown
           square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
+          street: string | null
           title: string
           title_deed_status: string | null
           topography: string | null
@@ -766,11 +770,14 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           boundary_marked?: boolean | null
+          city?: string | null
+          community?: string | null
           contact_phone: string
           contact_phone_2?: string | null
           county: string
           created_at?: string
           description?: string | null
+          district?: string | null
           flagged_count?: number | null
           id?: string
           is_flagged?: boolean
@@ -791,6 +798,7 @@ export type Database = {
           search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
+          street?: string | null
           title: string
           title_deed_status?: string | null
           topography?: string | null
@@ -804,11 +812,14 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           boundary_marked?: boolean | null
+          city?: string | null
+          community?: string | null
           contact_phone?: string
           contact_phone_2?: string | null
           county?: string
           created_at?: string
           description?: string | null
+          district?: string | null
           flagged_count?: number | null
           id?: string
           is_flagged?: boolean
@@ -829,6 +840,7 @@ export type Database = {
           search_vector?: unknown
           square_yards?: number | null
           status?: Database["public"]["Enums"]["property_status"]
+          street?: string | null
           title?: string
           title_deed_status?: string | null
           topography?: string | null
@@ -1438,11 +1450,14 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           boundary_marked: boolean | null
+          city: string | null
+          community: string | null
           contact_phone: string
           contact_phone_2: string | null
           county: string
           created_at: string
           description: string | null
+          district: string | null
           flagged_count: number | null
           id: string
           is_flagged: boolean
@@ -1463,6 +1478,7 @@ export type Database = {
           search_vector: unknown
           square_yards: number | null
           status: Database["public"]["Enums"]["property_status"]
+          street: string | null
           title: string
           title_deed_status: string | null
           topography: string | null
