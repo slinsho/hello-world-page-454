@@ -224,14 +224,14 @@ const PropertyCard = ({ property, priority = false, variant = "default" }: Prope
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shrink-0"
+              className="rounded-full gap-2 bg-background border-border text-foreground hover:bg-muted shrink-0"
               onClick={(e) => {
                 e.preventDefault();
                 const msg = `Hi, I'm interested in your property "${property.title}" listed at $${property.price_usd.toLocaleString()} (${formatLRD(property.price_usd)}).`;
                 window.open(formatWhatsAppLink(property.contact_phone!, msg), "_blank");
               }}
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-4 w-4 text-[#25D366]" />
               <span className="hidden sm:inline">Message on WhatsApp</span>
               <span className="sm:hidden">WhatsApp</span>
             </Button>
