@@ -147,7 +147,7 @@ const EditProperty = () => {
         Object.assign(updatePayload, {
           land_size: null, land_use: null, title_deed_status: null,
           road_access: null, utilities_nearby: [], zoning: null,
-          topography: null, boundary_marked: null, nearest_landmark: null,
+          topography: null, boundary_marked: null,
         });
       }
       const { error } = await supabase.from("properties").update(updatePayload).eq("id", id);
