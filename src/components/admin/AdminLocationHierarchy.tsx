@@ -6,6 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MapPin, Search, ArrowLeft, Building2, Home } from "lucide-react";
+import flagBomi from "@/assets/county-flags/Bomi.svg";
+import flagBong from "@/assets/county-flags/Bong.svg";
+import flagGbarpolu from "@/assets/county-flags/Gbarpolu.svg";
+import flagGrandBassa from "@/assets/county-flags/Grand_Bassa.svg";
+import flagGrandCapeMount from "@/assets/county-flags/Grand_Cape_Mount.svg";
+import flagGrandGedeh from "@/assets/county-flags/Grand_Gedeh.svg";
+import flagGrandKru from "@/assets/county-flags/Grand_Kru.svg";
+import flagLofa from "@/assets/county-flags/Lofa.svg";
+import flagMargibi from "@/assets/county-flags/Margibi.svg";
+import flagMaryland from "@/assets/county-flags/Maryland.svg";
+import flagMontserrado from "@/assets/county-flags/Montserrado.png";
+import flagNimba from "@/assets/county-flags/Nimba.png";
+import flagRiverCess from "@/assets/county-flags/River_Cess.png";
+import flagRiverGee from "@/assets/county-flags/River_Gee.svg";
+import flagSinoe from "@/assets/county-flags/Sinoe.png";
 
 interface Property {
   id: string;
@@ -23,11 +38,26 @@ interface Property {
   nearest_landmark: string | null;
 }
 
-const LIBERIA_COUNTIES = [
-  "Bomi", "Bong", "Gbarpolu", "Grand Bassa", "Grand Cape Mount",
-  "Grand Gedeh", "Grand Kru", "Lofa", "Margibi", "Maryland",
-  "Montserrado", "Nimba", "River Cess", "River Gee", "Sinoe",
-];
+const COUNTY_FLAGS: Record<string, string> = {
+  "Bomi": flagBomi,
+  "Bong": flagBong,
+  "Gbarpolu": flagGbarpolu,
+  "Grand Bassa": flagGrandBassa,
+  "Grand Cape Mount": flagGrandCapeMount,
+  "Grand Gedeh": flagGrandGedeh,
+  "Grand Kru": flagGrandKru,
+  "Lofa": flagLofa,
+  "Margibi": flagMargibi,
+  "Maryland": flagMaryland,
+  "Montserrado": flagMontserrado,
+  "Nimba": flagNimba,
+  "River Cess": flagRiverCess,
+  "River Gee": flagRiverGee,
+  "Sinoe": flagSinoe,
+};
+
+const LIBERIA_COUNTIES = Object.keys(COUNTY_FLAGS);
+
 
 const UNSET = "— Unspecified —";
 const norm = (v: string | null | undefined) => (v && v.trim() ? v.trim() : UNSET);
@@ -249,6 +279,60 @@ export function AdminLocationHierarchy() {
             No {levelLabels[currentLevel].toLowerCase()}s found.
           </CardContent>
         </Card>
+      ) : currentLevel === "county" ? (
+        // County level: rich flag cards
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {cards.map(({ value, count }) => {
+            const disabled = count === 0;
+            const flag = COUNTY_FLAGS[value];
+            return (
+              <button
+                key={value}
+                onClick={() => !disabled && drillInto(value)}
+                disabled={disabled}
+                className={`group text-left rounded-2xl border border-border bg-card overflow-hidden transition-all ${
+                  disabled
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:border-primary/60 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                }`}
+              >
+                <div className="relative aspect-[5/3] bg-muted overflow-hidden border-b border-border">
+                  {flag ? (
+                    <img
+                      src={flag}
+                      alt={`${value} County flag`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <MapPin className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <Badge
+                      variant={count > 0 ? "default" : "secondary"}
+                      className="text-[10px] shadow-md"
+                    >
+                      {count} {count === 1 ? "property" : "properties"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">
+                    County
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-sm truncate">{value}</p>
+                    {!disabled && (
+                      <ChevronRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {cards.map(({ value, count }) => {
@@ -286,6 +370,7 @@ export function AdminLocationHierarchy() {
           })}
         </div>
       )}
+
     </div>
   );
 }
