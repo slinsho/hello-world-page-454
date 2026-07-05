@@ -88,17 +88,20 @@ export function AdminLocationHierarchy() {
     : path.length === 3 ? "community"
     : "properties";
 
-  // Build cards for current level
+  // Build cards for current level with stats (count, active, avg price)
   const cards = useMemo(() => {
-    if (currentLevel === "properties") return [];
-    const groups = new Map<string, number>();
+    if (currentLevel === "properties") return [] as { value: string; count: number; active: number; avgPrice: number }[];
+    const groups = new Map<string, { count: number; active: number; sum: number }>();
     for (const p of scoped) {
       const key = norm((p as any)[currentLevel]);
-      groups.set(key, (groups.get(key) || 0) + 1);
+      const g = groups.get(key) || { count: 0, active: 0, sum: 0 };
+      g.count += 1;
+      if (p.status === "active") g.active += 1;
+      g.sum += Number(p.price_usd) || 0;
+      groups.set(key, g);
     }
-    // For county level, always include all 15 Liberian counties (even with 0)
     if (currentLevel === "county" && !search.trim()) {
-      for (const c of LIBERIA_COUNTIES) if (!groups.has(c)) groups.set(c, 0);
+      for (const c of LIBERIA_COUNTIES) if (!groups.has(c)) groups.set(c, { count: 0, active: 0, sum: 0 });
     }
     return Array.from(groups.entries())
       .sort((a, b) => {
@@ -106,8 +109,14 @@ export function AdminLocationHierarchy() {
         if (b[0] === UNSET) return -1;
         return a[0].localeCompare(b[0]);
       })
-      .map(([value, count]) => ({ value, count }));
+      .map(([value, g]) => ({
+        value,
+        count: g.count,
+        active: g.active,
+        avgPrice: g.count > 0 ? Math.round(g.sum / g.count) : 0,
+      }));
   }, [scoped, currentLevel, search]);
+
 
   const levelLabels: Record<Level, string> = {
     county: "County",
