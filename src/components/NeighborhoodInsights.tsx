@@ -60,10 +60,6 @@ export function NeighborhoodInsights({ county, compact = false }: Props) {
 
   if (loading || !data) return null;
 
-  const hasStats =
-    data.population || data.schools_count != null || data.hospitals_count != null || data.markets_count != null;
-  const hasContent = data.overview || hasStats || (data.highlights && data.highlights.length > 0);
-  if (!hasContent) return null;
 
   const stats = [
     { icon: Users, label: "Population", value: data.population },
