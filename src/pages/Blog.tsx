@@ -335,7 +335,7 @@ export default function Blog() {
 
         {/* ===== NEWSLETTER + SOCIAL ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-start">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-10 grid md:grid-cols-2 gap-8 items-start">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Newsletter</span>
               <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-3">
