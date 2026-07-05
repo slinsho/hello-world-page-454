@@ -30,7 +30,8 @@ const Verification = () => {
   const streamRef = useRef<MediaStream | null>(null);
   const [formData, setFormData] = useState({ dateOfBirth: "", idType: "citizen_card" as "citizen_card" | "voter_card" | "passport", businessPhone: "", agencyName: "", officeLocation: "" });
 
-  useEffect(() => { if (!user) { navigate("/auth"); return; } const fetchRole = async () => { const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single(); if (data) { const params = new URLSearchParams(window.location.search); setUserRole(params.get("upgrade") === "agent" ? "agent" : data.role); } }; fetchRole(); }, [user, navigate]);
+  const [isBuyer, setIsBuyer] = useState(false);
+  useEffect(() => { if (!user) { navigate("/auth"); return; } const fetchRole = async () => { const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single(); if (data) { const params = new URLSearchParams(window.location.search); const wantBuyer = params.get("type") === "buyer"; setIsBuyer(wantBuyer); setUserRole(wantBuyer ? "buyer" : params.get("upgrade") === "agent" ? "agent" : data.role); } }; fetchRole(); }, [user, navigate]);
   useEffect(() => { return () => { if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop()); }; }, []);
 
   const handleIdImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => { const files = Array.from(e.target.files || []); setIdImages((prev) => [...prev, ...files].slice(0, 2)); };
@@ -41,7 +42,7 @@ const Verification = () => {
   const handleSelfieChange = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) setSelfieImage(file); };
   const handleAgencyLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) setAgencyLogo(file); };
   const removeIdImage = (index: number) => { setIdImages((prev) => prev.filter((_, i) => i !== index)); };
-  const isAgent = userRole === "agent";
+  const isAgent = userRole === "agent" && !isBuyer;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
