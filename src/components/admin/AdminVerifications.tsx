@@ -153,6 +153,7 @@ export function AdminVerifications() {
   };
 
   const getFeeDisplay = (request: VerificationRequest) => {
+    if (request.verification_type === 'buyer') return 'Free (buyer verification)';
     const isAgent = request.verification_type === 'agent';
     if (isAgent) {
       return `$${settings.agent_verification_fee_usd} (L$${(settings.agent_verification_fee_usd * settings.usd_to_lrd_rate).toLocaleString()})`;
