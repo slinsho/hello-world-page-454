@@ -45,7 +45,7 @@ interface PropertyCardProps {
   variant?: "default" | "featured";
 }
 
-const PropertyCard = ({ property, priority = false, variant = "default" }: PropertyCardProps) => {
+const PropertyCard = ({ property, priority = false, variant = "featured" }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
   const { preferences } = useUserPreferences();
