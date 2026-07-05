@@ -24,6 +24,11 @@ interface AdvancedFiltersProps {
 export function AdvancedFilters({ filters, onFiltersChange, onApply, onReset }: AdvancedFiltersProps) {
   const { user } = useAuth();
   const { savedSearches, saveSearch, deleteSearch } = useSavedSearches();
+  const { districts, cities, communities } = useLocationOptions({
+    county: filters.county,
+    district: filters.district,
+    city: filters.city,
+  });
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [notifyMatches, setNotifyMatches] = useState(false);
