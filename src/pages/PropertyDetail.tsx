@@ -272,7 +272,7 @@ const PropertyDetail = () => {
           <div className="hidden md:block">
             <div className="flex items-center gap-1 mb-1">
               <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-              <p className="text-muted-foreground text-sm">{property.address}, {property.county}</p>
+              <p className="text-muted-foreground text-sm">{property.address}</p>
             </div>
             <div className="flex items-center justify-between mb-2">
               <h1 className="text-2xl font-bold flex-1 leading-tight">{property.title}</h1>
