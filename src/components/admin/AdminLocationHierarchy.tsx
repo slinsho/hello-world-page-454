@@ -132,6 +132,26 @@ export function AdminLocationHierarchy() {
 
   const goToCrumb = (idx: number) => setPath(path.slice(0, idx));
 
+  const exportCsv = () => {
+    if (scoped.length === 0) return;
+    const headers = ["title", "status", "property_type", "listing_type", "price_usd", "county", "district", "city", "community", "street", "nearest_landmark"];
+    const rows = [headers.join(",")];
+    for (const p of scoped) {
+      rows.push(headers.map((h) => csvCell((p as any)[h])).join(","));
+    }
+    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const slug = path.length ? path.map((c) => c.value).join("_").replace(/[^\w-]+/g, "-") : "all";
+    a.href = url;
+    a.download = `properties_${slug}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+
   return (
     <div className="space-y-6 mt-6">
       <div>
