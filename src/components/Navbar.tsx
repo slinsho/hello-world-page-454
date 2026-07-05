@@ -27,6 +27,7 @@ import {
 import { LIBERIA_COUNTIES } from "@/lib/constants";
 import { useLocationOptions } from "@/hooks/useLocationOptions";
 import { UpgradeToAgentDialog } from "@/components/UpgradeToAgentDialog";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const location = useLocation();
@@ -360,6 +361,7 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
               <BarChart3 className="h-4 w-4" />
             </Button>
+            <ThemeToggle />
             {!user && (
               <Button variant="default" size="sm" asChild className="ml-2">
                 <Link to="/auth">Sign In</Link>
@@ -532,6 +534,7 @@ const Navbar = () => {
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
                   <BarChart3 className="h-4 w-4" />
                 </Button>
+                <ThemeToggle size="sm" />
               </div>
             </div>
 
