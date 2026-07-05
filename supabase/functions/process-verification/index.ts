@@ -89,8 +89,49 @@ Deno.serve(async (req: Request) => {
     }
 
     const isAgentVerification = verReq.verification_type === 'agent';
+    const isBuyerVerification = verReq.verification_type === 'buyer';
     const feeUsd = isAgentVerification ? agentFeeUsd : (ownerFeeLrd / usdToLrd);
     const feeLrd = isAgentVerification ? (agentFeeUsd * usdToLrd) : ownerFeeLrd;
+
+    // Buyer verification is free — approve/reject only, never touch profiles.verification_status
+    if (isBuyerVerification) {
+      if (action === 'reject') {
+        await adminClient.from('verification_requests').update({
+          status: 'rejected',
+          admin_note: adminNote ?? null,
+          admin_id: adminId,
+          processed_at: new Date().toISOString(),
+        }).eq('id', requestId);
+        await adminClient.from('profiles').update({ buyer_verified: false }).eq('id', userId);
+        await adminClient.from('notifications').insert({
+          user_id: userId,
+          title: 'Buyer Verification Rejected',
+          message: `Your buyer verification was not approved.${adminNote ? ` Reason: ${adminNote}` : ''}`,
+          type: 'status_updates',
+        });
+        return new Response(JSON.stringify({ success: true, status: 'rejected' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      if (action === 'approve' || action === 'confirm_payment') {
+        await adminClient.from('verification_requests').update({
+          status: 'approved',
+          admin_note: adminNote ?? null,
+          admin_id: adminId,
+          processed_at: new Date().toISOString(),
+        }).eq('id', requestId);
+        await adminClient.from('profiles').update({ buyer_verified: true }).eq('id', userId);
+        await adminClient.from('notifications').insert({
+          user_id: userId,
+          title: 'You are a Verified Buyer ✅',
+          message: 'Your identity has been confirmed. Owners and agents will now see a verified badge next to your inquiries and offers.',
+          type: 'status_updates',
+        });
+        return new Response(JSON.stringify({ success: true, status: 'approved' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      return new Response(JSON.stringify({ error: 'Invalid action for buyer verification' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     // Build payment details string
     let paymentDetails = '';

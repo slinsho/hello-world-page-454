@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 
 const ownerVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]) });
 const agentVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]), businessPhone: z.string().min(5, "Business phone is required"), agencyName: z.string().min(2, "Agency name is required"), officeLocation: z.string().min(3, "Office location is required") });
+const buyerVerificationSchema = z.object({ dateOfBirth: z.string().min(1, "Date of birth is required"), idType: z.enum(["citizen_card", "voter_card", "passport"]) });
 
 const Verification = () => {
   const navigate = useNavigate();
