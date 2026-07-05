@@ -119,7 +119,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
           <Link to={`/property/${property.id}`}>
             <div className="space-y-2">
               {/* Location */}
-              <div className="flex items-center gap-1.5 text-xs text-foreground/80">
+              <div className="card-location flex items-center gap-1.5 text-xs text-foreground/80">
                 {countyFlag(property.county) ? (
                   <img
                     src={countyFlag(property.county)}
@@ -135,30 +135,30 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
               
               {/* Title and Price */}
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-base text-foreground line-clamp-1 flex-1">
+                <h3 className="card-title font-bold text-base text-foreground line-clamp-1 flex-1">
                   {property.title}
                 </h3>
                 <div className="text-right">
                   <span className="font-bold text-lg text-primary whitespace-nowrap">
                     {showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`}
                   </span>
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="card-price-secondary block text-xs text-muted-foreground">
                     {showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)}
                   </span>
                 </div>
               </div>
               
               {/* Property Details */}
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="card-details flex items-center gap-3 text-sm text-muted-foreground">
                 {property.bedrooms && (
                   <div className="flex items-center gap-1">
-                    <Bed className="h-3 w-3" />
+                    <Bed className="h-3.5 w-3.5" />
                     <span>{property.bedrooms} Bed</span>
                   </div>
                 )}
                 {property.bathrooms && (
                   <div className="flex items-center gap-1">
-                    <Bath className="h-3 w-3" />
+                    <Bath className="h-3.5 w-3.5" />
                     <span>{property.bathrooms} Bath</span>
                   </div>
                 )}
@@ -167,12 +167,12 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
               {/* Verified Badge */}
               {property.profiles?.verification_status === "approved" && (
                 <div className="flex items-center gap-1 mt-1">
-                  <ShieldCheck className={`h-3.5 w-3.5 ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`} />
-                  <span className={`text-[10px] font-semibold ${property.profiles?.role === "agent" ? "text-blue-500" : "text-green-500"}`}>
+                  <ShieldCheck className={`h-3.5 w-3.5 ${property.profiles?.role === "agent" ? "verified-agent-text text-blue-400" : "verified-owner-text text-green-400"}`} />
+                  <span className={`text-[10px] font-semibold ${property.profiles?.role === "agent" ? "verified-agent-text text-blue-400" : "verified-owner-text text-green-400"}`}>
                     {property.profiles?.role === "agent" ? "Verified Agent" : "Verified Owner"}
                   </span>
                   {property.profiles?.phone && (
-                    <span className="text-[10px] text-muted-foreground ml-1">· {property.profiles.phone}</span>
+                    <span className="card-owner text-[10px] text-muted-foreground ml-1">· {property.profiles.phone}</span>
                   )}
                 </div>
               )}
@@ -191,7 +191,7 @@ const PropertyCard = ({ property, priority = false }: PropertyCardProps) => {
                   {(property.agent_info?.agency_name || property.profiles?.name)?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs text-muted-foreground line-clamp-1">
+              <span className="card-owner text-xs text-muted-foreground line-clamp-1">
                 {property.agent_info?.agency_name || property.profiles?.name || "Owner"}
               </span>
             </div>
