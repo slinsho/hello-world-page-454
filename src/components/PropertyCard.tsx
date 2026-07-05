@@ -90,23 +90,23 @@ const PropertyCard = ({ property, priority = false, variant = "default" }: Prope
           </div>
         )}
 
-        {/* Listing Type Badge */}
-        <Badge
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full font-semibold text-xs uppercase ${
-            isFeatured && (property as any).is_promoted
-              ? "bg-white text-primary"
-              : "bg-primary text-primary-foreground"
-          }`}
-        >
-          {listingLabel}
-        </Badge>
-
-        {/* Featured Badge */}
-        {(property as any).is_promoted && (
-          <Badge className="absolute top-3 left-24 bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[10px] gap-1">
-            <Sparkles className="h-3 w-3" />Featured
-          </Badge>
-        )}
+        {/* Top-left badges cluster */}
+        <div className="absolute top-3 left-3 flex items-center gap-2">
+          {isFeatured && (property as any).is_promoted ? (
+            <>
+              <Badge className="bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold text-xs uppercase gap-1 shadow-md">
+                <Sparkles className="h-3 w-3" />Featured
+              </Badge>
+              <span className="text-xs font-bold uppercase text-primary drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                {listingLabel}
+              </span>
+            </>
+          ) : (
+            <Badge className="bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold text-xs uppercase shadow-md">
+              {listingLabel}
+            </Badge>
+          )}
+        </div>
 
         {/* Flagged Badge */}
         {(property as any).is_flagged && (
