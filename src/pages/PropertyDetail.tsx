@@ -377,6 +377,21 @@ const PropertyDetail = () => {
             </div>
           )}
 
+          {/* ===== Location Breakdown ===== */}
+          {(property.district || property.city || property.community || property.street || property.nearest_landmark) && (
+            <div className="px-4 md:px-0 mb-5">
+              <h3 className="font-semibold mb-2 text-base flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />Location details</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {property.county && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">County</div><div className="font-medium">{property.county}</div></div>)}
+                {property.district && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">District</div><div className="font-medium">{property.district}</div></div>)}
+                {property.city && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">City</div><div className="font-medium">{property.city}</div></div>)}
+                {property.community && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Community</div><div className="font-medium">{property.community}</div></div>)}
+                {property.street && (<div className="rounded-xl border border-border bg-card p-3 col-span-2"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Street</div><div className="font-medium">{property.street}</div></div>)}
+                {property.nearest_landmark && !isLand && (<div className="rounded-xl border border-border bg-card p-3 col-span-2"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Nearest Landmark</div><div className="font-medium">{property.nearest_landmark}</div></div>)}
+              </div>
+            </div>
+          )}
+
           {/* ===== Description ===== */}
           {property.description && (
             <div className="px-4 md:px-0 mb-5">
