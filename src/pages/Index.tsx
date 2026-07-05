@@ -30,6 +30,9 @@ const Index = () => {
   const listingFilter = searchParams.get("listing");
   const statusFilter = searchParams.get("status");
   const countyFilter = searchParams.get("county");
+  const districtFilter = searchParams.get("district");
+  const cityFilter = searchParams.get("city");
+  const communityFilter = searchParams.get("community");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
   const searchQuery = searchParams.get("search");
