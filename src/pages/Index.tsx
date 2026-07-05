@@ -60,6 +60,9 @@ const Index = () => {
       if (effectiveCounty && effectiveCounty !== "all") {
         query = query.eq("county", effectiveCounty);
       }
+      if (districtFilter && districtFilter !== "all") query = query.eq("district", districtFilter);
+      if (cityFilter && cityFilter !== "all") query = query.eq("city", cityFilter);
+      if (communityFilter && communityFilter !== "all") query = query.eq("community", communityFilter);
       if (minPrice) {
         query = query.gte("price_usd", parseFloat(minPrice));
       }
