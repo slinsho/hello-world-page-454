@@ -387,7 +387,7 @@ const PropertyDetail = () => {
                 {property.city && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">City</div><div className="font-medium">{property.city}</div></div>)}
                 {property.community && (<div className="rounded-xl border border-border bg-card p-3"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Community</div><div className="font-medium">{property.community}</div></div>)}
                 {property.street && (<div className="rounded-xl border border-border bg-card p-3 col-span-2"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Street</div><div className="font-medium">{property.street}</div></div>)}
-                {property.nearest_landmark && !isLand && (<div className="rounded-xl border border-border bg-card p-3 col-span-2"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Nearest Landmark</div><div className="font-medium">{property.nearest_landmark}</div></div>)}
+                {property.nearest_landmark && property.property_type !== "land" && (<div className="rounded-xl border border-border bg-card p-3 col-span-2"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">Nearest Landmark</div><div className="font-medium">{property.nearest_landmark}</div></div>)}
               </div>
             </div>
           )}
