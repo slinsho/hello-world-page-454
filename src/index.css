@@ -129,39 +129,27 @@ All colors MUST be HSL.
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Property card overlay: dark theme uses a strong background fade,
-   light theme (red/white/navy) uses a subtle dark bottom fade so the
-   photo stays visible and the details remain crisp. */
-.property-card-overlay {
+/* Featured property card overlay: dark bottom fade so text is crisp and
+   the photo stays clearly visible in both light and dark themes. */
+.featured-card-overlay {
   background: linear-gradient(to top,
-    hsl(var(--background)) 0%,
-    hsl(var(--background) / 0.95) 40%,
+    hsl(0 0% 0% / 0.78) 0%,
+    hsl(0 0% 0% / 0.40) 55%,
     transparent 100%);
 }
-.light .property-card-overlay {
-  background: linear-gradient(to top,
-    hsl(0 0% 0% / 0.72) 0%,
-    hsl(0 0% 0% / 0.35) 55%,
-    transparent 100%);
-}
-.light .property-card-overlay h3,
-.light .property-card-overlay .card-title {
+
+.featured-card-overlay .featured-card-title,
+.featured-card-overlay h3 {
   color: hsl(0 0% 100%);
   text-shadow: 0 1px 3px hsl(0 0% 0% / 0.5);
 }
-.light .property-card-overlay .card-location,
-.light .property-card-overlay .card-details,
-.light .property-card-overlay .card-price-secondary,
-.light .property-card-overlay .card-owner {
+
+.featured-card-overlay .text-white\/90,
+.featured-card-overlay .text-white\/80 {
   color: hsl(0 0% 100% / 0.92);
   text-shadow: 0 1px 2px hsl(0 0% 0% / 0.5);
 }
-.light .property-card-overlay .verified-agent-text {
-  color: hsl(210 100% 70%);
-}
-.light .property-card-overlay .verified-owner-text {
-  color: hsl(140 80% 65%);
-}
+
 
 /* ===== About Us Page — Warm Professional Theme ===== */
 /* About page styles removed - now uses design system tokens */
