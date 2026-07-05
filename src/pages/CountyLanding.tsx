@@ -114,7 +114,7 @@ export default function CountyLanding() {
 
             {/* Stat chips */}
             {stats.total > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                 <StatChip icon={Building2} label="Active" value={stats.total.toString()} />
                 <StatChip icon={HomeIcon} label="For sale" value={stats.forSale.toString()} />
                 <StatChip icon={HomeIcon} label="For rent" value={stats.forRent.toString()} />
