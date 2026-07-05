@@ -13,12 +13,14 @@ interface Inquiry {
   sender_name: string;
   sender_email: string | null;
   sender_phone: string | null;
+  sender_id: string | null;
   message: string;
   is_read: boolean;
   created_at: string;
   property_id: string;
   property_title?: string;
   property_photo?: string;
+  sender_verified?: boolean;
 }
 
 interface Offer {
