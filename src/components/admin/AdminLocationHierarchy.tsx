@@ -6,6 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MapPin, Search, ArrowLeft, Building2, Home } from "lucide-react";
+import flagBomi from "@/assets/county-flags/Bomi.svg";
+import flagBong from "@/assets/county-flags/Bong.svg";
+import flagGbarpolu from "@/assets/county-flags/Gbarpolu.svg";
+import flagGrandBassa from "@/assets/county-flags/Grand_Bassa.svg";
+import flagGrandCapeMount from "@/assets/county-flags/Grand_Cape_Mount.svg";
+import flagGrandGedeh from "@/assets/county-flags/Grand_Gedeh.svg";
+import flagGrandKru from "@/assets/county-flags/Grand_Kru.svg";
+import flagLofa from "@/assets/county-flags/Lofa.svg";
+import flagMargibi from "@/assets/county-flags/Margibi.svg";
+import flagMaryland from "@/assets/county-flags/Maryland.svg";
+import flagMontserrado from "@/assets/county-flags/Montserrado.png";
+import flagNimba from "@/assets/county-flags/Nimba.png";
+import flagRiverCess from "@/assets/county-flags/River_Cess.png";
+import flagRiverGee from "@/assets/county-flags/River_Gee.svg";
+import flagSinoe from "@/assets/county-flags/Sinoe.png";
 
 interface Property {
   id: string;
@@ -23,11 +38,26 @@ interface Property {
   nearest_landmark: string | null;
 }
 
-const LIBERIA_COUNTIES = [
-  "Bomi", "Bong", "Gbarpolu", "Grand Bassa", "Grand Cape Mount",
-  "Grand Gedeh", "Grand Kru", "Lofa", "Margibi", "Maryland",
-  "Montserrado", "Nimba", "River Cess", "River Gee", "Sinoe",
-];
+const COUNTY_FLAGS: Record<string, string> = {
+  "Bomi": flagBomi,
+  "Bong": flagBong,
+  "Gbarpolu": flagGbarpolu,
+  "Grand Bassa": flagGrandBassa,
+  "Grand Cape Mount": flagGrandCapeMount,
+  "Grand Gedeh": flagGrandGedeh,
+  "Grand Kru": flagGrandKru,
+  "Lofa": flagLofa,
+  "Margibi": flagMargibi,
+  "Maryland": flagMaryland,
+  "Montserrado": flagMontserrado,
+  "Nimba": flagNimba,
+  "River Cess": flagRiverCess,
+  "River Gee": flagRiverGee,
+  "Sinoe": flagSinoe,
+};
+
+const LIBERIA_COUNTIES = Object.keys(COUNTY_FLAGS);
+
 
 const UNSET = "— Unspecified —";
 const norm = (v: string | null | undefined) => (v && v.trim() ? v.trim() : UNSET);
