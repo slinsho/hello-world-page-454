@@ -198,6 +198,48 @@ export type Database = {
           },
         ]
       }
+      county_insights: {
+        Row: {
+          county: string
+          created_at: string
+          highlights: string[]
+          hospitals_count: number | null
+          id: string
+          image_url: string | null
+          markets_count: number | null
+          overview: string | null
+          population: string | null
+          schools_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          county: string
+          created_at?: string
+          highlights?: string[]
+          hospitals_count?: number | null
+          id?: string
+          image_url?: string | null
+          markets_count?: number | null
+          overview?: string | null
+          population?: string | null
+          schools_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          county?: string
+          created_at?: string
+          highlights?: string[]
+          hospitals_count?: number | null
+          id?: string
+          image_url?: string | null
+          markets_count?: number | null
+          overview?: string | null
+          population?: string | null
+          schools_count?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           context: Json | null
@@ -526,6 +568,7 @@ export type Database = {
         Row: {
           address: string | null
           bio: string | null
+          buyer_verified: boolean
           contact_phone_2: string | null
           county: string | null
           cover_photo_url: string | null
@@ -547,6 +590,7 @@ export type Database = {
         Insert: {
           address?: string | null
           bio?: string | null
+          buyer_verified?: boolean
           contact_phone_2?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -568,6 +612,7 @@ export type Database = {
         Update: {
           address?: string | null
           bio?: string | null
+          buyer_verified?: boolean
           contact_phone_2?: string | null
           county?: string | null
           cover_photo_url?: string | null
@@ -1186,6 +1231,24 @@ export type Database = {
       }
     }
     Views: {
+      agent_leaderboard: {
+        Row: {
+          active_listings: number | null
+          agency_logo: string | null
+          agency_name: string | null
+          avg_rating: number | null
+          bio: string | null
+          county: string | null
+          id: string | null
+          name: string | null
+          phone: string | null
+          profile_photo_url: string | null
+          reviews_count: number | null
+          score: number | null
+          total_views: number | null
+        }
+        Relationships: []
+      }
       property_views_safe: {
         Row: {
           id: string | null
