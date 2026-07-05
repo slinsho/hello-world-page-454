@@ -119,16 +119,21 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     const targetUserId = profileId || user?.id;
-    if (!targetUserId) return;
+    if (!targetUserId) { setLoading(false); return; }
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", targetUserId).single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", targetUserId).maybeSingle();
       if (error) {
-        toast({ title: "Error", description: "Failed to load profile", variant: "destructive" });
+        console.error("fetchProfile error:", error);
+        toast({ title: "Error", description: error.message || "Failed to load profile", variant: "destructive" });
       } else if (data) {
         setProfile(data);
         setEditForm({ name: data.name || "", county: data.county || "", address: data.address || "", bio: (data as any).bio || "" });
+      } else {
+        toast({ title: "Profile not found", description: "No profile exists for this account. Please contact support.", variant: "destructive" });
       }
-    } catch {} finally { setLoading(false); }
+    } catch (e: any) {
+      console.error("fetchProfile exception:", e);
+    } finally { setLoading(false); }
   };
 
   const handleProfileUpdate = async () => {
