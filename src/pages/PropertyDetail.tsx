@@ -253,7 +253,7 @@ const PropertyDetail = () => {
                 <h1 className="text-xl font-bold leading-tight mb-1">{property.title}</h1>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  <span className="text-sm">{property.address}, {property.county}</span>
+                  <span className="text-sm">{property.address}</span>
                 </div>
               </div>
             </div>
