@@ -48,7 +48,7 @@ const Verification = () => {
     e.preventDefault();
     if (!user) return;
     try {
-      if (isAgent) agentVerificationSchema.parse(formData); else ownerVerificationSchema.parse(formData);
+      if (isBuyer) buyerVerificationSchema.parse(formData); else if (isAgent) agentVerificationSchema.parse(formData); else ownerVerificationSchema.parse(formData);
       if (idImages.length === 0) { toast({ title: "ID Required", description: "Please upload your ID card", variant: "destructive" }); return; }
       if (!selfieImage) { toast({ title: "Selfie Required", description: "Please upload a selfie holding your ID", variant: "destructive" }); return; }
       setLoading(true);
@@ -57,17 +57,19 @@ const Verification = () => {
       const selfieExt = selfieImage.name.split(".").pop(); const selfieFileName = `${user.id}/selfie-${Date.now()}.${selfieExt}`; const { error: selfieError } = await supabase.storage.from("verification-docs").upload(selfieFileName, selfieImage); if (selfieError) throw selfieError;
       let agencyLogoPath: string | null = null;
       if (isAgent && agencyLogo) { const logoExt = agencyLogo.name.split(".").pop(); const logoFileName = `${user.id}/agency-logo-${Date.now()}.${logoExt}`; const { error: logoError } = await supabase.storage.from("verification-docs").upload(logoFileName, agencyLogo); if (logoError) throw logoError; agencyLogoPath = logoFileName; }
-      const insertData: any = { user_id: user.id, date_of_birth: formData.dateOfBirth, id_type: formData.idType, id_images: idPaths, selfie_image: selfieFileName, verification_type: isAgent ? "agent" : "owner" };
+      const insertData: any = { user_id: user.id, date_of_birth: formData.dateOfBirth, id_type: formData.idType, id_images: idPaths, selfie_image: selfieFileName, verification_type: isBuyer ? "buyer" : isAgent ? "agent" : "owner" };
       if (isAgent) { insertData.business_phone = formData.businessPhone; insertData.agency_name = formData.agencyName; insertData.office_location = formData.officeLocation; if (agencyLogoPath) insertData.agency_logo = agencyLogoPath; }
       const { error } = await supabase.from("verification_requests").insert([insertData]); if (error) throw error;
-      const profileUpdate: any = { verification_status: "pending" }; if (isAgent) profileUpdate.role = "agent";
-      await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      if (!isBuyer) {
+        const profileUpdate: any = { verification_status: "pending" }; if (isAgent) profileUpdate.role = "agent";
+        await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+      }
       // Notify admins
       const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
       const userName = profile?.name || "A user";
       await notifyAdmins({
         title: "New Verification Request",
-        message: `${userName} submitted a ${isAgent ? "agent" : "owner"} verification request.`,
+        message: `${userName} submitted a ${isBuyer ? "buyer" : isAgent ? "agent" : "owner"} verification request.`,
         type: "status_updates",
       });
       toast({ title: "Success!", description: "Your verification request has been submitted." }); navigate("/profile");
