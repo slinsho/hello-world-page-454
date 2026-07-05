@@ -166,7 +166,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order, preferences.default_county, preferences.default_listing_type, preferences.default_property_type]);
+  }, [user, typeFilter, listingFilter, statusFilter, countyFilter, districtFilter, cityFilter, communityFilter, minPrice, maxPrice, searchQuery, preferences.default_sort_order, preferences.default_county, preferences.default_listing_type, preferences.default_property_type]);
 
   const firstTwoProperties = properties.slice(0, 2);
   const remainingProperties = properties.slice(2);
