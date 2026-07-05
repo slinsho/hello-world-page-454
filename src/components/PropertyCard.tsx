@@ -45,7 +45,7 @@ interface PropertyCardProps {
   variant?: "default" | "featured";
 }
 
-const PropertyCard = ({ property, priority = false, variant = "default" }: PropertyCardProps) => {
+const PropertyCard = ({ property, priority = false, variant = "featured" }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
   const { preferences } = useUserPreferences();
@@ -70,7 +70,9 @@ const PropertyCard = ({ property, priority = false, variant = "default" }: Prope
   const secondaryPrice = showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd);
 
   return (
+    <Link to={`/property/${property.id}`} className="block">
     <Card className="overflow-hidden hover:shadow-xl transition-all cursor-pointer border-0 bg-card rounded-2xl">
+
       <div className={`relative overflow-hidden ${isFeatured ? "h-60 md:h-72" : "h-48"}`}>
         {property.photos[0] ? (
           <img
@@ -142,59 +144,56 @@ const PropertyCard = ({ property, priority = false, variant = "default" }: Prope
         {/* Featured overlay info */}
         {isFeatured && (
           <div className="featured-card-overlay absolute bottom-0 left-0 right-0 p-4">
-            <Link to={`/property/${property.id}`}>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-xs text-white/90">
-                  {countyFlag(property.county) ? (
-                    <img
-                      src={countyFlag(property.county)}
-                      alt={property.county}
-                      className="h-3 w-4 object-cover rounded-[2px] shrink-0 ring-1 ring-white/30"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <MapPin className="h-3 w-3" />
-                  )}
-                  <span className="line-clamp-1">{property.address}</span>
-                </div>
-                <h3 className="featured-card-title font-bold text-lg text-white line-clamp-1">
-                  {property.title}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground px-2.5 py-1 rounded-md font-bold text-sm shadow-md">
-                    {priceLabel}
-                  </Badge>
-                  <span className="text-xs text-white/90">≈ {secondaryPrice}</span>
-                </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                {countyFlag(property.county) ? (
+                  <img
+                    src={countyFlag(property.county)}
+                    alt={property.county}
+                    className="h-3 w-4 object-cover rounded-[2px] shrink-0 ring-1 ring-white/30"
+                    loading="lazy"
+                  />
+                ) : (
+                  <MapPin className="h-3 w-3" />
+                )}
+                <span className="line-clamp-1">{property.address}</span>
               </div>
-            </Link>
+              <h3 className="featured-card-title font-bold text-lg text-white line-clamp-1">
+                {property.title}
+              </h3>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary text-primary-foreground px-2.5 py-1 rounded-md font-bold text-sm shadow-md">
+                  {priceLabel}
+                </Badge>
+                <span className="text-xs text-white/90">≈ {secondaryPrice}</span>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
       {/* Default variant bottom content */}
       {!isFeatured && (
-        <Link to={`/property/${property.id}`}>
-          <div className="p-3">
-            <h3 className="font-bold text-base text-foreground line-clamp-1">
-              {property.title}
-            </h3>
-            <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
-              {countyFlag(property.county) ? (
-                <img
-                  src={countyFlag(property.county)}
-                  alt={property.county}
-                  className="h-3 w-4 object-cover rounded-[2px] shrink-0"
-                  loading="lazy"
-                />
-              ) : (
-                <MapPin className="h-3 w-3" />
-              )}
-              <span className="line-clamp-1">{property.county}</span>
-            </div>
+        <div className="p-3">
+          <h3 className="font-bold text-base text-foreground line-clamp-1">
+            {property.title}
+          </h3>
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+            {countyFlag(property.county) ? (
+              <img
+                src={countyFlag(property.county)}
+                alt={property.county}
+                className="h-3 w-4 object-cover rounded-[2px] shrink-0"
+                loading="lazy"
+              />
+            ) : (
+              <MapPin className="h-3 w-3" />
+            )}
+            <span className="line-clamp-1">{property.county}</span>
           </div>
-        </Link>
+        </div>
       )}
+
 
       {/* Featured variant owner bar */}
       {isFeatured && (
@@ -239,8 +238,10 @@ const PropertyCard = ({ property, priority = false, variant = "default" }: Prope
         </div>
       )}
     </Card>
+    </Link>
   );
 };
+
 
 export default memo(PropertyCard, (prev, next) =>
   prev.property.id === next.property.id &&
