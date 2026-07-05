@@ -156,7 +156,7 @@ export default function CountyLanding() {
           )}
 
           {/* Other counties */}
-          <div className="mt-12">
+          <div className="mt-8">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Explore other counties
             </h3>
