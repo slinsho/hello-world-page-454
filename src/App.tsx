@@ -128,6 +128,8 @@ const App = () => (
                   <Route path="/about" element={<About />} />
                   <Route path="/agents" element={<Agents />} />
                   <Route path="/reels" element={<Reels />} />
+                  <Route path="/explore-counties" element={<ExploreCounties />} />
+                  <Route path="/county/:slug" element={<CountyLanding />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />
                   <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
                   <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
