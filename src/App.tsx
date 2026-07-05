@@ -67,6 +67,8 @@ const FeaturedListings = lazy(() => import("./pages/FeaturedListings"));
 const About = lazy(() => import("./pages/About"));
 const Agents = lazy(() => import("./pages/Agents"));
 const Reels = lazy(() => import("./pages/Reels"));
+const ExploreCounties = lazy(() => import("./pages/ExploreCounties"));
+const CountyLanding = lazy(() => import("./pages/CountyLanding"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
