@@ -384,6 +384,13 @@ const PropertyDetail = () => {
             </div>
           )}
 
+          {/* ===== Neighborhood Insights ===== */}
+          {property.county && (
+            <div className="px-4 md:px-0">
+              <NeighborhoodInsights county={property.county} />
+            </div>
+          )}
+
           {/* ===== Photo Gallery (below description) ===== */}
           {allPhotos.length > 1 && (
             <div className="px-4 md:px-0 mb-5">
