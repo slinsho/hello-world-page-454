@@ -111,6 +111,9 @@ const EditProperty = () => {
       const updatePayload: any = {
         title: validated.title, property_type: validated.property_type, listing_type: validated.listing_type,
         price_usd: validated.price_usd, address: validated.address, county: validated.county,
+        district: formData.district.trim() || null, city: formData.city.trim() || null,
+        community: formData.community.trim() || null, street: formData.street.trim() || null,
+        nearest_landmark: formData.nearest_landmark.trim() || null,
         contact_phone: validated.contact_phone, contact_phone_2: validated.contact_phone_2 || null,
         photos: allPhotos, description: validated.description || null,
         bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null),
