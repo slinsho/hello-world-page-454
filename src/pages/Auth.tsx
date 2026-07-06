@@ -302,7 +302,7 @@ const Auth = () => {
                         placeholder="Min. 6 characters"
                         required
                         minLength={6}
-                        className="pl-10 pr-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                        className="pl-10 pr-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -324,7 +324,7 @@ const Auth = () => {
                               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                               placeholder="Enter your full name"
                               required
-                              className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                              className="pl-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                             />
                           </div>
                         </div>
@@ -337,7 +337,7 @@ const Auth = () => {
                               setFormData({ ...formData, role: value })
                             }
                           >
-                            <SelectTrigger className="h-12 bg-secondary border-border text-foreground rounded-xl">
+                            <SelectTrigger className="h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -360,7 +360,7 @@ const Auth = () => {
                                 required
                                 maxLength={20}
                                 placeholder="+231..."
-                                className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                                className="pl-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                               />
                             </div>
                           </div>
@@ -377,7 +377,7 @@ const Auth = () => {
                                 onChange={(e) => setFormData({ ...formData, phone_2: e.target.value })}
                                 maxLength={20}
                                 placeholder="+231..."
-                                className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                                className="pl-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                               />
                             </div>
                           </div>
@@ -396,7 +396,7 @@ const Auth = () => {
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           placeholder="you@example.com"
                           required
-                          className="pl-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                          className="pl-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                         />
                       </div>
                     </div>
@@ -424,7 +424,7 @@ const Auth = () => {
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             placeholder="Min. 6 characters"
                             required
-                            className="pl-10 pr-10 h-12 bg-secondary border-border text-foreground rounded-xl"
+                            className="pl-10 pr-10 h-12 bg-secondary border-border text-white placeholder:text-white/60 rounded-xl"
                           />
                           <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
