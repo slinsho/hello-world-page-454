@@ -57,6 +57,10 @@ export function RecentlyViewed() {
                     <img
                       src={item.property.photos[0]}
                       alt={item.property.title}
+                      loading="lazy"
+                      decoding="async"
+                      width={400}
+                      height={240}
                       className="w-full h-full object-cover"
                     />
                   ) : (
