@@ -65,6 +65,10 @@ export function FeaturedPropertiesBanner() {
                 <img
                   src={p.photos?.[0] || "/placeholder.svg"}
                   alt={p.title}
+                  loading="lazy"
+                  decoding="async"
+                  width={400}
+                  height={240}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <Badge className="absolute top-2 left-2 bg-primary/90 text-primary-foreground text-[10px] gap-1">

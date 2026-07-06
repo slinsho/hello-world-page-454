@@ -60,6 +60,10 @@ const RecommendedProperties = ({ currentPropertyId, county, propertyType }: Reco
                   <img
                     src={property.photos[0]}
                     alt={property.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={400}
+                    height={240}
                     className="w-full h-full object-cover"
                   />
                 ) : (

@@ -54,6 +54,8 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
               alt={property.title}
               loading="lazy"
               decoding="async"
+              width={144}
+              height={128}
               className="w-full h-full object-cover"
             />
           ) : (
