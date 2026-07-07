@@ -17,6 +17,7 @@ interface FeaturedProperty {
 
 export function FeaturedPropertiesBanner() {
   const [properties, setProperties] = useState<FeaturedProperty[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const formatLRD = useFormatLRD();
 
   useEffect(() => {
@@ -36,11 +37,13 @@ export function FeaturedPropertiesBanner() {
           }))
         );
       }
+      setLoaded(true);
     };
     fetchPromoted();
   }, []);
 
-  if (properties.length === 0) return null;
+  // Avoid CLS: skip render entirely until we know there are no promoted properties.
+  if (!loaded || properties.length === 0) return null;
 
   return (
     <div className="my-6">
