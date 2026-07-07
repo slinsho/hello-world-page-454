@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, ChevronRight } from "lucide-react";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
+import { transformImage } from "@/lib/imageCdn";
 
 interface FeaturedProperty {
   id: string;
