@@ -67,7 +67,7 @@ export function FeaturedPropertiesBanner() {
             <div className="relative rounded-xl overflow-hidden border border-primary/20 bg-card shadow-sm hover:shadow-md transition-shadow">
               <div className="relative h-32">
                 <img
-                  src={p.photos?.[0] || "/placeholder.svg"}
+                  src={p.photos?.[0] ? transformImage(p.photos[0], { width: 448, height: 256 }) : "/placeholder.svg"}
                   alt={p.title}
                   loading="lazy"
                   decoding="async"
