@@ -10,6 +10,10 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#84cc16" />
 
+    <!-- Perf: preconnect to Supabase (data + image CDN) to shave LCP -->
+    <link rel="preconnect" href="https://sijxsadlinayqxdxkmcr.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://sijxsadlinayqxdxkmcr.supabase.co" />
+
     <!-- Apple PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

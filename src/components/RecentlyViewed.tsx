@@ -9,22 +9,8 @@ import { LISTING_TYPE_LABELS } from "@/lib/constants";
 export function RecentlyViewed() {
   const { recentlyViewed, loading, clearRecentlyViewed } = useRecentlyViewed();
 
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-32" />
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-24 w-48 flex-shrink-0 rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (recentlyViewed.length === 0) return null;
+  // Avoid CLS: skip placeholder — section is optional and often empty.
+  if (loading || recentlyViewed.length === 0) return null;
 
   return (
     <div className="space-y-3">

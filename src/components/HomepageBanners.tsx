@@ -40,13 +40,8 @@ export function HomepageBanners() {
     fetchBanners();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="w-full h-48 md:h-64 lg:h-80 bg-muted animate-pulse rounded-lg" />
-    );
-  }
-
-  if (banners.length === 0) {
+  // Avoid CLS: don't render a placeholder that later disappears when there are no banners.
+  if (loading || banners.length === 0) {
     return null;
   }
 
