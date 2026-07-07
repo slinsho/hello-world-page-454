@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LISTING_TYPE_LABELS, formatWhatsAppLink } from "@/lib/constants";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
-import { transformImage, transformSrcSet } from "@/lib/imageCdn";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { countyFlag } from "@/lib/countyFlags";
@@ -77,9 +76,7 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
       <div className={`relative overflow-hidden ${isFeatured ? "h-60 md:h-72" : "h-48"}`}>
         {property.photos[0] ? (
           <img
-            src={transformImage(property.photos[0], { width: isFeatured ? 800 : 480 })}
-            srcSet={transformSrcSet(property.photos[0], isFeatured ? 400 : 240)}
-            sizes={isFeatured ? "(min-width: 1280px) 320px, (min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 33vw, 50vw"}
+            src={property.photos[0]}
             alt={property.title}
             loading={priority ? "eager" : "lazy"}
             decoding="async"

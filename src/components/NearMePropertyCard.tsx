@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Heart, Home, Building2, Store } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
-import { transformImage } from "@/lib/imageCdn";
 
 interface NearMePropertyCardProps {
   property: {
@@ -51,7 +50,7 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
         <div className="w-36 h-full flex-shrink-0">
           {property.photos && property.photos.length > 0 ? (
             <img
-              src={transformImage(property.photos[0], { width: 288, height: 256 })}
+              src={property.photos[0]}
               alt={property.title}
               loading="lazy"
               decoding="async"

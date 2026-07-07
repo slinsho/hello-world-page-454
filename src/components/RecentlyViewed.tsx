@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, X, ChevronRight } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
-import { transformImage } from "@/lib/imageCdn";
 
 export function RecentlyViewed() {
   const { recentlyViewed, loading, clearRecentlyViewed } = useRecentlyViewed();
@@ -42,7 +41,7 @@ export function RecentlyViewed() {
                 <div className="relative h-20 rounded-t-lg overflow-hidden">
                   {item.property?.photos?.[0] ? (
                     <img
-                      src={transformImage(item.property.photos[0], { width: 384, height: 160 })}
+                      src={item.property.photos[0]}
                       alt={item.property.title}
                       loading="lazy"
                       decoding="async"

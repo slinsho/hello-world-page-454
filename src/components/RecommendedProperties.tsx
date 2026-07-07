@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
-import { transformImage } from "@/lib/imageCdn";
 
 interface Property {
   id: string;
@@ -59,7 +58,7 @@ const RecommendedProperties = ({ currentPropertyId, county, propertyType }: Reco
               <div className="relative h-28">
                 {property.photos[0] ? (
                   <img
-                    src={transformImage(property.photos[0], { width: 480, height: 288 })}
+                    src={property.photos[0]}
                     alt={property.title}
                     loading="lazy"
                     decoding="async"
