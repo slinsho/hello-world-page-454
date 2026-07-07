@@ -6,6 +6,7 @@ import { CompareProperty } from "@/hooks/usePropertyComparison";
 import { X, GitCompare, Bed, Bath, Grid3X3, MapPin, DollarSign } from "lucide-react";
 import { LISTING_TYPE_LABELS } from "@/lib/constants";
 import { Link } from "react-router-dom";
+import { transformImage } from "@/lib/imageCdn";
 
 interface PropertyComparisonProps {
   compareList: CompareProperty[];
@@ -46,7 +47,7 @@ export function PropertyComparison({ compareList, removeFromCompare, clearCompar
                   <div className="relative h-40">
                     {property.photos?.[0] ? (
                       <img
-                        src={property.photos[0]}
+                        src={transformImage(property.photos[0], { width: 480, height: 240 })}
                         alt={property.title}
                         loading="lazy"
                         decoding="async"
