@@ -205,14 +205,24 @@ const Index = () => {
         {user && <RecentlyViewed />}
         
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="h-64 w-full rounded-2xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+          // Skeleton matches final layout (hero card + counties strip) to keep CLS low.
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              <Skeleton className="h-[340px] w-full rounded-2xl" />
+            </div>
+            <div>
+              <Skeleton className="h-6 w-40 mb-3" />
+              <div className="flex gap-3 overflow-hidden pb-2">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-28 flex-shrink-0 rounded-xl" />
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-[340px] w-full rounded-2xl" />
+              ))}
+            </div>
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-12">
