@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ChevronRight } from "lucide-react";
+import { Sparkles, ChevronRight, ImageIcon } from "lucide-react";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 
 interface FeaturedProperty {
