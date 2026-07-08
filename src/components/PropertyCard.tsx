@@ -73,19 +73,30 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
     <Link to={`/property/${property.id}`} className="block">
     <Card className="overflow-hidden hover:shadow-xl transition-all cursor-pointer border-0 bg-card rounded-2xl">
 
-      <div className={`relative overflow-hidden ${isFeatured ? "h-60 md:h-72" : "h-48"}`}>
+      <div className={`relative overflow-hidden bg-muted ${isFeatured ? "h-60 md:h-72" : "h-48"}`}>
         {property.photos[0] ? (
-          <img
-            src={property.photos[0]}
-            alt={property.title}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            // @ts-expect-error - fetchpriority is a valid HTML attr not yet in React types
-            fetchpriority={priority ? "high" : "low"}
-            width={640}
-            height={420}
-            className="w-full h-full object-cover"
-          />
+          <>
+            <img
+              src={property.photos[0]}
+              alt={property.title}
+              loading={priority ? "eager" : "lazy"}
+              decoding="async"
+              // @ts-expect-error - fetchpriority is a valid HTML attr not yet in React types
+              fetchpriority={priority ? "high" : "low"}
+              width={640}
+              height={isFeatured ? 480 : 360}
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                const img = e.currentTarget;
+                img.style.display = "none";
+                const fallback = img.nextElementSibling as HTMLElement | null;
+                if (fallback) fallback.style.display = "flex";
+              }}
+            />
+            <div className="absolute inset-0 hidden items-center justify-center bg-muted">
+              <TypeIcon className="h-16 w-16 text-muted-foreground" />
+            </div>
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
             <TypeIcon className="h-16 w-16 text-muted-foreground" />

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ChevronRight } from "lucide-react";
+import { Sparkles, ChevronRight, ImageIcon } from "lucide-react";
 import { useFormatLRD } from "@/hooks/usePlatformSettings";
 
 interface FeaturedProperty {
@@ -64,16 +64,30 @@ export function FeaturedPropertiesBanner() {
             className="flex-shrink-0 w-56 snap-start group"
           >
             <div className="relative rounded-xl overflow-hidden border border-primary/20 bg-card shadow-sm hover:shadow-md transition-shadow">
-              <div className="relative h-32">
-                <img
-                  src={p.photos?.[0] || "/placeholder.svg"}
-                  alt={p.title}
-                  loading="lazy"
-                  decoding="async"
-                  width={400}
-                  height={240}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+              <div className="relative h-32 bg-muted">
+                {p.photos?.[0] ? (
+                  <img
+                    src={p.photos[0]}
+                    alt={p.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={224}
+                    height={128}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      img.style.display = "none";
+                      const fallback = img.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="absolute inset-0 items-center justify-center bg-muted text-muted-foreground"
+                  style={{ display: p.photos?.[0] ? "none" : "flex" }}
+                >
+                  <ImageIcon className="h-8 w-8 opacity-50" />
+                </div>
                 <Badge className="absolute top-2 left-2 bg-primary/90 text-primary-foreground text-[10px] gap-1">
                   <Sparkles className="h-2.5 w-2.5" /> Featured
                 </Badge>
