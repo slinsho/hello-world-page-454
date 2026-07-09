@@ -65,10 +65,8 @@ const NearMe = () => {
               <h1 className="text-xl font-bold text-foreground leading-tight">
                 {county ? `${county} County` : "Near Me"}
               </h1>
-              {!loading && county && (
-                <p className="text-xs text-muted-foreground">
-                  {filteredProperties.length} {filteredProperties.length === 1 ? "property" : "properties"} found
-                </p>
+              {!countyLoading && county && (
+                <p className="text-xs text-muted-foreground">Properties in your area</p>
               )}
             </div>
           </div>
