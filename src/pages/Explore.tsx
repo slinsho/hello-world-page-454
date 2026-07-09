@@ -191,17 +191,15 @@ const Explore = () => {
 
           {/* Property Grid */}
           <div>
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => (<div key={i} className="space-y-3"><Skeleton className="h-48 w-full rounded-2xl" /><Skeleton className="h-4 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>))}
-              </div>
-            ) : properties.length === 0 ? (
-              <div className="text-center py-12"><p className="text-muted-foreground">No properties match your criteria.</p></div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {properties.map((property, i) => (<PropertyCard key={property.id} property={property} priority={i < 2} />))}
-              </div>
-            )}
+            <PropertyList
+              scope="explore"
+              filters={listFilters}
+              sort={sortOrder}
+              pageSize={15}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6"
+              emptyTitle="No properties match your criteria"
+              emptyDescription="Try adjusting or resetting your filters."
+            />
           </div>
         </div>
       </main>
