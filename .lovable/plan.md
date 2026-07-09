@@ -1,90 +1,86 @@
-# Plan: Features 4, 5, and 9
+# Reusable Property Listing System
 
-Three focused features. Each ships independently but shares the same profile/verification foundation already in the app.
+## Goal
+One reusable component + hook powers Home, Explore, Near Me, Featured, Explore by County, Search Results, and Agent Listings. 15 per page, server-side pagination, background prefetch, per-session stable random order, URL-synced filters, cached pages, and clean error/loading states.
 
----
+## Architecture
 
-## Feature 4 — Agent Leaderboard & Public Agent Profiles
+```text
+┌──────────────────────────────────────────────┐
+│  usePropertyList(params)  ← TanStack useInfiniteQuery
+│    • server-side range() pagination (15)
+│    • prefetches next page automatically
+│    • cancels stale requests on param change
+│    • cache keyed by filter signature
+└─────────────┬────────────────────────────────┘
+              │
+      ┌───────▼────────┐
+      │ <PropertyList/>│  Skeletons · Grid · Load More · Error+Retry
+      └───────┬────────┘
+              │ used by
+   Home · Explore · NearMe · Featured · CountyLanding · Agents · SearchResults
+```
 
-**Goal:** Rank verified agents by activity/trust, and give each agent a shareable public page.
+## New files
+- `src/hooks/usePropertyList.ts` — TanStack `useInfiniteQuery` wrapper. Accepts `{ filters, sort, pageSize=15, sessionSeed }`. Uses `supabase.from('properties').select(...).range(from,to)` with a `count: 'exact'` head request only on first page. Fetches profiles/agent info in a single batched query per page. Returns `{ pages, hasMore, loadMore, isFetchingNext, isError, retry, total }`.
+- `src/lib/sessionSeed.ts` — generates/reads a per-day session seed from `sessionStorage` (`lprop_shuffle_seed`), rotates every 24h. Used to deterministically shuffle results in "random" sort mode so pagination never repeats or skips.
+- `src/components/PropertyList.tsx` — grid + skeleton + Load More + retry. Props: `filters`, `sort`, `variant?`, `emptyState?`, `priorityCount?`.
+- `src/hooks/useUrlListState.ts` — reads/writes `page`, `county`, `type`, `listing`, `q`, `sort` via `useSearchParams` (History API, no reload). Debounced writes on filter change.
 
-**Pages / components**
-- `src/pages/Agents.tsx` — already exists as a list; upgrade to a ranked leaderboard with:
-  - Top 3 podium cards (avatar/logo, agency name, score, badges)
-  - Ranked table below: rank, agent, verified listings count, avg review rating, response time, total views
-  - County + sort filters (top rated / most listings / most viewed)
-- `src/pages/AgentProfile.tsx` (new) at route `/agent/:id` — public profile:
-  - Header: agency logo, name, verified badge, county, join date, social links
-  - Stats strip: listings, avg rating, reviews count, response rate
-  - Tabs: Active Listings, Reviews, About
-  - CTA: WhatsApp + in-app message
+## Randomization strategy
+- Add a stable `shuffle_key` computed as `md5(id || :seed)` client-side after fetching each page? No — that breaks pagination continuity.
+- **Correct approach**: server-side `ORDER BY md5(id::text || $seed)` via a new RPC `list_properties_shuffled(seed text, filters jsonb, from int, to int)`. This gives a globally-stable order per seed so `range(0,14)` → `range(15,29)` never overlaps or skips. Falls back to `created_at DESC` when sort ≠ "random".
+- Seed lives in sessionStorage + rotates daily → every user gets a different order, same user sees a stable order for the session.
 
-**Data**
-- New DB view `public.agent_leaderboard` (SECURITY INVOKER) aggregating:
-  - active listing count from `properties`
-  - avg rating + count from `reviews`
-  - total views from `property_views`
-  - only users with `verification_type='agent'` and status `approved`
-- Add `GRANT SELECT` to `anon, authenticated`.
+## Migration
+- New SQL function `public.list_properties_shuffled(_seed text, _filters jsonb, _from int, _to int)` returning `SETOF properties` with `SECURITY INVOKER` (so RLS still applies). Uses `ORDER BY is_promoted DESC, md5(id::text || _seed)`. Grants `EXECUTE` to `anon`, `authenticated`.
 
-**Routing**
-- Add `/agent/:id` route in `App.tsx`.
+## URL state contract
+- Query params: `?page=2&county=Montserrado&type=apartment&listing=for_sale&sort=random&q=beach`.
+- On mount: hydrate filter state from URL.
+- On filter change: `setSearchParams(next, { replace: false })` → deep-linkable + shareable.
+- `page` reflects the highest loaded page so refresh restores same scroll depth.
 
----
+## Page migrations (one per commit-worthy step)
+1. **Explore.tsx** — replace `fetchProperties` + `useState<any[]>` with `<PropertyList filters={filters} sort={sort} />`. Keep sidebar filters, sync to URL.
+2. **NearMe.tsx** — pass `{ county }` filter; remove manual profile+agent fetch (moved into hook).
+3. **Index.tsx** — first hero card stays hand-rolled; the grid below becomes `<PropertyList pageSize={15} />`.
+4. **CountyLanding.tsx** — `<PropertyList filters={{ county }} />`.
+5. **FeaturedListings.tsx** — `<PropertyList filters={{ is_promoted: true }} />`.
+6. **Agents.tsx** — agent listings tab uses `<PropertyList filters={{ owner_id: agentId }} />`.
+7. **Search Results** (part of Explore's `q=` param) — same component.
 
-## Feature 5 — Neighborhood Insights
+## Prefetch & UX rules
+- After first page renders, `queryClient.prefetchInfiniteQuery` warms page 2 with `staleTime: 5min`.
+- Load More reads from cache instantly, then triggers page 3 prefetch.
+- Button states: `Load more` (idle) → `Loading…` (disabled) → hidden when `!hasMore`.
+- Scroll position preserved by appending (never replacing) DOM nodes.
+- On filter/param change: `queryClient.cancelQueries` for the previous key → aborts in-flight requests.
 
-**Goal:** Static, curated county-level context surfaced on property detail and a small standalone card.
+## Error handling
+- Hook exposes `isError` + `retry()` that refetches only the failed page.
+- Inline error card at bottom of grid with "Retry" — grid content above stays.
 
-**Approach (no external API)**
-- New table `public.county_insights` seeded by admin:
-  - `county` (unique), `overview`, `population`, `schools_count`, `hospitals_count`, `markets_count`, `highlights` (text[]), `image_url`
-- Public read; admin-only write (uses existing `is_admin`).
-- Admin editor: new tab in `AdminNavigation` → `AdminCountyInsights.tsx` (list + edit form).
-- Consumer components:
-  - `NeighborhoodInsights.tsx` — used on `PropertyDetail` under the description, shows county overview + highlight chips.
-  - Card variant on `NearMe` page header.
+## Performance
+- `select` narrowed to card-required columns (drops `description`, `virtual_tour_url`, etc.) → smaller payload.
+- Batched profile fetch per page (`.in('id', ownerIds)`).
+- `React.memo` on `PropertyCard` (already effectively memoized via key).
+- `count: 'exact'` requested only once (first page) so we can hide Load More precisely.
 
-**Seed**
-- Insert baseline rows for the 15 Liberian counties with empty placeholders so admin can fill later.
+## Out of scope (explicit)
+- Not converting Reels, Favorites, RecentlyViewed, RecommendedProperties (different data shapes / small fixed lists).
+- Not touching admin listing views.
+- No infinite-scroll auto-trigger — explicit Load More per spec.
 
----
+## Rollout order
+1. Migration + `list_properties_shuffled` RPC.
+2. `sessionSeed.ts`, `usePropertyList.ts`, `PropertyList.tsx`, `useUrlListState.ts`.
+3. Explore (highest-traffic, validates approach).
+4. Near Me + County Landing + Featured Listings + Agents + Index grid — parallel edits.
+5. Manual QA on each page (grid renders, Load More works, URL updates, refresh restores state, random order differs per session).
 
-## Feature 9 — Verified Buyer/Tenant Badge
-
-**Goal:** Light KYC signal so owners/agents know an inquiry is from a real person.
-
-**Approach**
-- Reuse existing `verification_requests` table by adding a new `verification_type` value `buyer` (already an open text column — confirm and extend as needed).
-- Buyer verification is **free** (no payment step), requires:
-  - Live camera selfie (existing selfie capture flow)
-  - Government ID number (text)
-  - Phone number confirmed
-- Admin reviews in existing `AdminVerifications` list; approval sets a flag readable from `profiles`.
-- New computed on `profiles`: nothing schema-wise needed — we already join verification. Add a helper `useBuyerVerification(userId)` and a `<VerifiedBuyerBadge />` component.
-- Surface the badge:
-  - Next to sender name in `PropertyInquiryForm` submissions / `DashboardInquiries`
-  - On `MakeOfferForm` submissions
-  - In `Messages` thread header
-- Entry point: new "Get Verified as Buyer" card in `Settings` for users whose role is `user` (not owner/agent).
-
-**No payment**, so it avoids the promotion/payment workflow entirely.
-
----
-
-## Technical notes
-
-- All new tables follow the required CREATE → GRANT → RLS → POLICY order.
-- Leaderboard is a **view**, not a table — always fresh, no cron.
-- `AgentProfile` reuses `PropertyCard` for the listings tab.
-- Buyer verification piggybacks on existing selfie capture + admin review UI to keep scope tight.
-- No new external APIs; no Google Maps required for neighborhood insights.
-
-## Order of implementation
-
-1. Migration: `county_insights` table + seed + `agent_leaderboard` view + buyer verification type support.
-2. Feature 9 (smallest surface): badge component + Settings entry + admin approval hook-in.
-3. Feature 5: admin editor + display components on PropertyDetail and NearMe.
-4. Feature 4: rebuild Agents page as leaderboard + new AgentProfile route.
-
-Approve and I'll start with the migration.
+## Estimated impact
+- Network requests on Home / Explore / NearMe drop from a full-table fetch (~all rows) to 15 rows per page.
+- Duplicate profile/agent fetches consolidated: 3 queries → 2 per page (properties + profiles+agents).
+- Cache hits on Load More = 0 network requests until page N+2 prefetch kicks in.
+- Random ordering ensures fair promotion distribution and fresher-feeling home page.
