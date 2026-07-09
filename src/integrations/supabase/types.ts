@@ -1436,6 +1436,19 @@ export type Database = {
       }
     }
     Functions: {
+      count_properties_filtered: {
+        Args: {
+          _county?: string
+          _listing_type?: string
+          _max_price?: number
+          _min_price?: number
+          _only_promoted?: boolean
+          _owner_id?: string
+          _property_type?: string
+          _search?: string
+        }
+        Returns: number
+      }
       get_property_view_counts: {
         Args: { p_property_ids: string[] }
         Returns: {
@@ -1496,6 +1509,70 @@ export type Database = {
       }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      list_properties_shuffled: {
+        Args: {
+          _county?: string
+          _from?: number
+          _listing_type?: string
+          _max_price?: number
+          _min_price?: number
+          _only_promoted?: boolean
+          _owner_id?: string
+          _property_type?: string
+          _search?: string
+          _seed: string
+          _sort?: string
+          _to?: number
+        }
+        Returns: {
+          address: string
+          bathrooms: number | null
+          bedrooms: number | null
+          boundary_marked: boolean | null
+          city: string | null
+          community: string | null
+          contact_phone: string
+          contact_phone_2: string | null
+          county: string
+          created_at: string
+          description: string | null
+          district: string | null
+          flagged_count: number | null
+          id: string
+          is_flagged: boolean
+          is_promoted: boolean
+          land_size: number | null
+          land_size_unit: string | null
+          land_use: string | null
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          moderation_note: string | null
+          moderation_status: string | null
+          nearest_landmark: string | null
+          owner_id: string
+          photos: string[]
+          price_usd: number
+          promotion_impression_count: number
+          property_type: Database["public"]["Enums"]["property_type"]
+          road_access: boolean | null
+          search_vector: unknown
+          square_yards: number | null
+          status: Database["public"]["Enums"]["property_status"]
+          street: string | null
+          title: string
+          title_deed_status: string | null
+          topography: string | null
+          updated_at: string
+          utilities_nearby: string[] | null
+          videos: string[] | null
+          zoning: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "properties"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       mark_messages_read: {
         Args: { _conversation_id: string }
         Returns: undefined
