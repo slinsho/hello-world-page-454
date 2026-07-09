@@ -125,25 +125,15 @@ export default function CountyLanding() {
             )}
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-card h-72 animate-pulse" />
-              ))}
-            </div>
-          ) : properties.length === 0 ? (
-            <EmptyState
-              icon={Building2}
-              title={`No active listings in ${county} yet`}
-              description="Check back soon or explore other counties."
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {properties.map((p) => (
-                <PropertyCard key={p.id} property={p} />
-              ))}
-            </div>
-          )}
+          <PropertyList
+            scope={`county-${county}`}
+            filters={{ county }}
+            sort="random"
+            pageSize={15}
+            gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            emptyTitle={`No active listings in ${county} yet`}
+            emptyDescription="Check back soon or explore other counties."
+          />
 
           {/* Other counties */}
           <div className="mt-8">
