@@ -1,58 +1,48 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
-import PropertyCard from "@/components/PropertyCard";
-import { EmptyState } from "@/components/EmptyState";
+import PropertyList from "@/components/PropertyList";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Building2, TrendingUp, Home as HomeIcon, MapPin } from "lucide-react";
 import { COUNTY_FLAGS, countyFromSlug, countySlug, LIBERIA_COUNTIES } from "@/lib/countyFlags";
 
+interface CountyStats {
+  total: number;
+  avg: number;
+  forSale: number;
+  forRent: number;
+  promoted: number;
+}
+
 export default function CountyLanding() {
   const { slug = "" } = useParams();
   const navigate = useNavigate();
   const county = countyFromSlug(slug);
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<CountyStats>({ total: 0, avg: 0, forSale: 0, forRent: 0, promoted: 0 });
 
+  // Lightweight aggregate for the hero (single small query).
   useEffect(() => {
     if (!county) return;
     (async () => {
-      setLoading(true);
-      const { data: props } = await supabase
+      const { data } = await supabase
         .from("properties")
-        .select("*")
+        .select("price_usd, listing_type, is_promoted")
         .eq("county", county)
-        .eq("status", "active")
-        .order("is_promoted", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(60);
-      const rows = props || [];
-      const ownerIds = Array.from(new Set(rows.map((p: any) => p.owner_id).filter(Boolean)));
-      let profilesMap = new Map<string, any>();
-      if (ownerIds.length) {
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("id, name, role, verification_status, phone, profile_photo_url")
-          .in("id", ownerIds);
-        profilesMap = new Map((profs || []).map((p: any) => [p.id, p]));
-      }
-      setProperties(rows.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null })));
-      setLoading(false);
+        .eq("status", "active");
+      const rows = data || [];
+      const total = rows.length;
+      const avg = total
+        ? Math.round(rows.reduce((s: number, p: any) => s + (Number(p.price_usd) || 0), 0) / total)
+        : 0;
+      const forSale = rows.filter((p: any) => p.listing_type === "for_sale").length;
+      const forRent = rows.filter((p: any) => p.listing_type === "for_rent" || p.listing_type === "for_lease").length;
+      const promoted = rows.filter((p: any) => p.is_promoted).length;
+      setStats({ total, avg, forSale, forRent, promoted });
     })();
   }, [county]);
-
-  const stats = useMemo(() => {
-    if (!properties.length) return { total: 0, avg: 0, forSale: 0, forRent: 0, promoted: 0 };
-    const total = properties.length;
-    const avg = Math.round(properties.reduce((s, p) => s + (Number(p.price_usd) || 0), 0) / total);
-    const forSale = properties.filter((p) => p.listing_type === "for_sale").length;
-    const forRent = properties.filter((p) => p.listing_type === "for_rent" || p.listing_type === "for_lease").length;
-    const promoted = properties.filter((p) => p.is_promoted).length;
-    return { total, avg, forSale, forRent, promoted };
-  }, [properties]);
 
   if (!county) {
     return (
@@ -135,25 +125,15 @@ export default function CountyLanding() {
             )}
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-card h-72 animate-pulse" />
-              ))}
-            </div>
-          ) : properties.length === 0 ? (
-            <EmptyState
-              icon={Building2}
-              title={`No active listings in ${county} yet`}
-              description="Check back soon or explore other counties."
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {properties.map((p) => (
-                <PropertyCard key={p.id} property={p} />
-              ))}
-            </div>
-          )}
+          <PropertyList
+            scope={`county-${county}`}
+            filters={{ county }}
+            sort="random"
+            pageSize={15}
+            gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            emptyTitle={`No active listings in ${county} yet`}
+            emptyDescription="Check back soon or explore other counties."
+          />
 
           {/* Other counties */}
           <div className="mt-8">

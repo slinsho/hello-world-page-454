@@ -1,14 +1,14 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyList from "@/components/PropertyList";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Settings, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { MapPin, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import type { PropertyListFilters } from "@/hooks/usePropertyList";
 
 const PROPERTY_FILTERS = ["All", "House", "Apartment", "Shop"] as const;
 const LISTING_FILTERS = ["All", "For Sale", "For Rent", "For Lease"] as const;
@@ -18,89 +18,37 @@ const NearMe = () => {
   const urlCounty = searchParams.get("county");
   const { user } = useAuth();
   const [county, setCounty] = useState<string>("");
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [countyLoading, setCountyLoading] = useState(true);
   const [propertyFilter, setPropertyFilter] = useState<string>("All");
   const [listingFilter, setListingFilter] = useState<string>("All");
 
   useEffect(() => {
-    const fetchUserCountyAndProperties = async () => {
+    const resolveCounty = async () => {
+      setCountyLoading(true);
       let targetCounty = urlCounty || "";
-
       if (!targetCounty && user) {
         const { data: profile } = await supabase
           .from("profiles")
           .select("county")
           .eq("id", user.id)
           .maybeSingle();
-        
-        if (profile?.county) {
-          targetCounty = profile.county;
-        }
+        if (profile?.county) targetCounty = profile.county;
       }
-
       setCounty(targetCounty);
-
-      if (!targetCounty) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("status", "active")
-        .eq("county", targetCounty)
-        .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
-        if (ownerIds.length > 0) {
-          const { data: profilesData } = await supabase
-            .from("profiles")
-            .select("id, name, role, verification_status, phone, profile_photo_url")
-            .in("id", ownerIds);
-
-          // Fetch agent info for agent owners
-          const agentIds = (profilesData || []).filter(p => p.role === "agent").map(p => p.id);
-          let agentInfoMap = new Map();
-          if (agentIds.length > 0) {
-            const { data: verifications } = await supabase
-              .from("verification_requests")
-              .select("user_id, agency_name, agency_logo")
-              .in("user_id", agentIds)
-              .eq("status", "approved");
-            (verifications || []).forEach(v => {
-              agentInfoMap.set(v.user_id, { agency_name: v.agency_name, agency_logo: v.agency_logo });
-            });
-          }
-
-          const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-          setProperties(data.map((p: any) => ({
-            ...p,
-            profiles: profilesMap.get(p.owner_id) || null,
-            agent_info: agentInfoMap.get(p.owner_id) || null,
-          })));
-        } else {
-          setProperties(data);
-        }
-      }
-      setLoading(false);
+      setCountyLoading(false);
     };
-
-    fetchUserCountyAndProperties();
+    resolveCounty();
   }, [urlCounty, user]);
 
-  const filteredProperties = useMemo(() => {
-    return properties.filter((p) => {
-      if (propertyFilter !== "All" && p.property_type !== propertyFilter.toLowerCase()) return false;
-      if (listingFilter !== "All") {
-        const mapped = listingFilter.toLowerCase().replace("for ", "for_");
-        if (p.listing_type !== mapped) return false;
-      }
-      return true;
-    });
-  }, [properties, propertyFilter, listingFilter]);
+  const listFilters: PropertyListFilters = useMemo(() => ({
+    county: county || undefined,
+    propertyType: propertyFilter !== "All" ? propertyFilter.toLowerCase() : undefined,
+    listingType:
+      listingFilter !== "All"
+        ? listingFilter.toLowerCase().replace("for ", "for_")
+        : undefined,
+  }), [county, propertyFilter, listingFilter]);
+
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -117,10 +65,8 @@ const NearMe = () => {
               <h1 className="text-xl font-bold text-foreground leading-tight">
                 {county ? `${county} County` : "Near Me"}
               </h1>
-              {!loading && county && (
-                <p className="text-xs text-muted-foreground">
-                  {filteredProperties.length} {filteredProperties.length === 1 ? "property" : "properties"} found
-                </p>
+              {!countyLoading && county && (
+                <p className="text-xs text-muted-foreground">Properties in your area</p>
               )}
             </div>
           </div>
@@ -134,9 +80,8 @@ const NearMe = () => {
         </div>
 
         {/* Filter Chips */}
-        {county && !loading && properties.length > 0 && (
+        {county && !countyLoading && (
           <div className="mt-4 space-y-2.5">
-            {/* Property type filters */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {PROPERTY_FILTERS.map((f) => (
                 <button
@@ -152,7 +97,6 @@ const NearMe = () => {
                 </button>
               ))}
             </div>
-            {/* Listing type filters */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {LISTING_FILTERS.map((f) => (
                 <button
@@ -173,7 +117,7 @@ const NearMe = () => {
 
         {/* Content */}
         <div className="mt-5">
-          {loading ? (
+          {countyLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[...Array(6)].map((_, i) => (
                 <Skeleton key={i} className="h-72 w-full rounded-2xl" />
@@ -195,34 +139,16 @@ const NearMe = () => {
                 </Link>
               </Button>
             </div>
-          ) : filteredProperties.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                <SlidersHorizontal className="w-7 h-7 text-muted-foreground" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground mb-2">No properties found</h2>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                {properties.length > 0
-                  ? "Try adjusting your filters to see more results."
-                  : `No active listings in ${county} yet. Check back soon!`}
-              </p>
-              {properties.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => { setPropertyFilter("All"); setListingFilter("All"); }}
-                >
-                  Clear filters
-                </Button>
-              )}
-            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            <PropertyList
+              scope="near-me"
+              filters={listFilters}
+              sort="newest"
+              pageSize={15}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              emptyTitle={`No properties found in ${county}`}
+              emptyDescription="Try adjusting your filters or check back soon."
+            />
           )}
         </div>
 

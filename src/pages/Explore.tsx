@@ -1,32 +1,29 @@
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyList from "@/components/PropertyList";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Filter, Search, Clock, X } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList";
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
   const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [showRecents, setShowRecents] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
+  const [filters, setFilters] = useState({ type: "all", listing: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
-  const [sortOrder, setSortOrder] = useState("newest");
+  const [sortOrder, setSortOrder] = useState<PropertySort>("newest");
 
   // Apply defaults from preferences on first load
   useEffect(() => {
@@ -39,12 +36,10 @@ const Explore = () => {
       };
       setFilters(updated);
       setTempFilters(updated);
-      setSortOrder(preferences.default_sort_order || "newest");
+      setSortOrder((preferences.default_sort_order as PropertySort) || "newest");
     }
     setInitialized(true);
   }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
-
-  useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
 
   // Close recent searches dropdown when clicking outside
   useEffect(() => {
@@ -58,54 +53,24 @@ const Explore = () => {
     return () => document.removeEventListener("mousedown", onDown);
   }, [showRecents]);
 
-  const fetchProperties = async () => {
-    setLoading(true);
-    let query = supabase.from("properties").select("*").eq("status", "active").order("is_promoted", { ascending: false });
-    
-    // Apply sort order
-    if (sortOrder === "price_low") {
-      query = query.order("price_usd", { ascending: true });
-    } else if (sortOrder === "price_high") {
-      query = query.order("price_usd", { ascending: false });
-    } else if (sortOrder !== "random") {
-      query = query.order("created_at", { ascending: false });
-    }
-    if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
-    if (filters.listing !== "all") query = query.eq("listing_type", filters.listing as any);
-    if (filters.county !== "all") query = query.eq("county", filters.county);
-    if (filters.minPrice) query = query.gte("price_usd", parseFloat(filters.minPrice));
-    if (filters.maxPrice) query = query.lte("price_usd", parseFloat(filters.maxPrice));
-    if (searchQuery) {
-      // Use full-text search with tsvector if available, fallback to ilike
-      const tsQuery = searchQuery.trim().split(/\s+/).join(' & ');
-      query = query.textSearch('search_vector', tsQuery, { config: 'english' });
-    }
+  const listFilters: PropertyListFilters = useMemo(() => ({
+    county: filters.county !== "all" ? filters.county : undefined,
+    propertyType: filters.type !== "all" ? filters.type : undefined,
+    listingType: filters.listing !== "all" ? filters.listing : undefined,
+    minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
+    maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
+    search: searchQuery || undefined,
+  }), [filters, searchQuery]);
 
-    const { data, error } = await query;
-    if (!error && data) {
-      const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
-      let results = data as any[];
-      if (ownerIds.length > 0) {
-        const { data: profilesData } = await supabase.from("profiles").select("id, name, role, verification_status, phone, profile_photo_url").in("id", ownerIds);
-        const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-        results = data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null }));
-      }
-      if (sortOrder === "random") {
-        results.sort(() => Math.random() - 0.5);
-      }
-      setProperties(results);
-    }
-    setLoading(false);
-  };
 
   const applyFilters = () => { setFilters(tempFilters); };
-  const resetFilters = () => { const d = { type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
+  const resetFilters = () => { const d = { type: "all", listing: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
 
   const FilterPanel = () => (
     <div className="space-y-5">
       <div className="space-y-2"><Label>Property Type</Label><Select value={tempFilters.type} onValueChange={(v) => setTempFilters({ ...tempFilters, type: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="house">House</SelectItem><SelectItem value="apartment">Apartment</SelectItem><SelectItem value="shop">Shop</SelectItem></SelectContent></Select></div>
       <div className="space-y-2"><Label>Listing Type</Label><Select value={tempFilters.listing} onValueChange={(v) => setTempFilters({ ...tempFilters, listing: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="for_sale">For Sale</SelectItem><SelectItem value="for_rent">For Rent</SelectItem><SelectItem value="for_lease">For Lease</SelectItem></SelectContent></Select></div>
-      <div className="space-y-2"><Label>Status</Label><Select value={tempFilters.status} onValueChange={(v) => setTempFilters({ ...tempFilters, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="negotiating">Negotiating</SelectItem><SelectItem value="taken">Taken</SelectItem></SelectContent></Select></div>
+      <div className="space-y-2"><Label>Sort By</Label><Select value={sortOrder} onValueChange={(v) => setSortOrder(v as PropertySort)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="newest">Newest</SelectItem><SelectItem value="random">Random</SelectItem><SelectItem value="price_low">Price: Low to High</SelectItem><SelectItem value="price_high">Price: High to Low</SelectItem></SelectContent></Select></div>
       <div className="space-y-2"><Label>Price Range (USD)</Label><div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Min" value={tempFilters.minPrice} onChange={(e) => setTempFilters({ ...tempFilters, minPrice: e.target.value })} /><Input type="number" placeholder="Max" value={tempFilters.maxPrice} onChange={(e) => setTempFilters({ ...tempFilters, maxPrice: e.target.value })} /></div></div>
       <div className="space-y-2"><Label>County</Label><Select value={tempFilters.county} onValueChange={(v) => setTempFilters({ ...tempFilters, county: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem>{LIBERIA_COUNTIES.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent></Select></div>
       <div className="flex gap-2">
@@ -226,17 +191,15 @@ const Explore = () => {
 
           {/* Property Grid */}
           <div>
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => (<div key={i} className="space-y-3"><Skeleton className="h-48 w-full rounded-2xl" /><Skeleton className="h-4 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>))}
-              </div>
-            ) : properties.length === 0 ? (
-              <div className="text-center py-12"><p className="text-muted-foreground">No properties match your criteria.</p></div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                {properties.map((property, i) => (<PropertyCard key={property.id} property={property} priority={i < 2} />))}
-              </div>
-            )}
+            <PropertyList
+              scope="explore"
+              filters={listFilters}
+              sort={sortOrder}
+              pageSize={15}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6"
+              emptyTitle="No properties match your criteria"
+              emptyDescription="Try adjusting or resetting your filters."
+            />
           </div>
         </div>
       </main>
