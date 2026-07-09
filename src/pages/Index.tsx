@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyList from "@/components/PropertyList";
 import NearMePropertyCard from "@/components/NearMePropertyCard";
 import Navbar from "@/components/Navbar";
 import { HomepageBanners } from "@/components/HomepageBanners";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, ChevronRight } from "lucide-react";
 import { COUNTY_FLAGS, LIBERIA_COUNTIES, countySlug } from "@/lib/countyFlags";
 import { Badge } from "@/components/ui/badge";
+import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList";
 
 const Index = () => {
   const { user } = useAuth();
