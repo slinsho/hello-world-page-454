@@ -16,16 +16,14 @@ import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList"
 const Explore = () => {
   const { preferences } = useUserPreferences();
   const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [showRecents, setShowRecents] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [filters, setFilters] = useState({ type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" });
+  const [filters, setFilters] = useState({ type: "all", listing: "all", minPrice: "", maxPrice: "", county: "all" });
   const [tempFilters, setTempFilters] = useState(filters);
-  const [sortOrder, setSortOrder] = useState("newest");
+  const [sortOrder, setSortOrder] = useState<PropertySort>("newest");
 
   // Apply defaults from preferences on first load
   useEffect(() => {
@@ -38,12 +36,10 @@ const Explore = () => {
       };
       setFilters(updated);
       setTempFilters(updated);
-      setSortOrder(preferences.default_sort_order || "newest");
+      setSortOrder((preferences.default_sort_order as PropertySort) || "newest");
     }
     setInitialized(true);
   }, [preferences.default_county, preferences.default_listing_type, preferences.default_property_type, preferences.default_sort_order]);
-
-  useEffect(() => { fetchProperties(); }, [filters, searchQuery, sortOrder]);
 
   // Close recent searches dropdown when clicking outside
   useEffect(() => {
@@ -57,45 +53,15 @@ const Explore = () => {
     return () => document.removeEventListener("mousedown", onDown);
   }, [showRecents]);
 
-  const fetchProperties = async () => {
-    setLoading(true);
-    let query = supabase.from("properties").select("*").eq("status", "active").order("is_promoted", { ascending: false });
-    
-    // Apply sort order
-    if (sortOrder === "price_low") {
-      query = query.order("price_usd", { ascending: true });
-    } else if (sortOrder === "price_high") {
-      query = query.order("price_usd", { ascending: false });
-    } else if (sortOrder !== "random") {
-      query = query.order("created_at", { ascending: false });
-    }
-    if (filters.type !== "all") query = query.eq("property_type", filters.type as any);
-    if (filters.listing !== "all") query = query.eq("listing_type", filters.listing as any);
-    if (filters.county !== "all") query = query.eq("county", filters.county);
-    if (filters.minPrice) query = query.gte("price_usd", parseFloat(filters.minPrice));
-    if (filters.maxPrice) query = query.lte("price_usd", parseFloat(filters.maxPrice));
-    if (searchQuery) {
-      // Use full-text search with tsvector if available, fallback to ilike
-      const tsQuery = searchQuery.trim().split(/\s+/).join(' & ');
-      query = query.textSearch('search_vector', tsQuery, { config: 'english' });
-    }
+  const listFilters: PropertyListFilters = useMemo(() => ({
+    county: filters.county !== "all" ? filters.county : undefined,
+    propertyType: filters.type !== "all" ? filters.type : undefined,
+    listingType: filters.listing !== "all" ? filters.listing : undefined,
+    minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
+    maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
+    search: searchQuery || undefined,
+  }), [filters, searchQuery]);
 
-    const { data, error } = await query;
-    if (!error && data) {
-      const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
-      let results = data as any[];
-      if (ownerIds.length > 0) {
-        const { data: profilesData } = await supabase.from("profiles").select("id, name, role, verification_status, phone, profile_photo_url").in("id", ownerIds);
-        const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-        results = data.map((p: any) => ({ ...p, profiles: profilesMap.get(p.owner_id) || null }));
-      }
-      if (sortOrder === "random") {
-        results.sort(() => Math.random() - 0.5);
-      }
-      setProperties(results);
-    }
-    setLoading(false);
-  };
 
   const applyFilters = () => { setFilters(tempFilters); };
   const resetFilters = () => { const d = { type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
