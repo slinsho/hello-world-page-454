@@ -1,18 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyList from "@/components/PropertyList";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Filter, Search, Clock, X } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList";
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
