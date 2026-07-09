@@ -1,14 +1,14 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyList from "@/components/PropertyList";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Settings, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { MapPin, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import type { PropertyListFilters } from "@/hooks/usePropertyList";
 
 const PROPERTY_FILTERS = ["All", "House", "Apartment", "Shop"] as const;
 const LISTING_FILTERS = ["All", "For Sale", "For Rent", "For Lease"] as const;
@@ -18,89 +18,37 @@ const NearMe = () => {
   const urlCounty = searchParams.get("county");
   const { user } = useAuth();
   const [county, setCounty] = useState<string>("");
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [countyLoading, setCountyLoading] = useState(true);
   const [propertyFilter, setPropertyFilter] = useState<string>("All");
   const [listingFilter, setListingFilter] = useState<string>("All");
 
   useEffect(() => {
-    const fetchUserCountyAndProperties = async () => {
+    const resolveCounty = async () => {
+      setCountyLoading(true);
       let targetCounty = urlCounty || "";
-
       if (!targetCounty && user) {
         const { data: profile } = await supabase
           .from("profiles")
           .select("county")
           .eq("id", user.id)
           .maybeSingle();
-        
-        if (profile?.county) {
-          targetCounty = profile.county;
-        }
+        if (profile?.county) targetCounty = profile.county;
       }
-
       setCounty(targetCounty);
-
-      if (!targetCounty) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("status", "active")
-        .eq("county", targetCounty)
-        .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        const ownerIds = [...new Set(data.map((p: any) => p.owner_id))];
-        if (ownerIds.length > 0) {
-          const { data: profilesData } = await supabase
-            .from("profiles")
-            .select("id, name, role, verification_status, phone, profile_photo_url")
-            .in("id", ownerIds);
-
-          // Fetch agent info for agent owners
-          const agentIds = (profilesData || []).filter(p => p.role === "agent").map(p => p.id);
-          let agentInfoMap = new Map();
-          if (agentIds.length > 0) {
-            const { data: verifications } = await supabase
-              .from("verification_requests")
-              .select("user_id, agency_name, agency_logo")
-              .in("user_id", agentIds)
-              .eq("status", "approved");
-            (verifications || []).forEach(v => {
-              agentInfoMap.set(v.user_id, { agency_name: v.agency_name, agency_logo: v.agency_logo });
-            });
-          }
-
-          const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-          setProperties(data.map((p: any) => ({
-            ...p,
-            profiles: profilesMap.get(p.owner_id) || null,
-            agent_info: agentInfoMap.get(p.owner_id) || null,
-          })));
-        } else {
-          setProperties(data);
-        }
-      }
-      setLoading(false);
+      setCountyLoading(false);
     };
-
-    fetchUserCountyAndProperties();
+    resolveCounty();
   }, [urlCounty, user]);
 
-  const filteredProperties = useMemo(() => {
-    return properties.filter((p) => {
-      if (propertyFilter !== "All" && p.property_type !== propertyFilter.toLowerCase()) return false;
-      if (listingFilter !== "All") {
-        const mapped = listingFilter.toLowerCase().replace("for ", "for_");
-        if (p.listing_type !== mapped) return false;
-      }
-      return true;
-    });
-  }, [properties, propertyFilter, listingFilter]);
+  const listFilters: PropertyListFilters = useMemo(() => ({
+    county: county || undefined,
+    propertyType: propertyFilter !== "All" ? propertyFilter.toLowerCase() : undefined,
+    listingType:
+      listingFilter !== "All"
+        ? listingFilter.toLowerCase().replace("for ", "for_")
+        : undefined,
+  }), [county, propertyFilter, listingFilter]);
+
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
