@@ -64,7 +64,7 @@ const Explore = () => {
 
 
   const applyFilters = () => { setFilters(tempFilters); };
-  const resetFilters = () => { const d = { type: "all", listing: "all", status: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
+  const resetFilters = () => { const d = { type: "all", listing: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
 
   const FilterPanel = () => (
     <div className="space-y-5">
