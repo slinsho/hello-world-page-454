@@ -80,9 +80,8 @@ const NearMe = () => {
         </div>
 
         {/* Filter Chips */}
-        {county && !loading && properties.length > 0 && (
+        {county && !countyLoading && (
           <div className="mt-4 space-y-2.5">
-            {/* Property type filters */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {PROPERTY_FILTERS.map((f) => (
                 <button
@@ -98,7 +97,6 @@ const NearMe = () => {
                 </button>
               ))}
             </div>
-            {/* Listing type filters */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {LISTING_FILTERS.map((f) => (
                 <button
@@ -119,7 +117,7 @@ const NearMe = () => {
 
         {/* Content */}
         <div className="mt-5">
-          {loading ? (
+          {countyLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[...Array(6)].map((_, i) => (
                 <Skeleton key={i} className="h-72 w-full rounded-2xl" />
@@ -141,34 +139,16 @@ const NearMe = () => {
                 </Link>
               </Button>
             </div>
-          ) : filteredProperties.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                <SlidersHorizontal className="w-7 h-7 text-muted-foreground" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground mb-2">No properties found</h2>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                {properties.length > 0
-                  ? "Try adjusting your filters to see more results."
-                  : `No active listings in ${county} yet. Check back soon!`}
-              </p>
-              {properties.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => { setPropertyFilter("All"); setListingFilter("All"); }}
-                >
-                  Clear filters
-                </Button>
-              )}
-            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            <PropertyList
+              scope="near-me"
+              filters={listFilters}
+              sort="newest"
+              pageSize={15}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              emptyTitle={`No properties found in ${county}`}
+              emptyDescription="Try adjusting your filters or check back soon."
+            />
           )}
         </div>
 
