@@ -20,6 +20,8 @@ interface PropertyCardProps {
     price_usd: number;
     address: string;
     county: string;
+    district?: string | null;
+    rent_period?: string | null;
     status: "active" | "negotiating" | "taken";
     photos: string[];
     description?: string;
@@ -66,8 +68,11 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
   }[property.property_type];
 
   const listingLabel = (LISTING_TYPE_LABELS[property.listing_type] || "For Sale").toUpperCase();
-  const priceLabel = showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`;
-  const secondaryPrice = showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd);
+  const rentSuffix = property.listing_type === "for_rent" && property.rent_period
+    ? (property.rent_period === "per_day" ? "/day" : property.rent_period === "per_year" ? "/yr" : "/mo")
+    : "";
+  const priceLabel = (showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`) + rentSuffix;
+  const secondaryPrice = (showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)) + rentSuffix;
 
   return (
     <Link to={`/property/${property.id}`} className="block">
