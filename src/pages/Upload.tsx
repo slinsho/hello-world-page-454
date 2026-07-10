@@ -42,7 +42,7 @@ const Upload = () => {
   const [land, setLand] = useState<LandFieldsState>(emptyLandFields());
   const [landErrors, setLandErrors] = useState<Partial<Record<keyof LandFieldsState, string>>>({});
   const [formData, setFormData] = useState({
-    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "",
+    title: "", property_type: "house", listing_type: "for_sale", price_usd: "", address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "", contact_phone: "", contact_phone_2: "", bedrooms: "", bathrooms: "", square_yards: "", description: "", rent_period: "per_month",
   });
   const isLand = formData.property_type === "land";
 
@@ -125,7 +125,7 @@ const Upload = () => {
       const photoUrls = await Promise.all(photos.map(async (photo) => { const resized = await resizeImage(photo); const fileName = `${user.id}/${Date.now()}-${Math.random()}.jpg`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, resized); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const videoUrls = await Promise.all(videos.map(async (video) => { const fileExt = video.name.split(".").pop(); const fileName = `${user.id}/videos/${Date.now()}-${Math.random()}.${fileExt}`; const { error: uploadError } = await supabase.storage.from("property-photos").upload(fileName, video); if (uploadError) throw uploadError; const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(fileName); return publicUrl; }));
       const composedAddress = [formData.street, formData.community, formData.city, formData.district, validatedData.county].map(s => (s || "").trim()).filter(Boolean).join(", ") || validatedData.county;
-      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: composedAddress, county: validatedData.county, district: formData.district.trim() || null, city: formData.city.trim() || null, community: formData.community.trim() || null, street: formData.street.trim() || null, nearest_landmark: formData.nearest_landmark.trim() || null, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null };
+      const insertPayload: any = { owner_id: user.id, title: validatedData.title, property_type: validatedData.property_type, listing_type: validatedData.listing_type, price_usd: validatedData.price_usd, address: composedAddress, county: validatedData.county, district: formData.district.trim() || null, city: formData.city.trim() || null, community: formData.community.trim() || null, street: formData.street.trim() || null, nearest_landmark: formData.nearest_landmark.trim() || null, contact_phone: validatedData.contact_phone, contact_phone_2: validatedData.contact_phone_2 || null, photos: photoUrls, videos: videoUrls, bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null), bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null), square_yards: formData.square_yards ? parseInt(formData.square_yards) : null, description: validatedData.description || null, rent_period: validatedData.listing_type === "for_rent" ? formData.rent_period : null };
       if (isLand) {
         Object.assign(insertPayload, {
           land_size: parseFloat(land.land_size),
@@ -199,6 +199,16 @@ const Upload = () => {
               </div>
             </div>
             <div><Label className="text-sm font-semibold mb-3 block">Listing Type</Label><div className="flex gap-2">{listingTypes.map(({ value, label }) => (<button key={value} type="button" onClick={() => setFormData({ ...formData, listing_type: value })} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${formData.listing_type === value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:border-muted-foreground/30"}`}>{label}</button>))}</div></div>
+            {formData.listing_type === "for_rent" && (
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Rent Period</Label>
+                <div className="flex gap-2">
+                  {[{value:"per_day",label:"Per Day"},{value:"per_month",label:"Per Month"},{value:"per_year",label:"Per Year"}].map(({value,label}) => (
+                    <button key={value} type="button" onClick={() => setFormData({ ...formData, rent_period: value })} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${formData.rent_period === value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:border-muted-foreground/30"}`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="space-y-2"><Label className="text-sm font-semibold">Property Title</Label><Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required maxLength={200} placeholder="e.g., Modern 3-Bedroom House" className="rounded-xl h-12" /></div>
             <div className="space-y-2"><Label className="text-sm font-semibold">Description <span className="text-muted-foreground font-normal">(Optional)</span></Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Describe the property features..." rows={3} className="resize-none rounded-xl" /></div>
             <div className="space-y-2"><Label className="text-sm font-semibold flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground" />Price (USD)</Label><Input type="number" step="0.01" value={formData.price_usd} onChange={(e) => setFormData({ ...formData, price_usd: e.target.value })} required placeholder="0.00" className="rounded-xl h-12" /></div>

@@ -752,6 +752,7 @@ export type Database = {
           price_usd: number
           promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
+          rent_period: string | null
           road_access: boolean | null
           search_vector: unknown
           square_yards: number | null
@@ -794,6 +795,7 @@ export type Database = {
           price_usd: number
           promotion_impression_count?: number
           property_type: Database["public"]["Enums"]["property_type"]
+          rent_period?: string | null
           road_access?: boolean | null
           search_vector?: unknown
           square_yards?: number | null
@@ -836,6 +838,7 @@ export type Database = {
           price_usd?: number
           promotion_impression_count?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          rent_period?: string | null
           road_access?: boolean | null
           search_vector?: unknown
           square_yards?: number | null
@@ -1487,6 +1490,7 @@ export type Database = {
           price_usd: number
           promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
+          rent_period: string | null
           road_access: boolean | null
           search_vector: unknown
           square_yards: number | null
@@ -1553,6 +1557,7 @@ export type Database = {
           price_usd: number
           promotion_impression_count: number
           property_type: Database["public"]["Enums"]["property_type"]
+          rent_period: string | null
           road_access: boolean | null
           search_vector: unknown
           square_yards: number | null

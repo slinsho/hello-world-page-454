@@ -20,6 +20,8 @@ interface PropertyCardProps {
     price_usd: number;
     address: string;
     county: string;
+    district?: string | null;
+    rent_period?: string | null;
     status: "active" | "negotiating" | "taken";
     photos: string[];
     description?: string;
@@ -66,8 +68,11 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
   }[property.property_type];
 
   const listingLabel = (LISTING_TYPE_LABELS[property.listing_type] || "For Sale").toUpperCase();
-  const priceLabel = showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`;
-  const secondaryPrice = showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd);
+  const rentSuffix = property.listing_type === "for_rent" && property.rent_period
+    ? (property.rent_period === "per_day" ? "/day" : property.rent_period === "per_year" ? "/yr" : "/mo")
+    : "";
+  const priceLabel = (showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`) + rentSuffix;
+  const secondaryPrice = (showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)) + rentSuffix;
 
   return (
     <Link to={`/property/${property.id}`} className="block">
@@ -169,6 +174,9 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
                 )}
                 <span className="line-clamp-1">{property.address}</span>
               </div>
+              {property.district && (
+                <div className="text-[11px] text-white/85">District: {property.district}</div>
+              )}
               <h3 className="featured-card-title font-bold text-lg text-white line-clamp-1">
                 {property.title}
               </h3>
@@ -200,7 +208,7 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
             ) : (
               <MapPin className="h-3 w-3" />
             )}
-            <span className="line-clamp-1">{property.county}</span>
+            <span className="line-clamp-1">{property.district ? `${property.district}, ${property.county}` : property.county}</span>
           </div>
         </div>
       )}

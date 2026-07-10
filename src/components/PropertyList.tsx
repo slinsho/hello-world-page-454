@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, Fragment } from "react";
 import PropertyCard from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,9 @@ interface PropertyListProps {
   onTotalChange?: (n: number | undefined) => void;
   /** Render extra content after the grid (e.g. inline sections). */
   footer?: React.ReactNode;
+  /** Insert content (full-width) after the Nth card in the grid flow. */
+  insertAfter?: number;
+  insertContent?: React.ReactNode;
 }
 
 const DEFAULT_GRID =
@@ -43,6 +46,8 @@ function PropertyListImpl({
   emptyTitle = "No properties yet",
   emptyDescription = "Check back soon or adjust your filters.",
   footer,
+  insertAfter,
+  insertContent,
 }: PropertyListProps) {
   const {
     items,
@@ -89,12 +94,18 @@ function PropertyListImpl({
     <div className="space-y-6">
       <div className={gridClassName}>
         {items.map((property, idx) => (
-          <PropertyCard
-            key={property.id}
-            property={property}
-            priority={idx < priorityCount}
-            variant={variant}
-          />
+          <Fragment key={property.id}>
+            <PropertyCard
+              property={property}
+              priority={idx < priorityCount}
+              variant={variant}
+            />
+            {insertAfter != null && insertContent && idx + 1 === insertAfter && (
+              <div className="col-span-full">
+                {insertContent}
+              </div>
+            )}
+          </Fragment>
         ))}
       </div>
 
