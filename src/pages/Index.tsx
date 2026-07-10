@@ -202,8 +202,9 @@ const Index = () => {
           gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
           emptyTitle="No properties listed yet"
           emptyDescription="Be the first to upload a property!"
-          footer={
-            <LazyOnVisible minHeight={320} className="mt-8">
+          insertAfter={6}
+          insertContent={
+            <LazyOnVisible minHeight={320} className="my-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <MarketTrends />
                 <PopularAreas />
