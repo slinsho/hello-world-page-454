@@ -41,7 +41,7 @@ const EditProperty = () => {
     title: "", property_type: "house", listing_type: "for_sale", price_usd: "",
     address: "", county: "", district: "", city: "", community: "", street: "", nearest_landmark: "",
     contact_phone: "", contact_phone_2: "",
-    bedrooms: "", bathrooms: "", square_yards: "", description: "",
+    bedrooms: "", bathrooms: "", square_yards: "", description: "", rent_period: "per_month",
   });
   const isLand = formData.property_type === "land";
 
@@ -63,6 +63,7 @@ const EditProperty = () => {
       contact_phone: data.contact_phone, contact_phone_2: data.contact_phone_2 || "",
       bedrooms: data.bedrooms ? String(data.bedrooms) : "", bathrooms: data.bathrooms ? String(data.bathrooms) : "",
       square_yards: data.square_yards ? String(data.square_yards) : "", description: data.description || "",
+      rent_period: (data as any).rent_period || "per_month",
     });
     if (data.property_type === "land") {
       setLand({
@@ -119,7 +120,7 @@ const EditProperty = () => {
         photos: allPhotos, description: validated.description || null,
         bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null),
         bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null),
-        square_yards: formData.square_yards ? parseInt(formData.square_yards) : null,
+        rent_period: validated.listing_type === "for_rent" ? formData.rent_period : null,
       };
       if (isLand) {
         const errs: Partial<Record<keyof LandFieldsState, string>> = {};
