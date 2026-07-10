@@ -174,6 +174,9 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
                 )}
                 <span className="line-clamp-1">{property.address}</span>
               </div>
+              {property.district && (
+                <div className="text-[11px] text-white/85">District: {property.district}</div>
+              )}
               <h3 className="featured-card-title font-bold text-lg text-white line-clamp-1">
                 {property.title}
               </h3>
