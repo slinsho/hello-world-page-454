@@ -208,7 +208,7 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
             ) : (
               <MapPin className="h-3 w-3" />
             )}
-            <span className="line-clamp-1">{property.county}</span>
+            <span className="line-clamp-1">{property.district ? `${property.district}, ${property.county}` : property.county}</span>
           </div>
         </div>
       )}
