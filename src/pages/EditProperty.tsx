@@ -120,6 +120,7 @@ const EditProperty = () => {
         photos: allPhotos, description: validated.description || null,
         bedrooms: isLand ? null : (formData.bedrooms ? parseInt(formData.bedrooms) : null),
         bathrooms: isLand ? null : (formData.bathrooms ? parseInt(formData.bathrooms) : null),
+        square_yards: formData.square_yards ? parseInt(formData.square_yards) : null,
         rent_period: validated.listing_type === "for_rent" ? formData.rent_period : null,
       };
       if (isLand) {
@@ -198,6 +199,16 @@ const EditProperty = () => {
               </div>
             </div>
             <div><Label className="text-sm font-semibold mb-3 block">Listing Type</Label><div className="flex gap-2">{listingTypes.map(({ value, label }) => (<button key={value} type="button" onClick={() => setFormData({ ...formData, listing_type: value })} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${formData.listing_type === value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"}`}>{label}</button>))}</div></div>
+            {formData.listing_type === "for_rent" && (
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Rent Period</Label>
+                <div className="flex gap-2">
+                  {[{value:"per_day",label:"Per Day"},{value:"per_month",label:"Per Month"},{value:"per_year",label:"Per Year"}].map(({value,label}) => (
+                    <button key={value} type="button" onClick={() => setFormData({ ...formData, rent_period: value })} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${formData.rent_period === value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"}`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="space-y-2"><Label className="text-sm font-semibold">Property Title</Label><Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required maxLength={200} className="rounded-xl h-12" /></div>
             <div className="space-y-2"><Label className="text-sm font-semibold">Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="resize-none rounded-xl" /></div>
             <div className="space-y-2"><Label className="text-sm font-semibold flex items-center gap-2"><DollarSign className="h-4 w-4 text-muted-foreground" />Price (USD)</Label><Input type="number" step="0.01" value={formData.price_usd} onChange={(e) => setFormData({ ...formData, price_usd: e.target.value })} required className="rounded-xl h-12" /></div>
