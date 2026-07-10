@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, Fragment } from "react";
 import PropertyCard from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -94,19 +94,18 @@ function PropertyListImpl({
     <div className="space-y-6">
       <div className={gridClassName}>
         {items.map((property, idx) => (
-          <>
+          <Fragment key={property.id}>
             <PropertyCard
-              key={property.id}
               property={property}
               priority={idx < priorityCount}
               variant={variant}
             />
             {insertAfter != null && insertContent && idx + 1 === insertAfter && (
-              <div key={`insert-${idx}`} className="col-span-full">
+              <div className="col-span-full">
                 {insertContent}
               </div>
             )}
-          </>
+          </Fragment>
         ))}
       </div>
 
