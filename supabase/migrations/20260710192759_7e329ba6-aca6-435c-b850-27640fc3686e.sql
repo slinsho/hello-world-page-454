@@ -1,0 +1,2 @@
+ALTER TABLE public.properties ADD COLUMN IF NOT EXISTS rent_period text;
+ALTER TABLE public.properties ADD CONSTRAINT properties_rent_period_check CHECK (rent_period IS NULL OR rent_period IN ('per_day','per_month','per_year'));
