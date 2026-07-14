@@ -37,7 +37,7 @@ const Auth = () => {
     name: "",
     email: "",
     password: "",
-    role: "property_owner" as "agent" | "property_owner",
+    role: "property_owner" as "agent" | "property_owner" | "hotel" | "customer",
     phone: "",
     phone_2: "",
   });
