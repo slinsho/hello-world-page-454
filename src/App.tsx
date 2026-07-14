@@ -75,6 +75,16 @@ const HotelDetail = lazy(() => import("./pages/HotelDetail"));
 const HotelRooms = lazy(() => import("./pages/HotelRooms"));
 const HotelBooking = lazy(() => import("./pages/HotelBooking"));
 const HotelDashboard = lazy(() => import("./pages/HotelDashboard"));
+const HotelHotelsPage = lazy(() => import("./pages/HotelHotelsPage"));
+const HotelRoomsPage = lazy(() => import("./pages/HotelRoomsPage"));
+const HotelBookingsPage = lazy(() => import("./pages/HotelBookingsPage"));
+const HotelAccountPage = lazy(() => import("./pages/HotelAccountPage"));
+const HotelEditProfilePage = lazy(() => import("./pages/HotelEditProfilePage"));
+const HotelNotificationsPage = lazy(() => import("./pages/HotelNotificationsPage"));
+const HotelCalendarPage = lazy(() => import("./pages/HotelCalendarPage"));
+const HotelPricingPage = lazy(() => import("./pages/HotelPricingPage"));
+const HotelCheckInPage = lazy(() => import("./pages/HotelCheckInPage"));
+const HotelReviewsPage = lazy(() => import("./pages/HotelReviewsPage"));
 const WantToBuy = lazy(() => import("./pages/WantToBuy"));
 const PropertyInspection = lazy(() => import("./pages/PropertyInspection"));
 
@@ -144,6 +154,16 @@ const App = () => (
                   <Route path="/hotels/:id/rooms" element={<HotelRooms />} />
                   <Route path="/hotels/:id/book" element={<HotelBooking />} />
                   <Route path="/hotel-dashboard" element={<HotelDashboard />} />
+                  <Route path="/hotel-dashboard/hotels" element={<HotelHotelsPage />} />
+                  <Route path="/hotel-dashboard/rooms" element={<HotelRoomsPage />} />
+                  <Route path="/hotel-dashboard/bookings" element={<HotelBookingsPage />} />
+                  <Route path="/hotel-dashboard/account" element={<HotelAccountPage />} />
+                  <Route path="/hotel-dashboard/edit-profile" element={<HotelEditProfilePage />} />
+                  <Route path="/hotel-dashboard/notifications" element={<HotelNotificationsPage />} />
+                  <Route path="/hotel-dashboard/calendar" element={<HotelCalendarPage />} />
+                  <Route path="/hotel-dashboard/pricing" element={<HotelPricingPage />} />
+                  <Route path="/hotel-dashboard/check-in" element={<HotelCheckInPage />} />
+                  <Route path="/hotel-dashboard/reviews" element={<HotelReviewsPage />} />
                   <Route path="/want-to-buy" element={<WantToBuy />} />
                   <Route path="/inspect/:propertyId" element={<PropertyInspection />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />

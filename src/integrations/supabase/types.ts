@@ -414,8 +414,12 @@ export type Database = {
         Row: {
           admin_notes: string | null
           check_in: string
+          check_in_code: string | null
           check_out: string
+          checked_in_at: string | null
+          checked_out_at: string | null
           created_at: string
+          guest_details: Json | null
           guest_email: string | null
           guest_id: string | null
           guest_name: string
@@ -437,8 +441,12 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           check_in: string
+          check_in_code?: string | null
           check_out: string
+          checked_in_at?: string | null
+          checked_out_at?: string | null
           created_at?: string
+          guest_details?: Json | null
           guest_email?: string | null
           guest_id?: string | null
           guest_name: string
@@ -460,8 +468,12 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           check_in?: string
+          check_in_code?: string | null
           check_out?: string
+          checked_in_at?: string | null
+          checked_out_at?: string | null
           created_at?: string
+          guest_details?: Json | null
           guest_email?: string | null
           guest_id?: string | null
           guest_name?: string
@@ -497,6 +509,119 @@ export type Database = {
           },
         ]
       }
+      hotel_pricing_rules: {
+        Row: {
+          created_at: string
+          early_bird_days: number
+          early_bird_pct: number
+          hotel_id: string
+          id: string
+          last_minute_days: number
+          last_minute_pct: number
+          los_discount_pct: number
+          los_min_nights: number
+          updated_at: string
+          weekend_days: number[]
+          weekend_surcharge_pct: number
+        }
+        Insert: {
+          created_at?: string
+          early_bird_days?: number
+          early_bird_pct?: number
+          hotel_id: string
+          id?: string
+          last_minute_days?: number
+          last_minute_pct?: number
+          los_discount_pct?: number
+          los_min_nights?: number
+          updated_at?: string
+          weekend_days?: number[]
+          weekend_surcharge_pct?: number
+        }
+        Update: {
+          created_at?: string
+          early_bird_days?: number
+          early_bird_pct?: number
+          hotel_id?: string
+          id?: string
+          last_minute_days?: number
+          last_minute_pct?: number
+          los_discount_pct?: number
+          los_min_nights?: number
+          updated_at?: string
+          weekend_days?: number[]
+          weekend_surcharge_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_pricing_rules_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: true
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotel_reviews: {
+        Row: {
+          booking_id: string | null
+          comment: string | null
+          created_at: string
+          flag_reason: string | null
+          guest_id: string | null
+          guest_name: string | null
+          hotel_id: string
+          id: string
+          is_flagged: boolean
+          owner_reply: string | null
+          owner_reply_at: string | null
+          rating: number
+        }
+        Insert: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string
+          flag_reason?: string | null
+          guest_id?: string | null
+          guest_name?: string | null
+          hotel_id: string
+          id?: string
+          is_flagged?: boolean
+          owner_reply?: string | null
+          owner_reply_at?: string | null
+          rating: number
+        }
+        Update: {
+          booking_id?: string | null
+          comment?: string | null
+          created_at?: string
+          flag_reason?: string | null
+          guest_id?: string | null
+          guest_name?: string | null
+          hotel_id?: string
+          id?: string
+          is_flagged?: boolean
+          owner_reply?: string | null
+          owner_reply_at?: string | null
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_reviews_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotel_rooms: {
         Row: {
           amenities: Json | null
@@ -512,6 +637,7 @@ export type Database = {
           photos: string[] | null
           price_per_night: number
           size_sqm: number | null
+          tour_360_url: string | null
           updated_at: string
         }
         Insert: {
@@ -528,6 +654,7 @@ export type Database = {
           photos?: string[] | null
           price_per_night: number
           size_sqm?: number | null
+          tour_360_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -544,6 +671,7 @@ export type Database = {
           photos?: string[] | null
           price_per_night?: number
           size_sqm?: number | null
+          tour_360_url?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1388,6 +1516,44 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_availability: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_blocked: boolean
+          note: string | null
+          price_override: number | null
+          room_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_blocked?: boolean
+          note?: string | null
+          price_override?: number | null
+          room_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_blocked?: boolean
+          note?: string | null
+          price_override?: number | null
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_availability_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_rooms"
             referencedColumns: ["id"]
           },
         ]

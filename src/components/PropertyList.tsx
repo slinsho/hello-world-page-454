@@ -17,6 +17,7 @@ interface PropertyListProps {
   pageSize?: number;
   scope?: string;
   variant?: Variant;
+  ctaVariant?: "whatsapp" | "inspection";
   /** Number of cards flagged as image priority (LCP). */
   priorityCount?: number;
   /** Grid class override. Defaults to a responsive 1→4 grid. */
@@ -41,6 +42,7 @@ function PropertyListImpl({
   pageSize = 15,
   scope,
   variant = "featured",
+  ctaVariant = "whatsapp",
   priorityCount = 2,
   gridClassName = DEFAULT_GRID,
   emptyTitle = "No properties yet",
@@ -99,6 +101,7 @@ function PropertyListImpl({
               property={property}
               priority={idx < priorityCount}
               variant={variant}
+              ctaVariant={ctaVariant}
             />
             {insertAfter != null && insertContent && idx + 1 === insertAfter && (
               <div className="col-span-full">

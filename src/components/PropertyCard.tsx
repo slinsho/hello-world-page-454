@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Home, Building2, Store, Trees, MapPin, Heart, MessageCircle, ShieldCheck, Sparkles, AlertTriangle } from "lucide-react";
+import { ClipboardCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,9 +46,11 @@ interface PropertyCardProps {
   priority?: boolean;
   /** Render the expanded hero-style card with owner bar and overlay details. */
   variant?: "default" | "featured";
+  /** CTA to show on the owner bar. Defaults to WhatsApp. */
+  ctaVariant?: "whatsapp" | "inspection";
 }
 
-const PropertyCard = ({ property, priority = false, variant = "featured" }: PropertyCardProps) => {
+const PropertyCard = ({ property, priority = false, variant = "featured", ctaVariant = "whatsapp" }: PropertyCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatLRD = useFormatLRD();
   const { preferences } = useUserPreferences();
@@ -238,7 +241,21 @@ const PropertyCard = ({ property, priority = false, variant = "featured" }: Prop
               <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
             </div>
           </div>
-          {property.contact_phone && (
+          {ctaVariant === "inspection" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full gap-2 bg-background border-primary/40 text-primary hover:bg-primary/10 shrink-0"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = `/inspect/${property.id}`;
+              }}
+            >
+              <ClipboardCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">Request Inspection</span>
+              <span className="sm:hidden">Inspect</span>
+            </Button>
+          ) : property.contact_phone && (
             <Button
               variant="outline"
               size="sm"

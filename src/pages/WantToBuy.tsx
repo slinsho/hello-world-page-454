@@ -18,9 +18,10 @@ const WantToBuy = () => {
         </div>
         <PropertyList
           scope="want-to-buy"
-          filters={{ listingType: "sale" }}
+          filters={{ listingType: "for_sale" }}
           sort="newest"
           pageSize={15}
+          ctaVariant="inspection"
           gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           emptyTitle="No properties for sale right now"
           emptyDescription="Check back soon."

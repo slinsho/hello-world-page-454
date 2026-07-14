@@ -173,7 +173,7 @@ const Profile = () => {
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("property-photos").getPublicUrl(filePath);
       const updateField = cropType === "profile" ? "profile_photo_url" : "cover_photo_url";
-      const { error: updateError } = await supabase.from("profiles").update({ [updateField]: publicUrl }).eq("id", user.id);
+      const { error: updateError } = await supabase.from("profiles").update({ [updateField]: publicUrl } as any).eq("id", user.id);
       if (updateError) throw updateError;
       toast({ title: "Success", description: `${cropType === "profile" ? "Profile photo" : "Cover photo"} updated` });
       fetchProfile();

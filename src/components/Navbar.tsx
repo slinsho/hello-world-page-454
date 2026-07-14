@@ -735,6 +735,7 @@ const Navbar = () => {
       )}
 
       {/* Bottom Navigation - Mobile Only */}
+      {!location.pathname.startsWith("/hotel-dashboard") && (
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background pb-[env(safe-area-inset-bottom,0)]">
         <div className="grid grid-flow-col auto-cols-fr items-center h-14">
           {navItems.map((item) => {
@@ -768,6 +769,7 @@ const Navbar = () => {
           )}
         </div>
       </nav>
+      )}
     </>
   );
 };

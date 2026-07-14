@@ -118,21 +118,23 @@ const Index = () => {
       <SEOHead />
       <Navbar />
 
-      <main className="px-4 pt-4 md:px-6 lg:px-8 space-y-6 max-w-7xl mx-auto">
-        {/* Shortcut cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <Link to="/want-to-buy" className="rounded-2xl bg-gradient-to-br from-primary/90 to-primary p-4 text-primary-foreground shadow-sm active:scale-[0.98] transition">
-            <p className="text-xs opacity-90">Looking to buy?</p>
-            <p className="font-bold text-lg leading-tight">Want to Buy</p>
-            <p className="text-[11px] opacity-90 mt-1">Browse properties for sale + inspection</p>
-          </Link>
-          <Link to="/hotels" className="rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 p-4 text-white shadow-sm active:scale-[0.98] transition">
-            <p className="text-xs opacity-90">Travelling?</p>
-            <p className="font-bold text-lg leading-tight">Book Hotel</p>
-            <p className="text-[11px] opacity-90 mt-1">Verified hotels across Liberia</p>
-          </Link>
-        </div>
+      {/* Floating shortcut cards — vertically centered on the sides */}
+      <Link
+        to="/want-to-buy"
+        aria-label="Want to Buy"
+        className="fixed left-2 top-1/2 -translate-y-1/2 z-40 rounded-none bg-gradient-to-br from-primary/90 to-primary px-2.5 py-1.5 text-primary-foreground shadow-lg active:scale-95 transition whitespace-nowrap"
+      >
+        <span className="font-bold text-[11px] leading-none">Want to Buy</span>
+      </Link>
+      <Link
+        to="/hotels"
+        aria-label="Book Hotel"
+        className="fixed right-2 top-1/2 -translate-y-1/2 z-40 rounded-none bg-gradient-to-br from-blue-600 to-blue-700 px-2.5 py-1.5 text-white shadow-lg active:scale-95 transition whitespace-nowrap"
+      >
+        <span className="font-bold text-[11px] leading-none">Book Hotel</span>
+      </Link>
 
+      <main className="px-4 pt-4 md:px-6 lg:px-8 space-y-6 max-w-7xl mx-auto">
         <HomepageBanners />
         <FeaturedPropertiesBanner />
         {user && <RecentlyViewed />}
