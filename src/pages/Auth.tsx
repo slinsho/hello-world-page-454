@@ -333,7 +333,7 @@ const Auth = () => {
                           <Label htmlFor="role" className="text-foreground text-sm font-medium">I am a</Label>
                           <Select
                             value={formData.role}
-                            onValueChange={(value: "agent" | "property_owner") =>
+                            onValueChange={(value: "agent" | "property_owner" | "hotel" | "customer") =>
                               setFormData({ ...formData, role: value })
                             }
                           >
@@ -343,6 +343,8 @@ const Auth = () => {
                             <SelectContent>
                               <SelectItem value="property_owner">Property Owner</SelectItem>
                               <SelectItem value="agent">Agent</SelectItem>
+                              <SelectItem value="hotel">Hotel Business</SelectItem>
+                              <SelectItem value="customer">Customer / Guest</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
