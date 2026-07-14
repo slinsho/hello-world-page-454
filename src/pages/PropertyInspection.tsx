@@ -47,12 +47,21 @@ const PropertyInspection = () => {
     if (!tier) { toast({ title: "Select an inspection type", variant: "destructive" }); return; }
     if (!form.full_name || !form.phone) { toast({ title: "Name and phone required", variant: "destructive" }); return; }
     setLoading(true);
-    const { error } = await supabase.from("property_inspections").insert({
-      property_id: propertyId, requester_id: user.id, inspection_type: tier,
-      full_name: form.full_name, phone: form.phone, email: form.email || null,
-      preferred_date: form.preferred_date || null, notes: form.notes || null,
-      budget_usd: form.budget ? Number(form.budget) : null,
-      fee_usd: fee, payment_reference: form.payment_reference || null, status: "pending",
+    const { error } = await (supabase.from("property_inspections") as any).insert({
+      property_id: propertyId,
+      requester_id: user.id,
+      requester_name: form.full_name,
+      requester_phone: form.phone,
+      requester_email: form.email || null,
+      inspection_type: tier,
+      fee_usd: fee,
+      form_data: {
+        preferred_date: form.preferred_date || null,
+        notes: form.notes || null,
+        budget_usd: form.budget ? Number(form.budget) : null,
+      },
+      payment_reference: form.payment_reference || null,
+      status: "pending",
     });
     setLoading(false);
     if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
