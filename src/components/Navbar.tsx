@@ -88,12 +88,13 @@ const Navbar = () => {
     setLoadingSearch(false);
   }, [location.pathname]);
   
-  const uploadItem = userRole === "hotel"
+  type NavItem = { path: string; label: string; icon: any; requiresAuth?: boolean; guestOnly?: boolean };
+  const uploadItem: NavItem | null = userRole === "hotel"
     ? { path: "/hotel-dashboard", label: "Hotel", icon: Upload, requiresAuth: true }
     : userRole === "customer"
       ? null
       : { path: "/upload", label: "Add", icon: Upload, requiresAuth: true };
-  const navItems = [
+  const navItems: NavItem[] = [
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
     { path: "/reels", label: "Reels", icon: Play },
