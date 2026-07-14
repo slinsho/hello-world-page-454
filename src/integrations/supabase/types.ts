@@ -410,6 +410,215 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_bookings: {
+        Row: {
+          admin_notes: string | null
+          check_in: string
+          check_out: string
+          created_at: string
+          guest_email: string | null
+          guest_id: string | null
+          guest_name: string
+          guest_phone: string
+          guests: number
+          hotel_id: string
+          id: string
+          payment_method: string
+          payment_reference: string | null
+          room_id: string
+          rooms: number
+          service_fee: number
+          status: string
+          subtotal: number
+          taxes: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          check_in: string
+          check_out: string
+          created_at?: string
+          guest_email?: string | null
+          guest_id?: string | null
+          guest_name: string
+          guest_phone: string
+          guests?: number
+          hotel_id: string
+          id?: string
+          payment_method: string
+          payment_reference?: string | null
+          room_id: string
+          rooms?: number
+          service_fee?: number
+          status?: string
+          subtotal: number
+          taxes?: number
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          check_in?: string
+          check_out?: string
+          created_at?: string
+          guest_email?: string | null
+          guest_id?: string | null
+          guest_name?: string
+          guest_phone?: string
+          guests?: number
+          hotel_id?: string
+          id?: string
+          payment_method?: string
+          payment_reference?: string | null
+          room_id?: string
+          rooms?: number
+          service_fee?: number
+          status?: string
+          subtotal?: number
+          taxes?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotel_rooms: {
+        Row: {
+          amenities: Json | null
+          bed_type: string | null
+          created_at: string
+          description: string | null
+          guests: number
+          hotel_id: string
+          id: string
+          is_active: boolean | null
+          is_most_popular: boolean | null
+          name: string
+          photos: string[] | null
+          price_per_night: number
+          size_sqm: number | null
+          updated_at: string
+        }
+        Insert: {
+          amenities?: Json | null
+          bed_type?: string | null
+          created_at?: string
+          description?: string | null
+          guests?: number
+          hotel_id: string
+          id?: string
+          is_active?: boolean | null
+          is_most_popular?: boolean | null
+          name: string
+          photos?: string[] | null
+          price_per_night: number
+          size_sqm?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amenities?: Json | null
+          bed_type?: string | null
+          created_at?: string
+          description?: string | null
+          guests?: number
+          hotel_id?: string
+          id?: string
+          is_active?: boolean | null
+          is_most_popular?: boolean | null
+          name?: string
+          photos?: string[] | null
+          price_per_night?: number
+          size_sqm?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_rooms_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotels: {
+        Row: {
+          address: string
+          amenities: Json | null
+          city: string | null
+          county: string
+          cover_photo: string | null
+          created_at: string
+          description: string | null
+          district: string | null
+          gallery: string[] | null
+          id: string
+          is_verified: boolean | null
+          name: string
+          owner_id: string
+          phone: string | null
+          rating_count: number | null
+          star_rating: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          amenities?: Json | null
+          city?: string | null
+          county: string
+          cover_photo?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          gallery?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          name: string
+          owner_id: string
+          phone?: string | null
+          rating_count?: number | null
+          star_rating?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          amenities?: Json | null
+          city?: string | null
+          county?: string
+          cover_photo?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          gallery?: string[] | null
+          id?: string
+          is_verified?: boolean | null
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          rating_count?: number | null
+          star_rating?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           created_at: string
@@ -891,6 +1100,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "property_inquiries_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_inspections: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          fee_usd: number
+          form_data: Json
+          id: string
+          inspection_type: string
+          payment_reference: string | null
+          property_id: string
+          requester_email: string | null
+          requester_id: string | null
+          requester_name: string
+          requester_phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          fee_usd: number
+          form_data?: Json
+          id?: string
+          inspection_type: string
+          payment_reference?: string | null
+          property_id: string
+          requester_email?: string | null
+          requester_id?: string | null
+          requester_name: string
+          requester_phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          fee_usd?: number
+          form_data?: Json
+          id?: string
+          inspection_type?: string
+          payment_reference?: string | null
+          property_id?: string
+          requester_email?: string | null
+          requester_id?: string | null
+          requester_name?: string
+          requester_phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_inspections_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
