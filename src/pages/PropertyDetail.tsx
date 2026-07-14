@@ -490,6 +490,17 @@ const PropertyDetail = () => {
             </div>
           </div>
 
+          {/* ===== Inspect (sale only) ===== */}
+          {property.listing_type === "for_sale" && property.owner_id !== user?.id && (
+            <div className="px-4 md:px-0 mb-3">
+              <Button asChild variant="outline" className="w-full h-12 rounded-xl gap-2 border-primary/40 hover:bg-primary/5">
+                <Link to={`/inspect/${property.id}`}>
+                  🔍 Request Property Inspection
+                </Link>
+              </Button>
+            </div>
+          )}
+
           {/* ===== Promote & Report — subtle inline ===== */}
           {user && (
             <div className="px-4 md:px-0 mb-5 flex items-center gap-2">
