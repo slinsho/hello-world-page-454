@@ -46,22 +46,26 @@ const HotelEditProfilePage = () => {
 
   const uploadAvatar = async (file: File) => {
     if (!user) return;
-    const path = `${user.id}/${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage.from("property-photos").upload(path, file);
-    if (error) { toast({ title: "Upload failed", variant: "destructive" }); return; }
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/profile_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("property-photos").upload(path, file, { upsert: true, contentType: file.type });
+    if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); return; }
     const url = supabase.storage.from("property-photos").getPublicUrl(path).data.publicUrl;
+    // Persist immediately so it doesn't get lost on navigation
+    const { error: updErr } = await supabase.from("profiles").update({ profile_photo_url: url } as any).eq("id", user.id);
+    if (updErr) { toast({ title: "Save failed", description: updErr.message, variant: "destructive" }); return; }
     setForm((f) => ({ ...f, avatar_url: url }));
+    toast({ title: "Photo updated" });
   };
 
   const save = async () => {
     if (!user) return;
     setSaving(true);
     const payload: Record<string, any> = {
-      full_name: form.full_name,
-      company_name: form.company_name,
+      name: form.full_name,
       phone: form.phone,
       bio: form.bio,
-      avatar_url: form.avatar_url,
+      profile_photo_url: form.avatar_url || null,
     };
     const { error } = await supabase.from("profiles").update(payload as any).eq("id", user.id);
     setSaving(false);

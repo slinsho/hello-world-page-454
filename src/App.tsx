@@ -87,6 +87,7 @@ const HotelCheckInPage = lazy(() => import("./pages/HotelCheckInPage"));
 const HotelReviewsPage = lazy(() => import("./pages/HotelReviewsPage"));
 const WantToBuy = lazy(() => import("./pages/WantToBuy"));
 const PropertyInspection = lazy(() => import("./pages/PropertyInspection"));
+const MyAccount = lazy(() => import("./pages/MyAccount"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -166,6 +167,7 @@ const App = () => (
                   <Route path="/hotel-dashboard/reviews" element={<HotelReviewsPage />} />
                   <Route path="/want-to-buy" element={<WantToBuy />} />
                   <Route path="/inspect/:propertyId" element={<PropertyInspection />} />
+                  <Route path="/my-account" element={<MyAccount />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />
                   <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
                   <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />

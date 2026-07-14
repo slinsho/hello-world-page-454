@@ -54,7 +54,10 @@ const Auth = () => {
     if (type === 'recovery') {
       setIsResettingPassword(true);
     } else if (user && !isResettingPassword) {
-      navigate("/");
+      (async () => {
+        const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+        navigate(data?.role === "hotel" ? "/hotel-dashboard" : "/", { replace: true });
+      })();
     }
   }, [user, navigate, isResettingPassword]);
 
@@ -134,8 +137,14 @@ const Auth = () => {
           password: validatedData.password,
         });
         if (error) throw error;
+        const { data: { user: signedInUser } } = await supabase.auth.getUser();
+        let dest = "/";
+        if (signedInUser) {
+          const { data: prof } = await supabase.from("profiles").select("role").eq("id", signedInUser.id).maybeSingle();
+          if (prof?.role === "hotel") dest = "/hotel-dashboard";
+        }
         toast({ title: "Welcome back!", description: "You've successfully signed in." });
-        navigate("/");
+        navigate(dest, { replace: true });
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {

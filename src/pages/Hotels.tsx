@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import Navbar from "@/components/Navbar";
 import { SEOHead } from "@/components/SEOHead";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star, MapPin, ShieldCheck, Search } from "lucide-react";
+import { Star, MapPin, ShieldCheck, Search, ArrowLeft, SlidersHorizontal } from "lucide-react";
 
 const Hotels = () => {
+  const navigate = useNavigate();
   const [hotels, setHotels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -36,49 +34,94 @@ const Hotels = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <SEOHead title="Book Hotels in Liberia | L-Prop" description="Discover verified hotels across Liberia and book your stay with confidence." />
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold">Book Your Stay</h1>
-          <p className="text-muted-foreground text-sm">Verified hotels across Liberia</p>
+    <div className="min-h-screen bg-background pb-24">
+      <SEOHead title="Book Hotels in Liberia" description="Discover verified hotels across Liberia and book your stay." />
+
+      {/* Native-style header */}
+      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/60">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-2 px-3 pt-3 pb-1">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 grid place-items-center rounded-full hover:bg-muted active:scale-95 transition-transform"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1" />
+          </div>
+          <div className="px-5 pb-3">
+            <h1 className="text-2xl font-bold tracking-tight">Book your stay</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Verified hotels across Liberia</p>
+          </div>
+          <div className="px-4 pb-3 flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Hotel, city or county"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9 h-11 rounded-2xl bg-muted/60 border-0"
+              />
+            </div>
+            <button
+              className="w-11 h-11 rounded-2xl bg-muted/60 grid place-items-center active:scale-95 transition"
+              aria-label="Filters"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <div className="relative max-w-xl mx-auto">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search hotels, city, county..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-10 h-12 rounded-xl" />
+      </div>
+
+      <main className="max-w-2xl mx-auto px-4 pt-3">
+        <div className="flex items-baseline justify-between px-1 mb-2.5">
+          <h2 className="text-sm font-bold tracking-tight">
+            {loading ? "Searching…" : `${filtered.length} ${filtered.length === 1 ? "hotel" : "hotels"}`}
+          </h2>
+          <span className="text-[11px] text-muted-foreground">Verified first</span>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)}
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">No hotels available yet.</div>
+          <div className="text-center py-16 text-sm text-muted-foreground">No hotels found.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {filtered.map((h) => (
-              <Link key={h.id} to={`/hotels/${h.id}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-all">
-                  <div className="relative aspect-[16/10] bg-muted">
-                    {h.cover_photo && <img src={h.cover_photo} alt={h.name} className="w-full h-full object-cover" loading="lazy" />}
-                    {h.is_verified && (
-                      <Badge className="absolute top-2 left-2 bg-green-600 text-white gap-1"><ShieldCheck className="w-3 h-3" />Verified Hotel</Badge>
-                    )}
+              <Link
+                key={h.id}
+                to={`/hotels/${h.id}`}
+                className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition-transform"
+              >
+                <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-muted shrink-0">
+                  {h.cover_photo && (
+                    <img src={h.cover_photo} alt={h.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                  {h.is_verified && (
+                    <div className="absolute bottom-1 left-1 w-5 h-5 rounded-full bg-green-600 grid place-items-center shadow">
+                      <ShieldCheck className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 py-0.5">
+                  <h3 className="font-bold text-sm leading-tight truncate">{h.name}</h3>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1 truncate">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    {h.city || h.district}, {h.county}
+                  </p>
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="text-xs font-semibold tabular-nums">
+                      {Number(h.star_rating || 0).toFixed(1)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      ({h.rating_count || 0})
+                    </span>
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-base truncate">{h.name}</h3>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                      <MapPin className="w-3 h-3" />
-                      <span className="truncate">{h.city || h.district}, {h.county}</span>
-                    </div>
-                    <div className="flex items-center gap-1 mt-2">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-semibold">{Number(h.star_rating || 0).toFixed(1)}</span>
-                      <span className="text-xs text-muted-foreground">({h.rating_count || 0} reviews)</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                </div>
               </Link>
             ))}
           </div>

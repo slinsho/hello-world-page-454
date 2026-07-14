@@ -259,10 +259,9 @@ const Navbar = () => {
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 flex h-16 items-center gap-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src={lpropLogo} alt="L-Prop" className="h-10 w-10 rounded-lg" />
-            <span className="text-2xl font-bold text-primary">L-Prop</span>
+          {/* Brand */}
+          <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Home">
+            <img src="/lprop-logo.png" alt="" className="h-9 w-9 rounded-lg" onError={(e) => (e.currentTarget.style.display = 'none')} />
           </Link>
 
           {/* Desktop Search */}
@@ -726,9 +725,8 @@ const Navbar = () => {
       {!isHomePage && (
         <nav className="md:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur overflow-x-hidden">
           <div className="px-4 flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2">
-              <img src={lpropLogo} alt="L-Prop" className="h-10 w-10 rounded-lg" />
-              <span className="text-2xl font-bold text-primary">L-Prop</span>
+            <Link to="/" className="flex items-center space-x-2" aria-label="Home">
+              <img src="/lprop-logo.png" alt="" className="h-8 w-8 rounded-lg" onError={(e) => (e.currentTarget.style.display = 'none')} />
             </Link>
           </div>
         </nav>

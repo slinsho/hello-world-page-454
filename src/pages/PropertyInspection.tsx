@@ -36,7 +36,7 @@ const TIERS = [
     key: "help_buy",
     label: "Help Me Buy",
     tabLabel: "Concierge",
-    desc: "Full end-to-end purchase assistance from negotiation to hand-over. Fee: 0.04% of the property price.",
+    desc: "Full end-to-end purchase assistance from negotiation to hand-over. Fee: 4% of the property price.",
     price: 0,
     icon: HandCoins,
     features: ["Price negotiation on your behalf", "Legal & documentation handling", "Payment escrow guidance", "Ownership transfer support"],
@@ -65,7 +65,7 @@ const PropertyInspection = () => {
   }, [propertyId, user]);
 
   const selectedTier = TIERS.find((t) => t.key === tier);
-  const helpBuyFee = property ? +(Number(property.price_usd) * 0.0004).toFixed(2) : 0;
+  const helpBuyFee = property ? +(Number(property.price_usd) * 0.04).toFixed(2) : 0;
   const fee = selectedTier?.key === "help_buy" ? helpBuyFee : selectedTier?.price || 0;
 
   const submit = async () => {
@@ -100,14 +100,14 @@ const PropertyInspection = () => {
     <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background pb-24">
       <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3 max-w-3xl mx-auto">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(`/property/${propertyId}`))} className="rounded-full">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
             <h1 className="font-bold text-base leading-tight">Property Inspection</h1>
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-green-600" /> Verified & trusted service
-            </p>
+            </div>
           </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ const PropertyInspection = () => {
                       <div className="text-right">
                         <p className="text-[10px] text-muted-foreground uppercase">Fee</p>
                         <p className="text-primary font-bold text-lg leading-none">
-                          {t.key === "help_buy" ? (property ? `$${helpBuyFee}` : "0.04%") : `$${t.price}`}
+                          {t.key === "help_buy" ? (property ? `$${helpBuyFee}` : "4%") : `$${t.price}`}
                         </p>
                       </div>
                     </div>

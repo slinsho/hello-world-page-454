@@ -82,7 +82,13 @@ const Reels = () => {
         try {
           const parsed = new URL(u);
           if (parsed.protocol !== "https:") return false;
-          return /\.supabase\.(co|in)$/i.test(parsed.hostname) && parsed.pathname.includes("/storage/v1/object/public/");
+          // Accept supabase-hosted media (public or signed) or any https video file URL
+          const isSupabase = /\.supabase\.(co|in)$/i.test(parsed.hostname) &&
+            (parsed.pathname.includes("/storage/v1/object/public/") ||
+             parsed.pathname.includes("/storage/v1/object/sign/") ||
+             parsed.pathname.includes("/storage/v1/render/"));
+          const isVideoFile = /\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(parsed.pathname);
+          return isSupabase || isVideoFile;
         } catch {
           return false;
         }
