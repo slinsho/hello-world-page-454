@@ -88,13 +88,18 @@ const Navbar = () => {
     setLoadingSearch(false);
   }, [location.pathname]);
   
+  const uploadItem = userRole === "hotel"
+    ? { path: "/hotel-dashboard", label: "Hotel", icon: Upload, requiresAuth: true }
+    : userRole === "customer"
+      ? null
+      : { path: "/upload", label: "Add", icon: Upload, requiresAuth: true };
   const navItems = [
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
     { path: "/reels", label: "Reels", icon: Play },
     { path: "/blog", label: "News", icon: Newspaper },
     { path: "/about", label: "About", icon: Info, guestOnly: true },
-    { path: "/upload", label: "Add", icon: Upload, requiresAuth: true },
+    ...(uploadItem ? [uploadItem] : []),
     { path: "/near-me", label: "Near Me", icon: Navigation },
     { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
   ];
