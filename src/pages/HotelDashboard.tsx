@@ -13,7 +13,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { LIBERIA_COUNTIES } from "@/lib/countyFlags";
-import { Plus, Building2, BedDouble, CalendarCheck, ShieldCheck, X } from "lucide-react";
+import { Plus, Building2, BedDouble, CalendarCheck, ShieldCheck, X, LayoutDashboard, Star, Calendar as CalIcon, Wallet, Bell } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 
 const AMENITY_OPTIONS = [
@@ -136,12 +137,69 @@ const HotelDashboard = () => {
           </Card>
         )}
 
-        <Tabs defaultValue="hotels">
-          <TabsList>
+        {/* Stat overview */}
+        {(() => {
+          const totalHotels = hotels.length;
+          const totalBookings = bookings.length;
+          const pendingBookings = bookings.filter((b) => b.status === "pending").length;
+          const confirmedBookings = bookings.filter((b) => b.status === "confirmed").length;
+          const monthlyRevenue = bookings
+            .filter((b) => b.status === "confirmed" && new Date(b.created_at).getMonth() === new Date().getMonth())
+            .reduce((sum, b) => sum + Number(b.total || 0), 0);
+          const stats = [
+            { label: "Hotels", value: totalHotels, icon: Building2 },
+            { label: "Rooms", value: rooms.length, icon: BedDouble },
+            { label: "Total Bookings", value: totalBookings, icon: CalendarCheck },
+            { label: "Pending", value: pendingBookings, icon: Bell },
+            { label: "Confirmed", value: confirmedBookings, icon: ShieldCheck },
+            { label: "This Month", value: `$${monthlyRevenue.toFixed(0)}`, icon: Wallet },
+          ];
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {stats.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <Card key={s.label}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">{s.label}</p>
+                        <Icon className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xl font-bold mt-1">{s.value}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        <Tabs defaultValue="overview">
+          <TabsList className="flex flex-wrap h-auto">
+            <TabsTrigger value="overview"><LayoutDashboard className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>
             <TabsTrigger value="hotels"><Building2 className="w-4 h-4 mr-1.5" />My Hotels</TabsTrigger>
             <TabsTrigger value="rooms"><BedDouble className="w-4 h-4 mr-1.5" />Rooms</TabsTrigger>
             <TabsTrigger value="bookings"><CalendarCheck className="w-4 h-4 mr-1.5" />Bookings ({bookings.length})</TabsTrigger>
+            <TabsTrigger value="calendar"><CalIcon className="w-4 h-4 mr-1.5" />Calendar</TabsTrigger>
+            <TabsTrigger value="payments"><Wallet className="w-4 h-4 mr-1.5" />Payments</TabsTrigger>
+            <TabsTrigger value="reviews"><Star className="w-4 h-4 mr-1.5" />Reviews</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-3 mt-4">
+            <Card><CardContent className="p-4">
+              <p className="font-semibold mb-2">Recent Bookings</p>
+              {bookings.slice(0, 5).length === 0 && <p className="text-sm text-muted-foreground">No bookings yet.</p>}
+              {bookings.slice(0, 5).map((b) => (
+                <div key={b.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                  <div>
+                    <p className="text-sm font-medium">{b.guest_name}</p>
+                    <p className="text-xs text-muted-foreground">{b.check_in} → {b.check_out}</p>
+                  </div>
+                  <Badge variant={b.status === "confirmed" ? "default" : b.status === "cancelled" ? "destructive" : "secondary"}>{b.status}</Badge>
+                </div>
+              ))}
+            </CardContent></Card>
+          </TabsContent>
 
           <TabsContent value="hotels" className="space-y-3 mt-4">
             <Button onClick={() => setHotelDlgOpen(true)} disabled={notVerified}><Plus className="w-4 h-4 mr-2" />Add Hotel</Button>
@@ -160,6 +218,7 @@ const HotelDashboard = () => {
                       {h.is_verified && <Badge className="bg-green-600 text-[10px]">Verified</Badge>}
                     </div>
                   </div>
+                  <Link to={`/hotels/${h.id}`} className="text-xs text-primary hover:underline" onClick={(e) => e.stopPropagation()}>View</Link>
                 </CardContent>
               </Card>
             ))}
@@ -206,6 +265,55 @@ const HotelDashboard = () => {
                 </CardContent>
               </Card>
             ))}
+          </TabsContent>
+
+          <TabsContent value="calendar" className="mt-4">
+            <Card><CardContent className="p-4">
+              <p className="font-semibold mb-3">Upcoming Check-ins</p>
+              {bookings.filter((b) => b.status === "confirmed" && new Date(b.check_in) >= new Date()).length === 0 && (
+                <p className="text-sm text-muted-foreground">No upcoming check-ins.</p>
+              )}
+              {bookings
+                .filter((b) => b.status === "confirmed" && new Date(b.check_in) >= new Date())
+                .sort((a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime())
+                .map((b) => (
+                  <div key={b.id} className="flex justify-between py-2 border-b last:border-0">
+                    <div>
+                      <p className="text-sm font-medium">{b.guest_name}</p>
+                      <p className="text-xs text-muted-foreground">{b.guests} guests</p>
+                    </div>
+                    <div className="text-right text-xs">
+                      <p className="font-semibold">{b.check_in}</p>
+                      <p className="text-muted-foreground">→ {b.check_out}</p>
+                    </div>
+                  </div>
+                ))}
+            </CardContent></Card>
+          </TabsContent>
+
+          <TabsContent value="payments" className="mt-4">
+            <Card><CardContent className="p-4 space-y-2">
+              <p className="font-semibold">Payment Records</p>
+              <p className="text-xs text-muted-foreground">Only confirmed bookings count toward revenue.</p>
+              <div className="mt-3 space-y-1">
+                {bookings.filter((b) => b.status === "confirmed").map((b) => (
+                  <div key={b.id} className="flex justify-between text-sm border-b py-2 last:border-0">
+                    <span>{b.guest_name} · {b.payment_method || "—"}</span>
+                    <span className="font-semibold text-primary">${Number(b.total).toFixed(2)}</span>
+                  </div>
+                ))}
+                {bookings.filter((b) => b.status === "confirmed").length === 0 && (
+                  <p className="text-sm text-muted-foreground">No confirmed payments yet.</p>
+                )}
+              </div>
+            </CardContent></Card>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-4">
+            <Card><CardContent className="p-4">
+              <p className="font-semibold mb-1">Guest Reviews</p>
+              <p className="text-sm text-muted-foreground">Reviews will appear here once guests leave feedback after their stay.</p>
+            </CardContent></Card>
           </TabsContent>
         </Tabs>
       </main>

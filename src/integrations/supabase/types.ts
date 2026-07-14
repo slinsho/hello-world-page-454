@@ -1110,13 +1110,21 @@ export type Database = {
       property_inspections: {
         Row: {
           admin_notes: string | null
+          assigned_at: string | null
+          completed_at: string | null
           created_at: string
           fee_usd: number
           form_data: Json
           id: string
           inspection_type: string
+          inspector_name: string | null
+          inspector_phone: string | null
           payment_reference: string | null
           property_id: string
+          report_notes: string | null
+          report_photos: string[] | null
+          report_url: string | null
+          report_video_url: string | null
           requester_email: string | null
           requester_id: string | null
           requester_name: string
@@ -1126,13 +1134,21 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          assigned_at?: string | null
+          completed_at?: string | null
           created_at?: string
           fee_usd: number
           form_data?: Json
           id?: string
           inspection_type: string
+          inspector_name?: string | null
+          inspector_phone?: string | null
           payment_reference?: string | null
           property_id: string
+          report_notes?: string | null
+          report_photos?: string[] | null
+          report_url?: string | null
+          report_video_url?: string | null
           requester_email?: string | null
           requester_id?: string | null
           requester_name: string
@@ -1142,13 +1158,21 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          assigned_at?: string | null
+          completed_at?: string | null
           created_at?: string
           fee_usd?: number
           form_data?: Json
           id?: string
           inspection_type?: string
+          inspector_name?: string | null
+          inspector_phone?: string | null
           payment_reference?: string | null
           property_id?: string
+          report_notes?: string | null
+          report_photos?: string[] | null
+          report_url?: string | null
+          report_video_url?: string | null
           requester_email?: string | null
           requester_id?: string | null
           requester_name?: string

@@ -34,6 +34,7 @@ import { OnboardingGuide } from "@/components/OnboardingGuide";
 import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
+import HotelShellGuard from "@/components/HotelShellGuard";
 // DebugPanel has been moved into the Admin Portal (Admin → Debug Console).
 
 // Lazy-loaded route components
@@ -100,6 +101,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <HotelShellGuard />
             <FeedbackButton />
             <PWAInstallPrompt />
             <PWAUpdatePrompt />
