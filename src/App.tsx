@@ -69,6 +69,13 @@ const Agents = lazy(() => import("./pages/Agents"));
 const Reels = lazy(() => import("./pages/Reels"));
 const ExploreCounties = lazy(() => import("./pages/ExploreCounties"));
 const CountyLanding = lazy(() => import("./pages/CountyLanding"));
+const Hotels = lazy(() => import("./pages/Hotels"));
+const HotelDetail = lazy(() => import("./pages/HotelDetail"));
+const HotelRooms = lazy(() => import("./pages/HotelRooms"));
+const HotelBooking = lazy(() => import("./pages/HotelBooking"));
+const HotelDashboard = lazy(() => import("./pages/HotelDashboard"));
+const WantToBuy = lazy(() => import("./pages/WantToBuy"));
+const PropertyInspection = lazy(() => import("./pages/PropertyInspection"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
