@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight,
   LayoutDashboard, BarChart3, Shield, FileCheck, Users, Home, Newspaper,
   Star, Zap, Flag, Megaphone, MessageSquare, FileText, Scale, Info, Mail,
-  Bug, ShieldCheck, Rocket, AlertCircle, MapPin
+  Bug, ShieldCheck, Rocket, AlertCircle, MapPin, Building2, BedDouble, CalendarCheck, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
