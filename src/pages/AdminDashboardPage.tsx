@@ -167,6 +167,9 @@ export default function AdminDashboardPage() {
       case "scaling-docs": return <AdminScalingDocs />;
       case "county-insights": return <AdminCountyInsights />;
       case "location-hierarchy": return <AdminLocationHierarchy />;
+      case "hotels": return <AdminHotels />;
+      case "hotel-bookings": return <AdminHotelBookings />;
+      case "inspections": return <AdminInspections />;
       default: return <AdminDashboard onNavigateTab={handleTabChange} />;
     }
   };
