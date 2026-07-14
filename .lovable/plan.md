@@ -1,86 +1,90 @@
-# Reusable Property Listing System
+This is a large, multi-module feature set. Below is the plan I'll follow. I've bundled related work so you can approve the whole scope at once.
 
-## Goal
-One reusable component + hook powers Home, Explore, Near Me, Featured, Explore by County, Search Results, and Agent Listings. 15 per page, server-side pagination, background prefetch, per-session stable random order, URL-synced filters, cached pages, and clean error/loading states.
+## 1. New account types on Sign Up
+Extend the existing `user_role` enum with two new roles:
+- **hotel** — must complete a Hotel Verification flow (business docs, owner ID, agency-style details). Cannot upload anything until admin approves. Once approved, gets a dedicated **Hotel Dashboard** (NOT the property homepage).
+- **customer** — a lightweight buyer/guest account. No "Upload Property" button, no owner statistics dashboard, no promotions. Only sees: browse properties, favorites, book hotels, property inquiries, offers, inspections, messages.
 
-## Architecture
+Sign-up page gets a 4-option role picker: Owner · Agent · Hotel · Customer.
 
-```text
-┌──────────────────────────────────────────────┐
-│  usePropertyList(params)  ← TanStack useInfiniteQuery
-│    • server-side range() pagination (15)
-│    • prefetches next page automatically
-│    • cancels stale requests on param change
-│    • cache keyed by filter signature
-└─────────────┬────────────────────────────────┘
-              │
-      ┌───────▼────────┐
-      │ <PropertyList/>│  Skeletons · Grid · Load More · Error+Retry
-      └───────┬────────┘
-              │ used by
-   Home · Explore · NearMe · Featured · CountyLanding · Agents · SearchResults
-```
+## 2. Hotel module (mirrors uploaded designs)
 
-## New files
-- `src/hooks/usePropertyList.ts` — TanStack `useInfiniteQuery` wrapper. Accepts `{ filters, sort, pageSize=15, sessionSeed }`. Uses `supabase.from('properties').select(...).range(from,to)` with a `count: 'exact'` head request only on first page. Fetches profiles/agent info in a single batched query per page. Returns `{ pages, hasMore, loadMore, isFetchingNext, isError, retry, total }`.
-- `src/lib/sessionSeed.ts` — generates/reads a per-day session seed from `sessionStorage` (`lprop_shuffle_seed`), rotates every 24h. Used to deterministically shuffle results in "random" sort mode so pagination never repeats or skips.
-- `src/components/PropertyList.tsx` — grid + skeleton + Load More + retry. Props: `filters`, `sort`, `variant?`, `emptyState?`, `priorityCount?`.
-- `src/hooks/useUrlListState.ts` — reads/writes `page`, `county`, `type`, `listing`, `q`, `sort` via `useSearchParams` (History API, no reload). Debounced writes on filter change.
+New tables:
+- `hotels` — name, description, county/district/city, address, cover photo, gallery (up to 18), amenities (jsonb: wifi, pool, breakfast, parking, ac, gym, restaurant, airport_shuttle, front_desk_24_7, laundry, +custom), star_rating, is_verified, owner_id, status.
+- `hotel_rooms` — hotel_id, name (Standard/Deluxe/Executive/Suite/custom), price_per_night, guests, size_sqm, bed_type, amenities, photos, is_most_popular.
+- `hotel_bookings` — hotel_id, room_id, guest_id, check_in, check_out, guests, rooms, subtotal, taxes, service_fee, total, payment_method (pay_online/pay_at_hotel/mobile_money/bank_transfer), payment_reference, status (pending/confirmed/cancelled/completed).
 
-## Randomization strategy
-- Add a stable `shuffle_key` computed as `md5(id || :seed)` client-side after fetching each page? No — that breaks pagination continuity.
-- **Correct approach**: server-side `ORDER BY md5(id::text || $seed)` via a new RPC `list_properties_shuffled(seed text, filters jsonb, from int, to int)`. This gives a globally-stable order per seed so `range(0,14)` → `range(15,29)` never overlaps or skips. Falls back to `created_at DESC` when sort ≠ "random".
-- Seed lives in sessionStorage + rotates daily → every user gets a different order, same user sees a stable order for the session.
+All with GRANTs + RLS: hotel owners manage their own; customers manage their own bookings; admins see everything.
 
-## Migration
-- New SQL function `public.list_properties_shuffled(_seed text, _filters jsonb, _from int, _to int)` returning `SETOF properties` with `SECURITY INVOKER` (so RLS still applies). Uses `ORDER BY is_promoted DESC, md5(id::text || _seed)`. Grants `EXECUTE` to `anon`, `authenticated`.
+### Hotel Owner Dashboard (`/hotel-dashboard`)
+Replaces the normal property home for role='hotel'. Tabs:
+- **Overview** — bookings today, revenue, occupancy.
+- **My Hotels** — create/edit hotel (name, location, description, cover + gallery, amenities picker, star rating).
+- **Rooms** — per-hotel room manager (name, price, guests, size, bed, amenities, photos, "Most Popular" flag).
+- **Bookings** — list of guest bookings with confirm/cancel actions.
+- **Verification** — status card.
 
-## URL state contract
-- Query params: `?page=2&county=Montserrado&type=apartment&listing=for_sale&sort=random&q=beach`.
-- On mount: hydrate filter state from URL.
-- On filter change: `setSearchParams(next, { replace: false })` → deep-linkable + shareable.
-- `page` reflects the highest loaded page so refresh restores same scroll depth.
+### Public Hotel Browsing (from small "Book Hotel" card on homepage)
+- **Small rectangle card** center-right of homepage titled **"Book Hotel"** → `/hotels`.
+- `/hotels` — Hotel homepage: search + filter (county, price, amenities), verified hotels grid, matches the design's card style.
+- `/hotels/:id` — Hotel detail page (image gallery with `1/18` counter, verified badge, rating, amenities strip, About, Great Deal banner, Call Hotel + Check Availability buttons, Top Amenities). Matches uploaded image 3.
+- `/hotels/:id/rooms` — Choose Your Room (date pickers, guests, room cards with Most Popular badge, sticky bottom "Continue to Book"). Matches image 2.
+- `/hotels/:id/book` — Booking Summary + Payment Method picker + Confirm Booking. Matches image 1.
 
-## Page migrations (one per commit-worthy step)
-1. **Explore.tsx** — replace `fetchProperties` + `useState<any[]>` with `<PropertyList filters={filters} sort={sort} />`. Keep sidebar filters, sync to URL.
-2. **NearMe.tsx** — pass `{ county }` filter; remove manual profile+agent fetch (moved into hook).
-3. **Index.tsx** — first hero card stays hand-rolled; the grid below becomes `<PropertyList pageSize={15} />`.
-4. **CountyLanding.tsx** — `<PropertyList filters={{ county }} />`.
-5. **FeaturedListings.tsx** — `<PropertyList filters={{ is_promoted: true }} />`.
-6. **Agents.tsx** — agent listings tab uses `<PropertyList filters={{ owner_id: agentId }} />`.
-7. **Search Results** (part of Explore's `q=` param) — same component.
+## 3. "Want to Buy" module
+- **Small rectangle card** center-left of homepage titled **"Want to Buy"** → `/want-to-buy`.
+- `/want-to-buy` — dedicated page listing ONLY properties where `listing_type = 'for_sale'`. Uses existing `PropertyList` with `listing_type='for_sale'` filter.
 
-## Prefetch & UX rules
-- After first page renders, `queryClient.prefetchInfiniteQuery` warms page 2 with `staleTime: 5min`.
-- Load More reads from cache instantly, then triggers page 3 prefetch.
-- Button states: `Load more` (idle) → `Loading…` (disabled) → hidden when `!hasMore`.
-- Scroll position preserved by appending (never replacing) DOM nodes.
-- On filter/param change: `queryClient.cancelQueries` for the previous key → aborts in-flight requests.
+## 4. Property Inspection module
+New table `property_inspections`:
+- property_id, requester_id, inspection_type ('location_availability' | 'documents_legitimacy' | 'help_me_buy'), fee_usd, status ('pending'/'in_review'/'completed'/'rejected'), form_data (jsonb — different fields per type), admin_notes, created_at.
 
-## Error handling
-- Hook exposes `isError` + `retry()` that refetches only the failed page.
-- Inline error card at bottom of grid with "Retry" — grid content above stays.
+On `PropertyDetail` for `for_sale` properties, add an **"Inspect this property"** button. Opens a page `/inspect/:propertyId`:
 
-## Performance
-- `select` narrowed to card-required columns (drops `description`, `virtual_tour_url`, etc.) → smaller payload.
-- Batched profile fetch per page (`.in('id', ownerIds)`).
-- `React.memo` on `PropertyCard` (already effectively memoized via key).
-- `count: 'exact'` requested only once (first page) so we can hide Load More precisely.
+Step 1 — pick type card:
+- **Location & Availability** — $10 flat
+- **Documents & Legitimacy** — $80 flat
+- **Help Me Buy** — 0.4% of property price (auto-calculated)
 
-## Out of scope (explicit)
-- Not converting Reels, Favorites, RecentlyViewed, RecommendedProperties (different data shapes / small fixed lists).
-- Not touching admin listing views.
-- No infinite-scroll auto-trigger — explicit Load More per spec.
+Step 2 — dynamic form per type:
+- Location: preferred inspection date, contact phone, notes.
+- Documents: buyer's full name, ID type + number, lawyer preference, notes.
+- Help Me Buy: budget confirmation, financing method, target close date, phone, notes.
 
-## Rollout order
-1. Migration + `list_properties_shuffled` RPC.
-2. `sessionSeed.ts`, `usePropertyList.ts`, `PropertyList.tsx`, `useUrlListState.ts`.
-3. Explore (highest-traffic, validates approach).
-4. Near Me + County Landing + Featured Listings + Agents + Index grid — parallel edits.
-5. Manual QA on each page (grid renders, Load More works, URL updates, refresh restores state, random order differs per session).
+Step 3 — payment reference (manual "Name - Reference" like existing verification/promotion flow) → submits to admin.
 
-## Estimated impact
-- Network requests on Home / Explore / NearMe drop from a full-table fetch (~all rows) to 15 rows per page.
-- Duplicate profile/agent fetches consolidated: 3 queries → 2 per page (properties + profiles+agents).
-- Cache hits on Load More = 0 network requests until page N+2 prefetch kicks in.
-- Random ordering ensures fair promotion distribution and fresher-feeling home page.
+## 5. Admin Portal additions
+New tabs under Admin Navigation:
+- **Hotels** — approve/reject hotel accounts, view all hotels & rooms, moderate.
+- **Hotel Bookings** — all bookings across the platform.
+- **Inspections** — review inspection requests, mark completed, add admin notes.
+- Extend **Verifications** tab to handle the new `hotel` verification type.
+
+## 6. Sign Up & role-based routing
+- Update `Auth.tsx` role picker.
+- After signup:
+  - `hotel` → redirected to `/verification?type=hotel`; blocked from `/hotel-dashboard/upload` until approved.
+  - `customer` → redirected to home; nav hides "Upload", "Promotions", owner stats.
+- Update `Navbar` / bottom nav to be role-aware:
+  - customer: Home, Search, Book Hotel, Favorites, Profile.
+  - hotel: Hotel Dashboard, Bookings, Messages, Profile.
+  - owner/agent: unchanged.
+
+## Technical notes
+- All new tables get GRANTs + RLS + `has_role`/owner-scoped policies.
+- Uses existing `has_role`, `is_admin`, `notifyAdmins`, `verification_requests` patterns.
+- Hotel and inspection payments follow the existing manual "Name - Reference" flow (no Stripe — per project memory).
+- Star hotel design uses your existing red-primary / navy light theme.
+- Reuses `PropertyList` filters where possible.
+
+## Rough delivery order
+1. Migration: enum values, tables, GRANTs, RLS, indexes.
+2. Auth signup update + role-based routing guards.
+3. Hotel public pages (3 screens matching your mockups).
+4. Hotel owner dashboard.
+5. Want-to-Buy page + homepage cards.
+6. Inspection flow + PropertyDetail button.
+7. Admin tabs for Hotels, Bookings, Inspections.
+8. Nav/dashboard visibility rules for customer role.
+
+Reply **approve** to proceed, or tell me what to adjust (e.g. drop a module, change inspection prices, different customer permissions).
