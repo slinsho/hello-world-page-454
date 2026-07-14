@@ -64,6 +64,9 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
         { value: "active-promos", label: "Active Promos", icon: Zap },
         { value: "marketing", label: "Marketing", icon: Megaphone },
         { value: "rates", label: "Rates", icon: BarChart3 },
+        { value: "hotels", label: "Hotels", icon: Building2 },
+        { value: "hotel-bookings", label: "Hotel Bookings", icon: CalendarCheck },
+        { value: "inspections", label: "Inspections", icon: Search },
       ],
     },
     {
