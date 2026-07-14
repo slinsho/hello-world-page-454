@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight,
   LayoutDashboard, BarChart3, Shield, FileCheck, Users, Home, Newspaper,
   Star, Zap, Flag, Megaphone, MessageSquare, FileText, Scale, Info, Mail,
-  Bug, ShieldCheck, Rocket, AlertCircle, MapPin
+  Bug, ShieldCheck, Rocket, AlertCircle, MapPin, Building2, BedDouble, CalendarCheck, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +64,9 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
         { value: "active-promos", label: "Active Promos", icon: Zap },
         { value: "marketing", label: "Marketing", icon: Megaphone },
         { value: "rates", label: "Rates", icon: BarChart3 },
+        { value: "hotels", label: "Hotels", icon: Building2 },
+        { value: "hotel-bookings", label: "Hotel Bookings", icon: CalendarCheck },
+        { value: "inspections", label: "Inspections", icon: Search },
       ],
     },
     {

@@ -1874,7 +1874,7 @@ export type Database = {
       listing_type: "for_sale" | "for_rent" | "for_lease"
       property_status: "active" | "inactive" | "sold" | "rented"
       property_type: "house" | "apartment" | "shop" | "land"
-      user_role: "property_owner" | "agent"
+      user_role: "property_owner" | "agent" | "hotel" | "customer"
       verification_status:
         | "none"
         | "pending"
@@ -2013,7 +2013,7 @@ export const Constants = {
       listing_type: ["for_sale", "for_rent", "for_lease"],
       property_status: ["active", "inactive", "sold", "rented"],
       property_type: ["house", "apartment", "shop", "land"],
-      user_role: ["property_owner", "agent"],
+      user_role: ["property_owner", "agent", "hotel", "customer"],
       verification_status: [
         "none",
         "pending",

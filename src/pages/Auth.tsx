@@ -17,7 +17,7 @@ const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["agent", "property_owner"]),
+  role: z.enum(["agent", "property_owner", "hotel", "customer"]),
   phone: z.string().min(5, "Phone number is required").max(20),
   phone_2: z.string().max(20).optional(),
 });
@@ -37,7 +37,7 @@ const Auth = () => {
     name: "",
     email: "",
     password: "",
-    role: "property_owner" as "agent" | "property_owner",
+    role: "property_owner" as "agent" | "property_owner" | "hotel" | "customer",
     phone: "",
     phone_2: "",
   });
@@ -333,7 +333,7 @@ const Auth = () => {
                           <Label htmlFor="role" className="text-foreground text-sm font-medium">I am a</Label>
                           <Select
                             value={formData.role}
-                            onValueChange={(value: "agent" | "property_owner") =>
+                            onValueChange={(value: "agent" | "property_owner" | "hotel" | "customer") =>
                               setFormData({ ...formData, role: value })
                             }
                           >
@@ -343,6 +343,8 @@ const Auth = () => {
                             <SelectContent>
                               <SelectItem value="property_owner">Property Owner</SelectItem>
                               <SelectItem value="agent">Agent</SelectItem>
+                              <SelectItem value="hotel">Hotel Business</SelectItem>
+                              <SelectItem value="customer">Customer / Guest</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
