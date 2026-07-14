@@ -137,6 +137,13 @@ const App = () => (
                   <Route path="/reels" element={<Reels />} />
                   <Route path="/explore-counties" element={<ExploreCounties />} />
                   <Route path="/county/:slug" element={<CountyLanding />} />
+                  <Route path="/hotels" element={<Hotels />} />
+                  <Route path="/hotels/:id" element={<HotelDetail />} />
+                  <Route path="/hotels/:id/rooms" element={<HotelRooms />} />
+                  <Route path="/hotels/:id/book" element={<HotelBooking />} />
+                  <Route path="/hotel-dashboard" element={<HotelDashboard />} />
+                  <Route path="/want-to-buy" element={<WantToBuy />} />
+                  <Route path="/inspect/:propertyId" element={<PropertyInspection />} />
                   <Route path="/winner-54/login" element={<AdminLogin />} />
                   <Route path="/winner-54/dashboard" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
                   <Route path="/winner-54/listings" element={<Suspense fallback={null}><AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute></Suspense>} />
