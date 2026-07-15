@@ -9,15 +9,22 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Image as ImageIcon, Save } from "lucide-react";
 
 /**
- * AdminInspectionSettings — lets admins edit the promo banner and marketing
- * copy that appears on the Property Inspection page.
- * Stored in the platform_settings table under stable keys.
+ * AdminInspectionSettings — controls every editable section of the
+ * Property Inspection page. Stored in platform_settings under stable keys.
+ *
+ * Multi-line fields use one item per line. Some use "a | b | c" pipe syntax
+ * so admins can edit without touching JSON.
  */
 const KEYS = [
-  { key: "inspection_banner_image", label: "Banner image URL", type: "url", placeholder: "https://…/banner.jpg" },
-  { key: "inspection_banner_text", label: "Banner text / promo message", type: "textarea", placeholder: "Get 10% off any inspection this month…" },
-  { key: "inspection_page_headline", label: "Page headline (optional)", type: "text", placeholder: "Book a trusted inspection" },
-  { key: "inspection_page_subtext", label: "Page subtext (optional)", type: "textarea", placeholder: "Our verified inspectors protect you from bad deals." },
+  { key: "inspection_hero_headline", label: "Hero headline", type: "text", placeholder: "Buy with total confidence" },
+  { key: "inspection_hero_subtext", label: "Hero subtext", type: "textarea", placeholder: "Our licensed inspectors verify legal papers and negotiate on your behalf." },
+  { key: "inspection_hero_chips", label: "Hero trust chips (comma-separated)", type: "text", placeholder: "Verified Inspectors, Secure Payment, Money-Back Guarantee" },
+  { key: "inspection_banner_image", label: "Promo banner image URL", type: "url", placeholder: "https://…/banner.jpg" },
+  { key: "inspection_banner_text", label: "Promo banner text", type: "textarea", placeholder: "Get 10% off any inspection this month…" },
+  { key: "inspection_steps", label: "How it works — one step per line as: Title | Description", type: "textarea", placeholder: "Choose Service | Pick the inspection tier that fits you\nSubmit Details | Fill your info and payment\nWe Inspect | Our team visits the property\nReceive Report | Get photos, docs, and findings\nBuy Safely | Proceed with total confidence" },
+  { key: "inspection_compare_rows", label: "Comparison table — one row per line as: Feature | Legal | Concierge", type: "textarea", placeholder: "Title Deed Check | ✓ | ✓\nOwnership Verification | ✓ | ✓\nOn-site Visit | ✗ | ✓\nPrice Negotiation | ✗ | ✓\nDocument Handling | ✗ | ✓" },
+  { key: "inspection_payment_methods", label: "Payment methods — one per line as: Provider | Number/Details", type: "textarea", placeholder: "Orange Money | 0777 123 456\nMTN Mobile Money | 0888 123 456\nBank Transfer | Ecobank — 0011223344" },
+  { key: "inspection_footer_note", label: "Footer note / guarantee message", type: "textarea", placeholder: "100% money-back guarantee if the property does not match our inspection report." },
 ] as const;
 
 export default function AdminInspectionSettings() {
@@ -60,14 +67,14 @@ export default function AdminInspectionSettings() {
       <div>
         <h2 className="text-2xl font-bold">Inspection Page</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Control the promo banner and marketing copy shown on the Property Inspection page.
+          Control every section of the Property Inspection page — hero, steps, comparison table, payments, and promo banner.
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ImageIcon className="w-4 h-4 text-primary" /> Banner &amp; copy
+            <ImageIcon className="w-4 h-4 text-primary" /> Page content
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -76,7 +83,7 @@ export default function AdminInspectionSettings() {
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{f.label}</Label>
               {f.type === "textarea" ? (
                 <Textarea
-                  rows={3}
+                  rows={4}
                   placeholder={f.placeholder}
                   value={values[f.key] || ""}
                   onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
