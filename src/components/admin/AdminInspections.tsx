@@ -12,8 +12,11 @@ import { UserCog, FileUp, ClipboardCheck } from "lucide-react";
 
 const TYPE_LABELS: Record<string, string> = {
   location: "Location Check ($10)",
+  location_availability: "Location Check ($10)",
   legal: "Legal Docs ($80)",
+  documents_legitimacy: "Legal Docs ($80)",
   help_buy: "Help Me Buy (0.4%)",
+  help_me_buy: "Help Me Buy (0.4%)",
 };
 
 const AdminInspections = () => {
