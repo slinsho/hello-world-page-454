@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,11 +10,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, FileSearch, HandCoins, ShieldCheck, Lock, Sparkles } from "lucide-react";
+import {
+  ArrowLeft, MapPin, FileSearch, HandCoins, ShieldCheck, Lock, Sparkles,
+  Check, X, Wallet, BadgeCheck,
+} from "lucide-react";
 import { notifyAdmins } from "@/lib/notifyAdmins";
 
-// NOTE: `inspection_type` must be one of: documents_legitimacy | help_me_buy
-// (DB CHECK constraint). "Location" tier removed at the user's request.
 const TIERS = [
   {
     key: "documents_legitimacy",
@@ -36,6 +37,12 @@ const TIERS = [
   },
 ];
 
+const parseLines = (v?: string) =>
+  (v || "").split("\n").map((l) => l.trim()).filter(Boolean);
+
+const parsePipes = (v?: string) =>
+  parseLines(v).map((l) => l.split("|").map((p) => p.trim()));
+
 const PropertyInspection = () => {
   const { propertyId } = useParams();
   const navigate = useNavigate();
@@ -45,7 +52,7 @@ const PropertyInspection = () => {
   const [tier, setTier] = useState<string>("documents_legitimacy");
   const [form, setForm] = useState({ full_name: "", phone: "", email: "", preferred_date: "", notes: "", budget: "", payment_reference: "" });
   const [loading, setLoading] = useState(false);
-  const [banner, setBanner] = useState<{ image?: string; text?: string; headline?: string; subtext?: string } | null>(null);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
     (async () => {
@@ -55,19 +62,47 @@ const PropertyInspection = () => {
         const { data: p } = await supabase.from("profiles").select("name, phone, email").eq("id", user.id).maybeSingle();
         if (p) setForm((f) => ({ ...f, full_name: p.name || "", phone: p.phone || "", email: p.email || "" }));
       }
-      const { data: settings } = await supabase.from("platform_settings").select("key,value").in("key", ["inspection_banner_image", "inspection_banner_text", "inspection_page_headline", "inspection_page_subtext"]);
+      const { data: s } = await supabase
+        .from("platform_settings")
+        .select("key,value")
+        .in("key", [
+          "inspection_hero_headline", "inspection_hero_subtext", "inspection_hero_chips",
+          "inspection_banner_image", "inspection_banner_text",
+          "inspection_steps", "inspection_compare_rows", "inspection_payment_methods",
+          "inspection_footer_note",
+        ]);
       const map: Record<string, string> = {};
-      (settings || []).forEach((s: any) => { map[s.key] = s.value; });
-      if (map.inspection_banner_image || map.inspection_banner_text || map.inspection_page_headline || map.inspection_page_subtext) {
-        setBanner({
-          image: map.inspection_banner_image,
-          text: map.inspection_banner_text,
-          headline: map.inspection_page_headline,
-          subtext: map.inspection_page_subtext,
-        });
-      }
+      (s || []).forEach((r: any) => { map[r.key] = r.value; });
+      setSettings(map);
     })();
   }, [propertyId, user]);
+
+  const chips = useMemo(
+    () => (settings.inspection_hero_chips || "Verified Inspectors, Secure Payment, Money-Back Guarantee")
+      .split(",").map((c) => c.trim()).filter(Boolean),
+    [settings.inspection_hero_chips]
+  );
+  const steps = useMemo(() => {
+    const rows = parsePipes(settings.inspection_steps);
+    return rows.length ? rows : [
+      ["Choose Service", "Pick the inspection tier that fits you"],
+      ["Submit Details", "Fill your info and make payment"],
+      ["We Inspect", "Our team visits the property"],
+      ["Receive Report", "Get photos, docs, and findings"],
+      ["Buy Safely", "Proceed with total confidence"],
+    ];
+  }, [settings.inspection_steps]);
+  const compareRows = useMemo(() => {
+    const rows = parsePipes(settings.inspection_compare_rows);
+    return rows.length ? rows : [
+      ["Title Deed Check", "✓", "✓"],
+      ["Ownership Verification", "✓", "✓"],
+      ["On-site Visit", "✗", "✓"],
+      ["Price Negotiation", "✗", "✓"],
+      ["Document Handling", "✗", "✓"],
+    ];
+  }, [settings.inspection_compare_rows]);
+  const paymentMethods = useMemo(() => parsePipes(settings.inspection_payment_methods), [settings.inspection_payment_methods]);
 
   const selectedTier = TIERS.find((t) => t.key === tier);
   const helpBuyFee = property ? +(Number(property.price_usd) * 0.04).toFixed(2) : 0;
@@ -101,8 +136,18 @@ const PropertyInspection = () => {
     navigate("/profile");
   };
 
+  const renderCell = (v: string) => {
+    if (v === "✓" || v.toLowerCase() === "yes" || v.toLowerCase() === "true") {
+      return <Check className="w-4 h-4 text-green-600 mx-auto" />;
+    }
+    if (v === "✗" || v.toLowerCase() === "no" || v.toLowerCase() === "false") {
+      return <X className="w-4 h-4 text-muted-foreground mx-auto" />;
+    }
+    return <span className="text-xs">{v}</span>;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background pb-24">
+    <div className="min-h-screen bg-background pb-32">
       <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3 max-w-3xl mx-auto">
           <Button variant="ghost" size="icon" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(`/property/${propertyId}`))} className="rounded-full">
@@ -117,24 +162,32 @@ const PropertyInspection = () => {
         </div>
       </div>
 
-      <main className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        {/* Admin-editable hero */}
-        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/70 text-primary-foreground p-5 shadow-xl relative">
-          <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+      <main className="max-w-3xl mx-auto px-4 py-4 space-y-5">
+        {/* Hero — admin-editable */}
+        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-red-600 via-red-600 to-red-700 text-white p-6 shadow-xl relative">
+          <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
           <div className="relative">
-            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2">
-              <ShieldCheck className="w-3 h-3" /> Verified inspectors
+            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3">
+              <ShieldCheck className="w-3 h-3" /> Verified inspection service
             </div>
-            <h1 className="text-xl font-extrabold leading-tight">
-              {banner?.headline || "Buy with total confidence"}
+            <h1 className="text-2xl font-extrabold leading-tight">
+              {settings.inspection_hero_headline || "Buy with total confidence"}
             </h1>
-            <p className="text-xs opacity-90 mt-1.5 leading-relaxed">
-              {banner?.subtext || "Our licensed inspectors verify the legal papers and negotiate on your behalf so you never overpay."}
+            <p className="text-sm opacity-95 mt-2 leading-relaxed">
+              {settings.inspection_hero_subtext || "Our licensed inspectors verify the legal papers and negotiate on your behalf so you never overpay."}
             </p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {chips.map((c) => (
+                <div key={c} className="inline-flex items-center gap-1 bg-white/15 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-semibold">
+                  <BadgeCheck className="w-3 h-3" /> {c}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* Property card */}
         {property && (
           <Card className="overflow-hidden border-0 shadow-lg rounded-2xl">
             <CardContent className="p-0">
@@ -155,74 +208,124 @@ const PropertyInspection = () => {
           </Card>
         )}
 
-        <Tabs value={tier} onValueChange={setTier} className="w-full">
-          <TabsList className="grid grid-cols-2 w-full h-auto p-1 rounded-2xl bg-muted">
+        {/* Service tiers */}
+        <div>
+          <h2 className="text-lg font-bold mb-2">Choose your service</h2>
+          <Tabs value={tier} onValueChange={setTier} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full h-auto p-1 rounded-2xl bg-muted">
+              {TIERS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <TabsTrigger
+                    key={t.key}
+                    value={t.key}
+                    className="flex flex-col gap-1 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-[11px] font-semibold">{t.tabLabel}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
             {TIERS.map((t) => {
               const Icon = t.icon;
               return (
-                <TabsTrigger
-                  key={t.key}
-                  value={t.key}
-                  className="flex flex-col gap-1 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow"
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-[11px] font-semibold">{t.tabLabel}</span>
-                </TabsTrigger>
+                <TabsContent key={t.key} value={t.key} className="mt-4 space-y-4">
+                  <Card className="rounded-2xl border-0 shadow-md overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Icon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm">{t.label}</p>
+                            <p className="text-[11px] text-muted-foreground">Professional inspection service</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground uppercase">Fee</p>
+                          <p className="text-primary font-bold text-lg leading-none">
+                            {t.key === "help_me_buy" ? (property ? `$${helpBuyFee}` : "4%") : `$${t.price}`}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">{t.desc}</p>
+                      <ul className="space-y-1.5">
+                        {t.features.map((f) => (
+                          <li key={f} className="text-xs flex items-start gap-2">
+                            <Sparkles className="w-3 h-3 text-primary mt-0.5 shrink-0" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               );
             })}
-          </TabsList>
+          </Tabs>
+        </div>
 
-          {TIERS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <TabsContent key={t.key} value={t.key} className="mt-4 space-y-4">
-                <Card className="rounded-2xl border-0 shadow-md overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm">{t.label}</p>
-                          <p className="text-[11px] text-muted-foreground">Professional inspection service</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-muted-foreground uppercase">Fee</p>
-                        <p className="text-primary font-bold text-lg leading-none">
-                          {t.key === "help_me_buy" ? (property ? `$${helpBuyFee}` : "4%") : `$${t.price}`}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">{t.desc}</p>
-                    <ul className="space-y-1.5">
-                      {t.features.map((f) => (
-                        <li key={f} className="text-xs flex items-start gap-2">
-                          <Sparkles className="w-3 h-3 text-primary mt-0.5 shrink-0" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            );
-          })}
-        </Tabs>
+        {/* Comparison table */}
+        <Card className="rounded-2xl border-0 shadow-md">
+          <CardContent className="p-4">
+            <h2 className="font-bold text-sm mb-3">Compare services</h2>
+            <div className="rounded-xl overflow-hidden border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="text-left p-2.5 font-semibold">Feature</th>
+                    <th className="p-2.5 font-semibold text-center">Legal</th>
+                    <th className="p-2.5 font-semibold text-center">Concierge</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {compareRows.map((row, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="p-2.5">{row[0]}</td>
+                      <td className="p-2.5 text-center">{renderCell(row[1] || "")}</td>
+                      <td className="p-2.5 text-center">{renderCell(row[2] || "")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Admin-editable promo banner (set via platform_settings keys: inspection_banner_image, inspection_banner_text). */}
-        {banner && (banner.image || banner.text) && (
+        {/* How it works */}
+        <Card className="rounded-2xl border-0 shadow-md">
+          <CardContent className="p-4">
+            <h2 className="font-bold text-sm mb-4">How it works</h2>
+            <ol className="relative border-l-2 border-primary/20 ml-3 space-y-4">
+              {steps.map(([title, desc], i) => (
+                <li key={i} className="pl-5 relative">
+                  <span className="absolute -left-[13px] top-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow">
+                    {i + 1}
+                  </span>
+                  <p className="font-semibold text-sm">{title}</p>
+                  {desc && <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>}
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+
+        {/* Promo banner */}
+        {(settings.inspection_banner_image || settings.inspection_banner_text) && (
           <div className="rounded-2xl overflow-hidden border shadow-sm bg-card">
-            {banner.image && (
-              <img src={banner.image} alt="Promo banner" className="w-full h-32 object-cover" />
+            {settings.inspection_banner_image && (
+              <img src={settings.inspection_banner_image} alt="Promo banner" className="w-full h-32 object-cover" />
             )}
-            {banner.text && (
-              <div className="p-3 text-sm text-foreground/90">{banner.text}</div>
+            {settings.inspection_banner_text && (
+              <div className="p-3 text-sm text-foreground/90">{settings.inspection_banner_text}</div>
             )}
           </div>
         )}
 
+        {/* Details form */}
         <Card className="rounded-2xl border-0 shadow-md">
           <CardContent className="p-4 space-y-3">
             <h2 className="font-bold text-sm">Your Details</h2>
@@ -238,24 +341,56 @@ const PropertyInspection = () => {
                 <Input type="number" placeholder="Your Budget (USD)" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="rounded-xl" />
               )}
               <Textarea placeholder="Additional notes for our team..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-xl" />
-              <Input placeholder="Payment Reference (Sender Name - Ref)" value={form.payment_reference} onChange={(e) => setForm({ ...form, payment_reference: e.target.value })} className="rounded-xl" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl border-0 shadow-lg">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-[11px] opacity-80 uppercase tracking-wide">Total Payable</p>
-              <p className="text-2xl font-bold">${fee.toFixed(2)}</p>
-            </div>
-            <Button onClick={submit} disabled={loading} variant="secondary" size="lg" className="rounded-xl font-semibold">
-              <Lock className="w-4 h-4 mr-2" />
-              {loading ? "Submitting..." : "Submit Request"}
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Payment methods */}
+        {paymentMethods.length > 0 && (
+          <Card className="rounded-2xl border-0 shadow-md">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Wallet className="w-4 h-4 text-primary" />
+                <h2 className="font-bold text-sm">Payment methods</h2>
+              </div>
+              <div className="space-y-2">
+                {paymentMethods.map((row, i) => (
+                  <div key={i} className="flex items-center justify-between rounded-xl border p-2.5 bg-muted/40">
+                    <span className="text-xs font-semibold">{row[0]}</span>
+                    <span className="text-xs font-mono text-muted-foreground">{row[1]}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3">
+                <Label className="text-xs text-muted-foreground">Payment reference (Sender Name - Ref)</Label>
+                <Input placeholder="e.g. John Doe - TXN123456" value={form.payment_reference} onChange={(e) => setForm({ ...form, payment_reference: e.target.value })} className="rounded-xl mt-1" />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Footer guarantee */}
+        {settings.inspection_footer_note && (
+          <div className="rounded-2xl bg-green-500/10 border border-green-500/20 p-3 text-xs text-foreground/90 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+            <span>{settings.inspection_footer_note}</span>
+          </div>
+        )}
       </main>
+
+      {/* Sticky submit bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total payable</p>
+            <p className="text-xl font-bold text-primary leading-none">${fee.toFixed(2)}</p>
+          </div>
+          <Button onClick={submit} disabled={loading} size="lg" className="rounded-xl font-semibold flex-1 max-w-xs">
+            <Lock className="w-4 h-4 mr-2" />
+            {loading ? "Submitting..." : "Submit Request"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
