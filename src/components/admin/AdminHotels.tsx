@@ -13,8 +13,26 @@ const AdminHotels = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("hotels").select("*, profiles:owner_id(name, email, phone)").order("created_at", { ascending: false });
-    setHotels((data as any[]) || []);
+    const { data: hotelsData, error } = await supabase
+      .from("hotels")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast({ title: "Failed to load hotels", description: error.message, variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+    const rows = (hotelsData as any[]) || [];
+    const ownerIds = Array.from(new Set(rows.map((h) => h.owner_id).filter(Boolean)));
+    let owners: Record<string, any> = {};
+    if (ownerIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id,name,email,phone")
+        .in("id", ownerIds);
+      (profs || []).forEach((p: any) => { owners[p.id] = p; });
+    }
+    setHotels(rows.map((h) => ({ ...h, owner: owners[h.owner_id] })));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -43,7 +61,9 @@ const AdminHotels = () => {
                 <div>
                   <p className="font-semibold">{h.name}</p>
                   <p className="text-xs text-muted-foreground">{h.address}</p>
-                  <p className="text-xs text-muted-foreground">Owner: {h.profiles?.name} · {h.profiles?.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Owner: {h.owner?.name || "—"} {h.owner?.email ? `· ${h.owner.email}` : ""} {h.owner?.phone ? `· ${h.owner.phone}` : ""}
+                  </p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <Badge variant={h.status === "active" ? "default" : "secondary"}>{h.status}</Badge>
