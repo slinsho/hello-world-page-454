@@ -12,8 +12,11 @@ import { UserCog, FileUp, ClipboardCheck } from "lucide-react";
 
 const TYPE_LABELS: Record<string, string> = {
   location: "Location Check ($10)",
+  location_availability: "Location Check ($10)",
   legal: "Legal Docs ($80)",
+  documents_legitimacy: "Legal Docs ($80)",
   help_buy: "Help Me Buy (0.4%)",
+  help_me_buy: "Help Me Buy (0.4%)",
 };
 
 const AdminInspections = () => {
@@ -34,7 +37,7 @@ const AdminInspections = () => {
   const load = async () => {
     setLoading(true);
     const { data } = await (supabase.from("property_inspections") as any)
-      .select("*, properties(title, price_usd, county)")
+      .select("*, properties(id, title, price_usd, county, photos)")
       .order("created_at", { ascending: false });
     setItems((data as any[]) || []);
     setLoading(false);
@@ -116,22 +119,36 @@ const AdminInspections = () => {
       {items.map((r) => (
         <Card key={r.id}>
           <CardContent className="p-4 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold">{r.properties?.title || "Property"}</p>
-                <p className="text-xs text-muted-foreground">
-                  {TYPE_LABELS[r.inspection_type] || r.inspection_type} · Fee ${Number(r.fee_usd).toFixed(2)}
-                </p>
+            <div className="flex items-start gap-3">
+              {r.properties?.photos?.[0] && (
+                <img
+                  src={r.properties.photos[0]}
+                  alt={r.properties?.title || "Property"}
+                  className="w-20 h-20 rounded-lg object-cover shrink-0 border"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{r.properties?.title || "Property"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {TYPE_LABELS[r.inspection_type] || r.inspection_type} · Fee ${Number(r.fee_usd).toFixed(2)}
+                    </p>
+                    {r.properties?.county && (
+                      <p className="text-xs text-muted-foreground">{r.properties.county} {r.properties.price_usd ? `· $${Number(r.properties.price_usd).toLocaleString()}` : ""}</p>
+                    )}
+                  </div>
+                  <Badge
+                    variant={
+                      r.status === "completed" ? "default" :
+                      r.status === "cancelled" ? "destructive" :
+                      r.status === "assigned" || r.status === "in_progress" ? "secondary" : "outline"
+                    }
+                  >
+                    {r.status}
+                  </Badge>
+                </div>
               </div>
-              <Badge
-                variant={
-                  r.status === "completed" ? "default" :
-                  r.status === "cancelled" ? "destructive" :
-                  r.status === "assigned" || r.status === "in_progress" ? "secondary" : "outline"
-                }
-              >
-                {r.status}
-              </Badge>
             </div>
             <div className="text-sm">
               <p>{r.requester_name} · {r.requester_phone} {r.requester_email ? `· ${r.requester_email}` : ""}</p>
@@ -212,11 +229,49 @@ const AdminInspections = () => {
                 }
                 setReportForm({ ...reportForm, photos: [...reportForm.photos, ...urls] });
               }} />
+              {(() => {
+                const gallery: string[] = items.find((x) => x.id === reportOpen)?.properties?.photos || [];
+                if (!gallery.length) return null;
+                return (
+                  <div className="mt-2 border rounded-lg p-2 bg-muted/40">
+                    <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">Or pick from property gallery ({gallery.length})</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {gallery.map((u, i) => {
+                        const selected = reportForm.photos.includes(u);
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setReportForm({
+                              ...reportForm,
+                              photos: selected ? reportForm.photos.filter((p) => p !== u) : [...reportForm.photos, u],
+                            })}
+                            className={`relative h-14 w-14 rounded overflow-hidden border-2 ${selected ? "border-primary ring-2 ring-primary/40" : "border-transparent"}`}
+                          >
+                            <img src={u} className="h-full w-full object-cover" />
+                            {selected && <span className="absolute inset-0 bg-primary/30" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {reportForm.photos.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {reportForm.photos.map((u, i) => (
-                    <img key={i} src={u} className="h-16 w-16 rounded object-cover" />
-                  ))}
+                <div className="mt-2">
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">Selected ({reportForm.photos.length})</p>
+                  <div className="flex flex-wrap gap-2">
+                    {reportForm.photos.map((u, i) => (
+                      <div key={i} className="relative">
+                        <img src={u} className="h-16 w-16 rounded object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setReportForm({ ...reportForm, photos: reportForm.photos.filter((_, idx) => idx !== i) })}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-4 w-4 text-[10px] flex items-center justify-center"
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
