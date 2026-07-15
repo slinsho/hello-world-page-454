@@ -1,0 +1,2 @@
+ALTER TABLE public.property_inspections DROP CONSTRAINT IF EXISTS property_inspections_status_check;
+ALTER TABLE public.property_inspections ADD CONSTRAINT property_inspections_status_check CHECK (status = ANY (ARRAY['pending','assigned','in_progress','in_review','completed','cancelled','rejected']));
