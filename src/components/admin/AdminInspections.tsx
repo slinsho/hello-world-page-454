@@ -229,11 +229,49 @@ const AdminInspections = () => {
                 }
                 setReportForm({ ...reportForm, photos: [...reportForm.photos, ...urls] });
               }} />
+              {(() => {
+                const gallery: string[] = items.find((x) => x.id === reportOpen)?.properties?.photos || [];
+                if (!gallery.length) return null;
+                return (
+                  <div className="mt-2 border rounded-lg p-2 bg-muted/40">
+                    <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">Or pick from property gallery ({gallery.length})</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {gallery.map((u, i) => {
+                        const selected = reportForm.photos.includes(u);
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setReportForm({
+                              ...reportForm,
+                              photos: selected ? reportForm.photos.filter((p) => p !== u) : [...reportForm.photos, u],
+                            })}
+                            className={`relative h-14 w-14 rounded overflow-hidden border-2 ${selected ? "border-primary ring-2 ring-primary/40" : "border-transparent"}`}
+                          >
+                            <img src={u} className="h-full w-full object-cover" />
+                            {selected && <span className="absolute inset-0 bg-primary/30" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {reportForm.photos.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {reportForm.photos.map((u, i) => (
-                    <img key={i} src={u} className="h-16 w-16 rounded object-cover" />
-                  ))}
+                <div className="mt-2">
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1">Selected ({reportForm.photos.length})</p>
+                  <div className="flex flex-wrap gap-2">
+                    {reportForm.photos.map((u, i) => (
+                      <div key={i} className="relative">
+                        <img src={u} className="h-16 w-16 rounded object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setReportForm({ ...reportForm, photos: reportForm.photos.filter((_, idx) => idx !== i) })}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-4 w-4 text-[10px] flex items-center justify-center"
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
