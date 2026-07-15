@@ -119,22 +119,36 @@ const AdminInspections = () => {
       {items.map((r) => (
         <Card key={r.id}>
           <CardContent className="p-4 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold">{r.properties?.title || "Property"}</p>
-                <p className="text-xs text-muted-foreground">
-                  {TYPE_LABELS[r.inspection_type] || r.inspection_type} · Fee ${Number(r.fee_usd).toFixed(2)}
-                </p>
+            <div className="flex items-start gap-3">
+              {r.properties?.photos?.[0] && (
+                <img
+                  src={r.properties.photos[0]}
+                  alt={r.properties?.title || "Property"}
+                  className="w-20 h-20 rounded-lg object-cover shrink-0 border"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{r.properties?.title || "Property"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {TYPE_LABELS[r.inspection_type] || r.inspection_type} · Fee ${Number(r.fee_usd).toFixed(2)}
+                    </p>
+                    {r.properties?.county && (
+                      <p className="text-xs text-muted-foreground">{r.properties.county} {r.properties.price_usd ? `· $${Number(r.properties.price_usd).toLocaleString()}` : ""}</p>
+                    )}
+                  </div>
+                  <Badge
+                    variant={
+                      r.status === "completed" ? "default" :
+                      r.status === "cancelled" ? "destructive" :
+                      r.status === "assigned" || r.status === "in_progress" ? "secondary" : "outline"
+                    }
+                  >
+                    {r.status}
+                  </Badge>
+                </div>
               </div>
-              <Badge
-                variant={
-                  r.status === "completed" ? "default" :
-                  r.status === "cancelled" ? "destructive" :
-                  r.status === "assigned" || r.status === "in_progress" ? "secondary" : "outline"
-                }
-              >
-                {r.status}
-              </Badge>
             </div>
             <div className="text-sm">
               <p>{r.requester_name} · {r.requester_phone} {r.requester_email ? `· ${r.requester_email}` : ""}</p>
