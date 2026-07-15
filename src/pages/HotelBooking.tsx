@@ -96,8 +96,17 @@ const HotelBooking = () => {
 
   const confirmBooking = async () => {
     if (!user) return;
+    // Enforce room capacity — cannot book more guests than the room supports.
+    if (room?.guests && guestsN > Number(room.guests)) {
+      toast({
+        title: "Too many guests",
+        description: `This room fits up to ${room.guests} guests. Please adjust your search.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setLoading(true);
-    const { data: booking, error } = await supabase.from("hotel_bookings").insert({
+    const { error } = await supabase.from("hotel_bookings").insert({
       hotel_id: id, room_id: roomId, guest_id: user.id,
       guest_name: guestName, guest_phone: guestPhone, guest_email: guestEmail || null,
       check_in: checkIn, check_out: checkOut, guests: guestsN, rooms: 1,
@@ -108,14 +117,8 @@ const HotelBooking = () => {
     setLoading(false);
     if (error) { toast({ title: "Booking failed", description: error.message, variant: "destructive" }); return; }
 
-    if (hotel?.owner_id) {
-      await supabase.from("notifications").insert({
-        user_id: hotel.owner_id,
-        title: `New booking for ${hotel.name}`,
-        message: `${guestName} booked ${room?.name} (${checkIn} → ${checkOut}). Contact: ${guestPhone}${guestEmail ? " · " + guestEmail : ""}`,
-        type: "status_updates",
-      } as any);
-    }
+    // Owner + guest notifications are now created automatically by a DB trigger
+    // (notify_on_hotel_booking) that bypasses RLS. No manual insert needed here.
 
     toast({ title: "Booking submitted!", description: "The hotel will confirm your booking shortly." });
     navigate("/my-account");

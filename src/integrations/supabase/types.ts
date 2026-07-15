@@ -686,8 +686,11 @@ export type Database = {
       }
       hotels: {
         Row: {
+          about: string | null
           address: string
           amenities: Json | null
+          check_in_time: string
+          check_out_time: string
           city: string | null
           county: string
           cover_photo: string | null
@@ -698,16 +701,23 @@ export type Database = {
           id: string
           is_verified: boolean | null
           name: string
+          nearby_places: Json
           owner_id: string
           phone: string | null
           rating_count: number | null
           star_rating: number | null
           status: string
+          top_amenities: Json
+          total_rooms: number
           updated_at: string
+          why_guests_love: Json
         }
         Insert: {
+          about?: string | null
           address: string
           amenities?: Json | null
+          check_in_time?: string
+          check_out_time?: string
           city?: string | null
           county: string
           cover_photo?: string | null
@@ -718,16 +728,23 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           name: string
+          nearby_places?: Json
           owner_id: string
           phone?: string | null
           rating_count?: number | null
           star_rating?: number | null
           status?: string
+          top_amenities?: Json
+          total_rooms?: number
           updated_at?: string
+          why_guests_love?: Json
         }
         Update: {
+          about?: string | null
           address?: string
           amenities?: Json | null
+          check_in_time?: string
+          check_out_time?: string
           city?: string | null
           county?: string
           cover_photo?: string | null
@@ -738,12 +755,16 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           name?: string
+          nearby_places?: Json
           owner_id?: string
           phone?: string | null
           rating_count?: number | null
           star_rating?: number | null
           status?: string
+          top_amenities?: Json
+          total_rooms?: number
           updated_at?: string
+          why_guests_love?: Json
         }
         Relationships: []
       }

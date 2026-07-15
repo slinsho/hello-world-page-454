@@ -79,10 +79,6 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                       { to: "/hotel-dashboard/pricing", label: "Pricing Rules", icon: TrendingUp, color: "bg-pink-500" },
                       { to: "/hotel-dashboard/check-in", label: "Check-in / QR", icon: QrCode, color: "bg-cyan-500" },
                       { to: "/hotel-dashboard/reviews", label: "Reviews", icon: Star, color: "bg-yellow-500" },
-                      { to: "/hotel-dashboard/notifications", label: "Notifications", icon: Bell, color: "bg-red-500" },
-                      { to: "/hotel-dashboard/account", label: "Account", icon: User, color: "bg-slate-600" },
-                      { to: "/verification", label: "Verification", icon: ShieldCheck, color: "bg-teal-500" },
-                      { to: "/settings", label: "Settings", icon: Settings, color: "bg-zinc-500" },
                     ].map((it) => {
                       const Icon = it.icon;
                       return (

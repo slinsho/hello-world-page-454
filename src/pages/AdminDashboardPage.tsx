@@ -25,6 +25,7 @@ import { AdminLocationHierarchy } from "@/components/admin/AdminLocationHierarch
 import AdminHotels from "@/components/admin/AdminHotels";
 import AdminHotelBookings from "@/components/admin/AdminHotelBookings";
 import AdminInspections from "@/components/admin/AdminInspections";
+import AdminInspectionSettings from "@/components/admin/AdminInspectionSettings";
 import { Shield, LogOut, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,6 +171,7 @@ export default function AdminDashboardPage() {
       case "hotels": return <AdminHotels />;
       case "hotel-bookings": return <AdminHotelBookings />;
       case "inspections": return <AdminInspections />;
+      case "inspection-settings": return <AdminInspectionSettings />;
       default: return <AdminDashboard onNavigateTab={handleTabChange} />;
     }
   };

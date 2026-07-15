@@ -13,18 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, MapPin, FileSearch, HandCoins, ShieldCheck, Lock, Sparkles } from "lucide-react";
 import { notifyAdmins } from "@/lib/notifyAdmins";
 
+// NOTE: `inspection_type` must be one of: documents_legitimacy | help_me_buy
+// (DB CHECK constraint). "Location" tier removed at the user's request.
 const TIERS = [
   {
-    key: "location",
-    label: "Location Check",
-    tabLabel: "Location",
-    desc: "We physically visit the property to confirm it exists and is truly available for sale or rent.",
-    price: 10,
-    icon: MapPin,
-    features: ["On-site visit by our agent", "Photo & video proof", "Availability confirmation", "Report within 48 hours"],
-  },
-  {
-    key: "legal",
+    key: "documents_legitimacy",
     label: "Legal Documents Check",
     tabLabel: "Legal",
     desc: "We verify ownership documents, title deed, and confirm the property's legal legitimacy.",
@@ -33,8 +26,8 @@ const TIERS = [
     features: ["Title deed verification", "Ownership confirmation", "Encumbrance check", "Detailed legal report"],
   },
   {
-    key: "help_buy",
-    label: "Help Me Buy",
+    key: "help_me_buy",
+    label: "Help Me Buy — Concierge",
     tabLabel: "Concierge",
     desc: "Full end-to-end purchase assistance from negotiation to hand-over. Fee: 4% of the property price.",
     price: 0,
@@ -49,9 +42,10 @@ const PropertyInspection = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [property, setProperty] = useState<any>(null);
-  const [tier, setTier] = useState<string>("location");
+  const [tier, setTier] = useState<string>("documents_legitimacy");
   const [form, setForm] = useState({ full_name: "", phone: "", email: "", preferred_date: "", notes: "", budget: "", payment_reference: "" });
   const [loading, setLoading] = useState(false);
+  const [banner, setBanner] = useState<{ image?: string; text?: string; headline?: string; subtext?: string } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -61,12 +55,23 @@ const PropertyInspection = () => {
         const { data: p } = await supabase.from("profiles").select("name, phone, email").eq("id", user.id).maybeSingle();
         if (p) setForm((f) => ({ ...f, full_name: p.name || "", phone: p.phone || "", email: p.email || "" }));
       }
+      const { data: settings } = await supabase.from("platform_settings").select("key,value").in("key", ["inspection_banner_image", "inspection_banner_text", "inspection_page_headline", "inspection_page_subtext"]);
+      const map: Record<string, string> = {};
+      (settings || []).forEach((s: any) => { map[s.key] = s.value; });
+      if (map.inspection_banner_image || map.inspection_banner_text || map.inspection_page_headline || map.inspection_page_subtext) {
+        setBanner({
+          image: map.inspection_banner_image,
+          text: map.inspection_banner_text,
+          headline: map.inspection_page_headline,
+          subtext: map.inspection_page_subtext,
+        });
+      }
     })();
   }, [propertyId, user]);
 
   const selectedTier = TIERS.find((t) => t.key === tier);
   const helpBuyFee = property ? +(Number(property.price_usd) * 0.04).toFixed(2) : 0;
-  const fee = selectedTier?.key === "help_buy" ? helpBuyFee : selectedTier?.price || 0;
+  const fee = selectedTier?.key === "help_me_buy" ? helpBuyFee : selectedTier?.price || 0;
 
   const submit = async () => {
     if (!user) { navigate("/auth"); return; }
@@ -113,6 +118,23 @@ const PropertyInspection = () => {
       </div>
 
       <main className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+        {/* Admin-editable hero */}
+        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/70 text-primary-foreground p-5 shadow-xl relative">
+          <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2">
+              <ShieldCheck className="w-3 h-3" /> Verified inspectors
+            </div>
+            <h1 className="text-xl font-extrabold leading-tight">
+              {banner?.headline || "Buy with total confidence"}
+            </h1>
+            <p className="text-xs opacity-90 mt-1.5 leading-relaxed">
+              {banner?.subtext || "Our licensed inspectors verify the legal papers and negotiate on your behalf so you never overpay."}
+            </p>
+          </div>
+        </div>
+
         {property && (
           <Card className="overflow-hidden border-0 shadow-lg rounded-2xl">
             <CardContent className="p-0">
@@ -126,7 +148,7 @@ const PropertyInspection = () => {
                   <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> {property.county}
                   </p>
-                  <p className="text-primary font-bold text-sm mt-0.5">${Number(property.price_usd).toLocaleString()}</p>
+                  <p className="text-primary font-bold text-sm mt-0.5">${Number(property.price_usd || 0).toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
@@ -134,7 +156,7 @@ const PropertyInspection = () => {
         )}
 
         <Tabs value={tier} onValueChange={setTier} className="w-full">
-          <TabsList className="grid grid-cols-3 w-full h-auto p-1 rounded-2xl bg-muted">
+          <TabsList className="grid grid-cols-2 w-full h-auto p-1 rounded-2xl bg-muted">
             {TIERS.map((t) => {
               const Icon = t.icon;
               return (
@@ -169,7 +191,7 @@ const PropertyInspection = () => {
                       <div className="text-right">
                         <p className="text-[10px] text-muted-foreground uppercase">Fee</p>
                         <p className="text-primary font-bold text-lg leading-none">
-                          {t.key === "help_buy" ? (property ? `$${helpBuyFee}` : "4%") : `$${t.price}`}
+                          {t.key === "help_me_buy" ? (property ? `$${helpBuyFee}` : "4%") : `$${t.price}`}
                         </p>
                       </div>
                     </div>
@@ -189,6 +211,18 @@ const PropertyInspection = () => {
           })}
         </Tabs>
 
+        {/* Admin-editable promo banner (set via platform_settings keys: inspection_banner_image, inspection_banner_text). */}
+        {banner && (banner.image || banner.text) && (
+          <div className="rounded-2xl overflow-hidden border shadow-sm bg-card">
+            {banner.image && (
+              <img src={banner.image} alt="Promo banner" className="w-full h-32 object-cover" />
+            )}
+            {banner.text && (
+              <div className="p-3 text-sm text-foreground/90">{banner.text}</div>
+            )}
+          </div>
+        )}
+
         <Card className="rounded-2xl border-0 shadow-md">
           <CardContent className="p-4 space-y-3">
             <h2 className="font-bold text-sm">Your Details</h2>
@@ -200,7 +234,7 @@ const PropertyInspection = () => {
                 <Label className="text-xs text-muted-foreground">Preferred Inspection Date</Label>
                 <Input type="date" value={form.preferred_date} onChange={(e) => setForm({ ...form, preferred_date: e.target.value })} className="rounded-xl" />
               </div>
-              {tier === "help_buy" && (
+              {tier === "help_me_buy" && (
                 <Input type="number" placeholder="Your Budget (USD)" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="rounded-xl" />
               )}
               <Textarea placeholder="Additional notes for our team..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-xl" />

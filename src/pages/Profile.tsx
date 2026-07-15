@@ -70,11 +70,21 @@ const Profile = () => {
 
   useEffect(() => {
     if (!user && !profileId) { navigate("/auth"); return; }
+    // Customers get their own dedicated account page — never the owner/agent layout.
+    if (user && !profileId) {
+      supabase.from("profiles").select("role").eq("id", user.id).maybeSingle().then(({ data }) => {
+        if (data?.role === "customer") { navigate("/my-account", { replace: true }); return; }
+        fetchProfile();
+        fetchProperties();
+        fetchAgencyInfo();
+        checkAdminStatus();
+      });
+      return;
+    }
     fetchProfile();
     fetchProperties();
     fetchAgencyInfo();
     if (user) checkAdminStatus();
-    // Fetch privacy settings for other users
     if (profileId && profileId !== user?.id) {
       fetchUserPrivacySettings(profileId).then(setPrivacySettings);
     }

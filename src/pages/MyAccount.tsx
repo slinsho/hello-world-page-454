@@ -90,66 +90,80 @@ const MyAccount = () => {
     { key: "inquiries", label: "Activity", icon: MessageCircle, count: inquiries.length + offers.length },
   ];
 
+  const upcomingCount = bookings.filter((b) => ["pending", "confirmed", "checked_in"].includes(b.status)).length;
+  const totalSpent = bookings.reduce((s, b) => s + Number(b.total || 0), 0);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <SEOHead title="My Account" description="View your hotel bookings, saved properties, saved IDs and activity." />
 
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/60">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-2 px-3 pt-3 pb-1">
+      {/* Gradient hero header */}
+      <div className="relative bg-gradient-to-br from-primary via-primary to-primary/70 text-primary-foreground pt-3 pb-8 rounded-b-[2rem] shadow-lg">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate(-1)}
-              className="w-10 h-10 grid place-items-center rounded-full hover:bg-muted active:scale-95 transition-transform"
+              className="w-10 h-10 grid place-items-center rounded-full bg-white/15 backdrop-blur active:scale-95 transition-transform"
               aria-label="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex-1" />
-            <Link to="/settings" className="text-xs font-semibold text-primary px-3 py-2">
+            <Link to="/settings" className="text-xs font-semibold px-3 py-2 rounded-full bg-white/15 backdrop-blur">
               Settings
             </Link>
           </div>
-          <div className="px-4 pb-2 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-muted overflow-hidden grid place-items-center shrink-0">
+
+          <div className="mt-4 flex items-center gap-3">
+            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur ring-4 ring-white/30 overflow-hidden grid place-items-center shrink-0">
               {profile?.profile_photo_url ? (
                 <img src={profile.profile_photo_url} alt="" className="w-full h-full object-cover" />
               ) : (
-                <UserIcon className="w-5 h-5 text-muted-foreground" />
+                <UserIcon className="w-7 h-7" />
               )}
             </div>
-            <div className="min-w-0">
-              <h1 className="text-lg font-bold tracking-tight truncate">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Welcome back</p>
+              <h1 className="text-xl font-bold tracking-tight truncate">
                 {profile?.name || user?.email?.split("@")[0] || "My account"}
               </h1>
-              <p className="text-[11px] text-muted-foreground truncate">{profile?.email || user?.email}</p>
+              <p className="text-[11px] opacity-80 truncate">{profile?.email || user?.email}</p>
             </div>
           </div>
 
-          {/* Tab strip */}
-          <div className="flex gap-1 px-2 pb-2 overflow-x-auto scrollbar-hide">
-            {TABS.map((t) => {
-              const active = tab === t.key;
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-semibold transition-all active:scale-95 ${
-                    active ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted/60 text-foreground/70"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {t.label}
-                  {t.count > 0 && (
-                    <span className={`text-[10px] px-1.5 rounded-full ${active ? "bg-primary-foreground/25" : "bg-background"}`}>
-                      {t.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          {/* Stat mini-cards */}
+          <div className="grid grid-cols-3 gap-2 mt-5">
+            <StatMini label="Upcoming" value={upcomingCount} />
+            <StatMini label="Saved" value={favProps.length} />
+            <StatMini label="Spent" value={`$${totalSpent.toFixed(0)}`} />
           </div>
+        </div>
+      </div>
+
+      {/* Tab strip */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/60 -mt-1">
+        <div className="max-w-2xl mx-auto flex gap-1 px-2 py-2 overflow-x-auto scrollbar-hide">
+          {TABS.map((t) => {
+            const active = tab === t.key;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full text-xs font-semibold transition-all active:scale-95 ${
+                  active ? "bg-primary text-primary-foreground shadow-md" : "bg-muted/60 text-foreground/70"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {t.label}
+                {t.count > 0 && (
+                  <span className={`text-[10px] px-1.5 rounded-full ${active ? "bg-primary-foreground/25" : "bg-background"}`}>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -332,6 +346,13 @@ const MyAccount = () => {
     </div>
   );
 };
+
+const StatMini = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="bg-white/15 backdrop-blur rounded-2xl px-3 py-2.5 text-center">
+    <p className="text-lg font-extrabold leading-none tabular-nums">{value}</p>
+    <p className="text-[10px] opacity-80 mt-1 uppercase tracking-wider font-semibold">{label}</p>
+  </div>
+);
 
 const EmptyBlock = ({ icon: Icon, title, cta, onClick }: { icon: any; title: string; cta: string; onClick: () => void }) => (
   <div className="rounded-2xl border border-dashed border-border p-8 text-center">

@@ -38,7 +38,9 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [userCounty, setUserCounty] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(() => {
+    try { return localStorage.getItem("cached_user_role"); } catch { return null; }
+  });
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState("");
   
@@ -89,11 +91,16 @@ const Navbar = () => {
   }, [location.pathname]);
   
   type NavItem = { path: string; label: string; icon: any; requiresAuth?: boolean; guestOnly?: boolean };
-  const uploadItem: NavItem | null = userRole === "hotel"
-    ? { path: "/hotel-dashboard", label: "Hotel", icon: Upload, requiresAuth: true }
-    : userRole === "customer"
-      ? null
-      : { path: "/upload", label: "Add", icon: Upload, requiresAuth: true };
+  // Do NOT render an upload/hotel item until we know the user's role (prevents flicker).
+  const uploadItem: NavItem | null = !user
+    ? { path: "/upload", label: "Add", icon: Upload, requiresAuth: true }
+    : userRole === "hotel"
+      ? { path: "/hotel-dashboard", label: "Hotel", icon: Upload, requiresAuth: true }
+      : userRole === "customer"
+        ? null
+        : userRole // property_owner / agent
+          ? { path: "/upload", label: "Add", icon: Upload, requiresAuth: true }
+          : null; // role not loaded yet — hide until known
   const navItems: NavItem[] = [
     { path: "/", label: "Home", icon: Home },
     { path: "/explore", label: "Search", icon: Search },
@@ -112,6 +119,8 @@ const Navbar = () => {
       fetchUnreadMessages();
     } else {
       setUserCounty(null);
+      setUserRole(null);
+      try { localStorage.removeItem("cached_user_role"); } catch {}
     }
   }, [user, location.pathname]);
 
@@ -151,6 +160,7 @@ const Navbar = () => {
       }
       if (data?.role) {
         setUserRole(data.role);
+        try { localStorage.setItem("cached_user_role", data.role); } catch {}
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -259,10 +269,8 @@ const Navbar = () => {
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 flex h-16 items-center gap-6">
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Home">
-            <img src="/lprop-logo.png" alt="" className="h-9 w-9 rounded-lg" onError={(e) => (e.currentTarget.style.display = 'none')} />
-          </Link>
+
+
 
           {/* Desktop Search */}
           <form onSubmit={handleSearch} className="flex-1 max-w-xl">
@@ -363,9 +371,11 @@ const Navbar = () => {
                 </span>
               )}
             </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
-              <BarChart3 className="h-4 w-4" />
-            </Button>
+            {userRole !== "customer" && userRole !== null && (
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
+                <BarChart3 className="h-4 w-4" />
+              </Button>
+            )}
             <ThemeToggle />
             {!user && (
               <Button variant="default" size="sm" asChild className="ml-2">
@@ -536,9 +546,11 @@ const Navbar = () => {
                     </span>
                   )}
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
-                  <BarChart3 className="h-4 w-4" />
-                </Button>
+                {userRole !== "customer" && userRole !== null && (
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOwnerFeatureClick("Dashboard", "/dashboard")}>
+                    <BarChart3 className="h-4 w-4" />
+                  </Button>
+                )}
                 <ThemeToggle size="sm" />
               </div>
             </div>
@@ -721,16 +733,6 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Mobile Top Nav - Other Pages (hidden on desktop now) */}
-      {!isHomePage && (
-        <nav className="md:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur overflow-x-hidden">
-          <div className="px-4 flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2" aria-label="Home">
-              <img src="/lprop-logo.png" alt="" className="h-8 w-8 rounded-lg" onError={(e) => (e.currentTarget.style.display = 'none')} />
-            </Link>
-          </div>
-        </nav>
-      )}
 
       {/* Bottom Navigation - Mobile Only */}
       {!location.pathname.startsWith("/hotel-dashboard") && (

@@ -67,6 +67,7 @@ export function AdminNavigation({ activeTab, onTabChange, pendingCounts }: Admin
         { value: "hotels", label: "Hotels", icon: Building2 },
         { value: "hotel-bookings", label: "Hotel Bookings", icon: CalendarCheck },
         { value: "inspections", label: "Inspections", icon: Search },
+        { value: "inspection-settings", label: "Inspection Page", icon: FileText },
       ],
     },
     {
