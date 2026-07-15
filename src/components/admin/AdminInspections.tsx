@@ -37,7 +37,7 @@ const AdminInspections = () => {
   const load = async () => {
     setLoading(true);
     const { data } = await (supabase.from("property_inspections") as any)
-      .select("*, properties(title, price_usd, county)")
+      .select("*, properties(id, title, price_usd, county, photos)")
       .order("created_at", { ascending: false });
     setItems((data as any[]) || []);
     setLoading(false);
