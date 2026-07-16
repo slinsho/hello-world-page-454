@@ -20,31 +20,39 @@ interface RecommendedPropertiesProps {
   currentPropertyId: string;
   county: string;
   propertyType: string;
+  listingType: string;
 }
 
-const RecommendedProperties = ({ currentPropertyId, county, propertyType }: RecommendedPropertiesProps) => {
+const RecommendedProperties = ({ currentPropertyId, county, propertyType, listingType }: RecommendedPropertiesProps) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecommended = async () => {
-      // Fetch properties from same county or same type, excluding current property
-      const { data } = await supabase
+      // Strict match: same county AND same listing type (e.g. Nimba + for_sale)
+      let { data } = await supabase
         .from("properties")
         .select("id, title, property_type, listing_type, price_usd, county, photos")
         .eq("status", "active")
+        .eq("county", county)
+        .eq("listing_type", listingType)
         .neq("id", currentPropertyId)
-        .or(`county.eq.${county},property_type.eq.${propertyType}`)
         .limit(6);
 
-      if (data) {
-        setProperties(data);
+      // Prefer same property_type first, then others in the same county+listing_type
+      if (data && data.length) {
+        data = [
+          ...data.filter((p) => p.property_type === propertyType),
+          ...data.filter((p) => p.property_type !== propertyType),
+        ].slice(0, 6);
       }
+
+      setProperties(data || []);
       setLoading(false);
     };
 
     fetchRecommended();
-  }, [currentPropertyId, county, propertyType]);
+  }, [currentPropertyId, county, propertyType, listingType]);
 
   if (loading || properties.length === 0) return null;
 
