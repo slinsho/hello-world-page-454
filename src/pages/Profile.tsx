@@ -525,6 +525,8 @@ const Profile = () => {
         <div className="px-4 mt-3">
           {ownerTab === "promotions" && isOwnProfile ? (
             <OwnerPromotionsTab properties={properties} />
+          ) : ownerTab === "bookings" && isOwnProfile && user ? (
+            <HotelBookingsList userId={user.id} />
           ) : (
             <>
               <div className="flex items-center justify-between mb-3">
