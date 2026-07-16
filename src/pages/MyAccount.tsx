@@ -87,7 +87,8 @@ const MyAccount = () => {
   };
 
   const TABS: { key: Tab; label: string; icon: any; count: number }[] = [
-    { key: "bookings", label: "Bookings", icon: CalendarDays, count: bookings.length },
+    { key: "bookings", label: "Hotel Bookings", icon: Hotel, count: bookings.length },
+    { key: "inspections", label: "Inspections", icon: ClipboardCheck, count: inspections.length },
     { key: "favorites", label: "Saved", icon: Heart, count: favProps.length },
     { key: "ids", label: "IDs", icon: IdCard, count: ids.length },
     { key: "inquiries", label: "Activity", icon: MessageCircle, count: inquiries.length + offers.length },
