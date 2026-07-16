@@ -35,7 +35,7 @@ const RecommendedProperties = ({ currentPropertyId, county, propertyType, listin
         .select("id, title, property_type, listing_type, price_usd, county, photos")
         .eq("status", "active")
         .eq("county", county)
-        .eq("listing_type", listingType)
+        .eq("listing_type", listingType as any)
         .neq("id", currentPropertyId)
         .limit(6);
 
