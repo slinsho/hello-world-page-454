@@ -37,6 +37,7 @@ const MyAccount = () => {
   const [favProps, setFavProps] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
+  const [inspections, setInspections] = useState<any[]>([]);
   const [ids, setIds] = useState(loadIds());
   const [newId, setNewId] = useState({ name: "", type: "national_id", number: "" });
   const [profile, setProfile] = useState<any>(null);
@@ -45,18 +46,20 @@ const MyAccount = () => {
     if (loading) return;
     if (!user) { navigate("/auth"); return; }
     (async () => {
-      const [{ data: p }, { data: b }, { data: f }, { data: q }, { data: o }] = await Promise.all([
+      const [{ data: p }, { data: b }, { data: f }, { data: q }, { data: o }, { data: ins }] = await Promise.all([
         supabase.from("profiles").select("name,email,profile_photo_url,phone").eq("id", user.id).maybeSingle(),
         supabase.from("hotel_bookings").select("*, hotels(name,city,county,cover_photo), hotel_rooms(name)").eq("guest_id", user.id).order("created_at", { ascending: false }),
         supabase.from("favorites").select("*, properties(id,title,price_usd,photos,county)").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("property_inquiries").select("*, properties(title,photos)").eq("sender_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("property_offers").select("*, properties(title,photos)").eq("buyer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_inquiries").select("*, properties(id,title,photos,county,price_usd)").eq("sender_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_offers").select("*, properties(id,title,photos,county,price_usd)").eq("buyer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_inspections").select("*, properties(id,title,photos,county,price_usd)").eq("requester_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(p);
       setBookings(b || []);
       setFavProps(f || []);
       setInquiries(q || []);
       setOffers(o || []);
+      setInspections(ins || []);
     })();
   }, [user, loading, navigate]);
 
