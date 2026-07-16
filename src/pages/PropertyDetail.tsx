@@ -520,7 +520,7 @@ const PropertyDetail = () => {
 
           <div className="px-4 md:px-0">
             <LazyOnVisible minHeight={400} rootMargin="400px">
-              <RecommendedProperties currentPropertyId={property.id} county={property.county} propertyType={property.property_type} />
+              <RecommendedProperties currentPropertyId={property.id} county={property.county} propertyType={property.property_type} listingType={property.listing_type} />
             </LazyOnVisible>
           </div>
         </div>
