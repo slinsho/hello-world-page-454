@@ -180,6 +180,26 @@ const HotelRooms = () => {
                     {r.size_sqm && <span className="flex items-center gap-0.5"><Maximize2 className="w-2.5 h-2.5" />{r.size_sqm}m²</span>}
                     {r.bed_type && <span className="flex items-center gap-0.5 truncate"><BedDouble className="w-2.5 h-2.5" />{r.bed_type}</span>}
                   </div>
+                  {(() => {
+                    const AM_ICONS: Record<string, any> = { wifi: Wifi, pool: Waves, breakfast: Coffee, parking: Car, ac: Snowflake, gym: Dumbbell, restaurant: Utensils, tv: Tv };
+                    const AM_LABELS: Record<string, string> = { wifi: "WiFi", pool: "Pool", breakfast: "Breakfast", parking: "Parking", ac: "AC", gym: "Gym", restaurant: "Restaurant", tv: "TV" };
+                    const am = (r.amenities || {}) as Record<string, any>;
+                    const active = Object.keys(am).filter((k) => am[k]);
+                    if (!active.length) return null;
+                    return (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {active.slice(0, 5).map((k) => {
+                          const Ic = AM_ICONS[k] || Sparkles;
+                          return (
+                            <span key={k} className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                              <Ic className="w-2.5 h-2.5" />{AM_LABELS[k] || k}
+                            </span>
+                          );
+                        })}
+                        {active.length > 5 && <span className="text-[9px] text-muted-foreground px-1">+{active.length - 5}</span>}
+                      </div>
+                    );
+                  })()}
                   <div className="mt-1.5">
                     <span className="text-primary font-bold text-sm tabular-nums">${r.price_per_night}</span>
                     <span className="text-[10px] text-muted-foreground ml-1">/ night</span>
