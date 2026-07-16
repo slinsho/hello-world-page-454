@@ -510,10 +510,13 @@ const Profile = () => {
 
         {/* Tab switcher */}
         {isOwnProfile && (
-          <div className="px-4 mt-5 flex gap-0 border border-border rounded-lg w-fit">
+          <div className="px-4 mt-5 flex gap-0 border border-border rounded-lg w-fit overflow-x-auto">
             <button onClick={() => setOwnerTab("listings")} className={`px-3 py-2 text-xs font-medium transition-colors ${ownerTab === "listings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>My Properties</button>
             <button onClick={() => setOwnerTab("promotions")} className={`px-3 py-2 text-xs font-medium transition-colors border-l border-border ${ownerTab === "promotions" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>
               <Sparkles className="h-3 w-3 inline mr-1" />My Promotions
+            </button>
+            <button onClick={() => setOwnerTab("bookings")} className={`px-3 py-2 text-xs font-medium transition-colors border-l border-border whitespace-nowrap ${ownerTab === "bookings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>
+              <Hotel className="h-3 w-3 inline mr-1" />Hotel Bookings
             </button>
           </div>
         )}
