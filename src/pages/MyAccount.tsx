@@ -5,13 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
 import {
   ArrowLeft, CalendarDays, Heart, IdCard, MessageCircle, Plus, Trash2, ChevronRight,
-  Building2, User as UserIcon, Hotel, Home
+  Building2, User as UserIcon, Hotel, Home, ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
-type Tab = "bookings" | "favorites" | "ids" | "inquiries";
+type Tab = "bookings" | "favorites" | "ids" | "inquiries" | "inspections";
 
 const ID_TYPES = [
   { value: "national_id", label: "National ID" },
