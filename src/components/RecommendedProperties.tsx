@@ -89,7 +89,7 @@ const RecommendedProperties = ({ currentPropertyId, county, propertyType, listin
                 </p>
                 <h4 className="font-semibold text-sm line-clamp-1">{property.title}</h4>
                 <p className="text-primary font-bold text-sm mt-1">
-                  ${property.price_usd.toLocaleString()}
+                  ${Number(property.price_usd || 0).toLocaleString()}
                 </p>
               </CardContent>
             </Card>
