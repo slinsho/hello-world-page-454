@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings, Sparkles, AlertTriangle } from "lucide-react";
+import { Home, Building2, Store, Shield, Camera, User, MapPin, Phone, Mail, Trash2, Eye, ImagePlus, X, MessageSquare, Bed, Bath, Pencil, MoreVertical, Settings, Sparkles, AlertTriangle, Hotel } from "lucide-react";
+import { HotelBookingsList } from "@/components/HotelBookingsList";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +57,7 @@ const Profile = () => {
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropType, setCropType] = useState<"profile" | "cover">("profile");
   const [listingFilter, setListingFilter] = useState<"all" | "for_sale" | "for_rent" | "for_lease">("all");
-  const [ownerTab, setOwnerTab] = useState<"listings" | "promotions">("listings");
+  const [ownerTab, setOwnerTab] = useState<"listings" | "promotions" | "bookings">("listings");
   const [privacySettings, setPrivacySettings] = useState({ show_phone: true, show_email: true, show_location: true });
   const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
@@ -509,10 +510,13 @@ const Profile = () => {
 
         {/* Tab switcher */}
         {isOwnProfile && (
-          <div className="px-4 mt-5 flex gap-0 border border-border rounded-lg w-fit">
+          <div className="px-4 mt-5 flex gap-0 border border-border rounded-lg w-fit overflow-x-auto">
             <button onClick={() => setOwnerTab("listings")} className={`px-3 py-2 text-xs font-medium transition-colors ${ownerTab === "listings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>My Properties</button>
             <button onClick={() => setOwnerTab("promotions")} className={`px-3 py-2 text-xs font-medium transition-colors border-l border-border ${ownerTab === "promotions" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>
               <Sparkles className="h-3 w-3 inline mr-1" />My Promotions
+            </button>
+            <button onClick={() => setOwnerTab("bookings")} className={`px-3 py-2 text-xs font-medium transition-colors border-l border-border whitespace-nowrap ${ownerTab === "bookings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>
+              <Hotel className="h-3 w-3 inline mr-1" />Hotel Bookings
             </button>
           </div>
         )}
@@ -521,6 +525,8 @@ const Profile = () => {
         <div className="px-4 mt-3">
           {ownerTab === "promotions" && isOwnProfile ? (
             <OwnerPromotionsTab properties={properties} />
+          ) : ownerTab === "bookings" && isOwnProfile && user ? (
+            <HotelBookingsList userId={user.id} />
           ) : (
             <>
               <div className="flex items-center justify-between mb-3">

@@ -5,13 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
 import {
   ArrowLeft, CalendarDays, Heart, IdCard, MessageCircle, Plus, Trash2, ChevronRight,
-  Building2, User as UserIcon, Hotel, Home
+  Building2, User as UserIcon, Hotel, Home, ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
-type Tab = "bookings" | "favorites" | "ids" | "inquiries";
+type Tab = "bookings" | "favorites" | "ids" | "inquiries" | "inspections";
 
 const ID_TYPES = [
   { value: "national_id", label: "National ID" },
@@ -37,6 +37,7 @@ const MyAccount = () => {
   const [favProps, setFavProps] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
+  const [inspections, setInspections] = useState<any[]>([]);
   const [ids, setIds] = useState(loadIds());
   const [newId, setNewId] = useState({ name: "", type: "national_id", number: "" });
   const [profile, setProfile] = useState<any>(null);
@@ -45,18 +46,20 @@ const MyAccount = () => {
     if (loading) return;
     if (!user) { navigate("/auth"); return; }
     (async () => {
-      const [{ data: p }, { data: b }, { data: f }, { data: q }, { data: o }] = await Promise.all([
+      const [{ data: p }, { data: b }, { data: f }, { data: q }, { data: o }, { data: ins }] = await Promise.all([
         supabase.from("profiles").select("name,email,profile_photo_url,phone").eq("id", user.id).maybeSingle(),
         supabase.from("hotel_bookings").select("*, hotels(name,city,county,cover_photo), hotel_rooms(name)").eq("guest_id", user.id).order("created_at", { ascending: false }),
         supabase.from("favorites").select("*, properties(id,title,price_usd,photos,county)").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("property_inquiries").select("*, properties(title,photos)").eq("sender_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("property_offers").select("*, properties(title,photos)").eq("buyer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_inquiries").select("*, properties(id,title,photos,county,price_usd)").eq("sender_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_offers").select("*, properties(id,title,photos,county,price_usd)").eq("buyer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("property_inspections").select("*, properties(id,title,photos,county,price_usd)").eq("requester_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(p);
       setBookings(b || []);
       setFavProps(f || []);
       setInquiries(q || []);
       setOffers(o || []);
+      setInspections(ins || []);
     })();
   }, [user, loading, navigate]);
 
@@ -84,7 +87,8 @@ const MyAccount = () => {
   };
 
   const TABS: { key: Tab; label: string; icon: any; count: number }[] = [
-    { key: "bookings", label: "Bookings", icon: CalendarDays, count: bookings.length },
+    { key: "bookings", label: "Hotel Bookings", icon: Hotel, count: bookings.length },
+    { key: "inspections", label: "Inspections", icon: ClipboardCheck, count: inspections.length },
     { key: "favorites", label: "Saved", icon: Heart, count: favProps.length },
     { key: "ids", label: "IDs", icon: IdCard, count: ids.length },
     { key: "inquiries", label: "Activity", icon: MessageCircle, count: inquiries.length + offers.length },
@@ -300,16 +304,25 @@ const MyAccount = () => {
                   <p className="text-xs text-muted-foreground px-1">No inquiries sent yet.</p>
                 )}
                 {inquiries.map((q: any) => (
-                  <div key={q.id} className="p-3 rounded-2xl bg-card border border-border">
-                    <div className="flex items-center gap-2">
-                      <Home className="w-3.5 h-3.5 text-muted-foreground" />
-                      <p className="text-sm font-semibold truncate flex-1">{q.properties?.title || "Property"}</p>
+                  <Link
+                    to={q.properties?.id ? `/property/${q.properties.id}` : "#"}
+                    key={q.id}
+                    className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition"
+                  >
+                    <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden shrink-0">
+                      {q.properties?.photos?.[0] ? (
+                        <img src={q.properties.photos[0]} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center"><Home className="w-4 h-4 text-muted-foreground" /></div>
+                      )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{q.message}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1.5">
-                      {new Date(q.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{q.properties?.title || "Property"}</p>
+                      {q.properties?.county && <p className="text-[10px] text-muted-foreground">{q.properties.county}</p>}
+                      <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{q.message}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{new Date(q.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -323,23 +336,63 @@ const MyAccount = () => {
                   <p className="text-xs text-muted-foreground px-1">No offers made yet.</p>
                 )}
                 {offers.map((o: any) => (
-                  <div key={o.id} className="p-3 rounded-2xl bg-card border border-border">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold truncate">{o.properties?.title || "Property"}</p>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted">
-                        {o.status}
-                      </span>
+                  <Link
+                    to={o.properties?.id ? `/property/${o.properties.id}` : "#"}
+                    key={o.id}
+                    className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition"
+                  >
+                    <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden shrink-0">
+                      {o.properties?.photos?.[0] ? (
+                        <img src={o.properties.photos[0]} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center"><Home className="w-4 h-4 text-muted-foreground" /></div>
+                      )}
                     </div>
-                    <p className="text-primary font-bold text-sm mt-1 tabular-nums">
-                      ${Number(o.offer_amount_usd).toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {new Date(o.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold truncate">{o.properties?.title || "Property"}</p>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted shrink-0">{o.status}</span>
+                      </div>
+                      {o.properties?.county && <p className="text-[10px] text-muted-foreground">{o.properties.county}</p>}
+                      <p className="text-primary font-bold text-sm mt-0.5 tabular-nums">${Number(o.offer_amount_usd || 0).toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {tab === "inspections" && (
+          <div className="space-y-2.5">
+            {inspections.length === 0 && (
+              <EmptyBlock icon={ClipboardCheck} title="No inspection requests yet" cta="Request inspection" onClick={() => navigate("/explore")} />
+            )}
+            {inspections.map((ins: any) => (
+              <Link
+                to={ins.properties?.id ? `/property/${ins.properties.id}` : "#"}
+                key={ins.id}
+                className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition"
+              >
+                <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
+                  {ins.properties?.photos?.[0] ? (
+                    <img src={ins.properties.photos[0]} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full grid place-items-center"><Home className="w-5 h-5 text-muted-foreground" /></div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 py-0.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold truncate">{ins.properties?.title || "Property"}</p>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${statusStyle(ins.status)}`}>{ins.status}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{String(ins.inspection_type).split("_").join(" ")}</p>
+                  <p className="text-primary font-bold text-sm mt-1 tabular-nums">${Number(ins.fee_usd || 0).toFixed(2)}</p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(ins.created_at).toLocaleDateString()}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </main>
