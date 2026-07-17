@@ -213,7 +213,7 @@ export function AdminContentModeration() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {property.owner_name} · {property.county} · ${property.price_usd.toLocaleString()}
+                    {property.owner_name} · {property.county} · ${Number(property.price_usd || 0).toLocaleString()}
                   </p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {property.property_type} · {property.listing_type.replace("_", " ")}

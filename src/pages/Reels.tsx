@@ -233,7 +233,7 @@ const Reels = () => {
   }, [toast]);
 
   const handleWhatsApp = (reel: Reel) => {
-    const msg = `Hi, I'm interested in your property "${reel.title}" listed at $${reel.price_usd.toLocaleString()} (${formatLRD(reel.price_usd)}).`;
+    const msg = `Hi, I'm interested in your property "${reel.title}" listed at $${Number(reel.price_usd || 0).toLocaleString()} (${formatLRD(reel.price_usd)}).`;
     window.open(formatWhatsAppLink(reel.contact_phone, msg), "_blank");
   };
 
@@ -412,10 +412,10 @@ const Reels = () => {
                     </div>
                     <div className="flex items-baseline gap-2">
                       <span className="text-xl font-bold text-primary">
-                        {showLRD ? formatLRD(reel.price_usd) : `$${reel.price_usd.toLocaleString()}`}
+                        {showLRD ? formatLRD(reel.price_usd) : `$${Number(reel.price_usd || 0).toLocaleString()}`}
                       </span>
                       <span className="text-xs text-white/60">
-                        {showLRD ? `$${reel.price_usd.toLocaleString()}` : formatLRD(reel.price_usd)}
+                        {showLRD ? `$${Number(reel.price_usd || 0).toLocaleString()}` : formatLRD(reel.price_usd)}
                       </span>
                     </div>
                   </Link>

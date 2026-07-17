@@ -74,8 +74,8 @@ const PropertyCard = ({ property, priority = false, variant = "featured", ctaVar
   const rentSuffix = property.listing_type === "for_rent" && property.rent_period
     ? (property.rent_period === "per_day" ? "/day" : property.rent_period === "per_year" ? "/yr" : "/mo")
     : "";
-  const priceLabel = (showLRD ? formatLRD(property.price_usd) : `$${property.price_usd.toLocaleString()}`) + rentSuffix;
-  const secondaryPrice = (showLRD ? `$${property.price_usd.toLocaleString()}` : formatLRD(property.price_usd)) + rentSuffix;
+  const priceLabel = (showLRD ? formatLRD(property.price_usd) : `$${Number(property.price_usd || 0).toLocaleString()}`) + rentSuffix;
+  const secondaryPrice = (showLRD ? `$${Number(property.price_usd || 0).toLocaleString()}` : formatLRD(property.price_usd)) + rentSuffix;
 
   return (
     <Link to={`/property/${property.id}`} className="block">
@@ -262,7 +262,7 @@ const PropertyCard = ({ property, priority = false, variant = "featured", ctaVar
               className="rounded-full gap-2 bg-background border-border text-foreground hover:bg-muted shrink-0"
               onClick={(e) => {
                 e.preventDefault();
-                const msg = `Hi, I'm interested in your property "${property.title}" listed at $${property.price_usd.toLocaleString()} (${formatLRD(property.price_usd)}).`;
+                const msg = `Hi, I'm interested in your property "${property.title}" listed at $${Number(property.price_usd || 0).toLocaleString()} (${formatLRD(property.price_usd)}).`;
                 window.open(formatWhatsAppLink(property.contact_phone!, msg), "_blank");
               }}
             >

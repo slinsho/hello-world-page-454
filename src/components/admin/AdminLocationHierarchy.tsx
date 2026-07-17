@@ -268,7 +268,7 @@ export function AdminLocationHierarchy() {
                     {p.property_type} • {p.listing_type.replace("_", " ")}
                   </p>
                   <p className="text-sm font-semibold text-primary mt-1">
-                    ${p.price_usd.toLocaleString()}
+                    ${Number(p.price_usd || 0).toLocaleString()}
                   </p>
                   {(p.street || p.nearest_landmark) && (
                     <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">

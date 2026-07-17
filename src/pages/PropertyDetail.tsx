@@ -83,7 +83,7 @@ const PropertyDetail = () => {
   const handleCall = (phoneNumber?: string) => { window.location.href = `tel:${phoneNumber || property.contact_phone}`; };
   const handleWhatsApp = (phoneNumber?: string) => {
     const phone = phoneNumber || property.contact_phone;
-    const msg = `Hi, I'm interested in your property "${property.title}" listed at $${property.price_usd.toLocaleString()} (${formatLRD(property.price_usd)}) in ${property.county}.`;
+    const msg = `Hi, I'm interested in your property "${property.title}" listed at $${Number(property.price_usd || 0).toLocaleString()} (${formatLRD(property.price_usd)}) in ${property.county}.`;
     window.open(formatWhatsAppLink(phone, msg), '_blank');
   };
   const handleShare = async () => {
@@ -106,7 +106,7 @@ const PropertyDetail = () => {
     <div className="bg-card rounded-2xl border border-border/50 p-6 space-y-5 sticky top-24">
       <div>
         <p className="text-primary text-3xl font-bold">
-          ${property.price_usd.toLocaleString()}
+          ${Number(property.price_usd || 0).toLocaleString()}
           <span className="text-sm font-normal text-muted-foreground">{isRentOrLease ? '/month' : ''}</span>
         </p>
         <p className="text-sm text-muted-foreground">{formatLRD(property.price_usd)}</p>
@@ -164,7 +164,7 @@ const PropertyDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28 md:pb-8">
-      <SEOHead title={`${property.title} - ${property.county}`} description={property.description || `${property.property_type} ${property.listing_type === 'for_rent' ? 'for rent' : 'for sale'} in ${property.county} at $${property.price_usd.toLocaleString()}`} ogImage={property.photos?.[0]} ogType="article" canonical={`${window.location.origin}/property/${property.id}`} />
+      <SEOHead title={`${property.title} - ${property.county}`} description={property.description || `${property.property_type} ${property.listing_type === 'for_rent' ? 'for rent' : 'for sale'} in ${property.county} at $${Number(property.price_usd || 0).toLocaleString()}`} ogImage={property.photos?.[0]} ogType="article" canonical={`${window.location.origin}/property/${property.id}`} />
       <PropertyJsonLd property={property} />
 
       {/* Desktop Navbar */}
@@ -261,7 +261,7 @@ const PropertyDetail = () => {
             {/* Price — the hero element */}
             <div className="mt-4 bg-primary/10 border border-primary/20 rounded-2xl p-4">
               <p className="text-primary text-3xl font-extrabold tracking-tight">
-                ${property.price_usd.toLocaleString()}
+                ${Number(property.price_usd || 0).toLocaleString()}
                 {isRentOrLease && <span className="text-base font-medium opacity-70">/mo</span>}
               </p>
               <p className="text-sm text-muted-foreground mt-0.5">{formatLRD(property.price_usd)}</p>
