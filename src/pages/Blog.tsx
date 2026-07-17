@@ -176,7 +176,7 @@ export default function Blog() {
             </p>
 
             {/* Search + filters */}
-            <div className="mt-5 flex flex-col gap-3">
+            <div className="mt-3 flex flex-col gap-2">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -206,13 +206,13 @@ export default function Blog() {
         {/* ===== FEATURED ===== */}
         {featured && (
           <section className="border-b border-border/60">
-            <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-8">
 
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Featured</span>
                 <div className="flex-1 h-px bg-border/60" />
               </div>
-              <Link to={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center">
+              <Link to={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-4 md:gap-10 items-center">
                 {featured.cover_image && (
                   <div className="relative aspect-[16/10] md:aspect-[4/3] rounded-xl overflow-hidden border border-border/60 bg-card">
                     <img
@@ -259,7 +259,7 @@ export default function Blog() {
 
         {/* ===== ARTICLES GRID ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-8">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 All articles · {rest.length}
@@ -335,7 +335,7 @@ export default function Blog() {
 
         {/* ===== NEWSLETTER + SOCIAL ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-10 grid md:grid-cols-2 gap-8 items-start">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-10 grid md:grid-cols-2 gap-8 items-start">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Newsletter</span>
               <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-3">
