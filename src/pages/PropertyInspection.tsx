@@ -163,28 +163,45 @@ const PropertyInspection = () => {
       </div>
 
       <main className="max-w-3xl mx-auto px-4 py-4 space-y-5">
-        {/* Hero — admin-editable */}
-        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-red-600 via-red-600 to-red-700 text-white p-6 shadow-xl relative">
-          <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        {/* Hero — compact, admin-editable */}
+        <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-red-700 text-white p-4 shadow-lg relative">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
           <div className="relative">
-            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3">
-              <ShieldCheck className="w-3 h-3" /> Verified inspection service
+            <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider mb-2">
+              <ShieldCheck className="w-2.5 h-2.5" /> Verified service
             </div>
-            <h1 className="text-2xl font-extrabold leading-tight">
+            <h1 className="text-lg font-extrabold leading-tight">
               {settings.inspection_hero_headline || "Buy with total confidence"}
             </h1>
-            <p className="text-sm opacity-95 mt-2 leading-relaxed">
-              {settings.inspection_hero_subtext || "Our licensed inspectors verify the legal papers and negotiate on your behalf so you never overpay."}
+            <p className="text-[12px] opacity-95 mt-1 leading-snug">
+              {settings.inspection_hero_subtext || "Our licensed inspectors verify legal papers and negotiate on your behalf."}
             </p>
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
               {chips.map((c) => (
-                <div key={c} className="inline-flex items-center gap-1 bg-white/15 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-semibold">
-                  <BadgeCheck className="w-3 h-3" /> {c}
+                <div key={c} className="inline-flex items-center gap-1 bg-white/15 backdrop-blur px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                  <BadgeCheck className="w-2.5 h-2.5" /> {c}
                 </div>
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Trust strip */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: Award, label: "Licensed", sub: "Inspectors" },
+            { icon: Clock, label: "48-Hour", sub: "Turnaround" },
+            { icon: Lock, label: "Money-Back", sub: "Guarantee" },
+          ].map((t, i) => {
+            const Ic = t.icon;
+            return (
+              <div key={i} className="rounded-xl border bg-card p-2.5 text-center">
+                <Ic className="w-4 h-4 text-primary mx-auto mb-1" />
+                <p className="text-[11px] font-bold leading-tight">{t.label}</p>
+                <p className="text-[9px] text-muted-foreground">{t.sub}</p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Property card */}
