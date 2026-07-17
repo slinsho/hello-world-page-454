@@ -386,6 +386,53 @@ const PropertyInspection = () => {
           </Card>
         )}
 
+        {/* Social proof */}
+        <div className="rounded-2xl bg-card border p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-bold">What buyers say</h3>
+          </div>
+          <div className="grid gap-2.5">
+            {[
+              { name: "James K.", county: "Montserrado", text: "Saved me from a fake title. Best $80 I ever spent.", stars: 5 },
+              { name: "Grace M.", county: "Nimba", text: "Their concierge negotiated $12k off the asking price.", stars: 5 },
+            ].map((t, i) => (
+              <div key={i} className="rounded-xl bg-muted/40 p-2.5">
+                <div className="flex items-center gap-1 mb-1">
+                  {Array.from({ length: t.stars }).map((_, s) => (
+                    <Star key={s} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                  ))}
+                </div>
+                <p className="text-xs leading-snug">"{t.text}"</p>
+                <p className="text-[10px] text-muted-foreground mt-1">— {t.name}, {t.county}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="rounded-2xl bg-card border p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageSquare className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-bold">Frequently asked</h3>
+          </div>
+          <div className="divide-y">
+            {[
+              { q: "How long does an inspection take?", a: "Legal checks: 24–48 hours. Full concierge: 3–5 business days." },
+              { q: "What if the property fails inspection?", a: "You get a full refund under our money-back guarantee." },
+              { q: "Do you cover properties outside Monrovia?", a: "Yes — we inspect properties across all 15 counties in Liberia." },
+            ].map((f, i) => (
+              <details key={i} className="py-2 group">
+                <summary className="text-xs font-semibold cursor-pointer list-none flex items-center justify-between">
+                  {f.q}
+                  <span className="text-primary group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
         {/* Footer guarantee */}
         {settings.inspection_footer_note && (
           <div className="rounded-2xl bg-green-500/10 border border-green-500/20 p-3 text-xs text-foreground/90 flex items-start gap-2">
