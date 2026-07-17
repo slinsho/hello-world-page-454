@@ -203,22 +203,39 @@ const HotelDetail = () => {
               <span className="text-xs text-muted-foreground">{rooms.length} total</span>
             </div>
             <div className="space-y-2.5">
-              {visibleRooms.map((r: any) => (
-                <Link key={r.id} to={`/hotels/${hotel.id}/rooms`} className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition">
-                  <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
-                    {r.photos?.[0] && <img src={r.photos[0]} alt="" className="w-full h-full object-cover" />}
-                  </div>
-                  <div className="flex-1 min-w-0 py-0.5">
-                    <h3 className="font-bold text-sm leading-tight truncate">{r.name}</h3>
-                    <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
-                      {r.guests && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{r.guests}</span>}
-                      {r.bed_type && <span className="flex items-center gap-1 capitalize"><BedDouble className="w-3 h-3" />{String(r.bed_type).split("_").join(" ")}</span>}
+              {visibleRooms.map((r: any) => {
+                const rAm = (r.amenities || {}) as Record<string, any>;
+                const rActive = Object.keys(rAm).filter((k) => rAm[k]);
+                return (
+                  <Link key={r.id} to={`/hotels/${hotel.id}/rooms`} className="flex gap-3 p-2.5 rounded-2xl bg-card border border-border active:scale-[0.99] transition">
+                    <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
+                      {r.photos?.[0] && <img src={r.photos[0]} alt="" className="w-full h-full object-cover" />}
                     </div>
-                    <p className="text-primary font-bold text-sm mt-1 tabular-nums">${Number(r.price_per_night)}<span className="text-[10px] font-normal text-muted-foreground">/night</span></p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground self-center shrink-0" />
-                </Link>
-              ))}
+                    <div className="flex-1 min-w-0 py-0.5">
+                      <h3 className="font-bold text-sm leading-tight truncate">{r.name}</h3>
+                      <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+                        {r.guests && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{r.guests}</span>}
+                        {r.bed_type && <span className="flex items-center gap-1 capitalize"><BedDouble className="w-3 h-3" />{String(r.bed_type).split("_").join(" ")}</span>}
+                      </div>
+                      {rActive.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {rActive.slice(0, 4).map((k) => {
+                            const Ic = AMENITY_ICONS[k] || Sparkles;
+                            return (
+                              <span key={k} className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                                <Ic className="w-2.5 h-2.5" />{AMENITY_LABELS[k] || k}
+                              </span>
+                            );
+                          })}
+                          {rActive.length > 4 && <span className="text-[9px] text-muted-foreground px-1">+{rActive.length - 4}</span>}
+                        </div>
+                      )}
+                      <p className="text-primary font-bold text-sm mt-1 tabular-nums">${Number(r.price_per_night)}<span className="text-[10px] font-normal text-muted-foreground">/night</span></p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground self-center shrink-0" />
+                  </Link>
+                );
+              })}
             </div>
             {rooms.length > 3 && (
               <button
