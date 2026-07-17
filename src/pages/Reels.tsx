@@ -321,10 +321,17 @@ const Reels = () => {
                   loop
                   muted={muted}
                   playsInline
-                  preload={Math.abs(idx - activeIdx) <= 1 ? "auto" : "none"}
+                  autoPlay={idx === activeIdx}
+                  preload={Math.abs(idx - activeIdx) <= 1 ? "auto" : "metadata"}
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    // Video failed to load (expired signed URL, network, unsupported codec).
+                    // Hide the broken element so the poster + overlay remain visible.
+                    (e.currentTarget as HTMLVideoElement).style.display = "none";
+                  }}
                   onClick={(e) => {
                     const v = e.currentTarget;
-                    if (v.paused) v.play(); else v.pause();
+                    if (v.paused) v.play().catch(() => {}); else v.pause();
                   }}
                 />
 
