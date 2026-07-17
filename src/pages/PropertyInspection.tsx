@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, MapPin, FileSearch, HandCoins, ShieldCheck, Lock, Sparkles,
-  Check, X, Wallet, BadgeCheck,
+  Check, X, Wallet, BadgeCheck, Star, Award, Users, Clock, MessageSquare,
 } from "lucide-react";
 import { notifyAdmins } from "@/lib/notifyAdmins";
 
