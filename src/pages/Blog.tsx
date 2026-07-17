@@ -162,17 +162,17 @@ export default function Blog() {
             }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-6 md:pt-10 md:pb-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-5">
+          <div className="relative max-w-6xl mx-auto px-4 md:px-8 pt-4 pb-4 md:pt-10 md:pb-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3 md:mb-5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Newsroom
             </div>
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05] max-w-3xl">
+            <h1 className="text-2xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.1] max-w-3xl">
               Insights on Liberia's<br className="hidden md:block" />
               <span className="text-muted-foreground">property market.</span>
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-5 max-w-xl leading-relaxed">
-              Long-form analysis, neighborhood guides, and product updates from the L-Prop team.
+            <p className="text-xs md:text-base text-muted-foreground mt-2 md:mt-5 max-w-xl leading-relaxed">
+              Neighborhood guides, market updates, and product news from L-Prop.
             </p>
 
             {/* Search + filters */}
