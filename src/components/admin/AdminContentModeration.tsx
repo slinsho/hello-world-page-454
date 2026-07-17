@@ -213,7 +213,7 @@ export function AdminContentModeration() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {property.owner_name} · {property.county} · ${property.price_usd.toLocaleString()}
+                    {property.owner_name} · {property.county} · ${Number(property.price_usd || 0).toLocaleString()}
                   </p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {property.property_type} · {property.listing_type.replace("_", " ")}
@@ -263,7 +263,7 @@ export function AdminContentModeration() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="text-muted-foreground">Type:</span> <span className="capitalize">{selectedProperty?.property_type}</span></div>
-              <div><span className="text-muted-foreground">Price:</span> ${selectedProperty?.price_usd.toLocaleString()}</div>
+              <div><span className="text-muted-foreground">Price:</span> ${Number(selectedProperty?.price_usd || 0).toLocaleString()}</div>
               <div><span className="text-muted-foreground">County:</span> {selectedProperty?.county}</div>
               <div><span className="text-muted-foreground">Owner:</span> {selectedProperty?.owner_name}</div>
               <div><span className="text-muted-foreground">Address:</span> {selectedProperty?.address}</div>

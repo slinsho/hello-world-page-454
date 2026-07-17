@@ -69,7 +69,7 @@ const NearMePropertyCard = ({ property }: NearMePropertyCardProps) => {
         <div className="flex-1 p-3 flex flex-col justify-between">
           <div>
             <p className="text-lg font-bold text-foreground">
-              ${property.price_usd.toLocaleString()}
+              ${Number(property.price_usd || 0).toLocaleString()}
             </p>
             <p className="text-[10px] text-muted-foreground">
               {formatLRD(property.price_usd)}

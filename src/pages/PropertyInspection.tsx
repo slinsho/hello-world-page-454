@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, MapPin, FileSearch, HandCoins, ShieldCheck, Lock, Sparkles,
-  Check, X, Wallet, BadgeCheck,
+  Check, X, Wallet, BadgeCheck, Star, Award, Users, Clock, MessageSquare,
 } from "lucide-react";
 import { notifyAdmins } from "@/lib/notifyAdmins";
 
@@ -163,28 +163,45 @@ const PropertyInspection = () => {
       </div>
 
       <main className="max-w-3xl mx-auto px-4 py-4 space-y-5">
-        {/* Hero — admin-editable */}
-        <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-red-600 via-red-600 to-red-700 text-white p-6 shadow-xl relative">
-          <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        {/* Hero — compact, admin-editable */}
+        <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-red-700 text-white p-4 shadow-lg relative">
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
           <div className="relative">
-            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3">
-              <ShieldCheck className="w-3 h-3" /> Verified inspection service
+            <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider mb-2">
+              <ShieldCheck className="w-2.5 h-2.5" /> Verified service
             </div>
-            <h1 className="text-2xl font-extrabold leading-tight">
+            <h1 className="text-lg font-extrabold leading-tight">
               {settings.inspection_hero_headline || "Buy with total confidence"}
             </h1>
-            <p className="text-sm opacity-95 mt-2 leading-relaxed">
-              {settings.inspection_hero_subtext || "Our licensed inspectors verify the legal papers and negotiate on your behalf so you never overpay."}
+            <p className="text-[12px] opacity-95 mt-1 leading-snug">
+              {settings.inspection_hero_subtext || "Our licensed inspectors verify legal papers and negotiate on your behalf."}
             </p>
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
               {chips.map((c) => (
-                <div key={c} className="inline-flex items-center gap-1 bg-white/15 backdrop-blur px-2.5 py-1 rounded-full text-[11px] font-semibold">
-                  <BadgeCheck className="w-3 h-3" /> {c}
+                <div key={c} className="inline-flex items-center gap-1 bg-white/15 backdrop-blur px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                  <BadgeCheck className="w-2.5 h-2.5" /> {c}
                 </div>
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Trust strip */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: Award, label: "Licensed", sub: "Inspectors" },
+            { icon: Clock, label: "48-Hour", sub: "Turnaround" },
+            { icon: Lock, label: "Money-Back", sub: "Guarantee" },
+          ].map((t, i) => {
+            const Ic = t.icon;
+            return (
+              <div key={i} className="rounded-xl border bg-card p-2.5 text-center">
+                <Ic className="w-4 h-4 text-primary mx-auto mb-1" />
+                <p className="text-[11px] font-bold leading-tight">{t.label}</p>
+                <p className="text-[9px] text-muted-foreground">{t.sub}</p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Property card */}
@@ -368,6 +385,53 @@ const PropertyInspection = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Social proof */}
+        <div className="rounded-2xl bg-card border p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-bold">What buyers say</h3>
+          </div>
+          <div className="grid gap-2.5">
+            {[
+              { name: "James K.", county: "Montserrado", text: "Saved me from a fake title. Best $80 I ever spent.", stars: 5 },
+              { name: "Grace M.", county: "Nimba", text: "Their concierge negotiated $12k off the asking price.", stars: 5 },
+            ].map((t, i) => (
+              <div key={i} className="rounded-xl bg-muted/40 p-2.5">
+                <div className="flex items-center gap-1 mb-1">
+                  {Array.from({ length: t.stars }).map((_, s) => (
+                    <Star key={s} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                  ))}
+                </div>
+                <p className="text-xs leading-snug">"{t.text}"</p>
+                <p className="text-[10px] text-muted-foreground mt-1">— {t.name}, {t.county}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="rounded-2xl bg-card border p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageSquare className="w-4 h-4 text-primary" />
+            <h3 className="text-sm font-bold">Frequently asked</h3>
+          </div>
+          <div className="divide-y">
+            {[
+              { q: "How long does an inspection take?", a: "Legal checks: 24–48 hours. Full concierge: 3–5 business days." },
+              { q: "What if the property fails inspection?", a: "You get a full refund under our money-back guarantee." },
+              { q: "Do you cover properties outside Monrovia?", a: "Yes — we inspect properties across all 15 counties in Liberia." },
+            ].map((f, i) => (
+              <details key={i} className="py-2 group">
+                <summary className="text-xs font-semibold cursor-pointer list-none flex items-center justify-between">
+                  {f.q}
+                  <span className="text-primary group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
 
         {/* Footer guarantee */}
         {settings.inspection_footer_note && (

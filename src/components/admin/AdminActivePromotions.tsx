@@ -307,7 +307,7 @@ export function AdminActivePromotions() {
                     </div>
                     <div className="bg-secondary/30 rounded-lg p-3 text-center">
                       <DollarSign className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
-                      <p className="text-lg font-bold">${selectedPromo.payment_amount.toLocaleString()}</p>
+                      <p className="text-lg font-bold">${Number(selectedPromo.payment_amount || 0).toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">Payment</p>
                     </div>
                     <div className="bg-secondary/30 rounded-lg p-3 text-center">

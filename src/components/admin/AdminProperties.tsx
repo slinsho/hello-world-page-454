@@ -138,7 +138,7 @@ export function AdminProperties() {
                     </Badge>
                   </div>
                   <p className="text-sm font-semibold">
-                    ${property.price_usd.toLocaleString()} • {property.county}
+                    ${Number(property.price_usd || 0).toLocaleString()} • {property.county}
                   </p>
                 </div>
                 <Button

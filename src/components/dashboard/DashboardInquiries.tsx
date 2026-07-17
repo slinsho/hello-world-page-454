@@ -269,7 +269,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{off.property_title}</p>
                         <p className="text-sm font-semibold text-primary mt-0.5">
-                          ${off.offer_amount_usd.toLocaleString()}
+                          ${Number(off.offer_amount_usd || 0).toLocaleString()}
                           <span className="text-xs font-normal text-muted-foreground ml-1">({formatLRD(off.offer_amount_usd)})</span>
                         </p>
                       </div>
@@ -287,7 +287,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
                             <a href={`tel:${off.buyer_phone}`}><Phone className="h-3 w-3 mr-1" />Call</a>
                           </Button>
                           <Button size="sm" className="text-xs h-8 rounded-lg" asChild>
-                            <a href={`https://wa.me/${off.buyer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${off.buyer_name}, regarding your offer of $${off.offer_amount_usd.toLocaleString()} on "${off.property_title}"...`)}`} target="_blank" rel="noopener noreferrer">
+                            <a href={`https://wa.me/${off.buyer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${off.buyer_name}, regarding your offer of $${Number(off.offer_amount_usd || 0).toLocaleString()} on "${off.property_title}"...`)}`} target="_blank" rel="noopener noreferrer">
                               <MessageSquare className="h-3 w-3 mr-1" />WhatsApp
                             </a>
                           </Button>

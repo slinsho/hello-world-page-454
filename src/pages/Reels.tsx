@@ -211,10 +211,20 @@ const Reels = () => {
       if (!v) return;
       if (i === activeIdx) {
         v.muted = muted;
-        v.play().catch(() => {});
+        // Ensure the source is loaded before attempting to play — reels that were
+        // preload="none" won't have a ready media buffer, so play() rejects silently.
+        try {
+          if (v.readyState < 2) v.load();
+        } catch { /* ignore */ }
+        const tryPlay = () => v.play().catch(() => {
+          // Retry once muted — browsers block unmuted autoplay without gesture.
+          v.muted = true;
+          v.play().catch(() => {});
+        });
+        tryPlay();
       } else {
         v.pause();
-        v.currentTime = 0;
+        try { v.currentTime = 0; } catch { /* ignore */ }
       }
     });
   }, [activeIdx, muted, reels]);
@@ -233,7 +243,7 @@ const Reels = () => {
   }, [toast]);
 
   const handleWhatsApp = (reel: Reel) => {
-    const msg = `Hi, I'm interested in your property "${reel.title}" listed at $${reel.price_usd.toLocaleString()} (${formatLRD(reel.price_usd)}).`;
+    const msg = `Hi, I'm interested in your property "${reel.title}" listed at $${Number(reel.price_usd || 0).toLocaleString()} (${formatLRD(reel.price_usd)}).`;
     window.open(formatWhatsAppLink(reel.contact_phone, msg), "_blank");
   };
 
@@ -311,10 +321,17 @@ const Reels = () => {
                   loop
                   muted={muted}
                   playsInline
-                  preload={Math.abs(idx - activeIdx) <= 1 ? "auto" : "none"}
+                  autoPlay={idx === activeIdx}
+                  preload={Math.abs(idx - activeIdx) <= 1 ? "auto" : "metadata"}
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    // Video failed to load (expired signed URL, network, unsupported codec).
+                    // Hide the broken element so the poster + overlay remain visible.
+                    (e.currentTarget as HTMLVideoElement).style.display = "none";
+                  }}
                   onClick={(e) => {
                     const v = e.currentTarget;
-                    if (v.paused) v.play(); else v.pause();
+                    if (v.paused) v.play().catch(() => {}); else v.pause();
                   }}
                 />
 
@@ -412,10 +429,10 @@ const Reels = () => {
                     </div>
                     <div className="flex items-baseline gap-2">
                       <span className="text-xl font-bold text-primary">
-                        {showLRD ? formatLRD(reel.price_usd) : `$${reel.price_usd.toLocaleString()}`}
+                        {showLRD ? formatLRD(reel.price_usd) : `$${Number(reel.price_usd || 0).toLocaleString()}`}
                       </span>
                       <span className="text-xs text-white/60">
-                        {showLRD ? `$${reel.price_usd.toLocaleString()}` : formatLRD(reel.price_usd)}
+                        {showLRD ? `$${Number(reel.price_usd || 0).toLocaleString()}` : formatLRD(reel.price_usd)}
                       </span>
                     </div>
                   </Link>

@@ -162,21 +162,21 @@ export default function Blog() {
             }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-6 md:pt-10 md:pb-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-5">
+          <div className="relative max-w-6xl mx-auto px-4 md:px-8 pt-4 pb-4 md:pt-10 md:pb-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 backdrop-blur px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3 md:mb-5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Newsroom
             </div>
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05] max-w-3xl">
+            <h1 className="text-2xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.1] max-w-3xl">
               Insights on Liberia's<br className="hidden md:block" />
               <span className="text-muted-foreground">property market.</span>
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-5 max-w-xl leading-relaxed">
-              Long-form analysis, neighborhood guides, and product updates from the L-Prop team.
+            <p className="text-xs md:text-base text-muted-foreground mt-2 md:mt-5 max-w-xl leading-relaxed">
+              Neighborhood guides, market updates, and product news from L-Prop.
             </p>
 
             {/* Search + filters */}
-            <div className="mt-5 flex flex-col gap-3">
+            <div className="mt-3 flex flex-col gap-2">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -206,13 +206,13 @@ export default function Blog() {
         {/* ===== FEATURED ===== */}
         {featured && (
           <section className="border-b border-border/60">
-            <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-8">
 
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Featured</span>
                 <div className="flex-1 h-px bg-border/60" />
               </div>
-              <Link to={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-6 md:gap-10 items-center">
+              <Link to={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-4 md:gap-10 items-center">
                 {featured.cover_image && (
                   <div className="relative aspect-[16/10] md:aspect-[4/3] rounded-xl overflow-hidden border border-border/60 bg-card">
                     <img
@@ -259,7 +259,7 @@ export default function Blog() {
 
         {/* ===== ARTICLES GRID ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 md:py-8">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 md:py-8">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 All articles · {rest.length}
@@ -335,7 +335,7 @@ export default function Blog() {
 
         {/* ===== NEWSLETTER + SOCIAL ===== */}
         <section className="border-b border-border/60">
-          <div className="max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-10 grid md:grid-cols-2 gap-8 items-start">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-10 grid md:grid-cols-2 gap-8 items-start">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Newsletter</span>
               <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-3">

@@ -85,7 +85,7 @@ export function PropertyComparison({ compareList, removeFromCompare, clearCompar
                     {/* Price */}
                     <div className="flex items-center gap-2 text-primary font-bold text-lg">
                       <DollarSign className="h-4 w-4" />
-                      {property.price_usd.toLocaleString()}
+                      {Number(property.price_usd || 0).toLocaleString()}
                     </div>
 
                     {/* Features */}

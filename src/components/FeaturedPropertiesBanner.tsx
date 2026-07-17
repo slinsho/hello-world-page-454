@@ -94,7 +94,7 @@ export function FeaturedPropertiesBanner() {
               </div>
               <div className="p-2.5">
                 <p className="text-sm font-semibold text-foreground line-clamp-1">{p.title}</p>
-                <p className="text-xs text-primary font-bold">${p.price_usd.toLocaleString()}</p>
+                <p className="text-xs text-primary font-bold">${Number(p.price_usd || 0).toLocaleString()}</p>
                 <p className="text-[10px] text-muted-foreground">{formatLRD(p.price_usd)}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{p.county}</p>
               </div>

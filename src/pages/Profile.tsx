@@ -370,7 +370,7 @@ const Profile = () => {
         </div>
         <div className="p-2.5">
           <h3 className="font-semibold text-xs truncate">{property.title}</h3>
-          <p className="text-primary font-bold text-sm mt-0.5">${property.price_usd.toLocaleString()}</p>
+          <p className="text-primary font-bold text-sm mt-0.5">${Number(property.price_usd || 0).toLocaleString()}</p>
           <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
             {property.bedrooms && <span className="flex items-center gap-0.5"><Bed className="h-3 w-3" />{property.bedrooms}</span>}
             {property.bathrooms && <span className="flex items-center gap-0.5"><Bath className="h-3 w-3" />{property.bathrooms}</span>}
