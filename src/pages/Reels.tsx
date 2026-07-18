@@ -323,10 +323,7 @@ const Reels = () => {
                   playsInline
                   autoPlay={idx === activeIdx}
                   preload={Math.abs(idx - activeIdx) <= 1 ? "auto" : "metadata"}
-                  crossOrigin="anonymous"
                   onError={(e) => {
-                    // Video failed to load (expired signed URL, network, unsupported codec).
-                    // Hide the broken element so the poster + overlay remain visible.
                     (e.currentTarget as HTMLVideoElement).style.display = "none";
                   }}
                   onClick={(e) => {
@@ -334,6 +331,7 @@ const Reels = () => {
                     if (v.paused) v.play().catch(() => {}); else v.pause();
                   }}
                 />
+
 
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
 
