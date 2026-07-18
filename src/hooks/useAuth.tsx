@@ -56,17 +56,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         log.info(`auth event: ${event}`, { userId: session?.user?.id ?? null });
+        if (session?.user && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
+          // Fire-and-forget: expire this user's verification if it's past due.
+          supabase.rpc("expire_my_verification_if_due" as any).then(() => {}, () => {});
+        }
       }
     );
 
-    // Check whether the browser already has a saved session
-    // (e.g. user logged in yesterday and just reopened the app).
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       log.info("initial session check", { hasSession: !!session });
+      if (session?.user) {
+        supabase.rpc("expire_my_verification_if_due" as any).then(() => {}, () => {});
+      }
     });
+
 
     // Cleanup: stop listening when the app unmounts.
     return () => subscription.unsubscribe();
