@@ -211,23 +211,17 @@ const Reels = () => {
       if (!v) return;
       if (i === activeIdx) {
         v.muted = muted;
-        // Ensure the source is loaded before attempting to play — reels that were
-        // preload="none" won't have a ready media buffer, so play() rejects silently.
-        try {
-          if (v.readyState < 2) v.load();
-        } catch { /* ignore */ }
         const tryPlay = () => v.play().catch(() => {
-          // Retry once muted — browsers block unmuted autoplay without gesture.
           v.muted = true;
           v.play().catch(() => {});
         });
         tryPlay();
       } else {
         v.pause();
-        try { v.currentTime = 0; } catch { /* ignore */ }
       }
     });
   }, [activeIdx, muted, reels]);
+
 
   const handleShare = useCallback(async (reel: Reel) => {
     const url = `${window.location.origin}/property/${reel.id}`;
