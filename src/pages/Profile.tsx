@@ -790,24 +790,39 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Listings */}
+        {/* Listings + Hotel Bookings tabs */}
         <div className="px-4 mt-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold">Listings</h2>
-            <ListingTabs />
-          </div>
-          {filteredProperties.length === 0 ? (
-            <div className="text-center py-10 bg-card rounded-xl border border-border/50">
-              <Home className="h-10 w-10 mx-auto text-muted-foreground/50" />
-              <p className="text-muted-foreground mt-2 text-sm">No properties yet</p>
-              {isOwnProfile && <Button onClick={() => navigate("/upload")} className="mt-3 rounded-full" size="sm">Add Property</Button>}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {filteredProperties.map((p) => <MiniPropertyCard key={p.id} property={p} />)}
+          {isOwnProfile && (
+            <div className="flex gap-0 border border-border rounded-lg w-fit mb-3 overflow-x-auto">
+              <button onClick={() => setOwnerTab("listings")} className={`px-3 py-2 text-xs font-medium transition-colors ${ownerTab === "listings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>Listings</button>
+              <button onClick={() => setOwnerTab("bookings")} className={`px-3 py-2 text-xs font-medium transition-colors border-l border-border whitespace-nowrap ${ownerTab === "bookings" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}>
+                <Hotel className="h-3 w-3 inline mr-1" />Hotel Bookings
+              </button>
             </div>
           )}
+          {ownerTab === "bookings" && isOwnProfile && user ? (
+            <HotelBookingsList userId={user.id} />
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold">Listings</h2>
+                <ListingTabs />
+              </div>
+              {filteredProperties.length === 0 ? (
+                <div className="text-center py-10 bg-card rounded-xl border border-border/50">
+                  <Home className="h-10 w-10 mx-auto text-muted-foreground/50" />
+                  <p className="text-muted-foreground mt-2 text-sm">No properties yet</p>
+                  {isOwnProfile && <Button onClick={() => navigate("/upload")} className="mt-3 rounded-full" size="sm">Add Property</Button>}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredProperties.map((p) => <MiniPropertyCard key={p.id} property={p} />)}
+                </div>
+              )}
+            </>
+          )}
         </div>
+
 
         {/* Actions */}
         {isOwnProfile && (
