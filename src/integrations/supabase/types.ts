@@ -1931,6 +1931,7 @@ export type Database = {
         }
         Returns: number
       }
+      expire_my_verification_if_due: { Args: never; Returns: undefined }
       get_property_view_counts: {
         Args: { p_property_ids: string[] }
         Returns: {
