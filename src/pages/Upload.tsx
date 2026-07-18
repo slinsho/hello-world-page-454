@@ -149,7 +149,7 @@ const Upload = () => {
     } finally { setLoading(false); }
   };
 
-  if (verificationStatus !== "approved") {
+  if (verificationStatus !== null && verificationStatus !== "approved") {
     return (
       <div className="min-h-screen bg-background"><Navbar />
         <div className="px-4 pt-16 text-center max-w-sm mx-auto md:max-w-lg">
@@ -161,6 +161,7 @@ const Upload = () => {
       </div>
     );
   }
+
 
   const propertyTypes = [
     { value: "house", label: "House", icon: Home },
