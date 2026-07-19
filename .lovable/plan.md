@@ -1,41 +1,40 @@
-# Hotel Account Redesign
+# Plan: Ship features 1, 2, 3
 
-## Why Account currently "changes" the bottom nav
-The global `Navbar` renders its own mobile bottom nav on every page. `HotelDashboard` layered a second, hotel-specific bottom nav on top of it. When you tapped **Account**, it navigated to `/profile`, which does not layer the hotel nav — so only the global one (Home / Explore / Hotel / …) showed. That's why it looked like the app took you back to the homepage nav.
+## 1. Hotel-specific verification flow
+- Extend `verification_requests` to support `verification_type = 'hotel'` (already an enum value or add it).
+- New fields captured (stored in existing JSON/columns): business license number, TIN, license photo (live camera), hotel ownership proof photo (live camera), owner selfie.
+- Update `src/pages/Verification.tsx` to branch UI when `?type=hotel`: replace ID/agent copy with hotel-specific steps and required captures. Reuse existing live-camera capture (no file uploads per project rule).
+- Add a "Get Verified" gate in `HotelShellGuard.tsx` / `HotelDashboard.tsx`: if the hotel-owner profile has no approved hotel verification, show a banner + CTA linking to `/verification?type=hotel`, and keep hotel listings in `pending` until approved.
+- Admin: extend `AdminVerifications.tsx` to filter by `hotel` type and render the new fields. Approve/reject actions unchanged.
 
-Fix: create a shared `HotelShellLayout` that
-- hides the global mobile bottom nav on hotel routes (via a route flag or `HotelShellGuard`),
-- renders the hotel bottom nav on **every** hotel page,
-- routes Account to a real hotel account page instead of `/profile`.
+## 2. Wire hotel Calendar, Pricing rules, Availability into the guest booking flow
+Currently `HotelCalendarPage` and `HotelPricingPage` write to `room_availability` and `hotel_pricing_rules`, but the guest checkout (`HotelBooking.tsx`) ignores them.
 
-## New routes (each a dedicated page, all wrapped in `HotelShellLayout`)
-- `/hotel-dashboard` — redesigned overview (matches screenshot)
-- `/hotel-dashboard/hotels` — My Hotels list + Add Hotel
-- `/hotel-dashboard/rooms` — Rooms list + Add Room (per selected hotel)
-- `/hotel-dashboard/bookings` — Bookings management
-- `/hotel-dashboard/account` — Hotel account (profile, plan, verification, sign out)
+Changes:
+- In `HotelBooking.tsx` room-picker & summary steps:
+  - Fetch `room_availability` rows for the selected date range per room.
+  - Filter out rooms that have any `is_blocked = true` night in the range.
+  - Compute nightly price as: `price_override` (from `room_availability`) → else the highest-priority matching rule in `hotel_pricing_rules` (weekend / seasonal / min-stay) → else `hotel_rooms.price_per_night`.
+  - Enforce `min_nights` from pricing rules and show a clear message if violated.
+- In `HotelRooms.tsx` / `HotelDetail.tsx` "Choose your room" list, dim + disable rooms unavailable for the chosen dates.
+- Add a light server-side re-check on insert into `hotel_bookings` via a `BEFORE INSERT` trigger that rejects overlapping bookings or blocked nights (double-book safety).
 
-Hotel bottom nav items: **Dashboard, Hotels, Rooms, Bookings, Account** — always visible, active state driven by the current route.
+## 3. In-app payments for inspections (mobile money reference flow)
+Mirror the existing verification/promotion "Name - Reference" pattern.
 
-## Redesigned Dashboard (matches screenshot)
+- Add columns to `property_inspections`: `payment_status` (`unpaid | submitted | confirmed | rejected`, default `unpaid`), `payment_reference text`, `payment_submitted_at timestamptz`.
+- New RPC `submit_inspection_payment_reference(p_inspection_id, p_sender_name, p_ref)` — same shape as `submit_verification_payment_reference`, sets status to `submitted`.
+- After the customer submits an inspection request in `PropertyInspection.tsx`, show a payment step with the platform mobile-money numbers (from `platform_settings`) and a "Name - Reference" form calling the RPC.
+- `AdminInspections.tsx`: show payment status, sender/reference, and Confirm / Reject buttons. Admin work (assign inspector, upload report) unlocks only after `payment_status = 'confirmed'`.
+- Notifications: notify customer on confirm/reject; notify admins on submission.
 
-Sections top → bottom:
-1. **Header** — hamburger, "Welcome back, {Hotel Name} 👋", subtitle "Here's what's happening today.", bell w/ badge, avatar.
-2. **Hotel identity card** — cover photo (left), hotel name + Verified pill, rating + reviews, location w/ pin, meta grid (Hotel ID, Member since, Plan), "View Profile ›" button.
-3. **Stat grid (2 rows × 3 cols)** — colored icon tiles:
-   - Hotels (blue), Rooms (purple), Total Bookings (green)
-   - Pending (orange), Confirmed (teal, with ↑% vs last month), Revenue This Month (teal, with ↑% vs last month)
-4. **Quick Actions** — 4 tiles: Add Hotel, Add Room, View Bookings, Payments (colored circle icon + label + sublabel), "View All ›" on the right.
-5. **Booking Overview** — card with title + "This Week" dropdown, simple bar chart (Mon–Sun) with side stats (Total Bookings + Δ, Avg Daily + Δ). Chart via existing `recharts`.
-6. **Guest Reviews** — card, empty state illustration + copy + big rating tile (0.0 / No reviews yet), "View All ›".
+## Technical notes (for reference)
+- Migrations needed:
+  1. `verification_type` enum: ensure `'hotel'` exists; add optional hotel fields (business_license_no, tin_number, license_photo_url, ownership_proof_url) to `verification_requests`.
+  2. `property_inspections`: add payment columns + `submit_inspection_payment_reference` RPC + RLS.
+  3. `hotel_bookings`: overlap-guard trigger.
+- No new tables; all GRANTs already in place.
+- No new secrets required.
+- Client work is confined to: `Verification.tsx`, `HotelShellGuard.tsx`, `HotelDashboard.tsx`, `AdminVerifications.tsx`, `HotelBooking.tsx`, `HotelRooms.tsx`, `HotelDetail.tsx`, `PropertyInspection.tsx`, `AdminInspections.tsx`.
 
-Design tokens: use existing semantic tokens; add soft tinted backgrounds for icon tiles (`bg-primary/10`, `bg-purple-500/10`, `bg-emerald-500/10`, `bg-orange-500/10`, `bg-cyan-500/10`) — no hardcoded hex.
-
-## Technical notes
-- New files: `src/components/HotelShellLayout.tsx`, `src/pages/HotelHotels.tsx`, `src/pages/HotelRoomsAdmin.tsx` (rename to avoid clash with existing public `HotelRooms.tsx`), `src/pages/HotelBookings.tsx`, `src/pages/HotelAccount.tsx`.
-- Extract Add Hotel / Add Room dialog forms out of `HotelDashboard.tsx` into small reusable components used by the new pages.
-- Update `Navbar.tsx` to hide the mobile bottom nav when `location.pathname.startsWith("/hotel-dashboard")`.
-- Add routes in `App.tsx`.
-- Bar chart via `recharts` (already in stack).
-
-Only frontend/presentation changes — no schema or business logic changes.
+Approve and I'll implement in this order: (1) migrations → (2) hotel verification UI → (3) calendar/pricing wiring in booking → (4) inspection payments UI + admin.
