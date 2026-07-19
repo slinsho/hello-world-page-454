@@ -118,6 +118,7 @@ const HotelBooking = () => {
 
   const goReview = () => {
     if (!user) { toast({ title: "Sign in required", description: "Please sign in to book.", variant: "destructive" }); navigate("/auth"); return; }
+    if (anyBlocked) { toast({ title: "Dates unavailable", description: "One or more nights in this range are blocked. Please choose different dates.", variant: "destructive" }); return; }
     if (!guestName || !guestPhone) { toast({ title: "Name and phone required", variant: "destructive" }); return; }
     for (let i = 0; i < guestDetails.length; i++) {
       if (!guestDetails[i].name || !guestDetails[i].age) {
