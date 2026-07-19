@@ -119,6 +119,30 @@ const HotelDashboard = () => {
         </button>
       </div>
 
+      {/* Hotel verification gate */}
+      {profile && profile.verification_status !== "approved" && (
+        <div className={`mb-4 rounded-2xl p-4 border ${profile.verification_status === "pending" ? "bg-amber-500/10 border-amber-500/30" : "bg-red-500/10 border-red-500/30"}`}>
+          <div className="flex items-start gap-3">
+            <ShieldCheck className={`w-5 h-5 shrink-0 mt-0.5 ${profile.verification_status === "pending" ? "text-amber-600" : "text-red-600"}`} />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">
+                {profile.verification_status === "pending" ? "Hotel verification pending review" : "Verify your hotel business"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {profile.verification_status === "pending"
+                  ? "Your submission is being reviewed. Hotels stay hidden from guests until approved."
+                  : "Submit your business license, TIN and ownership proof to make your hotels visible to guests."}
+              </p>
+              {profile.verification_status !== "pending" && (
+                <Button size="sm" className="mt-2 rounded-xl" onClick={() => navigate("/verification?type=hotel")}>
+                  Get Verified Now
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero hotel card with cover photo backdrop */}
       {primaryHotel ? (
         <button

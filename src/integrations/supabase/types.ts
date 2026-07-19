@@ -1268,7 +1268,10 @@ export type Database = {
           inspection_type: string
           inspector_name: string | null
           inspector_phone: string | null
+          payment_confirmed_at: string | null
           payment_reference: string | null
+          payment_status: string
+          payment_submitted_at: string | null
           property_id: string
           report_notes: string | null
           report_photos: string[] | null
@@ -1292,7 +1295,10 @@ export type Database = {
           inspection_type: string
           inspector_name?: string | null
           inspector_phone?: string | null
+          payment_confirmed_at?: string | null
           payment_reference?: string | null
+          payment_status?: string
+          payment_submitted_at?: string | null
           property_id: string
           report_notes?: string | null
           report_photos?: string[] | null
@@ -1316,7 +1322,10 @@ export type Database = {
           inspection_type?: string
           inspector_name?: string | null
           inspector_phone?: string | null
+          payment_confirmed_at?: string | null
           payment_reference?: string | null
+          payment_status?: string
+          payment_submitted_at?: string | null
           property_id?: string
           report_notes?: string | null
           report_photos?: string[] | null
@@ -1678,15 +1687,19 @@ export type Database = {
           admin_note: string | null
           agency_logo: string | null
           agency_name: string | null
+          business_license_no: string | null
+          business_license_photo: string | null
           business_phone: string | null
           created_at: string
-          date_of_birth: string
+          date_of_birth: string | null
           expires_at: string | null
+          hotel_name: string | null
           id: string
-          id_images: string[]
-          id_type: Database["public"]["Enums"]["id_type"]
+          id_images: string[] | null
+          id_type: Database["public"]["Enums"]["id_type"] | null
           is_renewal: boolean
           office_location: string | null
+          ownership_proof_photo: string | null
           payment_amount: number | null
           payment_confirmed_at: string | null
           payment_reference: string | null
@@ -1695,6 +1708,7 @@ export type Database = {
           processed_at: string | null
           selfie_image: string
           status: Database["public"]["Enums"]["verification_status"]
+          tin_number: string | null
           user_id: string
           verification_type: string
         }
@@ -1703,15 +1717,19 @@ export type Database = {
           admin_note?: string | null
           agency_logo?: string | null
           agency_name?: string | null
+          business_license_no?: string | null
+          business_license_photo?: string | null
           business_phone?: string | null
           created_at?: string
-          date_of_birth: string
+          date_of_birth?: string | null
           expires_at?: string | null
+          hotel_name?: string | null
           id?: string
-          id_images: string[]
-          id_type: Database["public"]["Enums"]["id_type"]
+          id_images?: string[] | null
+          id_type?: Database["public"]["Enums"]["id_type"] | null
           is_renewal?: boolean
           office_location?: string | null
+          ownership_proof_photo?: string | null
           payment_amount?: number | null
           payment_confirmed_at?: string | null
           payment_reference?: string | null
@@ -1720,6 +1738,7 @@ export type Database = {
           processed_at?: string | null
           selfie_image: string
           status?: Database["public"]["Enums"]["verification_status"]
+          tin_number?: string | null
           user_id: string
           verification_type?: string
         }
@@ -1728,15 +1747,19 @@ export type Database = {
           admin_note?: string | null
           agency_logo?: string | null
           agency_name?: string | null
+          business_license_no?: string | null
+          business_license_photo?: string | null
           business_phone?: string | null
           created_at?: string
-          date_of_birth?: string
+          date_of_birth?: string | null
           expires_at?: string | null
+          hotel_name?: string | null
           id?: string
-          id_images?: string[]
-          id_type?: Database["public"]["Enums"]["id_type"]
+          id_images?: string[] | null
+          id_type?: Database["public"]["Enums"]["id_type"] | null
           is_renewal?: boolean
           office_location?: string | null
+          ownership_proof_photo?: string | null
           payment_amount?: number | null
           payment_confirmed_at?: string | null
           payment_reference?: string | null
@@ -1745,6 +1768,7 @@ export type Database = {
           processed_at?: string | null
           selfie_image?: string
           status?: Database["public"]["Enums"]["verification_status"]
+          tin_number?: string | null
           user_id?: string
           verification_type?: string
         }
@@ -2069,6 +2093,14 @@ export type Database = {
           p_title: string
           p_type?: string
         }
+        Returns: undefined
+      }
+      set_inspection_payment_status: {
+        Args: { p_inspection_id: string; p_note?: string; p_status: string }
+        Returns: undefined
+      }
+      submit_inspection_payment_reference: {
+        Args: { p_inspection_id: string; p_ref: string; p_sender_name: string }
         Returns: undefined
       }
       submit_verification_payment_reference: {
