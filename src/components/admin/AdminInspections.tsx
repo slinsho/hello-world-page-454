@@ -155,8 +155,36 @@ const AdminInspections = () => {
               {r.form_data?.preferred_date && <p className="text-xs text-muted-foreground">Preferred: {r.form_data.preferred_date}</p>}
               {r.form_data?.budget_usd && <p className="text-xs text-muted-foreground">Budget: ${r.form_data.budget_usd}</p>}
               {r.form_data?.notes && <p className="text-xs italic text-muted-foreground">"{r.form_data.notes}"</p>}
-              {r.payment_reference && <p className="text-xs">Payment Ref: {r.payment_reference}</p>}
-              {r.inspector_name && <p className="text-xs mt-1"><span className="font-semibold">Inspector:</span> {r.inspector_name} {r.inspector_phone ? `· ${r.inspector_phone}` : ""}</p>}
+
+              {/* Payment status row */}
+              <div className="mt-2 rounded-lg border p-2 bg-muted/30 flex items-start justify-between gap-2 flex-wrap">
+                <div className="text-xs min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">Payment:</span>
+                    <Badge variant={r.payment_status === "confirmed" ? "default" : r.payment_status === "submitted" ? "secondary" : r.payment_status === "rejected" ? "destructive" : "outline"}>
+                      {r.payment_status || "unpaid"}
+                    </Badge>
+                    {r.fee_usd != null && <span className="text-muted-foreground">${Number(r.fee_usd).toFixed(2)}</span>}
+                  </div>
+                  {r.payment_reference && <p className="mt-1 font-mono truncate">Ref: {r.payment_reference}</p>}
+                </div>
+                {r.payment_status === "submitted" && (
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" onClick={async () => {
+                      const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "confirmed" });
+                      if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
+                      else { toast({ title: "Payment confirmed" }); load(); }
+                    }}>Confirm</Button>
+                    <Button size="sm" variant="destructive" onClick={async () => {
+                      const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "rejected", p_note: "Payment could not be verified. Please resubmit." });
+                      if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
+                      else { toast({ title: "Payment rejected" }); load(); }
+                    }}>Reject</Button>
+                  </div>
+                )}
+              </div>
+
+              {r.inspector_name && <p className="text-xs mt-2"><span className="font-semibold">Inspector:</span> {r.inspector_name} {r.inspector_phone ? `· ${r.inspector_phone}` : ""}</p>}
               {r.report_notes && <p className="text-xs mt-1 p-2 bg-muted rounded"><span className="font-semibold">Report:</span> {r.report_notes}</p>}
               {(r.report_photos?.length || r.report_url || r.report_video_url) && (
                 <div className="flex flex-wrap gap-2 mt-2 text-xs">
