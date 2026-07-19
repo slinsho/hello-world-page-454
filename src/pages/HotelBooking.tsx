@@ -38,6 +38,8 @@ const HotelBooking = () => {
 
   const [hotel, setHotel] = useState<any>(null);
   const [room, setRoom] = useState<any>(null);
+  const [availability, setAvailability] = useState<any[]>([]);
+  const [pricingRule, setPricingRule] = useState<any>(null);
   const [method, setMethod] = useState("pay_at_hotel");
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
@@ -55,18 +57,57 @@ const HotelBooking = () => {
       const { data: h } = await supabase.from("hotels").select("*").eq("id", id).maybeSingle();
       const { data: r } = await supabase.from("hotel_rooms").select("*").eq("id", roomId).maybeSingle();
       setHotel(h); setRoom(r);
+      if (h?.id) {
+        const { data: rule } = await (supabase.from("hotel_pricing_rules" as any) as any).select("*").eq("hotel_id", h.id).maybeSingle();
+        setPricingRule(rule);
+      }
+      if (roomId && checkIn && checkOut) {
+        const { data: av } = await (supabase.from("room_availability" as any) as any)
+          .select("*").eq("room_id", roomId).gte("date", checkIn).lt("date", checkOut);
+        setAvailability(av || []);
+      }
       if (user) {
         const { data: prof } = await supabase.from("profiles").select("name, phone, email").eq("id", user.id).maybeSingle();
         if (prof) { setGuestName(prof.name || ""); setGuestPhone(prof.phone || ""); setGuestEmail(prof.email || ""); }
       }
     })();
-  }, [id, roomId, user]);
+  }, [id, roomId, user, checkIn, checkOut]);
 
   const nights = checkIn && checkOut ? Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000)) : 1;
-  const subtotal = room ? Number(room.price_per_night) * nights : 0;
-  const taxes = +(subtotal * 0.1).toFixed(2);
-  const serviceFee = +(subtotal * 0.05).toFixed(2);
-  const total = subtotal + taxes + serviceFee;
+
+  // Compute nightly breakdown honoring room_availability overrides + weekend surcharge
+  const nightBreakdown = (() => {
+    if (!room || !checkIn || !checkOut) return [] as { date: string; price: number; blocked: boolean }[];
+    const base = Number(room.price_per_night) || 0;
+    const weekendDays: number[] = pricingRule?.weekend_days || [0, 6];
+    const weekendPct = Number(pricingRule?.weekend_surcharge_pct || 0);
+    const availMap: Record<string, any> = {};
+    availability.forEach((a: any) => { availMap[a.date] = a; });
+    const out: { date: string; price: number; blocked: boolean }[] = [];
+    for (let i = 0; i < nights; i++) {
+      const d = new Date(checkIn);
+      d.setDate(d.getDate() + i);
+      const iso = d.toISOString().slice(0, 10);
+      const entry = availMap[iso];
+      const blocked = !!entry?.is_blocked;
+      let price = entry?.price_override != null ? Number(entry.price_override) : base;
+      if (entry?.price_override == null && weekendPct > 0 && weekendDays.includes(d.getDay())) {
+        price = +(price * (1 + weekendPct / 100)).toFixed(2);
+      }
+      out.push({ date: iso, price, blocked });
+    }
+    return out;
+  })();
+  const anyBlocked = nightBreakdown.some((n) => n.blocked);
+  const subtotal = nightBreakdown.reduce((s, n) => s + n.price, 0);
+  // Length-of-stay discount
+  const losMin = Number(pricingRule?.los_min_nights || 0);
+  const losPct = Number(pricingRule?.los_discount_pct || 0);
+  const losDiscount = losMin > 0 && losPct > 0 && nights >= losMin ? +(subtotal * (losPct / 100)).toFixed(2) : 0;
+  const discountedSubtotal = subtotal - losDiscount;
+  const taxes = +(discountedSubtotal * 0.1).toFixed(2);
+  const serviceFee = +(discountedSubtotal * 0.05).toFixed(2);
+  const total = discountedSubtotal + taxes + serviceFee;
 
   const updateGuest = (i: number, field: "name" | "age" | "id_type" | "id_number", value: string) => {
     setGuestDetails((g) => g.map((x, idx) => (idx === i ? { ...x, [field]: value } : x)));
