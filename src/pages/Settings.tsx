@@ -39,6 +39,22 @@ const Settings = () => {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
 
+  // Web push (device-level)
+  const [pushOn, setPushOn] = useState(false);
+  useEffect(() => { isPushEnabled().then(setPushOn).catch(() => setPushOn(false)); }, []);
+  const togglePush = async (v: boolean) => {
+    if (v) {
+      const res = await enablePush();
+      if (!res.ok) { toast({ title: "Couldn't enable push", description: res.error, variant: "destructive" }); return; }
+      setPushOn(true);
+      toast({ title: "Push notifications enabled" });
+    } else {
+      await disablePush();
+      setPushOn(false);
+      toast({ title: "Push notifications disabled" });
+    }
+  };
+
   // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
     inquiries: true,
