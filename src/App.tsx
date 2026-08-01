@@ -85,6 +85,7 @@ const HotelCalendarPage = lazy(() => import("./pages/HotelCalendarPage"));
 const HotelPricingPage = lazy(() => import("./pages/HotelPricingPage"));
 const HotelCheckInPage = lazy(() => import("./pages/HotelCheckInPage"));
 const HotelReviewsPage = lazy(() => import("./pages/HotelReviewsPage"));
+const HotelAnalyticsPage = lazy(() => import("./pages/HotelAnalyticsPage"));
 const WantToBuy = lazy(() => import("./pages/WantToBuy"));
 const PropertyInspection = lazy(() => import("./pages/PropertyInspection"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
