@@ -62,7 +62,17 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
               {new Date(b.check_in).toLocaleDateString(undefined, { month: "short", day: "numeric" })} →{" "}
               {new Date(b.check_out).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </p>
-            <p className="text-primary font-bold text-sm mt-1 tabular-nums">${Number(b.total || 0).toFixed(2)}</p>
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <p className="text-primary font-bold text-sm tabular-nums">${Number(b.total || 0).toFixed(2)}</p>
+              {(b.checked_out_at || b.status === "completed") && (
+                <button
+                  onClick={() => navigate(`/hotels/${b.hotel_id}`)}
+                  className="text-[11px] font-semibold text-primary underline underline-offset-2"
+                >
+                  Leave a review
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ))}

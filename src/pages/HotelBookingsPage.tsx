@@ -58,7 +58,7 @@ const HotelBookingsPage = () => {
         </div>
 
         {/* Segmented pills */}
-        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none">
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-hide">
           {tabs.map((t) => (
             <button
               key={t.key}

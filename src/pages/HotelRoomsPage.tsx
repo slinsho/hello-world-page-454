@@ -126,7 +126,7 @@ const HotelRoomsPage = () => {
             <div key={r.id} className="rounded-3xl bg-background border overflow-hidden shadow-sm active:scale-[0.99] transition-transform">
               <div className="relative h-44 bg-muted">
                 {r.photos?.length ? (
-                  <div className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-none">
+                  <div className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide">
                     {r.photos.map((p: string, i: number) => (
                       <img key={i} src={p} alt={`${r.name} ${i + 1}`} className="w-full h-full object-cover shrink-0 snap-center" />
                     ))}

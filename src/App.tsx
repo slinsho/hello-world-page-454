@@ -85,6 +85,7 @@ const HotelCalendarPage = lazy(() => import("./pages/HotelCalendarPage"));
 const HotelPricingPage = lazy(() => import("./pages/HotelPricingPage"));
 const HotelCheckInPage = lazy(() => import("./pages/HotelCheckInPage"));
 const HotelReviewsPage = lazy(() => import("./pages/HotelReviewsPage"));
+const HotelAnalyticsPage = lazy(() => import("./pages/HotelAnalyticsPage"));
 const WantToBuy = lazy(() => import("./pages/WantToBuy"));
 const PropertyInspection = lazy(() => import("./pages/PropertyInspection"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
@@ -165,6 +166,7 @@ const App = () => (
                   <Route path="/hotel-dashboard/pricing" element={<HotelPricingPage />} />
                   <Route path="/hotel-dashboard/check-in" element={<HotelCheckInPage />} />
                   <Route path="/hotel-dashboard/reviews" element={<HotelReviewsPage />} />
+                  <Route path="/hotel-dashboard/analytics" element={<HotelAnalyticsPage />} />
                   <Route path="/want-to-buy" element={<WantToBuy />} />
                   <Route path="/inspect/:propertyId" element={<PropertyInspection />} />
                   <Route path="/my-account" element={<MyAccount />} />

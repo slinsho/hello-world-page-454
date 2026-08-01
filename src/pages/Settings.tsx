@@ -20,6 +20,7 @@ import {
   Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2, ShieldCheck
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { isPushEnabled, enablePush, disablePush } from "@/lib/push";
 
 type SettingsSection = "main" | "account" | "notifications" | "privacy" | "preferences" | "listings" | "support";
 
@@ -38,6 +39,22 @@ const Settings = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // Web push (device-level)
+  const [pushOn, setPushOn] = useState(false);
+  useEffect(() => { isPushEnabled().then(setPushOn).catch(() => setPushOn(false)); }, []);
+  const togglePush = async (v: boolean) => {
+    if (v) {
+      const res = await enablePush();
+      if (!res.ok) { toast({ title: "Couldn't enable push", description: res.error, variant: "destructive" }); return; }
+      setPushOn(true);
+      toast({ title: "Push notifications enabled" });
+    } else {
+      await disablePush();
+      setPushOn(false);
+      toast({ title: "Push notifications disabled" });
+    }
+  };
 
   // Notification preferences (persisted to Supabase)
   const [notifPrefs, setNotifPrefs] = useState({
@@ -406,6 +423,7 @@ const Settings = () => {
         <div className="max-w-lg mx-auto px-4 py-6">
           <SectionHeader title="Notification Setting" />
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
+            <ToggleRow label="Push Notifications" description="Get alerts on this device even when the app is closed" checked={pushOn} onChange={togglePush} />
             <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => updateNotifPref("inquiries", "inquiries", v)} />
             <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => updateNotifPref("messages", "messages", v)} />
             <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => updateNotifPref("offers", "offers", v)} />
