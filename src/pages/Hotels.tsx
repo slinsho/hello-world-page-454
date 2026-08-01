@@ -222,6 +222,7 @@ const Hotels = () => {
                       <div className="flex items-center gap-1 shrink-0 bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-full">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span className="text-xs font-bold tabular-nums">{Number(h.star_rating || 0).toFixed(1)}</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">({Number(h.rating_count || 0)})</span>
                       </div>
                     </div>
 
