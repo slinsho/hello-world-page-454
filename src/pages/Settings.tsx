@@ -406,6 +406,7 @@ const Settings = () => {
         <div className="max-w-lg mx-auto px-4 py-6">
           <SectionHeader title="Notification Setting" />
           <div className="mt-4 bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/50">
+            <ToggleRow label="Push Notifications" description="Get alerts on this device even when the app is closed" checked={pushOn} onChange={togglePush} />
             <ToggleRow label="Property Inquiries" description="Get notified when someone inquires about your property" checked={notifPrefs.inquiries} onChange={(v) => updateNotifPref("inquiries", "inquiries", v)} />
             <ToggleRow label="Messages" description="Notifications for new messages" checked={notifPrefs.messages} onChange={(v) => updateNotifPref("messages", "messages", v)} />
             <ToggleRow label="Offers" description="Get notified about property offers" checked={notifPrefs.offers} onChange={(v) => updateNotifPref("offers", "offers", v)} />
