@@ -415,7 +415,7 @@ const Profile = () => {
 
   // Listing Filter Tabs
   const ListingTabs = () => (
-    <div className="flex items-center gap-0 overflow-x-auto scrollbar-none border border-border rounded-lg w-fit">
+    <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide border border-border rounded-lg w-fit">
       {([
         { key: "all", label: "All" },
         { key: "for_sale", label: "Sale" },

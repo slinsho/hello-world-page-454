@@ -228,7 +228,7 @@ const HotelDashboard = () => {
       <div className="flex items-center justify-between mb-2">
         <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold px-1">Quick actions</p>
       </div>
-      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-4 px-4 mb-5 scrollbar-none">
+      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-4 px-4 mb-5 scrollbar-hide">
         {quickActions.map((a) => {
           const Icon = a.icon;
           return (

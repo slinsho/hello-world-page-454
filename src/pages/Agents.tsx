@@ -213,7 +213,7 @@ export default function Agents() {
             ) : (
               <>
                 {/* Sort chips */}
-                <div className="flex gap-2 overflow-x-auto py-3 mt-2 scrollbar-none">
+                <div className="flex gap-2 overflow-x-auto py-3 mt-2 scrollbar-hide">
                   {[
                     { k: "score", l: "Top Overall", icon: Trophy },
                     { k: "rating", l: "Top Rated", icon: Star },

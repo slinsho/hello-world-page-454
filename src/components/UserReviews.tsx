@@ -227,7 +227,7 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
       ) : (
         <div
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-1 -mx-1 px-1"
+          className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1 -mx-1 px-1"
         >
           {reviews.map((review) => (
             <div
