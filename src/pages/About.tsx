@@ -148,7 +148,9 @@ const About = () => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) { toast({ title: "Error", description: "Please fill required fields", variant: "destructive" }); return; }
     setSending(true);
+    const { data: auth } = await supabase.auth.getUser();
     const { error } = await supabase.from("feedback").insert({
+      user_id: auth?.user?.id || null,
       role: "contact_form", activity: "Contact Us", problem: form.message, rating: 5,
       email: form.email, phone: form.phone,
       suggestions: `From: ${form.name} | Address: ${form.address} | Type: ${form.property_type} | Budget: ${form.budget}`,
@@ -162,7 +164,7 @@ const About = () => {
       toast({ title: "Sent", description: "We'll get back to you soon." });
       setForm({ name: "", email: "", phone: "", address: "", message: "", property_type: "", budget: "" });
     } else {
-      toast({ title: "Error", description: "Failed to send", variant: "destructive" });
+      toast({ title: "Error", description: error.message || "Failed to send", variant: "destructive" });
     }
     setSending(false);
   };
