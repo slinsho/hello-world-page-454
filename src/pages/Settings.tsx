@@ -20,6 +20,7 @@ import {
   Lock, Eye, EyeOff, Trash2, MessageSquare, Home as HomeIcon, Building2, ShieldCheck
 } from "lucide-react";
 import { LIBERIA_COUNTIES } from "@/lib/constants";
+import { isPushEnabled, enablePush, disablePush } from "@/lib/push";
 
 type SettingsSection = "main" | "account" | "notifications" | "privacy" | "preferences" | "listings" | "support";
 
