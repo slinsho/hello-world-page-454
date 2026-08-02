@@ -310,7 +310,6 @@ const Reels = () => {
                 <video
                   ref={(el) => (videoRefs.current[idx] = el)}
                   src={reel.videos[0]}
-                  poster={reel.photos?.[0]}
                   className="h-full w-full object-cover"
                   loop
                   muted={muted}
