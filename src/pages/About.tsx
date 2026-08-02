@@ -151,7 +151,7 @@ const About = () => {
     const { data: auth } = await supabase.auth.getUser();
     const { error } = await supabase.from("feedback").insert({
       user_id: auth?.user?.id || null,
-      role: "property_seeker", activity: "other", problem: form.message, rating: 5,
+      role: "contact_form", activity: "other", problem: form.message, rating: 5,
       email: form.email, phone: form.phone,
       suggestions: `From: ${form.name} | Address: ${form.address} | Type: ${form.property_type} | Budget: ${form.budget}`,
     });
