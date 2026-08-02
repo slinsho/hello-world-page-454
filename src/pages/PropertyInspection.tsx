@@ -111,45 +111,38 @@ const PropertyInspection = () => {
   const submit = async () => {
     if (!user) { navigate("/auth"); return; }
     if (!tier) { toast({ title: "Select an inspection type", variant: "destructive" }); return; }
-    if (!form.full_name || !form.phone) { toast({ title: "Name and phone required", variant: "destructive" }); return; }
+    if (!form.full_name.trim() || !form.phone.trim() || !form.email.trim() || !form.preferred_date || !form.notes.trim()) {
+      toast({ title: "Complete all fields", description: "Name, phone, email, preferred date and notes are required.", variant: "destructive" });
+      return;
+    }
+    if (tier === "help_me_buy" && !form.budget) {
+      toast({ title: "Budget required", description: "Please enter your budget for the concierge service.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
-    const { data: inserted, error } = await (supabase.from("property_inspections") as any).insert({
+    const { error } = await (supabase.from("property_inspections") as any).insert({
       property_id: propertyId,
       requester_id: user.id,
       requester_name: form.full_name,
       requester_phone: form.phone,
-      requester_email: form.email || null,
+      requester_email: form.email,
       inspection_type: tier,
       fee_usd: fee,
       form_data: {
-        preferred_date: form.preferred_date || null,
-        notes: form.notes || null,
+        preferred_date: form.preferred_date,
+        notes: form.notes,
         budget_usd: form.budget ? Number(form.budget) : null,
       },
       status: "pending",
-    }).select().single();
+    });
     if (error) { setLoading(false); toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
 
-    // If payment reference provided, submit via RPC (validates + flips payment_status to 'submitted' + notifies admins)
-    const raw = (form.payment_reference || "").trim();
-    if (raw && inserted?.id) {
-      const [sender, ...rest] = raw.includes(" - ") ? raw.split(" - ") : [form.full_name, raw];
-      const ref = rest.join(" - ").trim();
-      const { error: rpcErr } = await (supabase.rpc as any)("submit_inspection_payment_reference", {
-        p_inspection_id: inserted.id,
-        p_sender_name: sender.trim(),
-        p_ref: ref || raw,
-      });
-      if (rpcErr) {
-        toast({ title: "Payment reference not saved", description: rpcErr.message, variant: "destructive" });
-      }
-    } else {
-      await notifyAdmins({ title: "New Inspection Request", message: `${form.full_name} requested a ${selectedTier?.label} inspection.`, type: "status_updates" });
-    }
+    await notifyAdmins({ title: "New Inspection Request", message: `${form.full_name} requested a ${selectedTier?.label} inspection. Approve it to request payment.`, type: "status_updates" });
     setLoading(false);
-    toast({ title: "Request submitted", description: raw ? "Payment reference submitted. Admin will verify shortly." : "Our team will contact you shortly." });
+    toast({ title: "Request submitted", description: "Once approved, you'll receive a payment notification." });
     navigate("/profile");
   };
+
 
   const renderCell = (v: string) => {
     if (v === "✓" || v.toLowerCase() === "yes" || v.toLowerCase() === "true") {
