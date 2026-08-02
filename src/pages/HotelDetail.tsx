@@ -68,9 +68,15 @@ const HotelDetail = () => {
             .limit(1);
           if (bookings && bookings.length) {
             const alreadyReviewed = (rv || []).some((x: any) => x.guest_id === user.id && x.booking_id === bookings[0].id);
-            if (!alreadyReviewed) setEligibleBooking(bookings[0]);
+            if (!alreadyReviewed) {
+              setEligibleBooking(bookings[0]);
+              if (searchParams.get("review") === "1") setReviewOpen(true);
+            } else if (searchParams.get("review") === "1") {
+              toast({ title: "Already reviewed", description: "You've already left a review for this stay." });
+            }
           }
         }
+
       }
       setLoading(false);
     })();
