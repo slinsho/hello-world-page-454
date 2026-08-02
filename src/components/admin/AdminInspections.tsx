@@ -168,20 +168,38 @@ const AdminInspections = () => {
                   </div>
                   {r.payment_reference && <p className="mt-1 font-mono truncate">Ref: {r.payment_reference}</p>}
                 </div>
-                {r.payment_status === "submitted" && (
-                  <div className="flex gap-1.5">
-                    <Button size="sm" variant="outline" onClick={async () => {
-                      const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "confirmed" });
-                      if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
-                      else { toast({ title: "Payment confirmed" }); load(); }
-                    }}>Confirm</Button>
-                    <Button size="sm" variant="destructive" onClick={async () => {
-                      const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "rejected", p_note: "Payment could not be verified. Please resubmit." });
-                      if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
-                      else { toast({ title: "Payment rejected" }); load(); }
-                    }}>Reject</Button>
-                  </div>
-                )}
+                <div className="flex gap-1.5">
+                  {(!r.payment_status || r.payment_status === "unpaid") && (
+                    <Button size="sm" onClick={async () => {
+                      const ok = await update(r.id, { payment_status: "payment_requested" });
+                      if (ok && r.requester_id) {
+                        await supabase.from("notifications").insert({
+                          user_id: r.requester_id,
+                          title: "Inspection Payment Required",
+                          message: `Your ${TYPE_LABELS[r.inspection_type] || "inspection"} request was approved. Please pay $${Number(r.fee_usd || 0).toFixed(2)} and submit your payment reference.`,
+                          type: "status_updates",
+                          property_id: r.property_id,
+                        });
+                        toast({ title: "Payment requested" });
+                      }
+                    }}>Approve & Request Payment</Button>
+                  )}
+                  {r.payment_status === "submitted" && (
+                    <>
+                      <Button size="sm" variant="outline" onClick={async () => {
+                        const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "confirmed" });
+                        if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
+                        else { toast({ title: "Payment confirmed" }); load(); }
+                      }}>Confirm</Button>
+                      <Button size="sm" variant="destructive" onClick={async () => {
+                        const { error } = await (supabase.rpc as any)("set_inspection_payment_status", { p_inspection_id: r.id, p_status: "rejected", p_note: "Payment could not be verified. Please resubmit." });
+                        if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
+                        else { toast({ title: "Payment rejected" }); load(); }
+                      }}>Reject</Button>
+                    </>
+                  )}
+                </div>
+
               </div>
 
               {r.inspector_name && <p className="text-xs mt-2"><span className="font-semibold">Inspector:</span> {r.inspector_name} {r.inspector_phone ? `· ${r.inspector_phone}` : ""}</p>}
