@@ -50,7 +50,7 @@ const PropertyInspection = () => {
   const { toast } = useToast();
   const [property, setProperty] = useState<any>(null);
   const [tier, setTier] = useState<string>("documents_legitimacy");
-  const [form, setForm] = useState({ full_name: "", phone: "", email: "", preferred_date: "", notes: "", budget: "", payment_reference: "" });
+  const [form, setForm] = useState({ full_name: "", phone: "", email: "", preferred_date: "", notes: "", budget: "" });
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
 
@@ -68,7 +68,7 @@ const PropertyInspection = () => {
         .in("key", [
           "inspection_hero_headline", "inspection_hero_subtext", "inspection_hero_chips",
           "inspection_banner_image", "inspection_banner_text",
-          "inspection_steps", "inspection_compare_rows", "inspection_payment_methods",
+          "inspection_steps", "inspection_compare_rows",
           "inspection_footer_note",
         ]);
       const map: Record<string, string> = {};
@@ -102,7 +102,6 @@ const PropertyInspection = () => {
       ["Document Handling", "✗", "✓"],
     ];
   }, [settings.inspection_compare_rows]);
-  const paymentMethods = useMemo(() => parsePipes(settings.inspection_payment_methods), [settings.inspection_payment_methods]);
 
   const selectedTier = TIERS.find((t) => t.key === tier);
   const helpBuyFee = property ? +(Number(property.price_usd) * 0.04).toFixed(2) : 0;
@@ -357,15 +356,15 @@ const PropertyInspection = () => {
             <div className="space-y-2">
               <Input placeholder="Full Name *" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="rounded-xl" />
               <Input placeholder="Phone *" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-xl" />
-              <Input placeholder="Email (optional)" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl" />
+              <Input placeholder="Email *" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-xl" />
               <div>
-                <Label className="text-xs text-muted-foreground">Preferred Inspection Date</Label>
+                <Label className="text-xs text-muted-foreground">Preferred Inspection Date *</Label>
                 <Input type="date" value={form.preferred_date} onChange={(e) => setForm({ ...form, preferred_date: e.target.value })} className="rounded-xl" />
               </div>
               {tier === "help_me_buy" && (
-                <Input type="number" placeholder="Your Budget (USD)" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="rounded-xl" />
+                <Input type="number" placeholder="Your Budget (USD) *" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="rounded-xl" />
               )}
-              <Textarea placeholder="Additional notes for our team..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-xl" />
+              <Textarea placeholder="Additional notes for our team *" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="rounded-xl" />
             </div>
           </CardContent>
         </Card>
