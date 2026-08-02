@@ -100,10 +100,32 @@ const Notifications = () => {
 
     setSubmittingRef(notification.id);
     try {
-      // Check if this is a verification payment or promotion payment
+      // Check if this is a verification, inspection or promotion payment
       const isVerificationPayment = notification.title.includes("Verification") || notification.title.includes("Renewal");
-      
-      if (isVerificationPayment) {
+      const isInspectionPayment = notification.title.includes("Inspection");
+
+      if (isInspectionPayment) {
+        const { data: inspections } = await (supabase.from("property_inspections") as any)
+          .select("id")
+          .eq("requester_id", user.id)
+          .in("payment_status", ["payment_requested", "rejected", "unpaid"])
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (!inspections || inspections.length === 0) {
+          toast({ title: "No Pending Request", description: "Could not find an inspection awaiting payment.", variant: "destructive" });
+          return;
+        }
+
+        const { error } = await (supabase.rpc as any)("submit_inspection_payment_reference", {
+          p_inspection_id: inspections[0].id,
+          p_sender_name: name,
+          p_ref: ref,
+        });
+        if (error) throw error;
+        toast({ title: "Payment Reference Sent!", description: "Admin will verify your payment shortly." });
+      } else if (isVerificationPayment) {
+
         // Handle verification payment
         const { data: verificationRequests } = await supabase
           .from("verification_requests")
