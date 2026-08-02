@@ -27,8 +27,10 @@ const AMENITY_LABELS: Record<string, string> = {
 
 const HotelDetail = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+
   const { toast } = useToast();
   const [hotel, setHotel] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
