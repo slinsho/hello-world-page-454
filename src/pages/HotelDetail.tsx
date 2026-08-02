@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/SEOHead";
@@ -26,8 +27,10 @@ const AMENITY_LABELS: Record<string, string> = {
 
 const HotelDetail = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+
   const { toast } = useToast();
   const [hotel, setHotel] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
@@ -65,9 +68,15 @@ const HotelDetail = () => {
             .limit(1);
           if (bookings && bookings.length) {
             const alreadyReviewed = (rv || []).some((x: any) => x.guest_id === user.id && x.booking_id === bookings[0].id);
-            if (!alreadyReviewed) setEligibleBooking(bookings[0]);
+            if (!alreadyReviewed) {
+              setEligibleBooking(bookings[0]);
+              if (searchParams.get("review") === "1") setReviewOpen(true);
+            } else if (searchParams.get("review") === "1") {
+              toast({ title: "Already reviewed", description: "You've already left a review for this stay." });
+            }
           }
         }
+
       }
       setLoading(false);
     })();

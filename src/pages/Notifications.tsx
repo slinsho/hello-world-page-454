@@ -56,13 +56,34 @@ const Notifications = () => {
 
   const markAsRead = async (id: string) => { await supabase.from("notifications").update({ is_read: true }).eq("id", id); setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n)); };
   const deleteNotification = async (id: string) => { await supabase.from("notifications").delete().eq("id", id); setNotifications(prev => prev.filter(n => n.id !== id)); };
-  const handlePropertyClick = (notification: Notification) => { if (notification.property_id) { markAsRead(notification.id); navigate(`/property/${notification.property_id}`); } };
+
+  const isReviewPrompt = (n: Notification) => n.title.toLowerCase().includes("how was your stay");
+
+  const handleReviewPrompt = async (notification: Notification) => {
+    if (!user) return;
+    markAsRead(notification.id);
+    const { data } = await supabase
+      .from("hotel_bookings")
+      .select("hotel_id, checked_out_at")
+      .eq("guest_id", user.id)
+      .not("checked_out_at", "is", null)
+      .order("checked_out_at", { ascending: false })
+      .limit(1);
+    if (data && data.length) navigate(`/hotels/${data[0].hotel_id}?review=1`);
+    else toast({ title: "Booking not found", description: "We couldn't find a completed stay to review.", variant: "destructive" });
+  };
+
+  const handlePropertyClick = (notification: Notification) => {
+    if (isReviewPrompt(notification)) { handleReviewPrompt(notification); return; }
+    if (notification.property_id) { markAsRead(notification.id); navigate(`/property/${notification.property_id}`); }
+  };
 
   const isPaymentNotification = (notification: Notification) => {
     return (notification.title.includes("Payment Required") || notification.title.includes("Qualified") || notification.title.includes("Resend Required"))
       && !notification.title.includes("Promoted")
       && !notification.title.includes("Rejected");
   };
+
 
   const handleSubmitPaymentRef = async (notification: Notification) => {
     if (!user) return;
@@ -79,10 +100,32 @@ const Notifications = () => {
 
     setSubmittingRef(notification.id);
     try {
-      // Check if this is a verification payment or promotion payment
+      // Check if this is a verification, inspection or promotion payment
       const isVerificationPayment = notification.title.includes("Verification") || notification.title.includes("Renewal");
-      
-      if (isVerificationPayment) {
+      const isInspectionPayment = notification.title.includes("Inspection");
+
+      if (isInspectionPayment) {
+        const { data: inspections } = await (supabase.from("property_inspections") as any)
+          .select("id")
+          .eq("requester_id", user.id)
+          .in("payment_status", ["payment_requested", "rejected", "unpaid"])
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (!inspections || inspections.length === 0) {
+          toast({ title: "No Pending Request", description: "Could not find an inspection awaiting payment.", variant: "destructive" });
+          return;
+        }
+
+        const { error } = await (supabase.rpc as any)("submit_inspection_payment_reference", {
+          p_inspection_id: inspections[0].id,
+          p_sender_name: name,
+          p_ref: ref,
+        });
+        if (error) throw error;
+        toast({ title: "Payment Reference Sent!", description: "Admin will verify your payment shortly." });
+      } else if (isVerificationPayment) {
+
         // Handle verification payment
         const { data: verificationRequests } = await supabase
           .from("verification_requests")
