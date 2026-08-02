@@ -377,29 +377,12 @@ const PropertyInspection = () => {
           </CardContent>
         </Card>
 
-        {/* Payment methods */}
-        {paymentMethods.length > 0 && (
-          <Card className="rounded-2xl border-0 shadow-md">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Wallet className="w-4 h-4 text-primary" />
-                <h2 className="font-bold text-sm">Payment methods</h2>
-              </div>
-              <div className="space-y-2">
-                {paymentMethods.map((row, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-xl border p-2.5 bg-muted/40">
-                    <span className="text-xs font-semibold">{row[0]}</span>
-                    <span className="text-xs font-mono text-muted-foreground">{row[1]}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3">
-                <Label className="text-xs text-muted-foreground">Payment reference (Sender Name - Ref)</Label>
-                <Input placeholder="e.g. John Doe - TXN123456" value={form.payment_reference} onChange={(e) => setForm({ ...form, payment_reference: e.target.value })} className="rounded-xl mt-1" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Payment happens after admin approval — a payment notification is sent then. */}
+        <div className="rounded-2xl border border-dashed p-3 flex items-start gap-2 text-xs text-muted-foreground">
+          <Wallet className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+          <span>No payment now. Once an admin approves your request, you'll get a notification with the payment details and where to submit your payment reference.</span>
+        </div>
+
 
         {/* Social proof */}
         <div className="rounded-2xl bg-card border p-4">
