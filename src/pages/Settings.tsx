@@ -116,7 +116,7 @@ const Settings = () => {
   const { preferences: userPrefs, updatePreference } = useUserPreferences();
 
   // Load profile
-  useState(() => {
+  useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().then(({ data }) => {
       if (data) {
@@ -141,7 +141,8 @@ const Settings = () => {
       }
       setLoading(false);
     });
-  });
+  }, [user, navigate]);
+
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut({ scope: 'local' });
