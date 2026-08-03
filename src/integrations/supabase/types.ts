@@ -1827,6 +1827,66 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_public: {
+        Row: {
+          bio: string | null
+          buyer_verified: boolean | null
+          county: string | null
+          cover_photo_url: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          profile_photo_url: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
+          social_whatsapp: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Insert: {
+          bio?: string | null
+          buyer_verified?: boolean | null
+          county?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          profile_photo_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Update: {
+          bio?: string | null
+          buyer_verified?: boolean | null
+          county?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          profile_photo_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          social_whatsapp?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+        }
+        Relationships: []
+      }
       property_views_safe: {
         Row: {
           id: string | null
