@@ -75,7 +75,7 @@ export function DashboardInquiries({ userId, propertyIds }: DashboardInquiriesPr
     let verifiedSet = new Set<string>();
     if (senderIds.length > 0) {
       const { data: verifiedProfiles } = await supabase
-        .from("profiles_public" as any)
+        .from("profiles_public")
         .select("id, buyer_verified" as any)
         .in("id", senderIds);
       verifiedSet = new Set(

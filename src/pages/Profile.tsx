@@ -135,7 +135,7 @@ const Profile = () => {
       const isSelf = targetUserId === user?.id;
       const { data, error } = isSelf
         ? await supabase.from("profiles").select("*").eq("id", targetUserId).maybeSingle()
-        : await (supabase.from("profiles_public" as any).select("*").eq("id", targetUserId).maybeSingle() as any);
+        : await (supabase.from("profiles_public").select("*").eq("id", targetUserId).maybeSingle() as any);
       if (error) {
         console.error("fetchProfile error:", error);
         toast({ title: "Error", description: error.message || "Failed to load profile", variant: "destructive" });

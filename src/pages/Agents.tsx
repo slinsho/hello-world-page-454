@@ -65,7 +65,7 @@ export default function Agents() {
 
       // Fetch property owners as before
       const { data: ownersData } = await supabase
-        .from("profiles_public" as any)
+        .from("profiles_public")
         .select("*")
         .eq("role", "property_owner")
         .order("name", { ascending: true });

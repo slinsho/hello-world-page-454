@@ -79,7 +79,7 @@ const Index = () => {
         return;
       }
       const { data: prof } = await supabase
-        .from("profiles_public" as any)
+        .from("profiles_public")
         .select("id, name, role, verification_status, profile_photo_url")
         .eq("id", row.owner_id)
         .maybeSingle();

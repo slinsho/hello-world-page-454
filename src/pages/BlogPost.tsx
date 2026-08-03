@@ -127,7 +127,7 @@ export default function BlogPost() {
       let authorName: string | undefined;
       if (data.author_id) {
         const { data: profile } = await supabase
-          .from("profiles_public" as any)
+          .from("profiles_public")
           .select("name")
           .eq("id", data.author_id)
           .maybeSingle();

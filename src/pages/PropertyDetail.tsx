@@ -61,7 +61,7 @@ const PropertyDetail = () => {
     const { data: propertyData } = await supabase.from("properties").select("*").eq("id", id).single();
     if (propertyData) {
       const [{ data: profileData }, { data: agentData }] = await Promise.all([
-        supabase.from("profiles_public" as any).select("id, name, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle(),
+        supabase.from("profiles_public").select("id, name, profile_photo_url, role, verification_status").eq("id", propertyData.owner_id).maybeSingle(),
         supabase.from("verification_requests").select("agency_name, agency_logo, verification_type").eq("user_id", propertyData.owner_id).eq("status", "approved").eq("verification_type", "agent").maybeSingle(),
       ]);
 
