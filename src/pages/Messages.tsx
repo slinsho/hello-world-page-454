@@ -86,7 +86,7 @@ export default function Messages() {
     if (!error && data) {
       const convosWithProfiles = await Promise.all(data.map(async (convo: any) => {
         const otherId = convo.participant_1 === user.id ? convo.participant_2 : convo.participant_1;
-        const { data: profile } = await supabase.from("profiles").select("id, name, profile_photo_url").eq("id", otherId).single();
+        const { data: profile } = await supabase.from("profiles_public").select("id, name, profile_photo_url").eq("id", otherId).maybeSingle();
         const { count } = await supabase.from("messages").select("*", { count: "exact", head: true }).eq("conversation_id", convo.id).eq("is_read", false).neq("sender_id", user.id);
         const { data: lastMsg } = await supabase.from("messages").select("content").eq("conversation_id", convo.id).order("created_at", { ascending: false }).limit(1).single();
         return { ...convo, other_user: profile, property: convo.properties, unread_count: count || 0, last_message: lastMsg?.content || "" };

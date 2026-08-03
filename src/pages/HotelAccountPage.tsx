@@ -21,14 +21,14 @@ const HotelAccountPage = () => {
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
       .then(({ data }) => setProfile(data));
     (async () => {
-      const { data: h } = await supabase.from("hotels").select("id,rating").eq("owner_id", user.id);
+      const { data: h } = await supabase.from("hotels").select("id,star_rating").eq("owner_id", user.id);
       const ids = (h || []).map((x: any) => x.id);
       let bookings = 0;
       if (ids.length) {
         const { count } = await supabase.from("hotel_bookings").select("id", { count: "exact", head: true }).in("hotel_id", ids);
         bookings = count || 0;
       }
-      const ratings = (h || []).map((x: any) => Number(x.rating) || 0).filter(Boolean);
+      const ratings = (h || []).map((x: any) => Number(x.star_rating) || 0).filter(Boolean);
       const avg = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
       setStats({ hotels: (h || []).length, bookings, rating: Number(avg.toFixed(1)) });
     })();

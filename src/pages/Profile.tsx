@@ -132,7 +132,10 @@ const Profile = () => {
     const targetUserId = profileId || user?.id;
     if (!targetUserId) { setLoading(false); return; }
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", targetUserId).maybeSingle();
+      const isSelf = targetUserId === user?.id;
+      const { data, error } = isSelf
+        ? await supabase.from("profiles").select("*").eq("id", targetUserId).maybeSingle()
+        : await (supabase.from("profiles_public").select("*").eq("id", targetUserId).maybeSingle() as any);
       if (error) {
         console.error("fetchProfile error:", error);
         toast({ title: "Error", description: error.message || "Failed to load profile", variant: "destructive" });

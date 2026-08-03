@@ -50,7 +50,7 @@
        weekAgo.setDate(weekAgo.getDate() - 7);
        const { count: totalViews } = await supabase
          .from("property_views")
-         .select("*", { count: "exact", head: true })
+         .select("id", { count: "exact", head: true })
          .gte("viewed_at", weekAgo.toISOString());
  
        // Get new listings this week

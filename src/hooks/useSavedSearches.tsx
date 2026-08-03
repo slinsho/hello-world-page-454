@@ -78,7 +78,7 @@ export function useSavedSearches() {
         notify_new_matches: notifyNewMatches,
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       toast({

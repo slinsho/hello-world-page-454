@@ -54,7 +54,7 @@ export const UserPreferencesProvider = ({ children }: { children: React.ReactNod
         .from("user_preferences" as any)
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         const d = data as any;
@@ -107,7 +107,7 @@ export async function fetchUserPrivacySettings(userId: string): Promise<{ show_p
     .from("user_preferences" as any)
     .select("show_phone, show_email, show_location")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
   if (data) {
     const d = data as any;

@@ -60,7 +60,7 @@ export default function OwnerDashboard() {
     if (propertiesData) {
       const propsWithStats = await Promise.all(
         propertiesData.map(async (prop) => {
-          const { count: viewsCount } = await supabase.from("property_views").select("*", { count: "exact", head: true }).eq("property_id", prop.id);
+          const { count: viewsCount } = await supabase.from("property_views").select("id", { count: "exact", head: true }).eq("property_id", prop.id);
           const { count: inquiriesCount } = await supabase.from("property_inquiries").select("*", { count: "exact", head: true }).eq("property_id", prop.id);
           return { ...prop, views_count: viewsCount || 0, inquiries_count: inquiriesCount || 0 };
         })

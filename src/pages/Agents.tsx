@@ -32,8 +32,6 @@ interface LeaderRow {
 interface OwnerRow {
   id: string;
   name: string;
-  email: string;
-  phone: string | null;
   bio: string | null;
   profile_photo_url: string | null;
   county: string | null;
@@ -65,7 +63,7 @@ export default function Agents() {
 
       // Fetch property owners as before
       const { data: ownersData } = await supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("*")
         .eq("role", "property_owner")
         .order("name", { ascending: true });
@@ -87,7 +85,7 @@ export default function Agents() {
           if (b.verification_status === "approved" && a.verification_status !== "approved") return 1;
           return (b.property_count || 0) - (a.property_count || 0);
         });
-        setOwners(enriched as OwnerRow[]);
+        setOwners(enriched as unknown as OwnerRow[]);
       }
       setLoading(false);
     })();
