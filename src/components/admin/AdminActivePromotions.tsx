@@ -115,7 +115,7 @@ export function AdminActivePromotions() {
       const viewPromises = propertyIds.map(async (pid) => {
         const since = promoStartDates[pid];
         if (!since) return { pid, count: 0 };
-        const { count } = await supabase.from("property_views").select("*", { count: "exact", head: true }).eq("property_id", pid).gte("viewed_at", since);
+        const { count } = await supabase.from("property_views").select("id", { count: "exact", head: true }).eq("property_id", pid).gte("viewed_at", since);
         return { pid, count: count || 0 };
       });
       const inquiryPromises = propertyIds.map(async (pid) => {
