@@ -34,6 +34,7 @@ const Upload = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [checkingAccess, setCheckingAccess] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [propertyCount, setPropertyCount] = useState(0);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -58,9 +59,23 @@ const Upload = () => {
       }
       const { count } = await supabase.from("properties").select("*", { count: "exact", head: true }).eq("owner_id", user.id);
       setPropertyCount(count || 0);
+      setCheckingAccess(false);
     };
     checkVerificationAndRole();
   }, [user, navigate]);
+
+  if (checkingAccess) {
+    return (
+      <div className="min-h-screen bg-background"><Navbar />
+        <div className="px-4 pt-16 max-w-sm mx-auto md:max-w-lg space-y-4">
+          <div className="h-20 w-20 rounded-full bg-muted animate-pulse mx-auto" />
+          <div className="h-5 w-2/3 bg-muted rounded animate-pulse mx-auto" />
+          <div className="h-4 w-full bg-muted rounded animate-pulse" />
+          <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   const isOwner = userRole === "property_owner";
   const ownerAtLimit = isOwner && propertyCount >= 2;

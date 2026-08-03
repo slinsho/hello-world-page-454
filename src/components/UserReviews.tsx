@@ -58,7 +58,7 @@ export function UserReviews({ userId, userName, propertyId, showAddReview = true
       const reviewsWithProfiles = await Promise.all(
         data.map(async (review: any) => {
           const { data: profile } = await supabase
-            .from("profiles")
+            .from("profiles_public" as any)
             .select("name, profile_photo_url")
             .eq("id", review.reviewer_id)
             .single();

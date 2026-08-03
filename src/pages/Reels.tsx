@@ -107,7 +107,7 @@ const Reels = () => {
       let profilesMap = new Map<string, any>();
       if (ownerIds.length > 0) {
         const { data: profilesData } = await supabase
-          .from("profiles")
+          .from("profiles_public" as any)
           .select("id, name, role, profile_photo_url, verification_status")
           .in("id", ownerIds);
         profilesMap = new Map((profilesData || []).map((p: any) => [p.id, p]));

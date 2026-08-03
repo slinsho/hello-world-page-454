@@ -74,7 +74,7 @@ const Settings = () => {
         .from("notification_preferences" as any)
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
       if (data) {
         const d = data as any;
         setNotifPrefs({
@@ -98,7 +98,7 @@ const Settings = () => {
       .from("notification_preferences" as any)
       .select("id")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
     if (existing) {
       await supabase
         .from("notification_preferences" as any)
@@ -118,7 +118,7 @@ const Settings = () => {
   // Load profile
   useState(() => {
     if (!user) { navigate("/auth"); return; }
-    supabase.from("profiles").select("*").eq("id", user.id).single().then(({ data }) => {
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().then(({ data }) => {
       if (data) {
         setProfile(data);
         setEditForm({ name: data.name || "", county: data.county || "", address: data.address || "", bio: (data as any).bio || "" });

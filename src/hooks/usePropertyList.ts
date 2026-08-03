@@ -79,8 +79,8 @@ async function fetchPage(params: {
   let profilesMap = new Map<string, any>();
   if (ownerIds.length) {
     const { data: profs } = await supabase
-      .from("profiles")
-      .select("id, name, role, verification_status, phone, profile_photo_url")
+      .from("profiles_public" as any)
+      .select("id, name, role, verification_status, profile_photo_url")
       .in("id", ownerIds);
     profilesMap = new Map((profs || []).map((p: any) => [p.id, p]));
   }
