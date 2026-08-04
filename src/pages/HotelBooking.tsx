@@ -104,7 +104,17 @@ const HotelBooking = () => {
   const losMin = Number(pricingRule?.los_min_nights || 0);
   const losPct = Number(pricingRule?.los_discount_pct || 0);
   const losDiscount = losMin > 0 && losPct > 0 && nights >= losMin ? +(subtotal * (losPct / 100)).toFixed(2) : 0;
-  const discountedSubtotal = subtotal - losDiscount;
+  // Early-bird / last-minute deals
+  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  const daysAhead = checkIn ? Math.round((new Date(`${checkIn}T00:00:00`).getTime() - today0.getTime()) / 86400000) : 0;
+  const ebPct = Number(pricingRule?.early_bird_pct || 0);
+  const ebDays = Number(pricingRule?.early_bird_days || 0);
+  const earlyBirdDiscount = ebPct > 0 && ebDays > 0 && daysAhead >= ebDays ? +(subtotal * (ebPct / 100)).toFixed(2) : 0;
+  const lmPct = Number(pricingRule?.last_minute_pct || 0);
+  const lmDays = Number(pricingRule?.last_minute_days || 0);
+  const lastMinuteDiscount = lmPct > 0 && lmDays > 0 && daysAhead <= lmDays ? +(subtotal * (lmPct / 100)).toFixed(2) : 0;
+  const totalDiscount = +(losDiscount + earlyBirdDiscount + lastMinuteDiscount).toFixed(2);
+  const discountedSubtotal = subtotal - totalDiscount;
   const taxes = +(discountedSubtotal * 0.1).toFixed(2);
   const serviceFee = +(discountedSubtotal * 0.05).toFixed(2);
   const total = discountedSubtotal + taxes + serviceFee;
@@ -265,6 +275,9 @@ const HotelBooking = () => {
             <p className="text-sm font-semibold mb-3">{METHODS.find((m) => m.value === method)?.label}</p>
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">${room?.price_per_night || 0} × {nights} nights</span><span className="tabular-nums">${subtotal.toFixed(2)}</span></div>
+              {losDiscount > 0 && (<div className="flex justify-between text-primary"><span>Long-stay discount ({losPct}%)</span><span className="tabular-nums">-${losDiscount.toFixed(2)}</span></div>)}
+              {earlyBirdDiscount > 0 && (<div className="flex justify-between text-primary"><span>Early-bird discount ({ebPct}%)</span><span className="tabular-nums">-${earlyBirdDiscount.toFixed(2)}</span></div>)}
+              {lastMinuteDiscount > 0 && (<div className="flex justify-between text-primary"><span>Last-minute deal ({lmPct}%)</span><span className="tabular-nums">-${lastMinuteDiscount.toFixed(2)}</span></div>)}
               <div className="flex justify-between"><span className="text-muted-foreground">Taxes & fees</span><span className="tabular-nums">${taxes.toFixed(2)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Service fee</span><span className="tabular-nums">${serviceFee.toFixed(2)}</span></div>
             </div>
@@ -485,6 +498,9 @@ const HotelBooking = () => {
           <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">Price details</h3>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">${room?.price_per_night || 0} × {nights} nights</span><span className="tabular-nums">${subtotal.toFixed(2)}</span></div>
+            {losDiscount > 0 && (<div className="flex justify-between text-primary"><span>Long-stay discount ({losPct}%)</span><span className="tabular-nums">-${losDiscount.toFixed(2)}</span></div>)}
+            {earlyBirdDiscount > 0 && (<div className="flex justify-between text-primary"><span>Early-bird discount ({ebPct}%)</span><span className="tabular-nums">-${earlyBirdDiscount.toFixed(2)}</span></div>)}
+            {lastMinuteDiscount > 0 && (<div className="flex justify-between text-primary"><span>Last-minute deal ({lmPct}%)</span><span className="tabular-nums">-${lastMinuteDiscount.toFixed(2)}</span></div>)}
             <div className="flex justify-between"><span className="text-muted-foreground">Taxes & fees</span><span className="tabular-nums">${taxes.toFixed(2)}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Service fee</span><span className="tabular-nums">${serviceFee.toFixed(2)}</span></div>
           </div>

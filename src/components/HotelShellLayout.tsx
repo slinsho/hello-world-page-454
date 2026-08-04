@@ -4,7 +4,7 @@ import { LayoutDashboard, Building2, BedDouble, CalendarCheck, User, Bell, Menu,
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface Props {
   children: ReactNode;
@@ -68,6 +68,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                       </div>
                     </div>
+                    <SheetDescription className="sr-only">Hotel dashboard navigation menu</SheetDescription>
                   </SheetHeader>
                   <div className="p-2">
                     {[

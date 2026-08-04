@@ -1,11 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DateRange } from "react-day-picker";
 import { ArrowLeft, ShieldCheck, Users, Maximize2, Flame, Minus, Plus, Calendar as CalIcon, BedDouble, Wifi, Waves, Coffee, Car, Snowflake, Dumbbell, Utensils, Tv, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BookingStepper } from "@/components/booking/BookingStepper";
+
+const isoLocal = (d: Date) => {
+  const x = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return x.toISOString().slice(0, 10);
+};
+const startOfToday = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
 
 const HotelRooms = () => {
   const { id } = useParams();
@@ -14,10 +26,15 @@ const HotelRooms = () => {
   const [hotel, setHotel] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const today = new Date().toISOString().slice(0, 10);
-  const [checkIn, setCheckIn] = useState(today);
-  const [checkOut, setCheckOut] = useState(new Date(Date.now() + 86400000).toISOString().slice(0, 10));
   const [guests, setGuests] = useState(2);
+  const [range, setRange] = useState<DateRange | undefined>({
+    from: startOfToday(),
+    to: new Date(startOfToday().getTime() + 86400000),
+  });
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [unavailable, setUnavailable] = useState<Set<string>>(new Set());
+  const [pricingRule, setPricingRule] = useState<any>(null);
+  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
     (async () => {
@@ -26,24 +43,104 @@ const HotelRooms = () => {
       setHotel(h);
       setRooms(r || []);
       if (r?.length) setSelectedRoom(r[0].id);
+      const { data: rule } = await (supabase.from("hotel_pricing_rules" as any) as any)
+        .select("*").eq("hotel_id", id).maybeSingle();
+      setPricingRule(rule);
     })();
   }, [id]);
 
-  const nights = Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000));
+  // Load blocked dates + existing bookings + price overrides for the selected room
+  useEffect(() => {
+    if (!selectedRoom) return;
+    (async () => {
+      const from = isoLocal(startOfToday());
+      const to = isoLocal(new Date(startOfToday().getTime() + 365 * 86400000));
+      const [{ data: av }, { data: bk }] = await Promise.all([
+        (supabase.from("room_availability" as any) as any).select("date,is_blocked,price_override").eq("room_id", selectedRoom).gte("date", from).lte("date", to),
+        supabase.from("hotel_bookings").select("check_in,check_out,status").eq("room_id", selectedRoom).gte("check_out", from),
+      ]);
+      const blocked = new Set<string>();
+      const prices: Record<string, number> = {};
+      (av || []).forEach((a: any) => {
+        if (a.is_blocked) blocked.add(a.date);
+        if (a.price_override != null) prices[a.date] = Number(a.price_override);
+      });
+      (bk || []).forEach((b: any) => {
+        if (["cancelled", "rejected"].includes(b.status)) return;
+        const start = new Date(`${b.check_in}T00:00:00`);
+        const end = new Date(`${b.check_out}T00:00:00`);
+        for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) blocked.add(isoLocal(d));
+      });
+      setUnavailable(blocked);
+      setPriceMap(prices);
+    })();
+  }, [selectedRoom]);
+
+  const checkIn = range?.from ? isoLocal(range.from) : "";
+  const checkOut = range?.to ? isoLocal(range.to) : "";
+  const nights = range?.from && range?.to
+    ? Math.max(1, Math.round((range.to.getTime() - range.from.getTime()) / 86400000))
+    : 1;
   const room = rooms.find((r) => r.id === selectedRoom);
-  const subtotal = room ? Number(room.price_per_night) * nights : 0;
+
+  // Nightly pricing honoring overrides + weekend surcharge, then LOS / early-bird / last-minute
+  const pricing = useMemo(() => {
+    if (!room || !range?.from || !range?.to) return { subtotal: 0, discount: 0, total: 0, labels: [] as string[] };
+    const base = Number(room.price_per_night) || 0;
+    const weekendDays: number[] = pricingRule?.weekend_days || [];
+    const weekendPct = Number(pricingRule?.weekend_surcharge_pct || 0);
+    let subtotal = 0;
+    for (let i = 0; i < nights; i++) {
+      const d = new Date(range.from);
+      d.setDate(d.getDate() + i);
+      const key = isoLocal(d);
+      let p = priceMap[key] != null ? priceMap[key] : base;
+      if (priceMap[key] == null && weekendPct > 0 && weekendDays.includes(d.getDay())) {
+        p = p * (1 + weekendPct / 100);
+      }
+      subtotal += p;
+    }
+    const labels: string[] = [];
+    let discount = 0;
+    const losMin = Number(pricingRule?.los_min_nights || 0);
+    const losPct = Number(pricingRule?.los_discount_pct || 0);
+    if (losMin > 0 && losPct > 0 && nights >= losMin) { discount += subtotal * (losPct / 100); labels.push(`${losPct}% long-stay discount`); }
+    const daysAhead = Math.round((range.from.getTime() - startOfToday().getTime()) / 86400000);
+    const ebPct = Number(pricingRule?.early_bird_pct || 0);
+    const ebDays = Number(pricingRule?.early_bird_days || 0);
+    if (ebPct > 0 && ebDays > 0 && daysAhead >= ebDays) { discount += subtotal * (ebPct / 100); labels.push(`${ebPct}% early-bird discount`); }
+    const lmPct = Number(pricingRule?.last_minute_pct || 0);
+    const lmDays = Number(pricingRule?.last_minute_days || 0);
+    if (lmPct > 0 && lmDays > 0 && daysAhead <= lmDays) { discount += subtotal * (lmPct / 100); labels.push(`${lmPct}% last-minute deal`); }
+    return { subtotal: +subtotal.toFixed(2), discount: +discount.toFixed(2), total: +(subtotal - discount).toFixed(2), labels };
+  }, [room, range, nights, pricingRule, priceMap]);
+
+  const rangeHasBlocked = useMemo(() => {
+    if (!range?.from || !range?.to) return false;
+    for (let i = 0; i < nights; i++) {
+      const d = new Date(range.from);
+      d.setDate(d.getDate() + i);
+      if (unavailable.has(isoLocal(d))) return true;
+    }
+    return false;
+  }, [range, nights, unavailable]);
 
   const proceed = () => {
     if (!selectedRoom) { toast({ title: "Select a room", variant: "destructive" }); return; }
-    if (new Date(checkOut) <= new Date(checkIn)) { toast({ title: "Invalid dates", variant: "destructive" }); return; }
+    if (!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn)) {
+      toast({ title: "Pick your dates", description: "Choose a check-in and check-out date.", variant: "destructive" });
+      setPickerOpen(true);
+      return;
+    }
+    if (rangeHasBlocked) {
+      toast({ title: "Dates unavailable", description: "Some nights in your selection are already booked or blocked.", variant: "destructive" });
+      return;
+    }
     navigate(`/hotels/${id}/book?room=${selectedRoom}&in=${checkIn}&out=${checkOut}&guests=${guests}`);
   };
 
-  const fmtDate = (d: string) => {
-    if (!d) return "—";
-    const dt = new Date(d);
-    return dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-  };
+  const fmtDate = (d?: Date) =>
+    d ? d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "Select";
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -78,36 +175,45 @@ const HotelRooms = () => {
       </div>
 
       <main className="max-w-2xl mx-auto px-4 pt-3 space-y-4">
-        {/* Dates + guests native sheet */}
+        {/* Dates + guests */}
         <section className="rounded-2xl bg-card border border-border overflow-hidden">
-          <div className="grid grid-cols-2 divide-x divide-border">
-            <label className="p-3 active:bg-muted/50 transition-colors cursor-pointer relative">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                <CalIcon className="w-3 h-3" />Check-in
-              </div>
-              <div className="font-bold text-sm mt-0.5 tabular-nums">{fmtDate(checkIn)}</div>
-              <input
-                type="date"
-                value={checkIn}
-                min={today}
-                onChange={(e) => setCheckIn(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer"
+          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <PopoverTrigger asChild>
+              <button type="button" className="w-full grid grid-cols-2 divide-x divide-border text-left active:bg-muted/50 transition-colors">
+                <div className="p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <CalIcon className="w-3 h-3" />Check-in
+                  </div>
+                  <div className="font-bold text-sm mt-0.5 tabular-nums">{fmtDate(range?.from)}</div>
+                </div>
+                <div className="p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <CalIcon className="w-3 h-3" />Check-out
+                  </div>
+                  <div className="font-bold text-sm mt-0.5 tabular-nums">{fmtDate(range?.to)}</div>
+                </div>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <Calendar
+                mode="range"
+                numberOfMonths={1}
+                selected={range}
+                onSelect={(r) => {
+                  setRange(r);
+                  if (r?.from && r?.to) setPickerOpen(false);
+                }}
+                disabled={[{ before: startOfToday() }, (d: Date) => unavailable.has(isoLocal(d))]}
+                initialFocus
+                className="p-3 pointer-events-auto"
               />
-            </label>
-            <label className="p-3 active:bg-muted/50 transition-colors cursor-pointer relative">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                <CalIcon className="w-3 h-3" />Check-out
+              <div className="border-t p-2 flex items-center justify-between gap-2">
+                <p className="text-[11px] text-muted-foreground px-1">Unavailable nights are disabled</p>
+                <Button size="sm" variant="ghost" className="h-8 rounded-full" onClick={() => setRange(undefined)}>Clear</Button>
               </div>
-              <div className="font-bold text-sm mt-0.5 tabular-nums">{fmtDate(checkOut)}</div>
-              <input
-                type="date"
-                value={checkOut}
-                min={checkIn}
-                onChange={(e) => setCheckOut(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </label>
-          </div>
+            </PopoverContent>
+          </Popover>
+
           <div className="border-t border-border p-3 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
@@ -137,6 +243,19 @@ const HotelRooms = () => {
             </div>
           </div>
         </section>
+
+        {rangeHasBlocked && (
+          <p className="text-[11px] font-medium text-destructive px-1">
+            Some nights in your selection are unavailable. Please pick different dates.
+          </p>
+        )}
+        {pricing.labels.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 px-1">
+            {pricing.labels.map((l) => (
+              <span key={l} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{l}</span>
+            ))}
+          </div>
+        )}
 
         {/* Section title */}
         <div className="flex items-baseline justify-between px-1">
@@ -223,12 +342,16 @@ const HotelRooms = () => {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               {nights} Night{nights > 1 ? "s" : ""} · {guests} {guests === 1 ? "guest" : "guests"}
             </p>
-            <p className="font-bold text-base tabular-nums leading-tight">
-              <span className="text-primary">${subtotal.toFixed(2)}</span>
+            <p className="font-bold text-base tabular-nums leading-tight flex items-baseline gap-1.5">
+              {pricing.discount > 0 && (
+                <span className="text-[11px] text-muted-foreground line-through">${pricing.subtotal.toFixed(2)}</span>
+              )}
+              <span className="text-primary">${pricing.total.toFixed(2)}</span>
             </p>
           </div>
           <Button
             onClick={proceed}
+            disabled={rangeHasBlocked}
             className="h-12 px-6 rounded-2xl font-semibold text-sm active:scale-[0.98] shadow-lg"
           >
             Continue
