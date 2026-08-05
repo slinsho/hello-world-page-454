@@ -180,6 +180,7 @@ const App = () => (
                 </Routes>
               </Suspense>
             </div>
+            </SearchOverlayProvider>
           </BrowserRouter>
         </TooltipProvider>
       </UserPreferencesProvider>
