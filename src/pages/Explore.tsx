@@ -15,6 +15,7 @@ import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList"
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
+  const searchOverlay = useSearchOverlay();
   const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
