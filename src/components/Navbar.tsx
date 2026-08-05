@@ -229,6 +229,7 @@ const Navbar = () => {
       } else {
         params.delete("type");
       }
+      searchOverlay.start("Applying filters");
       navigate(`/?${params.toString()}`);
     }
   };
@@ -251,14 +252,16 @@ const Navbar = () => {
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (searchQuery) params.set("search", searchQuery);
-    navigate(`/?${params.toString()}`);
     setFilterOpen(false);
+    searchOverlay.start("Applying filters");
+    navigate(`/?${params.toString()}`);
   };
 
   return (
     <>
       <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
-      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} onCancel={cancelSearch} />}
+
+
 
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
