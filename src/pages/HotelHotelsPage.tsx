@@ -242,7 +242,7 @@ const HotelHotelsPage = () => {
                 <p className="text-xs text-muted-foreground truncate">Verify to activate hotels</p>
               </div>
             </div>
-            <Button size="sm" className="rounded-full" onClick={() => navigate("/verification")}>Verify</Button>
+            <Button size="sm" className="rounded-full" onClick={() => navigate("/verification?type=hotel")}>Verify</Button>
           </div>
         )}
 
