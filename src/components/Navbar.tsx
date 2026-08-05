@@ -199,20 +199,12 @@ const Navbar = () => {
     setSearchFocused(false);
     if (q) addRecent(q);
 
-    const target = (() => {
-      if (location.pathname === "/") {
-        const params = new URLSearchParams(window.location.search);
-        if (q) params.set("search", q);
-        else params.delete("search");
-        return `/?${params.toString()}`;
-      }
-      return q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
-    })();
+    // Searches always resolve on the Explore page.
+    const target = q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
 
-    // Navigate immediately — the destination page shows its own skeleton loader.
-    // (Removed 800 ms artificial delay that made every search feel slow.)
     clearSearchTimer();
     setLoadingQuery(q);
+    searchOverlay.start(q || undefined);
     navigate(target);
   };
 
