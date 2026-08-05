@@ -122,14 +122,14 @@ const Index = () => {
       <Link
         to="/want-to-buy"
         aria-label="Want to Buy"
-        className="fixed left-2 top-1/2 -translate-y-1/2 z-40 rounded-none bg-gradient-to-br from-primary/90 to-primary px-2.5 py-1.5 text-primary-foreground shadow-lg active:scale-95 transition whitespace-nowrap"
+        className="fixed left-2 top-1/2 -translate-y-1/2 z-40 rounded-lg bg-gradient-to-br from-primary/90 to-primary px-2.5 py-1.5 text-primary-foreground shadow-lg active:scale-95 transition whitespace-nowrap"
       >
         <span className="font-bold text-[11px] leading-none">Want to Buy</span>
       </Link>
       <Link
         to="/hotels"
         aria-label="Book Hotel"
-        className="fixed right-2 top-1/2 -translate-y-1/2 z-40 rounded-none bg-gradient-to-br from-blue-600 to-blue-700 px-2.5 py-1.5 text-white shadow-lg active:scale-95 transition whitespace-nowrap"
+        className="fixed right-2 top-1/2 -translate-y-1/2 z-40 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 px-2.5 py-1.5 text-white shadow-lg active:scale-95 transition whitespace-nowrap"
       >
         <span className="font-bold text-[11px] leading-none">Book Hotel</span>
       </Link>
