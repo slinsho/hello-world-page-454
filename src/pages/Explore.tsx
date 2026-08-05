@@ -152,6 +152,7 @@ const Explore = () => {
                             type="button"
                             onClick={() => {
                               setSearchInput(r);
+                              searchOverlay.start(r);
                               setSearchQuery(r);
                               addRecent(r);
                               setShowRecents(false);
