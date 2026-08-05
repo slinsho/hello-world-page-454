@@ -50,8 +50,13 @@ const Verification = () => {
     tinNumber: "",
   });
 
-  const [isBuyer, setIsBuyer] = useState(false);
-  const [isHotel, setIsHotel] = useState(false);
+  // Initialise synchronously from the URL (and a cached role) so the correct
+  // form renders on first paint instead of flashing the owner/green-badge view.
+  const initialParams = new URLSearchParams(window.location.search);
+  const initialType = initialParams.get("type");
+  const cachedRole = typeof localStorage !== "undefined" ? localStorage.getItem("lprop_role") : null;
+  const [isBuyer, setIsBuyer] = useState(initialType === "buyer");
+  const [isHotel, setIsHotel] = useState(initialType === "hotel" || (initialType !== "buyer" && cachedRole === "hotel"));
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     const fetchRole = async () => {
