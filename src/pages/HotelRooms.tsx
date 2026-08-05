@@ -82,6 +82,25 @@ const HotelRooms = () => {
     ? Math.max(1, Math.round((range.to.getTime() - range.from.getTime()) / 86400000))
     : 1;
   const room = rooms.find((r) => r.id === selectedRoom);
+  const maxGuests = Number(room?.guests) > 0 ? Number(room.guests) : 8;
+
+  // Never let the guest count exceed the selected room's capacity.
+  useEffect(() => {
+    setGuests((g) => Math.min(Math.max(1, g), maxGuests));
+  }, [maxGuests]);
+
+  // Smooth range picking: first tap sets check-in, second sets check-out,
+  // a tap on/behind check-in (or after a complete range) restarts cleanly.
+  const handleDayClick = (day: Date) => {
+    setRange((prev) => {
+      if (!prev?.from || prev.to || day.getTime() <= prev.from.getTime()) {
+        return { from: day, to: undefined };
+      }
+      setTimeout(() => setPickerOpen(false), 180);
+      return { from: prev.from, to: day };
+    });
+  };
+
 
   // Nightly pricing honoring overrides + weekend surcharge, then LOS / early-bird / last-minute
   const pricing = useMemo(() => {
