@@ -66,6 +66,7 @@ const Verification = () => {
         const type = params.get("type");
         const wantBuyer = type === "buyer";
         const wantHotel = type === "hotel" || data.role === "hotel";
+        try { localStorage.setItem("lprop_role", String(data.role)); } catch { /* ignore */ }
         setIsBuyer(wantBuyer);
         setIsHotel(wantHotel && !wantBuyer);
         setUserRole(wantBuyer ? "buyer" : wantHotel ? "hotel" : params.get("upgrade") === "agent" ? "agent" : data.role);
