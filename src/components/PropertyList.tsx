@@ -63,6 +63,11 @@ function PropertyListImpl({
     total,
   } = usePropertyList({ filters, sort, pageSize, scope });
 
+  const { finish } = useSearchOverlay();
+  useEffect(() => {
+    if (!isLoading) finish();
+  }, [isLoading, items.length, finish]);
+
   if (isLoading) {
     return (
       <div className={gridClassName}>
