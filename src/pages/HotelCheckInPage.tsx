@@ -5,9 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2 } from "lucide-react";
+import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2, Receipt, Printer } from "lucide-react";
 
 const genCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 const today = () => new Date().toISOString().slice(0, 10);
@@ -20,6 +20,7 @@ const HotelCheckInPage = () => {
   const [tab, setTab] = useState<"arrivals" | "in-house" | "departures">("arrivals");
   const [scan, setScan] = useState("");
   const [showQr, setShowQr] = useState<any>(null);
+  const [receipt, setReceipt] = useState<any>(null);
 
   const load = async () => {
     if (!user) return;
@@ -52,6 +53,7 @@ const HotelCheckInPage = () => {
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     setBookings((bs) => bs.map((x) => x.id === b.id ? data : x));
     toast({ title: `Checked out ${data.guest_name}` });
+    setReceipt(data);
   };
 
   const t = today();
@@ -129,6 +131,9 @@ const HotelCheckInPage = () => {
                 {b.checked_out_at && (
                   <div className="flex-1 text-center text-emerald-600 text-sm font-semibold flex items-center justify-center gap-1"><CheckCircle2 className="w-4 h-4" />Completed</div>
                 )}
+                <Button variant="outline" onClick={() => setReceipt(b)} className="rounded-full h-10 px-3" aria-label="View receipt">
+                  <Receipt className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           ))}
@@ -136,7 +141,10 @@ const HotelCheckInPage = () => {
 
         <Dialog open={!!showQr} onOpenChange={(o) => { if (!o) setShowQr(null); }}>
           <DialogContent className="max-w-xs">
-            <DialogHeader><DialogTitle>Guest QR</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>Guest QR</DialogTitle>
+              <DialogDescription className="sr-only">Scan this code at the front desk to check in or out.</DialogDescription>
+            </DialogHeader>
             {showQr && (
               <div className="text-center space-y-3">
                 <img
@@ -145,6 +153,37 @@ const HotelCheckInPage = () => {
                 />
                 <p className="font-mono text-lg tracking-widest">{showQr.check_in_code}</p>
                 <p className="text-xs text-muted-foreground">{showQr.guest_name} · {showQr.check_in} → {showQr.check_out}</p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!receipt} onOpenChange={(o) => { if (!o) setReceipt(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Payment receipt</DialogTitle>
+              <DialogDescription className="sr-only">Booking payment summary for this guest.</DialogDescription>
+            </DialogHeader>
+            {receipt && (
+              <div id="stay-receipt" className="space-y-3 text-sm">
+                <div className="rounded-2xl border p-4 space-y-2">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Guest</span><span className="font-semibold">{receipt.guest_name}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Stay</span><span>{receipt.check_in} → {receipt.check_out}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Guests / rooms</span><span>{receipt.guests} · {receipt.rooms}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Checked in</span><span>{receipt.checked_in_at ? new Date(receipt.checked_in_at).toLocaleString() : "—"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Checked out</span><span>{receipt.checked_out_at ? new Date(receipt.checked_out_at).toLocaleString() : "—"}</span></div>
+                </div>
+                <div className="rounded-2xl border p-4 space-y-2">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>${Number(receipt.subtotal || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Taxes</span><span>${Number(receipt.taxes || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Service fee</span><span>${Number(receipt.service_fee || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between border-t pt-2 font-bold text-base"><span>Total</span><span>${Number(receipt.total || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Payment</span><span className="capitalize">{receipt.payment_method}</span></div>
+                  {receipt.payment_reference && (
+                    <div className="flex justify-between"><span className="text-muted-foreground">Reference</span><span className="font-mono text-xs">{receipt.payment_reference}</span></div>
+                  )}
+                </div>
+                <Button onClick={() => window.print()} className="w-full rounded-full h-11"><Printer className="w-4 h-4 mr-1" />Print receipt</Button>
               </div>
             )}
           </DialogContent>
