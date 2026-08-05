@@ -111,6 +111,7 @@ const Explore = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     const v = searchInput.trim();
+                    if (v) searchOverlay.start(v);
                     setSearchQuery(v);
                     if (v) addRecent(v);
                     setShowRecents(false);
