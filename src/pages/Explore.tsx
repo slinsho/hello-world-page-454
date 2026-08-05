@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { useSearchOverlay } from "@/hooks/useSearchOverlay";
 import PropertyList from "@/components/PropertyList";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
