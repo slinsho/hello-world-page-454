@@ -1,8 +1,9 @@
-import { memo, Fragment } from "react";
+import { memo, Fragment, useEffect } from "react";
 import PropertyCard from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, Home } from "lucide-react";
+import { useSearchOverlay } from "@/hooks/useSearchOverlay";
 import {
   usePropertyList,
   type PropertyListFilters,
@@ -61,6 +62,11 @@ function PropertyListImpl({
     retry,
     total,
   } = usePropertyList({ filters, sort, pageSize, scope });
+
+  const { finish } = useSearchOverlay();
+  useEffect(() => {
+    if (!isLoading) finish();
+  }, [isLoading, items.length, finish]);
 
   if (isLoading) {
     return (

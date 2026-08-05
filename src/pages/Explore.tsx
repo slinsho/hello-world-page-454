@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { useSearchOverlay } from "@/hooks/useSearchOverlay";
 import PropertyList from "@/components/PropertyList";
 import Navbar from "@/components/Navbar";
 import { FeaturedPropertiesBanner } from "@/components/FeaturedPropertiesBanner";
@@ -15,9 +17,19 @@ import type { PropertyListFilters, PropertySort } from "@/hooks/usePropertyList"
 
 const Explore = () => {
   const { preferences } = useUserPreferences();
+  const searchOverlay = useSearchOverlay();
   const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchInput, setSearchInput] = useState("");
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [searchInput, setSearchInput] = useState(urlSearch);
+
+  // Keep in sync when a search is launched from the navbar.
+  useEffect(() => {
+    setSearchQuery(urlSearch);
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
   const [showRecents, setShowRecents] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -63,7 +75,7 @@ const Explore = () => {
   }), [filters, searchQuery]);
 
 
-  const applyFilters = () => { setFilters(tempFilters); };
+  const applyFilters = () => { searchOverlay.start("Applying filters"); setFilters(tempFilters); };
   const resetFilters = () => { const d = { type: "all", listing: "all", minPrice: "", maxPrice: "", county: "all" }; setTempFilters(d); setFilters(d); };
 
   const FilterPanel = () => (
@@ -99,6 +111,7 @@ const Explore = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     const v = searchInput.trim();
+                    if (v) searchOverlay.start(v);
                     setSearchQuery(v);
                     if (v) addRecent(v);
                     setShowRecents(false);
@@ -139,6 +152,7 @@ const Explore = () => {
                             type="button"
                             onClick={() => {
                               setSearchInput(r);
+                              searchOverlay.start(r);
                               setSearchQuery(r);
                               addRecent(r);
                               setShowRecents(false);

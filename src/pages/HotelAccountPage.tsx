@@ -45,7 +45,7 @@ const HotelAccountPage = () => {
       title: "Account",
       items: [
         { label: "Edit profile", icon: UserIcon, tone: "bg-blue-500", onClick: () => navigate("/hotel-dashboard/edit-profile") },
-        { label: "Verification", icon: ShieldCheck, tone: "bg-emerald-500", onClick: () => navigate("/verification"), badge: profile?.verification_status },
+        { label: "Verification", icon: ShieldCheck, tone: "bg-emerald-500", onClick: () => navigate("/verification?type=hotel"), badge: profile?.verification_status },
         { label: "Payments", icon: Wallet, tone: "bg-amber-500", onClick: () => navigate("/hotel-dashboard/bookings") },
         { label: "Notifications", icon: Bell, tone: "bg-rose-500", onClick: () => navigate("/hotel-dashboard/notifications") },
       ],

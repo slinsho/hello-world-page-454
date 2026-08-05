@@ -35,6 +35,7 @@ import FeedbackButton from "@/components/FeedbackButton";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import HotelShellGuard from "@/components/HotelShellGuard";
+import { SearchOverlayProvider } from "@/hooks/useSearchOverlay";
 // DebugPanel has been moved into the Admin Portal (Admin → Debug Console).
 
 // Lazy-loaded route components
@@ -112,6 +113,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <SearchOverlayProvider>
             <ScrollToTop />
             <HotelShellGuard />
             <FeedbackButton />
@@ -178,6 +180,7 @@ const App = () => (
                 </Routes>
               </Suspense>
             </div>
+            </SearchOverlayProvider>
           </BrowserRouter>
         </TooltipProvider>
       </UserPreferencesProvider>

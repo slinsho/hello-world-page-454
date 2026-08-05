@@ -1,10 +1,52 @@
-import { Loader2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 import lpropLogo from "@/assets/lprop-logo.png";
 
-const SearchLoadingOverlay = ({ query, onCancel }: { query?: string; onCancel?: () => void }) => {
+interface Props {
+  query?: string;
+  /** Results are ready — the ring races to 100% then the overlay closes. */
+  done?: boolean;
+  onDone?: () => void;
+  onCancel?: () => void;
+}
+
+const SIZE = 132;
+const STROKE = 5;
+const R = (SIZE - STROKE) / 2;
+const C = 2 * Math.PI * R;
+
+const SearchLoadingOverlay = ({ query, done, onDone, onCancel }: Props) => {
+  const [progress, setProgress] = useState(6);
+  const raf = useRef<number | null>(null);
+  const finishedRef = useRef(false);
+
+  // Creep toward 88% while waiting.
+  useEffect(() => {
+    if (done) return;
+    const id = window.setInterval(() => {
+      setProgress((p) => (p >= 88 ? p : p + Math.max(0.6, (88 - p) * 0.08)));
+    }, 60);
+    return () => window.clearInterval(id);
+  }, [done]);
+
+  // Complete the circle, then close.
+  useEffect(() => {
+    if (!done) return;
+    setProgress(100);
+    const t = window.setTimeout(() => {
+      if (!finishedRef.current) {
+        finishedRef.current = true;
+        onDone?.();
+      }
+    }, 420);
+    return () => window.clearTimeout(t);
+  }, [done, onDone]);
+
+  useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/70 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-xl animate-fade-in"
       role="status"
       aria-live="polite"
     >
@@ -17,23 +59,43 @@ const SearchLoadingOverlay = ({ query, onCancel }: { query?: string; onCancel?: 
           <X className="h-5 w-5 text-foreground" />
         </button>
       )}
-      <img
-        src={lpropLogo}
-        alt="L-Prop"
-        className="h-20 w-20 rounded-2xl shadow-2xl mb-6 animate-pulse"
-      />
-      <Loader2 className="h-8 w-8 text-primary animate-spin mb-3" />
-      <p className="text-sm text-foreground font-medium">
-        {query ? `Searching "${query}"...` : "Loading..."}
+
+      <div className="relative" style={{ width: SIZE, height: SIZE }}>
+        <svg width={SIZE} height={SIZE} className="-rotate-90">
+          <circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={R}
+            fill="none"
+            strokeWidth={STROKE}
+            className="stroke-muted"
+          />
+          <circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={R}
+            fill="none"
+            strokeWidth={STROKE}
+            strokeLinecap="round"
+            className="stroke-primary"
+            strokeDasharray={C}
+            strokeDashoffset={C - (C * progress) / 100}
+            style={{ transition: "stroke-dashoffset 300ms ease-out" }}
+          />
+        </svg>
+        <div className="absolute inset-0 grid place-items-center">
+          <img
+            src={lpropLogo}
+            alt="L-Prop"
+            className="h-16 w-16 rounded-2xl shadow-xl"
+          />
+        </div>
+      </div>
+
+      <p className="mt-5 text-sm font-semibold text-foreground text-center px-6 max-w-xs truncate">
+        {query ? `Searching "${query}"` : "Loading results"}
       </p>
-      {onCancel && (
-        <button
-          onClick={onCancel}
-          className="mt-4 text-xs text-muted-foreground hover:text-foreground underline"
-        >
-          Tap to cancel
-        </button>
-      )}
+      <p className="mt-1 text-xs text-muted-foreground tabular-nums">{Math.round(progress)}%</p>
     </div>
   );
 };

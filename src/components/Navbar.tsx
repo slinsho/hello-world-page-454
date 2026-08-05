@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
 import SearchLoadingOverlay from "@/components/SearchLoadingOverlay";
+import { useSearchOverlay } from "@/hooks/useSearchOverlay";
 import {
   Sheet,
   SheetContent,
@@ -33,6 +34,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const searchOverlay = useSearchOverlay();
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
@@ -199,20 +201,12 @@ const Navbar = () => {
     setSearchFocused(false);
     if (q) addRecent(q);
 
-    const target = (() => {
-      if (location.pathname === "/") {
-        const params = new URLSearchParams(window.location.search);
-        if (q) params.set("search", q);
-        else params.delete("search");
-        return `/?${params.toString()}`;
-      }
-      return q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
-    })();
+    // Searches always resolve on the Explore page.
+    const target = q ? `/explore?search=${encodeURIComponent(q)}` : `/explore`;
 
-    // Navigate immediately — the destination page shows its own skeleton loader.
-    // (Removed 800 ms artificial delay that made every search feel slow.)
     clearSearchTimer();
     setLoadingQuery(q);
+    searchOverlay.start(q || undefined);
     navigate(target);
   };
 
@@ -235,6 +229,7 @@ const Navbar = () => {
       } else {
         params.delete("type");
       }
+      searchOverlay.start("Applying filters");
       navigate(`/?${params.toString()}`);
     }
   };
@@ -257,14 +252,16 @@ const Navbar = () => {
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (searchQuery) params.set("search", searchQuery);
-    navigate(`/?${params.toString()}`);
     setFilterOpen(false);
+    searchOverlay.start("Applying filters");
+    navigate(`/?${params.toString()}`);
   };
 
   return (
     <>
       <UpgradeToAgentDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName={upgradeFeature} />
-      {loadingSearch && <SearchLoadingOverlay query={loadingQuery} onCancel={cancelSearch} />}
+
+
 
       {/* ===== DESKTOP TOP NAV (all pages) ===== */}
       <nav className="hidden md:block sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
