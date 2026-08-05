@@ -213,22 +213,25 @@ const HotelRooms = () => {
                 </div>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="center">
+            <PopoverContent className="w-auto p-0 max-w-[95vw]" align="center" sideOffset={8}>
+              <div className="px-3 pt-3 pb-1 text-[11px] font-semibold text-muted-foreground">
+                {!range?.from || range?.to ? "Tap your check-in date" : "Now tap your check-out date"}
+              </div>
               <Calendar
                 mode="range"
                 numberOfMonths={1}
                 selected={range}
-                onSelect={(r) => {
-                  setRange(r);
-                  if (r?.from && r?.to) setPickerOpen(false);
-                }}
+                onDayClick={(day, modifiers) => { if (!modifiers.disabled) handleDayClick(day); }}
+                defaultMonth={range?.from ?? startOfToday()}
                 disabled={[{ before: startOfToday() }, (d: Date) => unavailable.has(isoLocal(d))]}
-                initialFocus
                 className="p-3 pointer-events-auto"
               />
               <div className="border-t p-2 flex items-center justify-between gap-2">
                 <p className="text-[11px] text-muted-foreground px-1">Unavailable nights are disabled</p>
-                <Button size="sm" variant="ghost" className="h-8 rounded-full" onClick={() => setRange(undefined)}>Clear</Button>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-8 rounded-full" onClick={() => setRange(undefined)}>Clear</Button>
+                  <Button size="sm" className="h-8 rounded-full" onClick={() => setPickerOpen(false)}>Done</Button>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -239,6 +242,9 @@ const HotelRooms = () => {
                 <Users className="w-3 h-3" />Guests
               </div>
               <div className="font-bold text-sm mt-0.5">{guests} {guests === 1 ? "guest" : "guests"}</div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {room ? `Max ${maxGuests} for ${room.name}` : `Max ${maxGuests}`}
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -253,8 +259,15 @@ const HotelRooms = () => {
               <span className="w-5 text-center font-bold text-sm tabular-nums">{guests}</span>
               <button
                 type="button"
-                onClick={() => setGuests((g) => g + 1)}
-                className="w-8 h-8 rounded-full border border-border grid place-items-center active:scale-90 transition"
+                onClick={() => {
+                  if (guests >= maxGuests) {
+                    toast({ title: "Room limit reached", description: `This room sleeps up to ${maxGuests} guests. Pick a larger room for more.` });
+                    return;
+                  }
+                  setGuests((g) => g + 1);
+                }}
+                className="w-8 h-8 rounded-full border border-border grid place-items-center active:scale-90 disabled:opacity-40 transition"
+                disabled={guests >= maxGuests}
                 aria-label="Increase guests"
               >
                 <Plus className="w-3.5 h-3.5" />
