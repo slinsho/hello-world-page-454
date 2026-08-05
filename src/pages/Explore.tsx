@@ -18,8 +18,17 @@ const Explore = () => {
   const { preferences } = useUserPreferences();
   const searchOverlay = useSearchOverlay();
   const { recents, addRecent, removeRecent, clearRecents } = useRecentSearches();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchInput, setSearchInput] = useState("");
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [searchInput, setSearchInput] = useState(urlSearch);
+
+  // Keep in sync when a search is launched from the navbar.
+  useEffect(() => {
+    setSearchQuery(urlSearch);
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
   const [showRecents, setShowRecents] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [initialized, setInitialized] = useState(false);
