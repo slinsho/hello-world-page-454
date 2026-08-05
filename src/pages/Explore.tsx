@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
 import { useSearchOverlay } from "@/hooks/useSearchOverlay";
