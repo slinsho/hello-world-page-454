@@ -64,9 +64,9 @@ const HotelBookingsPage = () => {
       <div className="space-y-4">
         {/* Revenue hero */}
         <div className="rounded-3xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground p-5 shadow-lg shadow-primary/20">
-          <p className="text-xs uppercase tracking-wider opacity-80">Confirmed revenue</p>
+          <p className="text-xs uppercase tracking-wider opacity-80">Earned revenue (checked-in)</p>
           <p className="text-3xl font-bold mt-1">${totalRevenue.toFixed(2)}</p>
-          <p className="text-xs opacity-80 mt-1">{bookings.length} total bookings</p>
+          <p className="text-xs opacity-80 mt-1">${pendingRevenue.toFixed(2)} awaiting check-in · {bookings.length} total bookings</p>
         </div>
 
         {/* Segmented pills */}
