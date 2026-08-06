@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Hotel } from "lucide-react";
+import { CalendarDays, Hotel, QrCode, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 
 const statusStyle = (s: string) => {
@@ -15,9 +16,13 @@ const statusStyle = (s: string) => {
   return map[s] || "bg-muted text-muted-foreground";
 };
 
+const qrUrl = (data: string, size = 320) =>
+  `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+
 export const HotelBookingsList = ({ userId }: { userId: string }) => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ticket, setTicket] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +36,21 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
       setLoading(false);
     })();
   }, [userId]);
+
+  // Downloads the QR image so the guest can keep it offline / print it.
+  const downloadQr = async (b: any) => {
+    try {
+      const res = await fetch(qrUrl(b.check_in_code || b.id, 600));
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `booking-${b.check_in_code || b.id.slice(0, 8)}.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(qrUrl(b.check_in_code || b.id, 600), "_blank");
+    }
+  };
 
   if (loading) return <p className="text-xs text-muted-foreground py-4 text-center">Loading…</p>;
 
@@ -64,18 +84,59 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
             </p>
             <div className="flex items-center justify-between gap-2 mt-1">
               <p className="text-primary font-bold text-sm tabular-nums">${Number(b.total || 0).toFixed(2)}</p>
-              {(b.checked_out_at || b.status === "completed") && (
-                <button
-                  onClick={() => navigate(`/hotels/${b.hotel_id}`)}
-                  className="text-[11px] font-semibold text-primary underline underline-offset-2"
-                >
-                  Leave a review
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {b.status === "confirmed" && !b.checked_out_at && (
+                  <button
+                    onClick={() => setTicket(b)}
+                    className="text-[11px] font-semibold text-primary flex items-center gap-1"
+                  >
+                    <QrCode className="w-3.5 h-3.5" />Check-in QR
+                  </button>
+                )}
+                {(b.checked_out_at || b.status === "completed") && (
+                  <button
+                    onClick={() => navigate(`/hotels/${b.hotel_id}?review=1`)}
+                    className="text-[11px] font-semibold text-primary underline underline-offset-2"
+                  >
+                    Leave a review
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       ))}
+
+      <Dialog open={!!ticket} onOpenChange={(o) => { if (!o) setTicket(null); }}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>Your check-in pass</DialogTitle>
+            <DialogDescription className="sr-only">Show this QR code or booking ID at the hotel front desk.</DialogDescription>
+          </DialogHeader>
+          {ticket && (
+            <div className="text-center space-y-3">
+              <img
+                src={qrUrl(ticket.check_in_code || ticket.id)}
+                alt="Booking QR code"
+                className="mx-auto rounded-2xl border bg-white p-2"
+                width={280}
+                height={280}
+              />
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Booking ID</p>
+                <p className="font-mono text-lg tracking-widest">{ticket.check_in_code || ticket.id.slice(0, 8).toUpperCase()}</p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {ticket.hotels?.name} · {ticket.check_in} → {ticket.check_out}
+              </p>
+              <Button onClick={() => downloadQr(ticket)} className="w-full rounded-full h-11">
+                <Download className="w-4 h-4 mr-1" />Download QR
+              </Button>
+              <p className="text-[11px] text-muted-foreground">Show this at the front desk to check in and out.</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
