@@ -158,6 +158,9 @@ const HotelBooking = () => {
       return;
     }
     setLoading(true);
+    // Generate the guest's check-in code up-front so their QR ticket is ready
+    // as soon as the booking is created.
+    const checkInCode = Math.random().toString(36).slice(2, 8).toUpperCase();
     const { error } = await supabase.from("hotel_bookings").insert({
       hotel_id: id, room_id: roomId, guest_id: user.id,
       guest_name: guestName, guest_phone: guestPhone, guest_email: guestEmail || null,
@@ -165,6 +168,7 @@ const HotelBooking = () => {
       subtotal, taxes, service_fee: serviceFee, total,
       payment_method: method, payment_reference: paymentRef || null,
       guest_details: guestDetails as any,
+      check_in_code: checkInCode,
     } as any).select().single();
     setLoading(false);
     if (error) { toast({ title: "Booking failed", description: error.message, variant: "destructive" }); return; }
