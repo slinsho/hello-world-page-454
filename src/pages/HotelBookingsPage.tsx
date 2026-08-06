@@ -142,10 +142,56 @@ const HotelBookingsPage = () => {
                   </button>
                 </div>
               )}
+
+              {b.checked_in_at && !b.checked_out_at && (
+                <button
+                  onClick={() => markCheckedOut(b)}
+                  className="mt-3 w-full h-10 rounded-full border border-border text-sm font-semibold flex items-center justify-center gap-1"
+                >
+                  <LogOut className="w-4 h-4" />Mark checked out
+                </button>
+              )}
+
+              {b.checked_out_at && (
+                <button
+                  onClick={() => setReceipt(b)}
+                  className="mt-3 w-full h-10 rounded-full bg-muted text-sm font-semibold flex items-center justify-center gap-1"
+                >
+                  <Receipt className="w-4 h-4" />View receipt
+                </button>
+              )}
             </div>
           ))}
         </div>
+
+        <Dialog open={!!receipt} onOpenChange={(o) => { if (!o) setReceipt(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Payment receipt</DialogTitle>
+              <DialogDescription className="sr-only">Booking payment summary for this guest.</DialogDescription>
+            </DialogHeader>
+            {receipt && (
+              <div className="space-y-3 text-sm">
+                <div className="rounded-2xl border p-4 space-y-2">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Guest</span><span className="font-semibold">{receipt.guest_name}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Stay</span><span>{receipt.check_in} → {receipt.check_out}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Checked in</span><span>{receipt.checked_in_at ? new Date(receipt.checked_in_at).toLocaleString() : "—"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Checked out</span><span>{receipt.checked_out_at ? new Date(receipt.checked_out_at).toLocaleString() : "—"}</span></div>
+                </div>
+                <div className="rounded-2xl border p-4 space-y-2">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>${Number(receipt.subtotal || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Taxes</span><span>${Number(receipt.taxes || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Service fee</span><span>${Number(receipt.service_fee || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between border-t pt-2 font-bold text-base"><span>Total</span><span>${Number(receipt.total || 0).toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Payment</span><span className="capitalize">{receipt.payment_method}</span></div>
+                </div>
+                <Button onClick={() => window.print()} className="w-full rounded-full h-11"><Printer className="w-4 h-4 mr-1" />Print receipt</Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
+
     </HotelShellLayout>
   );
 };
