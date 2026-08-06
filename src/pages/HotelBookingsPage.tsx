@@ -40,7 +40,17 @@ const HotelBookingsPage = () => {
     { key: "confirmed", label: "Confirmed", count: bookings.filter((b) => b.status === "confirmed").length },
     { key: "cancelled", label: "Cancelled", count: bookings.filter((b) => b.status === "cancelled").length },
   ];
-  const totalRevenue = bookings.filter((b) => b.status === "confirmed").reduce((s, b) => s + Number(b.total || 0), 0);
+  // Revenue is only earned once the guest actually checks in — a confirmed
+  // booking alone does not add to the balance.
+  const totalRevenue = bookings.filter((b) => b.checked_in_at).reduce((s, b) => s + Number(b.total || 0), 0);
+  const pendingRevenue = bookings.filter((b) => b.status === "confirmed" && !b.checked_in_at).reduce((s, b) => s + Number(b.total || 0), 0);
+
+  const markCheckedOut = async (b: any) => {
+    const { data, error } = await supabase.from("hotel_bookings").update({ checked_out_at: new Date().toISOString() } as any).eq("id", b.id).select().single();
+    if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
+    setBookings((bs) => bs.map((x) => x.id === b.id ? data : x));
+    setReceipt(data);
+  };
 
   const statusStyles: Record<string, string> = {
     pending: "bg-amber-500/15 text-amber-700 border-amber-500/20",
