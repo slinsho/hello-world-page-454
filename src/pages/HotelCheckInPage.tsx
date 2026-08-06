@@ -215,6 +215,21 @@ const HotelCheckInPage = () => {
           ))}
         </div>
 
+        <Dialog open={scanning} onOpenChange={(o) => { if (!o) stopCamera(); }}>
+          <DialogContent className="max-w-xs">
+            <DialogHeader>
+              <DialogTitle>Scan guest QR</DialogTitle>
+              <DialogDescription className="sr-only">Point the camera at the guest's booking QR code.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <video ref={videoRef} playsInline muted className="w-full aspect-square object-cover rounded-2xl bg-black" />
+              <p className="text-xs text-muted-foreground text-center">Hold the guest's QR code inside the frame.</p>
+              <Button variant="outline" className="w-full rounded-full" onClick={stopCamera}>Cancel</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+
         <Dialog open={!!showQr} onOpenChange={(o) => { if (!o) setShowQr(null); }}>
           <DialogContent className="max-w-xs">
             <DialogHeader>
