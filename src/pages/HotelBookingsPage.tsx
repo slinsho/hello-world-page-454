@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarCheck, User as UserIcon, Phone, Calendar, Users as UsersIcon, Check, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { CalendarCheck, User as UserIcon, Phone, Calendar, Users as UsersIcon, Check, X, Receipt, Printer, LogOut } from "lucide-react";
 
 const HotelBookingsPage = () => {
   const { user } = useAuth();
