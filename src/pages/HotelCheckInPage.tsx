@@ -22,6 +22,10 @@ const HotelCheckInPage = () => {
   const [scan, setScan] = useState("");
   const [showQr, setShowQr] = useState<any>(null);
   const [receipt, setReceipt] = useState<any>(null);
+  const [scanning, setScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const load = async () => {
     if (!user) return;
