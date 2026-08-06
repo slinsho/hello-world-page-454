@@ -58,7 +58,11 @@ const HotelCheckInPage = () => {
   };
 
   const t = today();
-  const arrivals = bookings.filter((b: any) => b.check_in <= t && !b.checked_in_at);
+  // Arrivals = every confirmed booking not yet checked in (today's and upcoming),
+  // so the front desk can find a guest the moment they walk in.
+  const arrivals = bookings
+    .filter((b: any) => !b.checked_in_at)
+    .sort((a: any, b: any) => a.check_in.localeCompare(b.check_in));
   const inHouse = bookings.filter((b: any) => b.checked_in_at && !b.checked_out_at);
   const departures = bookings.filter((b: any) => b.checked_in_at && !b.checked_out_at && b.check_out <= t);
   const list = tab === "arrivals" ? arrivals : tab === "in-house" ? inHouse : departures;
@@ -69,28 +73,95 @@ const HotelCheckInPage = () => {
     { key: "departures", label: "Checkout", count: departures.length },
   ] as const;
 
-  const submitScan = async () => {
-    const code = scan.trim().toUpperCase();
-    const match = bookings.find((b: any) => b.check_in_code === code);
-    if (!match) return toast({ title: "Code not found", variant: "destructive" });
+  // Accepts either the short check-in code or the full booking ID (what the QR encodes).
+  const resolveBooking = (raw: string) => {
+    const v = raw.trim();
+    const up = v.toUpperCase();
+    return bookings.find(
+      (b: any) =>
+        (b.check_in_code && b.check_in_code.toUpperCase() === up) ||
+        b.id === v ||
+        b.id.slice(0, 8).toUpperCase() === up
+    );
+  };
+
+  const processCode = async (raw: string) => {
+    const match = resolveBooking(raw);
+    if (!match) { toast({ title: "Booking not found", description: "No confirmed booking matches that code.", variant: "destructive" }); return; }
     if (!match.checked_in_at) await checkIn(match);
     else if (!match.checked_out_at) await checkOut(match);
+    else toast({ title: "Already completed" });
+  };
+
+  const submitScan = async () => {
+    if (!scan.trim()) return;
+    await processCode(scan);
     setScan("");
   };
+
+  // ---- Camera QR scanning (uses the browser's built-in BarcodeDetector) ----
+  const startCamera = async () => {
+    const Detector = (window as any).BarcodeDetector;
+    if (!Detector) {
+      toast({ title: "Camera scanning unavailable", description: "This browser can't scan QR codes. Type the code instead.", variant: "destructive" });
+      return;
+    }
+    setScanning(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      const detector = new Detector({ formats: ["qr_code"] });
+      const tick = async () => {
+        if (!videoRef.current || !streamRef.current) return;
+        try {
+          const codes = await detector.detect(videoRef.current);
+          if (codes?.length) {
+            const value = codes[0].rawValue as string;
+            stopCamera();
+            await processCode(value);
+            return;
+          }
+        } catch { /* frame not ready */ }
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    } catch (e: any) {
+      setScanning(false);
+      toast({ title: "Camera blocked", description: e?.message || "Allow camera access to scan.", variant: "destructive" });
+    }
+  };
+
+  const stopCamera = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    streamRef.current = null;
+    setScanning(false);
+  };
+
+  useEffect(() => () => stopCamera(), []);
 
   return (
     <HotelShellLayout title="Check-in" subtitle="Front desk">
       <div className="space-y-4">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground p-4">
-          <p className="text-xs uppercase tracking-wider opacity-80">Enter guest code</p>
+          <p className="text-xs uppercase tracking-wider opacity-80">Scan or enter guest code</p>
           <div className="flex gap-2 mt-2">
             <div className="flex-1 flex items-center gap-2 bg-background/20 rounded-full px-3">
               <Search className="w-4 h-4 opacity-80" />
-              <input value={scan} onChange={(e) => setScan(e.target.value)} placeholder="e.g. AB3F9K" className="flex-1 bg-transparent h-10 outline-none placeholder:text-primary-foreground/60 uppercase" />
+              <input value={scan} onChange={(e) => setScan(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submitScan()} placeholder="e.g. AB3F9K" className="flex-1 bg-transparent h-10 outline-none placeholder:text-primary-foreground/60 uppercase" />
             </div>
             <button onClick={submitScan} className="h-10 px-4 rounded-full bg-background text-foreground font-semibold text-sm">Verify</button>
           </div>
+          <button onClick={startCamera} className="mt-2 w-full h-10 rounded-full bg-background/20 text-sm font-semibold flex items-center justify-center gap-2">
+            <Camera className="w-4 h-4" />Scan guest QR code
+          </button>
         </div>
+
 
         <div className="flex gap-2">
           {tabs.map((x) => (
