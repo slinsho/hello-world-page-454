@@ -47,8 +47,9 @@ const HotelDashboard = () => {
   const pending = bookings.filter((b) => b.status === "pending").length;
   const now = new Date();
   const confirmedThisMonth = bookings.filter((b) => b.status === "confirmed" && new Date(b.created_at).getMonth() === now.getMonth()).length;
+  // Revenue only counts once a guest has actually checked in.
   const revenueThisMonth = bookings
-    .filter((b) => b.status === "confirmed" && new Date(b.created_at).getMonth() === now.getMonth())
+    .filter((b) => b.checked_in_at && new Date(b.checked_in_at).getMonth() === now.getMonth())
     .reduce((s, b) => s + Number(b.total || 0), 0);
 
   const chartData = useMemo(() => {

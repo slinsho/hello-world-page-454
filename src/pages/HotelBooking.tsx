@@ -158,6 +158,9 @@ const HotelBooking = () => {
       return;
     }
     setLoading(true);
+    // Generate the guest's check-in code up-front so their QR ticket is ready
+    // as soon as the booking is created.
+    const checkInCode = Math.random().toString(36).slice(2, 8).toUpperCase();
     const { error } = await supabase.from("hotel_bookings").insert({
       hotel_id: id, room_id: roomId, guest_id: user.id,
       guest_name: guestName, guest_phone: guestPhone, guest_email: guestEmail || null,
@@ -165,6 +168,7 @@ const HotelBooking = () => {
       subtotal, taxes, service_fee: serviceFee, total,
       payment_method: method, payment_reference: paymentRef || null,
       guest_details: guestDetails as any,
+      check_in_code: checkInCode,
     } as any).select().single();
     setLoading(false);
     if (error) { toast({ title: "Booking failed", description: error.message, variant: "destructive" }); return; }
@@ -173,7 +177,10 @@ const HotelBooking = () => {
     // (notify_on_hotel_booking) that bypasses RLS. No manual insert needed here.
 
     toast({ title: "Booking submitted!", description: "The hotel will confirm your booking shortly." });
-    navigate("/my-account");
+    // Send the user back to THEIR account page — customers use /my-account,
+    // property owners / agents / hotels use /profile.
+    const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    navigate(prof?.role === "customer" || !prof?.role ? "/my-account" : "/profile");
   };
 
   const fmt = (d: string) => d ? new Date(d).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "";
