@@ -14,6 +14,7 @@ const HotelBookingsPage = () => {
   const { toast } = useToast();
   const [bookings, setBookings] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [receipt, setReceipt] = useState<any>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
