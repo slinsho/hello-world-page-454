@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HotelShellLayout from "@/components/HotelShellLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2, Receipt, Printer } from "lucide-react";
+import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2, Receipt, Printer, Camera } from "lucide-react";
 
 const genCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 const today = () => new Date().toISOString().slice(0, 10);
+
 
 const HotelCheckInPage = () => {
   const { user } = useAuth();
