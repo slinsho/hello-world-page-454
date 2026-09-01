@@ -427,9 +427,11 @@ export type Database = {
           guests: number
           hotel_id: string
           id: string
+          no_show_at: string | null
           payment_method: string
           payment_reference: string | null
           room_id: string
+          room_unit_id: string | null
           rooms: number
           service_fee: number
           status: string
@@ -454,9 +456,11 @@ export type Database = {
           guests?: number
           hotel_id: string
           id?: string
+          no_show_at?: string | null
           payment_method: string
           payment_reference?: string | null
           room_id: string
+          room_unit_id?: string | null
           rooms?: number
           service_fee?: number
           status?: string
@@ -481,9 +485,11 @@ export type Database = {
           guests?: number
           hotel_id?: string
           id?: string
+          no_show_at?: string | null
           payment_method?: string
           payment_reference?: string | null
           room_id?: string
+          room_unit_id?: string | null
           rooms?: number
           service_fee?: number
           status?: string
@@ -505,6 +511,13 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "hotel_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_bookings_room_unit_id_fkey"
+            columns: ["room_unit_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_room_units"
             referencedColumns: ["id"]
           },
         ]
@@ -622,6 +635,57 @@ export type Database = {
           },
         ]
       }
+      hotel_room_units: {
+        Row: {
+          created_at: string
+          floor: string | null
+          hotel_id: string
+          id: string
+          is_active: boolean
+          note: string | null
+          room_id: string
+          room_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          floor?: string | null
+          hotel_id: string
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          room_id: string
+          room_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          floor?: string | null
+          hotel_id?: string
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          room_id?: string
+          room_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_room_units_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_room_units_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotel_rooms: {
         Row: {
           amenities: Json | null
@@ -677,6 +741,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "hotel_rooms_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotel_staff: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          full_name: string | null
+          hotel_id: string
+          id: string
+          is_active: boolean
+          staff_role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          hotel_id: string
+          id?: string
+          is_active?: boolean
+          staff_role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          hotel_id?: string
+          id?: string
+          is_active?: boolean
+          staff_role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_staff_hotel_id_fkey"
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
@@ -2110,6 +2221,10 @@ export type Database = {
       }
       increment_views: { Args: { post_id: string }; Returns: undefined }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      is_hotel_staff: {
+        Args: { _hotel_id: string; _user_id: string }
+        Returns: boolean
+      }
       list_properties_shuffled: {
         Args: {
           _county?: string
@@ -2179,6 +2294,7 @@ export type Database = {
         Args: { _conversation_id: string }
         Returns: undefined
       }
+      my_staff_hotel_ids: { Args: never; Returns: string[] }
       notify_all_admins: {
         Args: {
           p_message: string
@@ -2211,7 +2327,12 @@ export type Database = {
       listing_type: "for_sale" | "for_rent" | "for_lease"
       property_status: "active" | "inactive" | "sold" | "rented"
       property_type: "house" | "apartment" | "shop" | "land"
-      user_role: "property_owner" | "agent" | "hotel" | "customer"
+      user_role:
+        | "property_owner"
+        | "agent"
+        | "hotel"
+        | "customer"
+        | "receptionist"
       verification_status:
         | "none"
         | "pending"
@@ -2350,7 +2471,13 @@ export const Constants = {
       listing_type: ["for_sale", "for_rent", "for_lease"],
       property_status: ["active", "inactive", "sold", "rented"],
       property_type: ["house", "apartment", "shop", "land"],
-      user_role: ["property_owner", "agent", "hotel", "customer"],
+      user_role: [
+        "property_owner",
+        "agent",
+        "hotel",
+        "customer",
+        "receptionist",
+      ],
       verification_status: [
         "none",
         "pending",
