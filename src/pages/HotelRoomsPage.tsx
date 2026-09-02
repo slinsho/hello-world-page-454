@@ -35,6 +35,12 @@ const HotelRoomsPage = () => {
     if (!selected) return;
     supabase.from("hotel_rooms").select("*").eq("hotel_id", selected)
       .then(({ data }) => setRooms(data || []));
+    (supabase.from("hotel_room_units" as any) as any).select("room_id").eq("hotel_id", selected)
+      .then(({ data }: any) => {
+        const counts: Record<string, number> = {};
+        (data || []).forEach((u: any) => { counts[u.room_id] = (counts[u.room_id] || 0) + 1; });
+        setUnitCounts(counts);
+      }, () => {});
   }, [selected]);
 
   const upload = async (file: File): Promise<string> => {
