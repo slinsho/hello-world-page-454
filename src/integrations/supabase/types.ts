@@ -2160,6 +2160,10 @@ export type Database = {
         Returns: number
       }
       expire_my_verification_if_due: { Args: never; Returns: undefined }
+      get_occupied_room_units: {
+        Args: { _in: string; _out: string; _room_id: string }
+        Returns: string[]
+      }
       get_property_view_counts: {
         Args: { p_property_ids: string[] }
         Returns: {
