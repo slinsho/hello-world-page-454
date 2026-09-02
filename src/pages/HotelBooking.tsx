@@ -51,6 +51,9 @@ const HotelBooking = () => {
   );
   const [expandedGuest, setExpandedGuest] = useState<number>(0);
   const [step, setStep] = useState<"form" | "review">("form");
+  const [units, setUnits] = useState<any[]>([]);
+  const [occupied, setOccupied] = useState<string[]>([]);
+  const [unitId, setUnitId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -65,6 +68,13 @@ const HotelBooking = () => {
         const { data: av } = await (supabase.from("room_availability" as any) as any)
           .select("*").eq("room_id", roomId).gte("date", checkIn).lt("date", checkOut);
         setAvailability(av || []);
+        const [{ data: us }, { data: occ }] = await Promise.all([
+          (supabase.from("hotel_room_units" as any) as any)
+            .select("*").eq("room_id", roomId).eq("is_active", true).order("room_number"),
+          (supabase.rpc as any)("get_occupied_room_units", { _room_id: roomId, _in: checkIn, _out: checkOut }),
+        ]);
+        setUnits(us || []);
+        setOccupied(((occ || []) as any[]).map((x: any) => (typeof x === "string" ? x : x.get_occupied_room_units)));
       }
       if (user) {
         const { data: prof } = await supabase.from("profiles").select("name, phone, email").eq("id", user.id).maybeSingle();
@@ -130,6 +140,7 @@ const HotelBooking = () => {
     if (!user) { toast({ title: "Sign in required", description: "Please sign in to book.", variant: "destructive" }); navigate("/auth"); return; }
     if (anyBlocked) { toast({ title: "Dates unavailable", description: "One or more nights in this range are blocked. Please choose different dates.", variant: "destructive" }); return; }
     if (!guestName || !guestPhone) { toast({ title: "Name and phone required", variant: "destructive" }); return; }
+    if (units.length > 0 && !unitId) { toast({ title: "Select a room number", description: "Pick an available room number to continue.", variant: "destructive" }); return; }
     for (let i = 0; i < guestDetails.length; i++) {
       if (!guestDetails[i].name || !guestDetails[i].age) {
         toast({ title: `Guest ${i + 1} details required`, description: "Enter name and age for every guest.", variant: "destructive" });
@@ -162,7 +173,7 @@ const HotelBooking = () => {
     // as soon as the booking is created.
     const checkInCode = Math.random().toString(36).slice(2, 8).toUpperCase();
     const { error } = await supabase.from("hotel_bookings").insert({
-      hotel_id: id, room_id: roomId, guest_id: user.id,
+      hotel_id: id, room_id: roomId, room_unit_id: unitId, guest_id: user.id,
       guest_name: guestName, guest_phone: guestPhone, guest_email: guestEmail || null,
       check_in: checkIn, check_out: checkOut, guests: guestsN, rooms: 1,
       subtotal, taxes, service_fee: serviceFee, total,
@@ -371,6 +382,37 @@ const HotelBooking = () => {
                 </p>
                 <Badge variant="secondary" className="text-[10px] mt-1.5">{room.name}</Badge>
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* Room number picker */}
+        {units.length > 0 && (
+          <section className="rounded-2xl bg-card border border-border p-4">
+            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Choose your room number</h3>
+            <p className="text-xs text-muted-foreground mt-1">Locked rooms are already booked for these dates.</p>
+            <div className="grid grid-cols-4 gap-2 mt-3">
+              {units.map((u) => {
+                const taken = occupied.includes(u.id);
+                const active = unitId === u.id;
+                return (
+                  <button
+                    key={u.id}
+                    disabled={taken}
+                    onClick={() => setUnitId(active ? null : u.id)}
+                    className={`h-12 rounded-2xl border text-sm font-semibold flex items-center justify-center gap-1 transition ${
+                      taken
+                        ? "bg-muted text-muted-foreground/60 cursor-not-allowed"
+                        : active
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background"
+                    }`}
+                  >
+                    {taken && <span aria-hidden>🔒</span>}
+                    {u.room_number}
+                  </button>
+                );
+              })}
             </div>
           </section>
         )}
