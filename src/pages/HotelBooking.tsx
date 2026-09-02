@@ -385,6 +385,37 @@ const HotelBooking = () => {
           </section>
         )}
 
+        {/* Room number picker */}
+        {units.length > 0 && (
+          <section className="rounded-2xl bg-card border border-border p-4">
+            <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Choose your room number</h3>
+            <p className="text-xs text-muted-foreground mt-1">Locked rooms are already booked for these dates.</p>
+            <div className="grid grid-cols-4 gap-2 mt-3">
+              {units.map((u) => {
+                const taken = occupied.includes(u.id);
+                const active = unitId === u.id;
+                return (
+                  <button
+                    key={u.id}
+                    disabled={taken}
+                    onClick={() => setUnitId(active ? null : u.id)}
+                    className={`h-12 rounded-2xl border text-sm font-semibold flex items-center justify-center gap-1 transition ${
+                      taken
+                        ? "bg-muted text-muted-foreground/60 cursor-not-allowed"
+                        : active
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background"
+                    }`}
+                  >
+                    {taken && <span aria-hidden>🔒</span>}
+                    {u.room_number}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Primary contact */}
         <section className="rounded-2xl bg-card border border-border p-4 space-y-3">
           <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Primary contact</h3>
