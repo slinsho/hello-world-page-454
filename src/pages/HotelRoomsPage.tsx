@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BedDouble, Users as UsersIcon, Maximize2, Star, Building2, X, Camera, Compass } from "lucide-react";
+import { Plus, BedDouble, Users as UsersIcon, Maximize2, Star, Building2, X, Camera, Compass, Hash } from "lucide-react";
+import RoomUnitsDialog from "@/components/hotel/RoomUnitsDialog";
 
 const HotelRoomsPage = () => {
   const { user } = useAuth();
