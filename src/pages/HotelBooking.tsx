@@ -51,6 +51,9 @@ const HotelBooking = () => {
   );
   const [expandedGuest, setExpandedGuest] = useState<number>(0);
   const [step, setStep] = useState<"form" | "review">("form");
+  const [units, setUnits] = useState<any[]>([]);
+  const [occupied, setOccupied] = useState<string[]>([]);
+  const [unitId, setUnitId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
