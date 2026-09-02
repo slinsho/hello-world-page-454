@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BedDouble, Users as UsersIcon, Maximize2, Star, Building2, X, Camera, Compass } from "lucide-react";
+import { Plus, BedDouble, Users as UsersIcon, Maximize2, Star, Building2, X, Camera, Compass, Hash } from "lucide-react";
+import RoomUnitsDialog from "@/components/hotel/RoomUnitsDialog";
 
 const HotelRoomsPage = () => {
   const { user } = useAuth();
@@ -19,6 +20,8 @@ const HotelRoomsPage = () => {
   const [selected, setSelected] = useState<string | null>(params.get("hotel"));
   const [rooms, setRooms] = useState<any[]>([]);
   const [open, setOpen] = useState(params.get("add") === "1");
+  const [unitCounts, setUnitCounts] = useState<Record<string, number>>({});
+  const [unitsRoom, setUnitsRoom] = useState<any>(null);
   const [form, setForm] = useState<any>({ name: "Standard Room", price_per_night: "50", guests: "2", size_sqm: "20", bed_type: "1 Queen Bed", photos: [] as string[], tour_360_url: "", is_most_popular: false });
 
   useEffect(() => {
@@ -34,6 +37,12 @@ const HotelRoomsPage = () => {
     if (!selected) return;
     supabase.from("hotel_rooms").select("*").eq("hotel_id", selected)
       .then(({ data }) => setRooms(data || []));
+    (supabase.from("hotel_room_units" as any) as any).select("room_id").eq("hotel_id", selected)
+      .then(({ data }: any) => {
+        const counts: Record<string, number> = {};
+        (data || []).forEach((u: any) => { counts[u.room_id] = (counts[u.room_id] || 0) + 1; });
+        setUnitCounts(counts);
+      }, () => {});
   }, [selected]);
 
   const upload = async (file: File): Promise<string> => {
@@ -161,12 +170,26 @@ const HotelRoomsPage = () => {
                 <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><UsersIcon className="w-3.5 h-3.5" />{r.guests} guests</span>
                   <span className="flex items-center gap-1"><Maximize2 className="w-3.5 h-3.5" />{r.size_sqm} m²</span>
+                  <span className="flex items-center gap-1"><Hash className="w-3.5 h-3.5" />{unitCounts[r.id] || 0} numbers</span>
                 </div>
+                <button
+                  onClick={() => setUnitsRoom(r)}
+                  className="mt-3 w-full h-10 rounded-full border text-sm font-semibold flex items-center justify-center gap-1"
+                >
+                  <Hash className="w-4 h-4" />Manage room numbers
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <RoomUnitsDialog
+        room={unitsRoom}
+        onOpenChange={(o) => { if (!o) setUnitsRoom(null); }}
+        onCountChange={(roomId, count) => setUnitCounts((c) => ({ ...c, [roomId]: count }))}
+      />
+
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setParams({}); }}>
         <DialogContent className="max-w-lg">
