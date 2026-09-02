@@ -20,6 +20,8 @@ const HotelRoomsPage = () => {
   const [selected, setSelected] = useState<string | null>(params.get("hotel"));
   const [rooms, setRooms] = useState<any[]>([]);
   const [open, setOpen] = useState(params.get("add") === "1");
+  const [unitCounts, setUnitCounts] = useState<Record<string, number>>({});
+  const [unitsRoom, setUnitsRoom] = useState<any>(null);
   const [form, setForm] = useState<any>({ name: "Standard Room", price_per_night: "50", guests: "2", size_sqm: "20", bed_type: "1 Queen Bed", photos: [] as string[], tour_360_url: "", is_most_popular: false });
 
   useEffect(() => {
