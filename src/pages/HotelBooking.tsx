@@ -173,7 +173,7 @@ const HotelBooking = () => {
     // as soon as the booking is created.
     const checkInCode = Math.random().toString(36).slice(2, 8).toUpperCase();
     const { error } = await supabase.from("hotel_bookings").insert({
-      hotel_id: id, room_id: roomId, guest_id: user.id,
+      hotel_id: id, room_id: roomId, room_unit_id: unitId, guest_id: user.id,
       guest_name: guestName, guest_phone: guestPhone, guest_email: guestEmail || null,
       check_in: checkIn, check_out: checkOut, guests: guestsN, rooms: 1,
       subtotal, taxes, service_fee: serviceFee, total,
