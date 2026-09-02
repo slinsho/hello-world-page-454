@@ -68,6 +68,13 @@ const HotelBooking = () => {
         const { data: av } = await (supabase.from("room_availability" as any) as any)
           .select("*").eq("room_id", roomId).gte("date", checkIn).lt("date", checkOut);
         setAvailability(av || []);
+        const [{ data: us }, { data: occ }] = await Promise.all([
+          (supabase.from("hotel_room_units" as any) as any)
+            .select("*").eq("room_id", roomId).eq("is_active", true).order("room_number"),
+          (supabase.rpc as any)("get_occupied_room_units", { _room_id: roomId, _in: checkIn, _out: checkOut }),
+        ]);
+        setUnits(us || []);
+        setOccupied(((occ || []) as any[]).map((x: any) => (typeof x === "string" ? x : x.get_occupied_room_units)));
       }
       if (user) {
         const { data: prof } = await supabase.from("profiles").select("name, phone, email").eq("id", user.id).maybeSingle();
