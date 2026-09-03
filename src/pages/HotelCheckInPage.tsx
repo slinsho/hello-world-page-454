@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2, Receipt, Printer, Camera } from "lucide-react";
+import { QrCode, LogIn, LogOut, Search, User as UserIcon, Calendar, CheckCircle2, Receipt, Printer, Camera, Download, AlertTriangle } from "lucide-react";
+import { useHotelScope } from "@/hooks/useHotelScope";
+import { downloadReceiptPdf } from "@/lib/hotelReceipt";
 
 const genCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 const today = () => new Date().toISOString().slice(0, 10);
@@ -26,17 +28,43 @@ const HotelCheckInPage = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
+  const alerted = useRef<Set<string>>(new Set());
 
-  const load = async () => {
-    if (!user) return;
-    const { data: h } = await supabase.from("hotels").select("id").eq("owner_id", user.id);
-    const ids = (h || []).map((x: any) => x.id);
+  const { hotelIds, loading: scopeLoading } = useHotelScope();
+
+  const load = async (ids = hotelIds) => {
     if (!ids.length) { setBookings([]); return; }
     const { data } = await supabase.from("hotel_bookings").select("*").in("hotel_id", ids).eq("status", "confirmed");
     setBookings(data || []);
   };
 
-  useEffect(() => { if (!user) { navigate("/auth"); return; } load(); }, [user, navigate]);
+  useEffect(() => {
+    if (!user) { navigate("/auth"); return; }
+    if (scopeLoading) return;
+    load(hotelIds);
+    const ch = supabase
+      .channel("checkin-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "hotel_bookings" }, () => load(hotelIds))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user, navigate, scopeLoading, hotelIds.join(",")]);
+
+  // Alert the front desk ~2 minutes before a guest's checkout time is due.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      bookings.forEach((b: any) => {
+        if (!b.checked_in_at || b.checked_out_at) return;
+        const due = new Date(`${b.check_out}T12:00:00`);
+        const mins = (due.getTime() - now.getTime()) / 60000;
+        if (mins > 0 && mins <= 2 && !alerted.current.has(b.id)) {
+          alerted.current.add(b.id);
+          toast({ title: "Checkout due soon", description: `${b.guest_name} must check out in ${Math.ceil(mins)} min.` });
+        }
+      });
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [bookings, toast]);
 
   const ensureCode = async (b: any) => {
     if (b.check_in_code) return b;
@@ -209,6 +237,9 @@ const HotelCheckInPage = () => {
                 )}
                 <Button variant="outline" onClick={() => setReceipt(b)} className="rounded-full h-10 px-3" aria-label="View receipt">
                   <Receipt className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" onClick={() => downloadReceiptPdf(b)} className="rounded-full h-10 px-3" aria-label="Download PDF receipt">
+                  <Download className="w-4 h-4" />
                 </Button>
               </div>
             </div>

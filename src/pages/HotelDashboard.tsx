@@ -22,6 +22,16 @@ const HotelDashboard = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [range, setRange] = useState<"week" | "month">("week");
 
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const ch = supabase
+      .channel("hotel-dash-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "hotel_bookings" }, () => setTick((t) => t + 1))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
+
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     (async () => {
@@ -39,7 +49,7 @@ const HotelDashboard = () => {
         setBookings(b || []);
       }
     })();
-  }, [user, navigate]);
+  }, [user, navigate, tick]);
 
   const primaryHotel = hotels[0];
   const totalHotels = hotels.filter((h) => h.status === "active").length || hotels.length;
