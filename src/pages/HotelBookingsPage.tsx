@@ -6,7 +6,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { CalendarCheck, User as UserIcon, Phone, Calendar, Users as UsersIcon, Check, X, Receipt, Printer, LogOut } from "lucide-react";
+import { CalendarCheck, User as UserIcon, Phone, Calendar, Users as UsersIcon, Check, X, Receipt, Printer, LogOut, Download, AlertTriangle, Bell } from "lucide-react";
+import { useHotelScope } from "@/hooks/useHotelScope";
+import { downloadReceiptPdf } from "@/lib/hotelReceipt";
 
 const HotelBookingsPage = () => {
   const { user } = useAuth();
@@ -15,17 +17,25 @@ const HotelBookingsPage = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [receipt, setReceipt] = useState<any>(null);
+  const { hotelIds, loading: scopeLoading } = useHotelScope();
+
+  const load = async (ids: string[]) => {
+    if (!ids.length) { setBookings([]); return; }
+    const { data } = await supabase.from("hotel_bookings").select("*").in("hotel_id", ids).order("created_at", { ascending: false });
+    setBookings(data || []);
+  };
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
-    (async () => {
-      const { data: h } = await supabase.from("hotels").select("id").eq("owner_id", user.id);
-      const ids = (h || []).map((x: any) => x.id);
-      if (!ids.length) { setBookings([]); return; }
-      const { data } = await supabase.from("hotel_bookings").select("*").in("hotel_id", ids).order("created_at", { ascending: false });
-      setBookings(data || []);
-    })();
-  }, [user, navigate]);
+    if (scopeLoading) return;
+    load(hotelIds);
+    // Realtime: check-in / check-out / status changes appear instantly.
+    const ch = supabase
+      .channel("bookings-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "hotel_bookings" }, () => load(hotelIds))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user, navigate, scopeLoading, hotelIds.join(",")]);
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("hotel_bookings").update({ status }).eq("id", id);
@@ -45,6 +55,10 @@ const HotelBookingsPage = () => {
   // booking alone does not add to the balance.
   const totalRevenue = bookings.filter((b) => b.checked_in_at).reduce((s, b) => s + Number(b.total || 0), 0);
   const pendingRevenue = bookings.filter((b) => b.status === "confirmed" && !b.checked_in_at).reduce((s, b) => s + Number(b.total || 0), 0);
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const readyToCheckIn = bookings.filter((b) => b.status === "confirmed" && !b.checked_in_at);
+  const noShows = bookings.filter((b) => b.status === "confirmed" && !b.checked_in_at && b.check_in < todayStr);
 
   const markCheckedOut = async (b: any) => {
     const { data, error } = await supabase.from("hotel_bookings").update({ checked_out_at: new Date().toISOString() } as any).eq("id", b.id).select().single();
@@ -68,6 +82,37 @@ const HotelBookingsPage = () => {
           <p className="text-3xl font-bold mt-1">${totalRevenue.toFixed(2)}</p>
           <p className="text-xs opacity-80 mt-1">${pendingRevenue.toFixed(2)} awaiting check-in · {bookings.length} total bookings</p>
         </div>
+
+        {/* No-show alerts */}
+        {noShows.length > 0 && (
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4">
+            <p className="text-sm font-semibold flex items-center gap-1 text-rose-600"><AlertTriangle className="w-4 h-4" />{noShows.length} no-show{noShows.length > 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground mt-1">These guests never arrived on their check-in date.</p>
+            <div className="mt-2 space-y-2">
+              {noShows.map((b) => (
+                <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{b.guest_name} · {b.check_in}</span>
+                  <button onClick={() => updateStatus(b.id, "no_show")} className="shrink-0 h-8 px-3 rounded-full bg-rose-600 text-white text-xs font-semibold">Mark no-show</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Ready to check-in */}
+        {readyToCheckIn.length > 0 && (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+            <p className="text-sm font-semibold flex items-center gap-1 text-emerald-700"><Bell className="w-4 h-4" />Ready to check-in · {readyToCheckIn.length}</p>
+            <div className="mt-2 space-y-2">
+              {readyToCheckIn.map((b) => (
+                <div key={b.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{b.guest_name} · {b.check_in}</span>
+                  <button onClick={() => navigate("/hotel-dashboard/check-in")} className="shrink-0 h-8 px-3 rounded-full bg-emerald-600 text-white text-xs font-semibold">Check in</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Segmented pills */}
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-hide">
@@ -185,7 +230,10 @@ const HotelBookingsPage = () => {
                   <div className="flex justify-between border-t pt-2 font-bold text-base"><span>Total</span><span>${Number(receipt.total || 0).toLocaleString()}</span></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Payment</span><span className="capitalize">{receipt.payment_method}</span></div>
                 </div>
-                <Button onClick={() => window.print()} className="w-full rounded-full h-11"><Printer className="w-4 h-4 mr-1" />Print receipt</Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => window.print()} variant="outline" className="flex-1 rounded-full h-11"><Printer className="w-4 h-4 mr-1" />Print</Button>
+                  <Button onClick={() => downloadReceiptPdf(receipt)} className="flex-1 rounded-full h-11"><Download className="w-4 h-4 mr-1" />PDF</Button>
+                </div>
               </div>
             )}
           </DialogContent>

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Building2, BedDouble, CalendarCheck, User, Bell, Menu, Settings, ShieldCheck, LogOut, HelpCircle, MessageSquare, BarChart3, CalendarRange, TrendingUp, QrCode, Star } from "lucide-react";
+import { LayoutDashboard, Building2, BedDouble, CalendarCheck, User, Bell, Menu, Settings, ShieldCheck, LogOut, HelpCircle, MessageSquare, BarChart3, CalendarRange, TrendingUp, QrCode, Star, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +81,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                       { to: "/hotel-dashboard/check-in", label: "Check-in / QR", icon: QrCode, color: "bg-cyan-500" },
                       { to: "/hotel-dashboard/reviews", label: "Reviews", icon: Star, color: "bg-yellow-500" },
                       { to: "/hotel-dashboard/analytics", label: "Analytics", icon: BarChart3, color: "bg-teal-500" },
+                      { to: "/hotel-dashboard/staff", label: "Receptionists", icon: Users, color: "bg-rose-500" },
                     ].map((it) => {
                       const Icon = it.icon;
                       return (

@@ -36,8 +36,14 @@ const HotelShellGuard = () => {
   }, [user]);
 
   useEffect(() => {
-    if (role !== "hotel") return;
     const p = location.pathname;
+    if (role === "receptionist") {
+      const ok = ["/hotel-dashboard/bookings", "/hotel-dashboard/check-in", "/auth", "/notifications", "/settings", "/profile"]
+        .some((prefix) => p === prefix || p.startsWith(prefix + "/"));
+      if (!ok) navigate("/hotel-dashboard/bookings", { replace: true });
+      return;
+    }
+    if (role !== "hotel") return;
     const allowed = HOTEL_ALLOWED_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + "/"));
     if (!allowed) navigate("/hotel-dashboard", { replace: true });
   }, [role, location.pathname, navigate]);
