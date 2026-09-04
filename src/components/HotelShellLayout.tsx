@@ -13,12 +13,18 @@ interface Props {
   showHeader?: boolean;
 }
 
-const navItems = [
+const ownerNavItems = [
   { to: "/hotel-dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/hotel-dashboard/hotels", label: "Hotels", icon: Building2 },
   { to: "/hotel-dashboard/rooms", label: "Rooms", icon: BedDouble },
   { to: "/hotel-dashboard/bookings", label: "Bookings", icon: CalendarCheck },
   { to: "/hotel-dashboard/account", label: "Account", icon: User },
+];
+
+// Receptionists only handle bookings + check-in/out.
+const staffNavItems = [
+  { to: "/hotel-dashboard/bookings", label: "Bookings", icon: CalendarCheck },
+  { to: "/hotel-dashboard/check-in", label: "Check-in", icon: QrCode },
 ];
 
 const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Props) => {
