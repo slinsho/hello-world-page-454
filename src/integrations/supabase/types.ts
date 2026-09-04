@@ -413,6 +413,9 @@ export type Database = {
       hotel_bookings: {
         Row: {
           admin_notes: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           check_in: string
           check_in_code: string | null
           check_out: string
@@ -430,6 +433,8 @@ export type Database = {
           no_show_at: string | null
           payment_method: string
           payment_reference: string | null
+          refund_amount: number | null
+          refund_status: string
           room_id: string
           room_unit_id: string | null
           rooms: number
@@ -442,6 +447,9 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           check_in: string
           check_in_code?: string | null
           check_out: string
@@ -459,6 +467,8 @@ export type Database = {
           no_show_at?: string | null
           payment_method: string
           payment_reference?: string | null
+          refund_amount?: number | null
+          refund_status?: string
           room_id: string
           room_unit_id?: string | null
           rooms?: number
@@ -471,6 +481,9 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           check_in?: string
           check_in_code?: string | null
           check_out?: string
@@ -488,6 +501,8 @@ export type Database = {
           no_show_at?: string | null
           payment_method?: string
           payment_reference?: string | null
+          refund_amount?: number | null
+          refund_status?: string
           room_id?: string
           room_unit_id?: string | null
           rooms?: number
@@ -640,6 +655,7 @@ export type Database = {
           created_at: string
           floor: string | null
           hotel_id: string
+          housekeeping_status: string
           id: string
           is_active: boolean
           note: string | null
@@ -651,6 +667,7 @@ export type Database = {
           created_at?: string
           floor?: string | null
           hotel_id: string
+          housekeeping_status?: string
           id?: string
           is_active?: boolean
           note?: string | null
@@ -662,6 +679,7 @@ export type Database = {
           created_at?: string
           floor?: string | null
           hotel_id?: string
+          housekeeping_status?: string
           id?: string
           is_active?: boolean
           note?: string | null
