@@ -84,6 +84,11 @@ const HotelCheckInPage = () => {
   const checkOut = async (b: any) => {
     const { data, error } = await supabase.from("hotel_bookings").update({ checked_out_at: new Date().toISOString() } as any).eq("id", b.id).select().single();
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    // Room becomes dirty for housekeeping once the guest leaves.
+    if (b.room_unit_id) {
+      await (supabase.from("hotel_room_units" as any) as any)
+        .update({ housekeeping_status: "dirty" }).eq("id", b.room_unit_id);
+    }
     setBookings((bs) => bs.map((x) => x.id === b.id ? data : x));
     toast({ title: `Checked out ${data.guest_name}` });
     setReceipt(data);

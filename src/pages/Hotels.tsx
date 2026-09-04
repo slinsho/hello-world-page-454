@@ -29,6 +29,27 @@ const Hotels = () => {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [sortBy, setSortBy] = useState<"rating" | "price_low" | "price_high">("rating");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(1);
+  const [busyHotels, setBusyHotels] = useState<string[]>([]);
+
+  // Which hotels are fully booked for the chosen dates?
+  useEffect(() => {
+    if (!checkIn || !checkOut || checkOut <= checkIn || !hotels.length) { setBusyHotels([]); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("hotel_bookings")
+        .select("hotel_id,rooms,check_in,check_out,status")
+        .in("hotel_id", hotels.map((h: any) => h.id))
+        .in("status", ["pending", "confirmed"])
+        .lt("check_in", checkOut)
+        .gt("check_out", checkIn);
+      const counts: Record<string, number> = {};
+      (data || []).forEach((b: any) => { counts[b.hotel_id] = (counts[b.hotel_id] || 0) + Number(b.rooms || 1); });
+      setBusyHotels(hotels.filter((h: any) => (counts[h.id] || 0) >= Number(h.total_rooms || 0)).map((h: any) => h.id));
+    })();
+  }, [checkIn, checkOut, hotels]);
 
   useEffect(() => {
     (async () => {
@@ -60,7 +81,9 @@ const Hotels = () => {
         h.city?.toLowerCase().includes(query.toLowerCase());
       const matchesCounty = county === "all" || h.county === county;
       const matchesVerified = !verifiedOnly || h.is_verified;
-      return matchesQuery && matchesCounty && matchesVerified;
+      const matchesGuests = guests <= 1 || (rooms[h.id] || []).some((r: any) => Number(r.guests || 0) >= guests);
+      const matchesDates = !busyHotels.includes(h.id);
+      return matchesQuery && matchesCounty && matchesVerified && matchesGuests && matchesDates;
     });
     const minPrice = (h: any) => {
       const rs = rooms[h.id] || [];
@@ -70,9 +93,9 @@ const Hotels = () => {
     if (sortBy === "price_low") list = [...list].sort((a, b) => minPrice(a) - minPrice(b));
     if (sortBy === "price_high") list = [...list].sort((a, b) => minPrice(b) - minPrice(a));
     return list;
-  }, [hotels, rooms, query, county, verifiedOnly, sortBy]);
+  }, [hotels, rooms, query, county, verifiedOnly, sortBy, guests, busyHotels]);
 
-  const activeFilters = (county !== "all" ? 1 : 0) + (verifiedOnly ? 1 : 0) + (sortBy !== "rating" ? 1 : 0);
+  const activeFilters = (county !== "all" ? 1 : 0) + (verifiedOnly ? 1 : 0) + (sortBy !== "rating" ? 1 : 0) + (checkIn && checkOut ? 1 : 0) + (guests > 1 ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -124,6 +147,25 @@ const Hotels = () => {
                   <SheetTitle>Filter hotels</SheetTitle>
                 </SheetHeader>
                 <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Check-in</Label>
+                      <Input type="date" value={checkIn} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setCheckIn(e.target.value)} className="h-11 rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs">Check-out</Label>
+                      <Input type="date" value={checkOut} min={checkIn || new Date().toISOString().slice(0, 10)} onChange={(e) => setCheckOut(e.target.value)} className="h-11 rounded-xl" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Guests</Label>
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => setGuests((g) => Math.max(1, g - 1))} className="w-10 h-10 rounded-full border text-lg">−</button>
+                      <span className="font-semibold w-8 text-center">{guests}</span>
+                      <button type="button" onClick={() => setGuests((g) => Math.min(20, g + 1))} className="w-10 h-10 rounded-full border text-lg">+</button>
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <Label className="text-xs">County</Label>
                     <Select value={county} onValueChange={setCounty}>
@@ -154,7 +196,7 @@ const Hotels = () => {
                     <ShieldCheck className="w-4 h-4 text-green-600" />
                   </label>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { setCounty("all"); setVerifiedOnly(false); setSortBy("rating"); }}>Reset</Button>
+                    <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { setCounty("all"); setVerifiedOnly(false); setSortBy("rating"); setCheckIn(""); setCheckOut(""); setGuests(1); }}>Reset</Button>
                     <Button className="flex-1 rounded-xl" onClick={() => setFilterOpen(false)}>Apply</Button>
                   </div>
                 </div>

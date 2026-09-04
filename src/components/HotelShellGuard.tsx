@@ -38,7 +38,7 @@ const HotelShellGuard = () => {
   useEffect(() => {
     const p = location.pathname;
     if (role === "receptionist") {
-      const ok = ["/hotel-dashboard/bookings", "/hotel-dashboard/check-in", "/auth", "/notifications", "/settings", "/profile"]
+      const ok = ["/hotel-dashboard/bookings", "/hotel-dashboard/check-in", "/auth", "/profile"]
         .some((prefix) => p === prefix || p.startsWith(prefix + "/"));
       if (!ok) navigate("/hotel-dashboard/bookings", { replace: true });
       return;

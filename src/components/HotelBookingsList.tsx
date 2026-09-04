@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Hotel, QrCode, Download } from "lucide-react";
+import { CalendarDays, Hotel, QrCode, Download, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
@@ -19,10 +19,25 @@ const statusStyle = (s: string) => {
 const qrUrl = (data: string, size = 320) =>
   `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
 
+/**
+ * Guest cancellation window / refund rules:
+ *  - more than 48h before check-in  → full refund
+ *  - 24h–48h before check-in        → 50% refund
+ *  - less than 24h                  → no refund
+ */
+export const refundForBooking = (b: any) => {
+  const hours = (new Date(`${b.check_in}T12:00:00`).getTime() - Date.now()) / 3600000;
+  const total = Number(b.total || 0);
+  if (hours >= 48) return { pct: 100, amount: total, label: "Full refund" };
+  if (hours >= 24) return { pct: 50, amount: total * 0.5, label: "50% refund" };
+  return { pct: 0, amount: 0, label: "No refund" };
+};
+
 export const HotelBookingsList = ({ userId }: { userId: string }) => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [ticket, setTicket] = useState<any>(null);
+  const [cancelling, setCancelling] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +65,22 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
     } catch {
       window.open(qrUrl(b.check_in_code || b.id, 600), "_blank");
     }
+  };
+
+  const confirmCancel = async () => {
+    const b = cancelling;
+    if (!b) return;
+    const r = refundForBooking(b);
+    const { data } = await supabase.from("hotel_bookings").update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: "guest",
+      cancellation_reason: "Cancelled by guest",
+      refund_amount: r.amount,
+      refund_status: r.amount > 0 ? "pending" : "not_eligible",
+    } as any).eq("id", b.id).select().single();
+    setBookings((bs) => bs.map((x) => (x.id === b.id ? { ...x, ...(data || {}) } : x)));
+    setCancelling(null);
   };
 
   if (loading) return <p className="text-xs text-muted-foreground py-4 text-center">Loading…</p>;
@@ -93,6 +124,14 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
                     <QrCode className="w-3.5 h-3.5" />Check-in QR
                   </button>
                 )}
+                {["pending", "confirmed"].includes(b.status) && !b.checked_in_at && (
+                  <button
+                    onClick={() => setCancelling(b)}
+                    className="text-[11px] font-semibold text-destructive flex items-center gap-1"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />Cancel
+                  </button>
+                )}
                 {(b.checked_out_at || b.status === "completed") && (
                   <button
                     onClick={() => navigate(`/hotels/${b.hotel_id}?review=1`)}
@@ -106,6 +145,25 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
           </div>
         </div>
       ))}
+
+      <Dialog open={!!cancelling} onOpenChange={(o) => { if (!o) setCancelling(null); }}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>Cancel this booking?</DialogTitle>
+            <DialogDescription>
+              {cancelling && (
+                <>Cancelling now gives you <strong>{refundForBooking(cancelling).label}</strong>
+                {refundForBooking(cancelling).amount > 0 && <> (${refundForBooking(cancelling).amount.toFixed(2)})</>}.
+                Free cancellation up to 48 hours before check-in, 50% up to 24 hours, none after that.</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 rounded-full" onClick={() => setCancelling(null)}>Keep booking</Button>
+            <Button variant="destructive" className="flex-1 rounded-full" onClick={confirmCancel}>Cancel booking</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!ticket} onOpenChange={(o) => { if (!o) setTicket(null); }}>
         <DialogContent className="max-w-xs">

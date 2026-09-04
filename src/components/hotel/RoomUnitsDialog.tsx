@@ -64,6 +64,15 @@ const RoomUnitsDialog = ({ room, onOpenChange, onCountChange }: Props) => {
     sync(units.filter((u) => u.id !== id));
   };
 
+  const HK = ["clean", "dirty", "out_of_service"] as const;
+  const cycleHousekeeping = async (u: any) => {
+    const next = HK[(HK.indexOf(u.housekeeping_status || "clean") + 1) % HK.length];
+    const { data, error } = await (supabase.from("hotel_room_units" as any) as any)
+      .update({ housekeeping_status: next }).eq("id", u.id).select().single();
+    if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
+    sync(units.map((x) => (x.id === u.id ? data : x)));
+  };
+
   const toggleActive = async (u: any) => {
     const { data, error } = await (supabase.from("hotel_room_units" as any) as any)
       .update({ is_active: !u.is_active }).eq("id", u.id).select().single();
@@ -76,7 +85,7 @@ const RoomUnitsDialog = ({ room, onOpenChange, onCountChange }: Props) => {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Room numbers — {room?.name}</DialogTitle>
-          <DialogDescription>Add the physical room numbers guests can pick when booking this room type.</DialogDescription>
+          <DialogDescription>Add room numbers and track housekeeping (tap the status chip to cycle clean → dirty → out of service).</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
@@ -103,8 +112,17 @@ const RoomUnitsDialog = ({ room, onOpenChange, onCountChange }: Props) => {
                 <span className="font-mono font-semibold">{u.room_number}</span>
                 {u.floor && <span className="text-xs text-muted-foreground">Floor {u.floor}</span>}
                 <button
+                  onClick={() => cycleHousekeeping(u)}
+                  className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+                    (u.housekeeping_status || "clean") === "clean" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                    : u.housekeeping_status === "dirty" ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                    : "bg-rose-500/10 text-rose-600 border-rose-500/20"}`}
+                >
+                  {(u.housekeeping_status || "clean") === "out_of_service" ? "Out of service" : (u.housekeeping_status || "clean") === "dirty" ? "Dirty" : "Clean"}
+                </button>
+                <button
                   onClick={() => toggleActive(u)}
-                  className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full border ${u.is_active ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground"}`}
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${u.is_active ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground"}`}
                 >
                   {u.is_active ? "Active" : "Out of service"}
                 </button>

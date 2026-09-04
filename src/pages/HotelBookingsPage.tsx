@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { CalendarCheck, User as UserIcon, Phone, Calendar, Users as UsersIcon, Check, X, Receipt, Printer, LogOut, Download, AlertTriangle, Bell } from "lucide-react";
 import { useHotelScope } from "@/hooks/useHotelScope";
 import { downloadReceiptPdf } from "@/lib/hotelReceipt";
@@ -17,6 +18,9 @@ const HotelBookingsPage = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [receipt, setReceipt] = useState<any>(null);
+  const [cancelTarget, setCancelTarget] = useState<any>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [refundAmt, setRefundAmt] = useState("");
   const { hotelIds, loading: scopeLoading } = useHotelScope();
 
   const load = async (ids: string[]) => {
@@ -42,6 +46,22 @@ const HotelBookingsPage = () => {
     if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
     setBookings(bookings.map((b) => b.id === id ? { ...b, status } : b));
     toast({ title: `Booking ${status}` });
+  };
+
+  const cancelBooking = async () => {
+    if (!cancelTarget) return;
+    const { error } = await supabase.from("hotel_bookings").update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: "hotel",
+      cancellation_reason: cancelReason || "Cancelled by hotel",
+      refund_amount: Number(refundAmt || 0),
+      refund_status: Number(refundAmt || 0) > 0 ? "pending" : "not_eligible",
+    } as any).eq("id", cancelTarget.id);
+    if (error) { toast({ title: "Failed", description: error.message, variant: "destructive" }); return; }
+    setCancelTarget(null); setCancelReason(""); setRefundAmt("");
+    load(hotelIds);
+    toast({ title: "Booking cancelled" });
   };
 
   const filtered = filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
@@ -174,7 +194,7 @@ const HotelBookingsPage = () => {
               {b.status === "pending" && (
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => updateStatus(b.id, "cancelled")}
+                    onClick={() => { setCancelTarget(b); setRefundAmt(String(b.total || 0)); }}
                     className="flex-1 h-10 rounded-full border border-border text-sm font-semibold flex items-center justify-center gap-1"
                   >
                     <X className="w-4 h-4" />Decline
@@ -186,6 +206,21 @@ const HotelBookingsPage = () => {
                     <Check className="w-4 h-4" />Confirm
                   </button>
                 </div>
+              )}
+
+              {b.status === "confirmed" && !b.checked_in_at && (
+                <button
+                  onClick={() => { setCancelTarget(b); setRefundAmt(String(b.total || 0)); }}
+                  className="mt-3 w-full h-10 rounded-full border border-destructive/40 text-destructive text-sm font-semibold flex items-center justify-center gap-1"
+                >
+                  <X className="w-4 h-4" />Cancel booking
+                </button>
+              )}
+
+              {b.status === "cancelled" && b.cancellation_reason && (
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {b.cancellation_reason} · Refund: ${Number(b.refund_amount || 0).toFixed(2)} ({b.refund_status})
+                </p>
               )}
 
               {b.checked_in_at && !b.checked_out_at && (
@@ -208,6 +243,23 @@ const HotelBookingsPage = () => {
             </div>
           ))}
         </div>
+
+        <Dialog open={!!cancelTarget} onOpenChange={(o) => { if (!o) setCancelTarget(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Cancel booking</DialogTitle>
+              <DialogDescription>Give a reason and the refund amount owed to the guest.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <Input placeholder="Reason (e.g. room unavailable)" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} />
+              <Input type="number" placeholder="Refund amount (USD)" value={refundAmt} onChange={(e) => setRefundAmt(e.target.value)} />
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 rounded-full" onClick={() => setCancelTarget(null)}>Back</Button>
+                <Button variant="destructive" className="flex-1 rounded-full" onClick={cancelBooking}>Confirm cancel</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={!!receipt} onOpenChange={(o) => { if (!o) setReceipt(null); }}>
           <DialogContent className="max-w-sm">
