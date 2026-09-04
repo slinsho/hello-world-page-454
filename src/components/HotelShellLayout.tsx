@@ -34,6 +34,8 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
   const [profile, setProfile] = useState<any>(null);
   const [unread, setUnread] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const isStaff = profile?.role === "receptionist";
+  const navItems = isStaff ? staffNavItems : ownerNavItems;
 
   useEffect(() => {
     if (!user) return;
@@ -77,7 +79,10 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                     <SheetDescription className="sr-only">Hotel dashboard navigation menu</SheetDescription>
                   </SheetHeader>
                   <div className="p-2">
-                    {[
+                    {(isStaff ? [
+                      { to: "/hotel-dashboard/bookings", label: "Bookings", icon: CalendarCheck, color: "bg-amber-500" },
+                      { to: "/hotel-dashboard/check-in", label: "Check-in / QR", icon: QrCode, color: "bg-cyan-500" },
+                    ] : [
                       { to: "/hotel-dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-blue-500" },
                       { to: "/hotel-dashboard/hotels", label: "My Hotels", icon: Building2, color: "bg-emerald-500" },
                       { to: "/hotel-dashboard/rooms", label: "Rooms", icon: BedDouble, color: "bg-violet-500" },
@@ -88,7 +93,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                       { to: "/hotel-dashboard/reviews", label: "Reviews", icon: Star, color: "bg-yellow-500" },
                       { to: "/hotel-dashboard/analytics", label: "Analytics", icon: BarChart3, color: "bg-teal-500" },
                       { to: "/hotel-dashboard/staff", label: "Receptionists", icon: Users, color: "bg-rose-500" },
-                    ].map((it) => {
+                    ]).map((it) => {
                       const Icon = it.icon;
                       return (
                         <button
@@ -119,12 +124,13 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{subtitle || "Welcome back,"}</p>
                 <h1 className="text-xl md:text-2xl font-bold truncate">
-                  {title || profile?.full_name || profile?.company_name || "Hotel Owner"} <span aria-hidden>👋</span>
+                  {title || profile?.name || profile?.full_name || (isStaff ? "Receptionist" : "Hotel Owner")} <span aria-hidden>👋</span>
                 </h1>
                 <p className="text-xs text-muted-foreground mt-0.5">Here's what's happening today.</p>
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
+              {!isStaff && (
               <button
                 onClick={() => navigate("/hotel-dashboard/notifications")}
                 className="relative p-2 rounded-full hover:bg-muted"
@@ -137,8 +143,9 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                   </span>
                 )}
               </button>
+              )}
               <button
-                onClick={() => navigate("/hotel-dashboard/account")}
+                onClick={() => navigate(isStaff ? "/profile" : "/hotel-dashboard/account")}
                 className="w-10 h-10 rounded-full bg-muted overflow-hidden ring-2 ring-primary/20"
                 aria-label="Account"
               >
@@ -159,7 +166,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
 
       {/* Hotel bottom navigation — persistent across all hotel pages */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background pb-[env(safe-area-inset-bottom,0)] shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-5 max-w-6xl mx-auto">
+        <div className={`grid ${navItems.length === 2 ? "grid-cols-2" : "grid-cols-5"} max-w-6xl mx-auto`}>
           {navItems.map((n) => {
             const Icon = n.icon;
             const isActive = active(n.to);
