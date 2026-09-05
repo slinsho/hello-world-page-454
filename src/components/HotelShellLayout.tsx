@@ -116,7 +116,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                     })}
                     <div className="border-t my-2" />
                     <button
-                      onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
+                      onClick={async () => { try { localStorage.removeItem("lprop_hotel_role"); } catch { /* ignore */ } await supabase.auth.signOut(); navigate("/auth"); }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-destructive/10 text-destructive text-left"
                     >
                       <div className="w-8 h-8 rounded-[10px] bg-destructive/10 text-destructive flex items-center justify-center">
