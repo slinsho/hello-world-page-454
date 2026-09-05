@@ -8,6 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { usePlatformSettings } from "@/hooks/usePlatformSettings";
 import { format } from "date-fns";
+
+const safeDate = (v?: string | null, fmt = "PPP") => {
+  if (!v) return "—";
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? "—" : format(d, fmt);
+};
 import { ZoomIn, DollarSign, CheckCircle, XCircle, Clock, RefreshCw } from "lucide-react";
 
 interface VerificationRequest {
@@ -196,8 +202,8 @@ export function AdminVerifications() {
                 {request.expires_at && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(request.expires_at) > new Date() 
-                      ? `Expires: ${format(new Date(request.expires_at), 'PPP')}` 
-                      : `Expired: ${format(new Date(request.expires_at), 'PPP')}`}
+                      ? `Expires: ${safeDate(request.expires_at)}` 
+                      : `Expired: ${safeDate(request.expires_at)}`}
                   </p>
                 )}
               </div>
@@ -215,7 +221,7 @@ export function AdminVerifications() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium">Date of Birth</p>
-                  <p className="text-sm text-muted-foreground">{format(new Date(request.date_of_birth), "PPP")}</p>
+                  <p className="text-sm text-muted-foreground">{safeDate(request.date_of_birth)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">ID Type</p>
