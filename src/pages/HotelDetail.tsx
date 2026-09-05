@@ -55,7 +55,14 @@ const HotelDetail = () => {
           supabase.from("hotels").select("id,name,cover_photo,city,county,star_rating,is_verified").eq("county", h.county).eq("status", "active").neq("id", h.id).limit(6),
         ]);
         setRooms(r || []);
-        setReviews(rv || []);
+        // Attach reviewer photo + name for the review slider.
+        const gids = Array.from(new Set((rv || []).map((x: any) => x.guest_id).filter(Boolean)));
+        let pmap = new Map<string, any>();
+        if (gids.length) {
+          const { data: profs } = await supabase.from("profiles_public").select("id,name,profile_photo_url").in("id", gids as string[]);
+          pmap = new Map((profs || []).map((p: any) => [p.id, p]));
+        }
+        setReviews((rv || []).map((x: any) => ({ ...x, profile: pmap.get(x.guest_id) || null })));
         setNearbyHotels(nb || []);
         // Prompt for a review if the guest has a checked-out booking without a review yet.
         if (user) {
