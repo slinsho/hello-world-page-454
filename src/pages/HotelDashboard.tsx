@@ -35,15 +35,18 @@ const HotelDashboard = () => {
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
     (async () => {
-      const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      const [{ data: p }, { data: h }] = await Promise.all([
+        supabase.from("profiles").select("id,full_name,name,company_name,avatar_url,role").eq("id", user.id).maybeSingle(),
+        supabase.from("hotels").select("id,name,address,cover_photo,status,is_verified,created_at").eq("owner_id", user.id).order("created_at", { ascending: false }),
+      ]);
       setProfile(p);
-      const { data: h } = await supabase.from("hotels").select("*").eq("owner_id", user.id).order("created_at", { ascending: false });
       setHotels(h || []);
       const hotelIds = (h || []).map((x: any) => x.id);
       if (hotelIds.length) {
         const [{ data: r }, { data: b }] = await Promise.all([
-          supabase.from("hotel_rooms").select("*").in("hotel_id", hotelIds),
-          supabase.from("hotel_bookings").select("*").in("hotel_id", hotelIds).order("created_at", { ascending: false }),
+          supabase.from("hotel_rooms").select("id,hotel_id,name,price").in("hotel_id", hotelIds),
+          supabase.from("hotel_bookings").select("id,hotel_id,status,total,created_at,checked_in_at,check_in,check_out,guest_name")
+            .in("hotel_id", hotelIds).order("created_at", { ascending: false }).limit(200),
         ]);
         setRooms(r || []);
         setBookings(b || []);
