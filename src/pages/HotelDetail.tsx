@@ -351,26 +351,39 @@ const HotelDetail = () => {
               No reviews yet.
             </p>
           ) : (
-            <div className="space-y-2.5">
-              {reviews.slice(0, 8).map((rv: any) => (
-                <div key={rv.id} className="p-3 rounded-2xl bg-card border">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold truncate">{rv.guest_name}</p>
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-3.5 h-3.5 ${i < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
-                      ))}
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {reviews.slice(0, 12).map((rv: any) => {
+                const name = rv.profile?.name || rv.guest_name || "Guest";
+                return (
+                  <div key={rv.id} className="p-3.5 rounded-2xl bg-card border w-[80%] max-w-[300px] shrink-0 snap-start">
+                    <div className="flex items-center gap-2.5">
+                      {rv.profile?.profile_photo_url ? (
+                        <img src={rv.profile.profile_photo_url} alt={name} loading="lazy" className="w-9 h-9 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center shrink-0">
+                          {name.slice(0, 1).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold truncate">{name}</p>
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`w-3 h-3 ${i < rv.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                          ))}
+                          <span className="text-[10px] text-muted-foreground ml-1">{new Date(rv.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
                     </div>
+                    {rv.comment && <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-4 whitespace-pre-line">{rv.comment}</p>}
+                    {rv.owner_reply && (
+                      <div className="mt-2 pl-3 border-l-2 border-primary/40 text-xs">
+                        <p className="font-semibold text-primary">Owner reply</p>
+                        <p className="text-muted-foreground mt-0.5 line-clamp-3">{rv.owner_reply}</p>
+                      </div>
+                    )}
                   </div>
-                  {rv.comment && <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{rv.comment}</p>}
-                  {rv.owner_reply && (
-                    <div className="mt-2 pl-3 border-l-2 border-primary/40 text-xs">
-                      <p className="font-semibold text-primary">Owner reply</p>
-                      <p className="text-muted-foreground mt-0.5">{rv.owner_reply}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
