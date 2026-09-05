@@ -105,7 +105,7 @@ const Navbar = () => {
           : null; // role not loaded yet — hide until known
   const navItems: NavItem[] = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/explore", label: "Search", icon: Search },
+    
     { path: "/reels", label: "Reels", icon: Play },
     { path: "/blog", label: "News", icon: Newspaper },
     { path: "/about", label: "About", icon: Info, guestOnly: true },
