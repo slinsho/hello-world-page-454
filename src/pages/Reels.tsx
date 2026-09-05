@@ -405,7 +405,7 @@ const Reels = () => {
                     </h2>
                     <div className="flex items-center gap-1.5 text-xs text-white/80 mb-1.5">
                       <MapPin className="h-3 w-3" />
-                      <span className="line-clamp-1">{reel.address}, {reel.county}</span>
+                      <span className="line-clamp-1">{reel.address || reel.county}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-white/85 mb-2">
                       {reel.property_type === "land" ? (
