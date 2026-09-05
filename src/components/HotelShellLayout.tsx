@@ -34,13 +34,19 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
   const [profile, setProfile] = useState<any>(null);
   const [unread, setUnread] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const isStaff = profile?.role === "receptionist";
+  const [cachedRole] = useState<string | null>(() => {
+    try { return localStorage.getItem("lprop_hotel_role"); } catch { return null; }
+  });
+  const isStaff = (profile?.role ?? cachedRole) === "receptionist";
   const navItems = isStaff ? staffNavItems : ownerNavItems;
 
   useEffect(() => {
     if (!user) return;
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
-      .then(({ data }) => setProfile(data));
+      .then(({ data }) => {
+        setProfile(data);
+        try { if (data?.role) localStorage.setItem("lprop_hotel_role", data.role); } catch { /* ignore */ }
+      });
     (supabase.from("notifications" as any) as any).select("title,message,is_read")
       .eq("user_id", user.id).eq("is_read", false)
       .then(({ data }: any) => {
@@ -110,7 +116,7 @@ const HotelShellLayout = ({ children, title, subtitle, showHeader = true }: Prop
                     })}
                     <div className="border-t my-2" />
                     <button
-                      onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
+                      onClick={async () => { try { localStorage.removeItem("lprop_hotel_role"); } catch { /* ignore */ } await supabase.auth.signOut(); navigate("/auth"); }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-destructive/10 text-destructive text-left"
                     >
                       <div className="w-8 h-8 rounded-[10px] bg-destructive/10 text-destructive flex items-center justify-center">

@@ -27,12 +27,17 @@ const HotelShellGuard = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(() => {
+    try { return localStorage.getItem("lprop_hotel_role"); } catch { return null; }
+  });
 
   useEffect(() => {
     if (!user) { setRole(null); return; }
     supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-      .then(({ data }) => setRole(data?.role || null));
+      .then(({ data }) => {
+        setRole(data?.role || null);
+        try { if (data?.role) localStorage.setItem("lprop_hotel_role", data.role); } catch { /* ignore */ }
+      });
   }, [user]);
 
   useEffect(() => {
