@@ -44,7 +44,7 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
     (async () => {
       const { data } = await supabase
         .from("hotel_bookings")
-        .select("*, hotels(name,city,county,cover_photo), hotel_rooms(name)")
+        .select("*, hotels(name,city,county,cover_photo), hotel_rooms(name), hotel_room_units(room_number)")
         .eq("guest_id", userId)
         .order("created_at", { ascending: false });
       setBookings(data || []);
@@ -107,7 +107,12 @@ export const HotelBookingsList = ({ userId }: { userId: string }) => {
               <h3 className="font-bold text-sm leading-tight truncate">{b.hotels?.name || "Hotel"}</h3>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${statusStyle(b.status)}`}>{b.status}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{b.hotel_rooms?.name}</p>
+            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+              {b.hotel_rooms?.name}
+              {b.hotel_room_units?.room_number && (
+                <span className="ml-1 font-bold text-primary">· Room {b.hotel_room_units.room_number}</span>
+              )}
+            </p>
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
               <CalendarDays className="w-3 h-3" />
               {new Date(b.check_in).toLocaleDateString(undefined, { month: "short", day: "numeric" })} →{" "}

@@ -25,7 +25,7 @@ const HotelBookingsPage = () => {
 
   const load = async (ids: string[]) => {
     if (!ids.length) { setBookings([]); return; }
-    const { data } = await supabase.from("hotel_bookings").select("*").in("hotel_id", ids).order("created_at", { ascending: false });
+    const { data } = await supabase.from("hotel_bookings").select("*, hotel_rooms(name), hotel_room_units(room_number)").in("hotel_id", ids).order("created_at", { ascending: false });
     setBookings(data || []);
   };
 
@@ -172,6 +172,12 @@ const HotelBookingsPage = () => {
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusStyles[b.status] || "bg-muted text-muted-foreground"}`}>{b.status}</span>
                   </div>
                   <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3" />{b.guest_phone || "—"}</p>
+                  <p className="text-[11px] mt-1">
+                    <span className="text-muted-foreground">{b.hotel_rooms?.name}</span>
+                    {b.hotel_room_units?.room_number && (
+                      <span className="ml-1 font-bold text-primary">Room {b.hotel_room_units.room_number}</span>
+                    )}
+                  </p>
                 </div>
               </div>
 
